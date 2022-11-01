@@ -9,8 +9,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Podman Version
-        run: podman --version
+
+      - name: Set up emulation
+        uses: docker/setup-buildx-action@v2
+      
       - name: Login to GHCR
         uses: redhat-actions/podman-login@v1
         with:
