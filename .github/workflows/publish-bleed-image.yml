@@ -23,4 +23,4 @@ jobs:
           export REPOSITORY="ghcr.io/leemartin77/mincepierank.co.uk"
           export VERSION="v0.0.${{ github.run_number }}"
 
-          podman build --all-platforms -t "$REPOSITORY:bleed" -t "$REPOSITORY:$VERSION" . --push
+          podman build -t "$REPOSITORY:bleed" -t "$REPOSITORY:$VERSION" . --push --all-platforms
