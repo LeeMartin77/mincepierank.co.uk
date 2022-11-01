@@ -1,0 +1,1 @@
+podman run -it --network mincepierank-cass-network --rm cassandra cqlsh mincepierank-cass

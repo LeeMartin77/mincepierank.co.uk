@@ -4,11 +4,14 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "dev:startlocaldb": ".database/cql_setup_local.sh",
+    "dev:migrations": "node .database/schema.js",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
   },
   "dependencies": {
+    "cassandra-driver": "^4.6.4",
     "next": "13.0.0",
     "react": "18.2.0",
     "react-dom": "18.2.0"
