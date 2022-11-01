@@ -9,8 +9,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Login to Docker Hub
-        uses: docker/login-action@v2
+      - name: Login to GHCR
+        uses: redhat-actions/podman-login@v1
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -21,10 +21,10 @@ jobs:
           export REPOSITORY="ghcr.io/leemartin77/mincepierank.co.uk"
           export VERSION="v0.0.${{ github.run_number }}"
 
-          docker build --arch amd64 -t "$REPOSITORY:amd64" . 
-          docker build --arch arm64 -t "$REPOSITORY:arm64" .
+          podman build --arch amd64 -t "$REPOSITORY:amd64" . 
+          podman build --arch arm64 -t "$REPOSITORY:arm64" .
 
-          docker manifest create "$REPOSITORY:bleed" --amend "$REPOSITORY:amd64" --amend "$REPOSITORY:arm64"
-          docker manifest push "$REPOSITORY:bleed"
-          docker manifest create "$REPOSITORY:$VERSION" --amend "$REPOSITORY:amd64" --amend "$REPOSITORY:arm64"
-          docker manifest push "$REPOSITORY:$VERSION"
+          podman manifest create "$REPOSITORY:bleed" --amend "$REPOSITORY:amd64" --amend "$REPOSITORY:arm64"
+          podman manifest push "$REPOSITORY:bleed"
+          podman manifest create "$REPOSITORY:$VERSION" --amend "$REPOSITORY:amd64" --amend "$REPOSITORY:arm64"
+          podman manifest push "$REPOSITORY:$VERSION"
