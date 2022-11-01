@@ -11,7 +11,7 @@ const schema = [
   (
       makerId text,
       id text,
-      display_name text,
+      displayName text,
       fresh boolean,
       labels set<text>,
       PRIMARY KEY ((makerId, id))
@@ -19,14 +19,22 @@ const schema = [
   `CREATE INDEX IF NOT EXISTS ON mincepierank.maker_pie (fresh);`,
   `CREATE INDEX IF NOT EXISTS ON mincepierank.maker_pie (labels);`,
   `CREATE TABLE IF NOT EXISTS mincepierank.maker_pie_ranking
-(
-    pieId text PRIMARY KEY,
-    userId text,
-    metrics set<int>,
-    notes text
-);`,
+  (
+      pieId text PRIMARY KEY,
+      userId text,
+      pastry int,
+      filling int,
+      topping int,
+      looks int,
+      value int,
+      notes text
+  );`,
   `CREATE INDEX IF NOT EXISTS ON mincepierank.maker_pie_ranking (userId);`,
-  `CREATE INDEX IF NOT EXISTS ON mincepierank.maker_pie_ranking (metrics);`,
+  `CREATE INDEX IF NOT EXISTS ON mincepierank.maker_pie_ranking (pastry);`,
+  `CREATE INDEX IF NOT EXISTS ON mincepierank.maker_pie_ranking (filling);`,
+  `CREATE INDEX IF NOT EXISTS ON mincepierank.maker_pie_ranking (topping);`,
+  `CREATE INDEX IF NOT EXISTS ON mincepierank.maker_pie_ranking (looks);`,
+  `CREATE INDEX IF NOT EXISTS ON mincepierank.maker_pie_ranking (value);`,
 ];
 
 const MIGRATION_CLIENT_CONFIG = {
