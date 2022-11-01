@@ -21,10 +21,4 @@ jobs:
           export REPOSITORY="ghcr.io/leemartin77/mincepierank.co.uk"
           export VERSION="v0.0.${{ github.run_number }}"
 
-          podman build --arch amd64 -t "$REPOSITORY:amd64" . 
-          podman build --arch arm64 -t "$REPOSITORY:arm64" .
-
-          podman manifest create "$REPOSITORY:bleed" --amend "$REPOSITORY:amd64" --amend "$REPOSITORY:arm64"
-          podman manifest push "$REPOSITORY:bleed"
-          podman manifest create "$REPOSITORY:$VERSION" --amend "$REPOSITORY:amd64" --amend "$REPOSITORY:arm64"
-          podman manifest push "$REPOSITORY:$VERSION"
+          podman build --all-platforms -t "$REPOSITORY:bleed" -t "$REPOSITORY:$VERSION" . --push
