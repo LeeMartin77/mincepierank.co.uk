@@ -15,6 +15,16 @@ a {
   box-sizing: border-box;
 }
 
+.main-container-mobile {
+  padding-top: 8px;
+  padding-bottom: 72px;
+}
+
+.main-container-nonmobile {
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+
 @media (prefers-color-scheme: dark) {
   html {
     color-scheme: dark;

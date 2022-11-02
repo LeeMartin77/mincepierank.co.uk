@@ -1,6 +1,6 @@
 import "../styles/globals.css";
 import type { AppProps } from "next/app";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   createTheme,
   CssBaseline,
@@ -11,6 +11,11 @@ import "@fontsource/roboto/300.css";
 import "@fontsource/roboto/400.css";
 import "@fontsource/roboto/500.css";
 import "@fontsource/roboto/700.css";
+import { Container } from "@mui/system";
+import {
+  SideNavigationComponent,
+  BottomNavigationComponent,
+} from "../components/navigation";
 
 export default function App({ Component, pageProps }: AppProps) {
   const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
@@ -23,10 +28,30 @@ export default function App({ Component, pageProps }: AppProps) {
       }),
     [prefersDarkMode]
   );
+
+  const [isDesktop, setDesktop] = useState(false);
+
+  useEffect(() => {
+    const updateMedia = () => {
+      setDesktop(window.innerWidth > theme.breakpoints.values.sm);
+    };
+    updateMedia();
+    window.addEventListener("resize", updateMedia);
+    return () => window.removeEventListener("resize", updateMedia);
+  }, [theme.breakpoints.values.sm]);
+
+  const containerClassName = isDesktop
+    ? "main-container-nonmobile"
+    : "main-container-mobile";
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline enableColorScheme />
-      <Component {...pageProps} />
+      {isDesktop && <SideNavigationComponent />}
+      <Container maxWidth={"sm"} className={containerClassName}>
+        <Component {...pageProps} />
+      </Container>
+      {!isDesktop && <BottomNavigationComponent />}
     </ThemeProvider>
   );
 }
