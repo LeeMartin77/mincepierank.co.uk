@@ -6,8 +6,7 @@ export const getServerSideProps = async () => {
   const data = await getMincePieMakers();
   return {
     props: {
-      // Probably a smarter way of doing this
-      makers: data.isOk() ? data._unsafeUnwrap() : [],
+      makers: data.unwrapOr([]),
     },
   };
 };

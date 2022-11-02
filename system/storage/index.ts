@@ -1,2 +1,2 @@
 export * from "./types";
-export { getMincePieMakers } from "./makers";
+export { getMincePieMakers, getMincePieMaker } from "./makers";

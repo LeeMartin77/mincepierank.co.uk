@@ -1,13 +1,13 @@
 import Head from "next/head";
 import { InferGetServerSidePropsType } from "next";
 import { getMincePieMakers } from "../system/storage";
+import Link from "next/link";
 
 export const getServerSideProps = async () => {
   const data = await getMincePieMakers();
   return {
     props: {
-      // Probably a smarter way of doing this
-      makers: data.isOk() ? data._unsafeUnwrap() : [],
+      makers: data.unwrapOr([]),
     },
   };
 };
@@ -26,7 +26,9 @@ function Home({
         {makers.length > 0 && (
           <ul>
             {makers.map((mkr) => (
-              <li key={mkr.id}>{mkr.name}</li>
+              <li key={mkr.id}>
+                <Link href={`/brands/${mkr.id}`}>{mkr.name}</Link>
+              </li>
             ))}
           </ul>
         )}

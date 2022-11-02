@@ -24,4 +24,5 @@ export type MakerPieRanking = {
 
 export enum StorageError {
   GenericError,
+  NotFound,
 }
