@@ -1,4 +1,4 @@
-FROM --platform=$BUILDPLATFORM node:16.13.1 as builder
+FROM --platform=$BUILDPLATFORM node:18.7.0 as builder
 WORKDIR /app
 
 # Install dependencies based on the preferred package manager
@@ -12,7 +12,7 @@ ENV NEXT_TELEMETRY_DISABLED 1
 RUN npm run build
 
 # Production image, copy all the files and run next
-FROM node:16.13.1-bullseye-slim AS runner
+FROM node:18.7.0-bullseye-slim AS runner
 WORKDIR /app
 
 ENV NODE_ENV production
