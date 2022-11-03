@@ -9,19 +9,20 @@ const schema = [
   )`,
   `CREATE TABLE IF NOT EXISTS mincepierank.maker_pie
   (
-      makerId text,
+      makerid text,
       id text,
-      displayName text,
+      displayname text,
       fresh boolean,
       labels set<text>,
       PRIMARY KEY ((makerId, id))
   );`,
+  `CREATE INDEX IF NOT EXISTS ON mincepierank.maker_pie (makerId);`,
   `CREATE INDEX IF NOT EXISTS ON mincepierank.maker_pie (fresh);`,
   `CREATE INDEX IF NOT EXISTS ON mincepierank.maker_pie (labels);`,
   `CREATE TABLE IF NOT EXISTS mincepierank.maker_pie_ranking
   (
-      pieId text PRIMARY KEY,
-      userId text,
+      pieid text PRIMARY KEY,
+      userid text,
       pastry int,
       filling int,
       topping int,

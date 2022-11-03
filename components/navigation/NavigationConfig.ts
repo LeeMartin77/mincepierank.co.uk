@@ -14,15 +14,9 @@ export const navigationConfig = [
     mobileHidden: false,
   },
   {
-    label: "Brands",
-    route: "/brands",
-    icon: Shop,
-    mobileHidden: true,
-  },
-  {
     label: "About",
     route: "/about",
     icon: Info,
-    mobileHidden: true,
+    mobileHidden: false,
   },
 ];

@@ -1,22 +1,25 @@
 import Head from "next/head";
 import { InferGetServerSidePropsType } from "next";
-import { getMincePieMaker } from "../../system/storage";
+import { getMincePieMaker, getPiesByMaker } from "../../system/storage";
 
 export const getServerSideProps = async ({
   params: { id },
 }: {
   params: { id: string };
 }) => {
-  const data = await getMincePieMaker(id);
+  const maker = (await getMincePieMaker(id)).unwrapOr(undefined);
+  const pies = (await getPiesByMaker(id)).unwrapOr([]);
   return {
     props: {
-      maker: data.unwrapOr(undefined),
+      maker,
+      pies,
     },
   };
 };
 
 function Brands({
   maker,
+  pies,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   return (
     <>
@@ -31,6 +34,11 @@ function Brands({
       <main>
         {maker && <>{maker.name}</>}
         {!maker && <>Maker Not Found</>}
+        <ul>
+          {pies.map((pie) => (
+            <li key={pie.id}>{pie.displayname}</li>
+          ))}
+        </ul>
       </main>
     </>
   );

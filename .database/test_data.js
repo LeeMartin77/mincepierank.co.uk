@@ -24,6 +24,27 @@ const makerPies = [
     fresh: false,
     labels: ["good", "value"],
   },
+  {
+    makerId: "tesco",
+    id: "not-nice",
+    displayName: "Okay Nice Pie",
+    fresh: false,
+    labels: ["okay", "mediocre"],
+  },
+  {
+    makerId: "morrisons",
+    id: "super-nice",
+    displayName: "Super Good Pie",
+    fresh: false,
+    labels: ["amazing"],
+  },
+  {
+    makerId: "morrisons",
+    id: "nice",
+    displayName: "Okay Pie",
+    fresh: false,
+    labels: ["okay"],
+  },
 ];
 
 const client = new cassandra.Client(MIGRATION_CLIENT_CONFIG);

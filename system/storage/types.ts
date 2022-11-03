@@ -4,16 +4,16 @@ export type Maker = {
 };
 
 export type MakerPie = {
-  makerId: string;
+  makerid: string;
   id: string;
-  displayName: string;
+  displayname: string;
   fresh: boolean;
   labels: string[];
 };
 
 export type MakerPieRanking = {
-  pieId: string;
-  userId: string;
+  pieid: string;
+  userid: string;
   pastry: number;
   filling: number;
   topping: number;
