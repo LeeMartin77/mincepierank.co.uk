@@ -21,15 +21,19 @@ const schema = [
   `CREATE INDEX IF NOT EXISTS ON mincepierank.maker_pie (labels);`,
   `CREATE TABLE IF NOT EXISTS mincepierank.maker_pie_ranking
   (
-      pieid text PRIMARY KEY,
+      makerid text,
+      pieid text,
       userid text,
       pastry int,
       filling int,
       topping int,
       looks int,
       value int,
-      notes text
+      notes text,
+      PRIMARY KEY ((makerid, pieid, userid))
   );`,
+  `CREATE INDEX IF NOT EXISTS ON mincepierank.maker_pie_ranking (makerid);`,
+  `CREATE INDEX IF NOT EXISTS ON mincepierank.maker_pie_ranking (pieid);`,
   `CREATE INDEX IF NOT EXISTS ON mincepierank.maker_pie_ranking (userId);`,
   `CREATE INDEX IF NOT EXISTS ON mincepierank.maker_pie_ranking (pastry);`,
   `CREATE INDEX IF NOT EXISTS ON mincepierank.maker_pie_ranking (filling);`,

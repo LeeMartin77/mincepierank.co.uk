@@ -1,4 +1,5 @@
 const cassandra = require("cassandra-driver");
+const { randomUUID } = require("crypto");
 
 // This is for local only - no env
 
@@ -47,6 +48,23 @@ const makerPies = [
   },
 ];
 
+const pieRankings = makerPies.reduce((rankings, pie) => {
+  const newRankings = [1, 2, 3, 4, 5].map((number) => {
+    return {
+      makerid: pie.makerId,
+      pieid: pie.id,
+      userid: randomUUID(),
+      pastry: number,
+      filling: number,
+      topping: number,
+      looks: number,
+      value: number,
+      notes: "Some Notes for " + number + " :: " + randomUUID(),
+    };
+  });
+  return [...rankings, ...newRankings];
+}, []);
+
 const client = new cassandra.Client(MIGRATION_CLIENT_CONFIG);
 
 client.connect().then(async () => {
@@ -66,6 +84,15 @@ client.connect().then(async () => {
       `INSERT INTO mincepierank.maker_pie (makerId, id, displayName, fresh, labels)
             values (?, ?, ?, ?, ?);`,
       Object.values(makerPie),
+      { prepare: true }
+    );
+  }
+
+  for (let pieRanking of pieRankings) {
+    await client.execute(
+      `INSERT INTO mincepierank.maker_pie_ranking (makerid, pieid, userid, pastry, filling, topping, looks, value, notes)
+            values (?, ?, ?, ?, ?, ?, ?, ?, ?);`,
+      Object.values(pieRanking),
       { prepare: true }
     );
   }
