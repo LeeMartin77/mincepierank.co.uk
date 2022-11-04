@@ -1,6 +1,7 @@
 import Head from "next/head";
 import { InferGetServerSidePropsType } from "next";
 import { getAllMakerPies, getMincePieMakers, Maker } from "../system/storage";
+import Link from "next/link";
 
 export const getServerSideProps = async () => {
   const pies = (await getAllMakerPies()).unwrapOr([]);
@@ -35,7 +36,9 @@ function AllMincePies({
             {pies.map((pie) => {
               return (
                 <li key={pie.id}>
-                  {makerMap[pie.makerid]?.name ?? "Unknown"}: {pie.displayname}
+                  <Link href={`/brands/${pie.makerid}/${pie.id}`}>
+                    {pie.displayname}
+                  </Link>
                 </li>
               );
             })}

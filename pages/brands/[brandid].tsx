@@ -1,14 +1,15 @@
 import Head from "next/head";
 import { InferGetServerSidePropsType } from "next";
 import { getMincePieMaker, getPiesByMaker } from "../../system/storage";
+import Link from "next/link";
 
 export const getServerSideProps = async ({
-  params: { id },
+  params: { brandid },
 }: {
-  params: { id: string };
+  params: { brandid: string };
 }) => {
-  const maker = (await getMincePieMaker(id)).unwrapOr(undefined);
-  const pies = (await getPiesByMaker(id)).unwrapOr([]);
+  const maker = (await getMincePieMaker(brandid)).unwrapOr(undefined);
+  const pies = (await getPiesByMaker(brandid)).unwrapOr([]);
   return {
     props: {
       maker,
@@ -24,7 +25,7 @@ function Brands({
   return (
     <>
       <Head>
-        <title>Mince Pie Rank :: {maker ? maker.name : "Not Found"}</title>
+        <title>{`Mince Pie Rank :: ${maker ? maker.name : "Not Found"}`}</title>
         <meta
           name="description"
           content="The overarching brands of pie maker we have in our database"
@@ -36,7 +37,11 @@ function Brands({
         {!maker && <>Maker Not Found</>}
         <ul>
           {pies.map((pie) => (
-            <li key={pie.id}>{pie.displayname}</li>
+            <li key={pie.id}>
+              <Link href={`/brands/${pie.makerid}/${pie.id}`}>
+                {pie.displayname}
+              </Link>
+            </li>
           ))}
         </ul>
       </main>
