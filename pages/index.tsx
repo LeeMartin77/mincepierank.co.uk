@@ -1,7 +1,15 @@
 import Head from "next/head";
 import { InferGetServerSidePropsType } from "next";
-import { getMincePieMakers } from "../system/storage";
+import { getMincePieMakers, Maker } from "../system/storage";
 import Link from "next/link";
+import {
+  Button,
+  Card,
+  CardActions,
+  CardContent,
+  CardMedia,
+  Grid,
+} from "@mui/material";
 
 export const getServerSideProps = async () => {
   const data = await getMincePieMakers();
@@ -11,6 +19,32 @@ export const getServerSideProps = async () => {
     },
   };
 };
+
+function BrandCard(maker: Maker) {
+  return (
+    <Grid key={maker.id} item xs={6} sm={4} md={3}>
+      <Card>
+        <Link href={`/brands/${maker.id}`}>
+          <CardMedia
+            component="img"
+            height="150"
+            image="http://placekitten.com/g/200/150"
+            alt={`${maker.name} Logo`}
+          />
+        </Link>
+        <CardActions>
+          <Button
+            LinkComponent={Link}
+            href={`/brands/${maker.id}`}
+            style={{ width: "100%", textAlign: "center" }}
+          >
+            {maker.name}
+          </Button>
+        </CardActions>
+      </Card>
+    </Grid>
+  );
+}
 
 function Home({
   makers,
@@ -23,15 +57,9 @@ function Home({
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main>
-        {makers.length > 0 && (
-          <ul>
-            {makers.map((mkr) => (
-              <li key={mkr.id}>
-                <Link href={`/brands/${mkr.id}`}>{mkr.name}</Link>
-              </li>
-            ))}
-          </ul>
-        )}
+        <Grid container spacing={2}>
+          {makers.map(BrandCard)}
+        </Grid>
       </main>
     </>
   );

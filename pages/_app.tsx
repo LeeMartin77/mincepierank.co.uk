@@ -2,6 +2,7 @@ import "../styles/globals.css";
 import type { AppProps } from "next/app";
 import { useEffect, useMemo, useState } from "react";
 import {
+  Box,
   createTheme,
   CssBaseline,
   ThemeProvider,
@@ -47,11 +48,15 @@ export default function App({ Component, pageProps }: AppProps) {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline enableColorScheme />
-      {isDesktop && <SideNavigationComponent />}
-      <Container maxWidth={"sm"} className={containerClassName}>
-        <Component {...pageProps} />
-      </Container>
-      {!isDesktop && <BottomNavigationComponent />}
+      <Box sx={{ display: "flex" }}>
+        {isDesktop && <SideNavigationComponent />}
+        <Box component="main" style={{ width: "100%" }}>
+          <Container className={containerClassName}>
+            <Component {...pageProps} />
+          </Container>
+        </Box>
+        {!isDesktop && <BottomNavigationComponent />}
+      </Box>
     </ThemeProvider>
   );
 }
