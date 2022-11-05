@@ -3,16 +3,37 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import {
   addPieRanking,
   getPieByMakerAndId,
+  getMyRankingForPie,
   StorageError,
 } from "../../../../../system/storage";
 
 export default function handler(
   req: NextApiRequest,
-  res: NextApiResponse<{ status: "ok" | "ko" } | string>,
+  res: NextApiResponse,
   fnGetPie = getPieByMakerAndId,
-  fnAddPieRanking = addPieRanking
+  fnAddPieRanking = addPieRanking,
+  fnGetMyRankingForPie = getMyRankingForPie
 ) {
-  //const { brandid, pieid } = req.query;
+  if (req.method === "GET") {
+    const { brandid, pieid } = req.query;
+    return fnGetMyRankingForPie(
+      brandid as string,
+      pieid as string,
+      req.headers["userid"] as string
+    ).then((response) => {
+      response
+        .map((ranking) => {
+          res.status(200).send(ranking);
+        })
+        .mapErr((se) => {
+          if (se === StorageError.NotFound) {
+            res.status(404).send("Not Found");
+          } else {
+            res.status(500).send("Server Error");
+          }
+        });
+    });
+  }
   const parsedBody = JSON.parse(req.body);
   if (req.method === "POST" && parsedBody.makerid && parsedBody.pieid) {
     return fnGetPie(parsedBody.makerid, parsedBody.pieid).then((pieRes) => {
@@ -41,6 +62,6 @@ export default function handler(
         });
     });
   } else {
-    return res.status(400).send("POST Requests only");
+    return res.status(400).send("GET or POST Requests only");
   }
 }

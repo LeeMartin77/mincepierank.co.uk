@@ -2,6 +2,7 @@ import {
   getAllRankingsForPie,
   getPieRankingSummary,
   addPieRanking,
+  getMyRankingForPie,
 } from "./makerPieRankings";
 import { MakerPieRanking, StorageError } from "./types";
 import { randomBytes } from "node:crypto";
@@ -21,6 +22,41 @@ describe("Maker Storage Tests", () => {
 
       expect(result.isErr()).toBeTruthy();
       expect(result._unsafeUnwrapErr()).toBe(StorageError.GenericError);
+    });
+  });
+
+  describe("getMyRankingForPie", () => {
+    test("Cassandra throws error :: returns general error", async () => {
+      const fakeClient = {
+        execute: jest.fn().mockRejectedValue({}),
+      };
+
+      const result = await getMyRankingForPie(
+        "NOT TESTED",
+        "NOT TESTED",
+        "NOT TESTED",
+        fakeClient as any
+      );
+
+      expect(result.isErr()).toBeTruthy();
+      expect(result._unsafeUnwrapErr()).toBe(StorageError.GenericError);
+    });
+    test("Found nothing in DB :: returns not found error", async () => {
+      const fakeClient = {
+        execute: jest.fn().mockResolvedValue({
+          rows: [],
+        }),
+      };
+
+      const result = await getMyRankingForPie(
+        "NOT TESTED",
+        "NOT TESTED",
+        "NOT TESTED",
+        fakeClient as any
+      );
+
+      expect(result.isErr()).toBeTruthy();
+      expect(result._unsafeUnwrapErr()).toBe(StorageError.NotFound);
     });
   });
 

@@ -166,38 +166,78 @@ function SubmitPieRanking({
     looks: 0,
     value: 0,
   });
+  const [alreadyRanked, setAlreadyRanked] = useState<boolean>(false);
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [error, setError] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(true);
+
+  useEffect(() => {
+    fetch(`/api/brands/${makerid}/${pieid}/ranking`, {
+      method: "GET",
+      headers: {
+        userid: userid,
+      },
+    })
+      .then((response) => {
+        if (response.status === 404) {
+          setLoading(false);
+        } else if (response.status === 200) {
+          setAlreadyRanked(true);
+          return response.json().then(setMyRanking);
+        } else {
+          setError(true);
+        }
+      })
+      .catch(() => setError(true))
+      .finally(() => setLoading(false));
+  }, [
+    userid,
+    makerid,
+    pieid,
+    setAlreadyRanked,
+    setLoading,
+    setMyRanking,
+    setError,
+  ]);
 
   return (
     <Card>
       <CardHeader title="My Ranking" />
       <CardContent>
         {error && <Alert severity="error">Something has gone wrong...</Alert>}
-        <PieRanking pieRanking={myRanking} setPieRanking={setMyRanking} />
+        {loading && <Alert severity="info">Loading...</Alert>}
+        {!loading && (
+          <PieRanking
+            pieRanking={myRanking}
+            setPieRanking={!alreadyRanked ? setMyRanking : undefined}
+          />
+        )}
       </CardContent>
-      <CardActions>
-        <Button
-          style={{ width: "100%", textAlign: "center" }}
-          disabled={!validRanking(myRanking) || submitting}
-          onClick={() => {
-            setError(false);
-            setSubmitting(true);
-            submitRanking(makerid, pieid, userid, myRanking)
-              .catch(() => setError(true))
-              .then((res) => {
-                if (res && res.status === 200) {
-                  setError(false);
-                } else {
-                  setError(true);
-                }
-              })
-              .finally(() => setSubmitting(false));
-          }}
-        >
-          Submit
-        </Button>
-      </CardActions>
+      {!alreadyRanked && (
+        <CardActions>
+          <Button
+            style={{ width: "100%", textAlign: "center" }}
+            disabled={!validRanking(myRanking) || submitting}
+            onClick={() => {
+              setError(false);
+              setSubmitting(true);
+              submitRanking(makerid, pieid, userid, myRanking)
+                .catch(() => setError(true))
+                .then((res) => {
+                  if (res && res.status === 200) {
+                    setError(false);
+                    setAlreadyRanked(true);
+                  } else {
+                    setError(true);
+                  }
+                })
+                .finally(() => setSubmitting(false));
+            }}
+          >
+            Submit
+          </Button>
+        </CardActions>
+      )}
     </Card>
   );
 }
