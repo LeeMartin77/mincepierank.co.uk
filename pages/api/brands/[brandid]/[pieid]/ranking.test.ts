@@ -10,7 +10,13 @@ describe("Pie Ranking Endpoint", () => {
       status: jest.fn().mockReturnThis(),
       send: jest.fn(),
     };
-    handler({ method } as any, mockResponse as any);
+    handler(
+      {
+        method,
+        body: JSON.stringify({ makerid: "something", pieid: "somethingelse" }),
+      } as any,
+      mockResponse as any
+    );
     expect(mockResponse.status).toBeCalledWith(400);
     expect(mockResponse.send).toBeCalled();
     expect(mockResponse.status).toHaveBeenCalledBefore(mockResponse.send);
@@ -25,7 +31,7 @@ describe("Pie Ranking Endpoint", () => {
     const insertStorageFunction = jest.fn();
     const fakeBody = { something: "else" };
     await handler(
-      { method: "POST", body: fakeBody } as any,
+      { method: "POST", body: JSON.stringify(fakeBody) } as any,
       mockResponse as any,
       getPieFunction,
       insertStorageFunction
@@ -50,7 +56,7 @@ describe("Pie Ranking Endpoint", () => {
     const insertStorageFunction = jest.fn();
     const fakeBody = { makerid, pieid, something: "else" };
     await handler(
-      { method: "POST", body: fakeBody } as any,
+      { method: "POST", body: JSON.stringify(fakeBody) } as any,
       mockResponse as any,
       getPieFunction,
       insertStorageFunction
@@ -75,7 +81,7 @@ describe("Pie Ranking Endpoint", () => {
     const insertStorageFunction = jest.fn();
     const fakeBody = { makerid, pieid, something: "else" };
     await handler(
-      { method: "POST", body: fakeBody } as any,
+      { method: "POST", body: JSON.stringify(fakeBody) } as any,
       mockResponse as any,
       getPieFunction,
       insertStorageFunction
@@ -102,7 +108,7 @@ describe("Pie Ranking Endpoint", () => {
       something: "else",
     };
     await handler(
-      { method: "POST", body: fakeBody } as any,
+      { method: "POST", body: JSON.stringify(fakeBody) } as any,
       mockResponse as any,
       getPieFunction,
       insertStorageFunction
@@ -128,7 +134,7 @@ describe("Pie Ranking Endpoint", () => {
       something: "else",
     };
     await handler(
-      { method: "POST", body: fakeBody } as any,
+      { method: "POST", body: JSON.stringify(fakeBody) } as any,
       mockResponse as any,
       getPieFunction,
       insertStorageFunction
@@ -152,7 +158,7 @@ describe("Pie Ranking Endpoint", () => {
       something: "else",
     };
     await handler(
-      { method: "POST", body: fakeBody } as any,
+      { method: "POST", body: JSON.stringify(fakeBody) } as any,
       mockResponse as any,
       getPieFunction,
       insertStorageFunction

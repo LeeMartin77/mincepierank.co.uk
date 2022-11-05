@@ -110,7 +110,7 @@ export async function addPieRanking(
           filling, 
           topping, 
           looks, 
-          value, 
+          value,
           notes
         )
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);`,
@@ -124,7 +124,8 @@ export async function addPieRanking(
         ranking.looks,
         ranking.value,
         ranking.notes,
-      ]
+      ],
+      { prepare: true }
     );
     return ok(true);
   } catch {

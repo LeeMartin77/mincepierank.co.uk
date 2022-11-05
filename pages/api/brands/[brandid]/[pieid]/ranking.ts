@@ -12,8 +12,10 @@ export default function handler(
   fnGetPie = getPieByMakerAndId,
   fnAddPieRanking = addPieRanking
 ) {
-  if (req.method === "POST" && req.body.makerid && req.body.pieid) {
-    return fnGetPie(req.body.makerid, req.body.pieid).then((pieRes) => {
+  //const { brandid, pieid } = req.query;
+  const parsedBody = JSON.parse(req.body);
+  if (req.method === "POST" && parsedBody.makerid && parsedBody.pieid) {
+    return fnGetPie(parsedBody.makerid, parsedBody.pieid).then((pieRes) => {
       pieRes
         .mapErr((se) => {
           if (se === StorageError.NotFound) {
@@ -23,7 +25,7 @@ export default function handler(
           }
         })
         .map(() => {
-          fnAddPieRanking(req.body).then((sres) => {
+          fnAddPieRanking(parsedBody).then((sres) => {
             sres
               .map(() => {
                 res.status(200).send({ status: "ok" });

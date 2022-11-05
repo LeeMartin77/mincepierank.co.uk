@@ -4,15 +4,20 @@ import {
   getMincePieMaker,
   getPieByMakerAndId,
   getPieRankingSummary,
+  MakerPieRanking,
 } from "../../../system/storage";
 import {
+  Alert,
+  Button,
   Card,
+  CardActions,
   CardContent,
   CardHeader,
   Divider,
   Rating,
   Typography,
 } from "@mui/material";
+import { useEffect, useState } from "react";
 
 export const getServerSideProps = async ({
   params: { brandid, pieid },
@@ -33,14 +38,167 @@ export const getServerSideProps = async ({
   };
 };
 
-function RankingSummary({ label, value }: { label: string; value: number }) {
+function RankingSummary({
+  label,
+  value,
+  setValue,
+}: {
+  label: string;
+  value: number;
+  setValue?: (n: number) => void;
+}) {
   return (
     <>
       <Typography component="legend">
         {`${label} (${value.toFixed(2)})`}
       </Typography>
-      <Rating name="read-only" value={value} readOnly />
+      <Rating
+        name="read-only"
+        value={value}
+        readOnly={!setValue}
+        onChange={(event, newValue) => {
+          setValue && newValue && setValue(newValue);
+        }}
+      />
     </>
+  );
+}
+
+type PieRankingDetails = Pick<
+  MakerPieRanking,
+  "filling" | "pastry" | "topping" | "looks" | "value"
+>;
+
+function PieRanking({
+  pieRanking,
+  setPieRanking,
+}: {
+  pieRanking: PieRankingDetails;
+  setPieRanking?: (pr: PieRankingDetails) => void;
+}) {
+  return (
+    <>
+      <RankingSummary
+        label="Filling"
+        value={pieRanking.filling}
+        setValue={
+          setPieRanking &&
+          ((newVal: number) =>
+            setPieRanking({ ...pieRanking, filling: newVal }))
+        }
+      />
+      <RankingSummary
+        label="Pastry"
+        value={pieRanking.pastry}
+        setValue={
+          setPieRanking &&
+          ((newVal: number) => setPieRanking({ ...pieRanking, pastry: newVal }))
+        }
+      />
+      <RankingSummary
+        label="Topping"
+        value={pieRanking.topping}
+        setValue={
+          setPieRanking &&
+          ((newVal: number) =>
+            setPieRanking({ ...pieRanking, topping: newVal }))
+        }
+      />
+      <RankingSummary
+        label="Looks"
+        value={pieRanking.looks}
+        setValue={
+          setPieRanking &&
+          ((newVal: number) => setPieRanking({ ...pieRanking, looks: newVal }))
+        }
+      />
+      <RankingSummary
+        label="Value"
+        value={pieRanking.value}
+        setValue={
+          setPieRanking &&
+          ((newVal: number) => setPieRanking({ ...pieRanking, value: newVal }))
+        }
+      />
+    </>
+  );
+}
+
+const validRanking = (rnk: PieRankingDetails): boolean => {
+  return (
+    rnk.filling > 0 &&
+    rnk.pastry > 0 &&
+    rnk.looks > 0 &&
+    rnk.topping > 0 &&
+    rnk.value > 0
+  );
+};
+
+const submitRanking = (
+  makerid: string,
+  pieid: string,
+  userid: string,
+  rankingDetails: PieRankingDetails
+) => {
+  return fetch(`/api/brands/${makerid}/${pieid}/ranking`, {
+    method: "POST",
+    body: JSON.stringify({
+      ...rankingDetails,
+      makerid,
+      pieid,
+      userid,
+    }),
+  });
+};
+
+function SubmitPieRanking({
+  makerid,
+  pieid,
+}: {
+  makerid: string;
+  pieid: string;
+}) {
+  const userid = "test-user-id";
+  const [myRanking, setMyRanking] = useState<PieRankingDetails>({
+    filling: 0,
+    pastry: 0,
+    topping: 0,
+    looks: 0,
+    value: 0,
+  });
+  const [submitting, setSubmitting] = useState<boolean>(false);
+  const [error, setError] = useState<boolean>(false);
+
+  return (
+    <Card>
+      <CardHeader title="My Ranking" />
+      <CardContent>
+        {error && <Alert severity="error">Something has gone wrong...</Alert>}
+        <PieRanking pieRanking={myRanking} setPieRanking={setMyRanking} />
+      </CardContent>
+      <CardActions>
+        <Button
+          style={{ width: "100%", textAlign: "center" }}
+          disabled={!validRanking(myRanking) || submitting}
+          onClick={() => {
+            setError(false);
+            setSubmitting(true);
+            submitRanking(makerid, pieid, userid, myRanking)
+              .catch(() => setError(true))
+              .then((res) => {
+                if (res && res.status === 200) {
+                  setError(false);
+                } else {
+                  setError(true);
+                }
+              })
+              .finally(() => setSubmitting(false));
+          }}
+        >
+          Submit
+        </Button>
+      </CardActions>
+    </Card>
   );
 }
 
@@ -75,14 +233,12 @@ function Brands({
               subheader={`${rankingSummary.count} Rankings`}
             />
             <CardContent>
-              <RankingSummary label="Filling" value={rankingSummary.filling} />
-              <RankingSummary label="Pastry" value={rankingSummary.pastry} />
-              <RankingSummary label="Topping" value={rankingSummary.topping} />
-              <RankingSummary label="Looks" value={rankingSummary.looks} />
-              <RankingSummary label="Value" value={rankingSummary.value} />
+              <PieRanking pieRanking={rankingSummary} />
             </CardContent>
           </Card>
         )}
+        <Divider />
+        {pie && <SubmitPieRanking makerid={pie.makerid} pieid={pie.id} />}
       </main>
     </>
   );
