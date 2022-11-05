@@ -2,6 +2,8 @@ import Head from "next/head";
 import { InferGetServerSidePropsType } from "next";
 import { getAllMakerPies, getMincePieMakers, Maker } from "../system/storage";
 import Link from "next/link";
+import { Divider, Grid } from "@mui/material";
+import { PieSummaryLink } from "../components/pieSummaryLink";
 
 export const getServerSideProps = async () => {
   const pies = (await getAllMakerPies()).unwrapOr([]);
@@ -31,19 +33,17 @@ function AllMincePies({
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main>
-        {pies.length > 0 && (
-          <ul>
-            {pies.map((pie) => {
-              return (
-                <li key={pie.id}>
-                  <Link href={`/brands/${pie.makerid}/${pie.id}`}>
-                    {pie.displayname}
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
-        )}
+        <h1>All Pies</h1>
+        <Divider />
+        <Grid container spacing={2}>
+          {pies.map((pie) => {
+            return (
+              <Grid key={pie.id + pie.makerid} item xs={6} sm={4} md={3}>
+                <PieSummaryLink pie={pie} />
+              </Grid>
+            );
+          })}
+        </Grid>
       </main>
     </>
   );
