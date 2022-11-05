@@ -20,10 +20,11 @@ export type MakerPieRanking = {
   topping: number;
   looks: number;
   value: number;
-  notes: string;
+  notes?: string;
 };
 
 export enum StorageError {
   GenericError,
   NotFound,
+  BadInput,
 }

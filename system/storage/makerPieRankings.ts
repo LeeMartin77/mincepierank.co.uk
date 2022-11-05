@@ -73,3 +73,61 @@ export async function getPieRankingSummary(
     return err(StorageError.GenericError);
   }
 }
+
+export async function addPieRanking(
+  ranking: MakerPieRanking,
+  client = CASSANDRA_CLIENT
+): Promise<Result<boolean, StorageError>> {
+  const mapRanking = ranking as { [key: string]: string | number | undefined };
+  const rankingValues = ["pastry", "filling", "topping", "looks", "value"];
+
+  rankingValues.forEach(
+    (key) =>
+      (mapRanking[key] = parseInt(
+        mapRanking[key] !== undefined ? mapRanking[key]!.toString() : "NaN"
+      ))
+  );
+  if (
+    !rankingValues.every(
+      (key) =>
+        (mapRanking[key] as number) < 6 && (mapRanking[key] as number) > 0
+    ) ||
+    (ranking.notes && ranking.notes.length > 140) ||
+    !ranking.makerid ||
+    !ranking.pieid ||
+    !ranking.userid
+  ) {
+    return err(StorageError.BadInput);
+  }
+  try {
+    await client.execute(
+      `INSERT INTO 
+        mincepierank.maker_pie_ranking (
+          makerid, 
+          pieid, 
+          userid, 
+          pastry, 
+          filling, 
+          topping, 
+          looks, 
+          value, 
+          notes
+        )
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);`,
+      [
+        ranking.makerid,
+        ranking.pieid,
+        ranking.userid,
+        ranking.pastry,
+        ranking.filling,
+        ranking.topping,
+        ranking.looks,
+        ranking.value,
+        ranking.notes,
+      ]
+    );
+    return ok(true);
+  } catch {
+    return err(StorageError.GenericError);
+  }
+}
