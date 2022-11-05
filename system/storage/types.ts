@@ -12,6 +12,7 @@ export type MakerPie = {
 };
 
 export type MakerPieRanking = {
+  makerid: string;
   pieid: string;
   userid: string;
   pastry: number;

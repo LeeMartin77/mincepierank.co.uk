@@ -2,14 +2,7 @@ import Head from "next/head";
 import { InferGetServerSidePropsType } from "next";
 import { getMincePieMakers, Maker } from "../system/storage";
 import Link from "next/link";
-import {
-  Button,
-  Card,
-  CardActions,
-  CardContent,
-  CardMedia,
-  Grid,
-} from "@mui/material";
+import { Button, Card, CardActions, CardMedia, Grid } from "@mui/material";
 
 export const getServerSideProps = async () => {
   const data = await getMincePieMakers();
