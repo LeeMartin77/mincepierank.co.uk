@@ -8,7 +8,7 @@ export function PieSummaryLink({ pie }: { pie: MakerPie }) {
         <CardMedia
           component="img"
           height="200"
-          image="http://placekitten.com/g/200/400"
+          image={pie.image_file}
           alt={`${pie.displayname}`}
         />
       </Link>

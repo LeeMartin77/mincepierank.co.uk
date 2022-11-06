@@ -21,7 +21,7 @@ function BrandCard(maker: Maker) {
           <CardMedia
             component="img"
             height="150"
-            image="http://placekitten.com/g/200/150"
+            image={maker.logo}
             alt={`${maker.name} Logo`}
           />
         </Link>

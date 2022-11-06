@@ -13,12 +13,14 @@ import {
   CardActions,
   CardContent,
   CardHeader,
+  CardMedia,
   Divider,
   Rating,
   Typography,
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import { signIn, signOut, useSession } from "next-auth/react";
+import Image from "next/image";
 import Link from "next/link";
 
 export const getServerSideProps = async ({
@@ -283,10 +285,24 @@ function Brands({
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main>
-        <h1>
-          {maker && maker.name} :: {pie && pie.displayname}
-        </h1>
-        <Divider />
+        <h1>{pie && pie.displayname}</h1>
+        <h3>{maker && maker.name}</h3>
+        {pie && (
+          <Card>
+            <CardMedia
+              component="img"
+              height="200"
+              image={pie.image_file}
+              alt={`${pie.displayname}`}
+            />
+            <CardActions>
+              <Button LinkComponent={Link} href={pie.web_link}>
+                Website
+              </Button>
+            </CardActions>
+          </Card>
+        )}
+        <Divider style={{ marginTop: "1em", marginBottom: "1em" }} />
         {rankingSummary && (
           <Card>
             <CardHeader
@@ -298,7 +314,7 @@ function Brands({
             </CardContent>
           </Card>
         )}
-        <Divider />
+        <Divider style={{ marginTop: "1em", marginBottom: "1em" }} />
         {pie && <SubmitPieRanking makerid={pie.makerid} pieid={pie.id} />}
       </main>
     </>

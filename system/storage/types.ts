@@ -1,6 +1,8 @@
 export type Maker = {
   id: string;
   name: string;
+  logo: string;
+  website: string;
 };
 
 export type MakerPie = {
@@ -9,6 +11,9 @@ export type MakerPie = {
   displayname: string;
   fresh: boolean;
   labels: string[];
+  image_file: string;
+  web_link: string;
+  pack_count: number;
 };
 
 export type MakerPieRanking = {
