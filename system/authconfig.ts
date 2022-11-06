@@ -19,8 +19,9 @@ if (process.env.NODE_ENV === "development") {
           credentials?.password === "doe"
         ) {
           return {
-            id: "test-user-id",
-            email: "john.doe@example.com",
+            id: "TEST_AUTH_test-user-id",
+            email: "TEST_AUTH_john.doe@example.com",
+            name: "TEST_AUTH_LeeMartin",
           };
         }
         return null;
@@ -36,6 +37,9 @@ if (process.env.FACEBOOK_CLIENT_ID && process.env.FACEBOOK_CLIENT_SECRET) {
       clientSecret: process.env.FACEBOOK_CLIENT_SECRET,
       async profile(profile) {
         return {
+          ...profile,
+          name: "FACEBOOK_AUTH_" + profile.name,
+          email: "FACEBOOK_AUTH_" + profile.email,
           id: "FACEBOOK_AUTH_" + profile.id,
         };
       },
@@ -50,6 +54,9 @@ if (process.env.GITHUB_ID && process.env.GITHUB_SECRET) {
       clientSecret: process.env.GITHUB_SECRET,
       async profile(profile) {
         return {
+          ...profile,
+          name: "GITHUB_AUTH_" + profile.name,
+          email: "GITHUB_AUTH_" + profile.email,
           id: "GITHUB_AUTH_" + profile.id,
         };
       },
