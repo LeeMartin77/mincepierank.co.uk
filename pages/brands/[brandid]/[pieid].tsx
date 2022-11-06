@@ -173,7 +173,7 @@ function SubmitPieRanking({
   const [loading, setLoading] = useState<boolean>(true);
 
   const { data: session, status } = useSession();
-  const userid = session?.user?.email;
+  const userid = session?.user?.email ?? session?.user?.name;
 
   useEffect(() => {
     if (userid) {
