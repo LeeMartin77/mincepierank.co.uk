@@ -24,7 +24,7 @@ export default function handler(
       res.status(401).send("Requires Authentication");
       return;
     }
-    const userid = token.email ?? (token.name as string);
+    const userid = token.id as string;
     if (req.method === "GET") {
       const { brandid, pieid } = req.query;
       return fnGetMyRankingForPie(

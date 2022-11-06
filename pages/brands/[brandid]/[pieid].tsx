@@ -139,7 +139,6 @@ const validRanking = (rnk: PieRankingDetails): boolean => {
 const submitRanking = (
   makerid: string,
   pieid: string,
-  userid: string,
   rankingDetails: PieRankingDetails
 ) => {
   return fetch(`/api/brands/${makerid}/${pieid}/ranking`, {
@@ -148,7 +147,6 @@ const submitRanking = (
       ...rankingDetails,
       makerid,
       pieid,
-      userid,
     }),
   });
 };
@@ -173,35 +171,24 @@ function SubmitPieRanking({
   const [loading, setLoading] = useState<boolean>(true);
 
   const { data: session, status } = useSession();
-  const userid = session?.user?.email ?? session?.user?.name;
 
   useEffect(() => {
-    if (userid) {
-      fetch(`/api/brands/${makerid}/${pieid}/ranking`, {
-        method: "GET",
+    fetch(`/api/brands/${makerid}/${pieid}/ranking`, {
+      method: "GET",
+    })
+      .then((response) => {
+        if (response.status === 404) {
+          setLoading(false);
+        } else if (response.status === 200) {
+          setAlreadyRanked(true);
+          return response.json().then(setMyRanking);
+        } else {
+          setError(true);
+        }
       })
-        .then((response) => {
-          if (response.status === 404) {
-            setLoading(false);
-          } else if (response.status === 200) {
-            setAlreadyRanked(true);
-            return response.json().then(setMyRanking);
-          } else {
-            setError(true);
-          }
-        })
-        .catch(() => setError(true))
-        .finally(() => setLoading(false));
-    }
-  }, [
-    userid,
-    makerid,
-    pieid,
-    setAlreadyRanked,
-    setLoading,
-    setMyRanking,
-    setError,
-  ]);
+      .catch(() => setError(true))
+      .finally(() => setLoading(false));
+  }, [makerid, pieid, setAlreadyRanked, setLoading, setMyRanking, setError]);
 
   if (status === "loading") {
     return (
@@ -242,7 +229,7 @@ function SubmitPieRanking({
           />
         )}
       </CardContent>
-      {!alreadyRanked && userid && (
+      {!alreadyRanked && (
         <CardActions>
           <Button
             style={{ width: "100%", textAlign: "center" }}
@@ -250,7 +237,7 @@ function SubmitPieRanking({
             onClick={() => {
               setError(false);
               setSubmitting(true);
-              submitRanking(makerid, pieid, userid, myRanking)
+              submitRanking(makerid, pieid, myRanking)
                 .catch(() => setError(true))
                 .then((res) => {
                   if (res && res.status === 200) {

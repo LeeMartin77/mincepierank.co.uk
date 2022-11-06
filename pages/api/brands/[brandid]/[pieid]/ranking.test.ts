@@ -6,7 +6,7 @@ const testEmail = "happypath@email.com";
 
 jest.mock("next-auth/jwt", () => {
   return {
-    getToken: jest.fn().mockResolvedValue({ email: "happypath@email.com" }),
+    getToken: jest.fn().mockResolvedValue({ id: "happypath@email.com" }),
   };
 });
 

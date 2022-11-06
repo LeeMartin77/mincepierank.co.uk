@@ -34,6 +34,11 @@ if (process.env.FACEBOOK_CLIENT_ID && process.env.FACEBOOK_CLIENT_SECRET) {
     FacebookProvider({
       clientId: process.env.FACEBOOK_CLIENT_ID,
       clientSecret: process.env.FACEBOOK_CLIENT_SECRET,
+      async profile(profile) {
+        return {
+          id: "FACEBOOK_AUTH_" + profile.id,
+        };
+      },
     })
   );
 }
@@ -43,6 +48,11 @@ if (process.env.GITHUB_ID && process.env.GITHUB_SECRET) {
     GitHubProvider({
       clientId: process.env.GITHUB_ID,
       clientSecret: process.env.GITHUB_SECRET,
+      async profile(profile) {
+        return {
+          id: "GITHUB_AUTH_" + profile.id,
+        };
+      },
     })
   );
 }
