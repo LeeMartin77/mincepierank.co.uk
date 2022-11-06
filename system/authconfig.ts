@@ -1,7 +1,7 @@
 // https://next-auth.js.org/getting-started/introduction
 import CredentialsProvider from "next-auth/providers/credentials";
-import FacebookProvider from "next-auth/providers/facebook";
 import GitHubProvider from "next-auth/providers/github";
+import GoogleProvider from "next-auth/providers/google";
 
 const providers: any[] = [];
 
@@ -42,6 +42,15 @@ if (process.env.GITHUB_ID && process.env.GITHUB_SECRET) {
           name: "GITHUB_AUTH_" + profile.login,
         };
       },
+    })
+  );
+}
+
+if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
+  providers.push(
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
     })
   );
 }
