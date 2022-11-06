@@ -18,7 +18,7 @@ import {
   Typography,
 } from "@mui/material";
 import { useEffect, useState } from "react";
-import { signOut, useSession } from "next-auth/react";
+import { signIn, signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 
 export const getServerSideProps = async ({
@@ -205,9 +205,8 @@ function SubmitPieRanking({
       <Card>
         <CardActions>
           <Button
-            LinkComponent={Link}
             style={{ width: "100%", textAlign: "center" }}
-            href="/api/auth/signin"
+            onClick={() => signIn()}
           >
             Sign in to Rank
           </Button>
