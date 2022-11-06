@@ -30,34 +30,16 @@ if (process.env.NODE_ENV === "development") {
   );
 }
 
-if (process.env.FACEBOOK_CLIENT_ID && process.env.FACEBOOK_CLIENT_SECRET) {
-  providers.push(
-    FacebookProvider({
-      clientId: process.env.FACEBOOK_CLIENT_ID,
-      clientSecret: process.env.FACEBOOK_CLIENT_SECRET,
-      async profile(profile) {
-        return {
-          ...profile,
-          name: "FACEBOOK_AUTH_" + profile.name,
-          email: "FACEBOOK_AUTH_" + profile.email,
-          id: "FACEBOOK_AUTH_" + profile.id,
-        };
-      },
-    })
-  );
-}
-
 if (process.env.GITHUB_ID && process.env.GITHUB_SECRET) {
   providers.push(
     GitHubProvider({
       clientId: process.env.GITHUB_ID,
       clientSecret: process.env.GITHUB_SECRET,
-      async profile(profile) {
+      profile: (profile) => {
         return {
           ...profile,
-          name: "GITHUB_AUTH_" + profile.name,
-          email: "GITHUB_AUTH_" + profile.email,
           id: "GITHUB_AUTH_" + profile.id,
+          name: "GITHUB_AUTH_" + profile.login,
         };
       },
     })
