@@ -5,7 +5,9 @@ const schema = [
   WITH REPLICATION = {'class':'SimpleStrategy','replication_factor':1};`,
   `CREATE TABLE IF NOT EXISTS mincepierank.maker (
       id text PRIMARY KEY,
-      name text
+      name text,
+      logo text,
+      website text
   )`,
   `CREATE TABLE IF NOT EXISTS mincepierank.maker_pie
   (
@@ -14,6 +16,9 @@ const schema = [
       displayname text,
       fresh boolean,
       labels set<text>,
+      image_file text,
+      web_link text,
+      pack_count int,
       PRIMARY KEY ((makerId, id))
   );`,
   `CREATE INDEX IF NOT EXISTS ON mincepierank.maker_pie (makerId);`,
