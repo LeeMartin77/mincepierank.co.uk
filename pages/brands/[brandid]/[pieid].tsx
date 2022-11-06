@@ -18,7 +18,7 @@ import {
   Typography,
 } from "@mui/material";
 import { useEffect, useState } from "react";
-import { useSession } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 
 export const getServerSideProps = async ({
@@ -229,8 +229,8 @@ function SubmitPieRanking({
           />
         )}
       </CardContent>
-      {!alreadyRanked && (
-        <CardActions>
+      <CardActions>
+        {!alreadyRanked && (
           <Button
             style={{ width: "100%", textAlign: "center" }}
             disabled={!validRanking(myRanking) || submitting}
@@ -252,8 +252,14 @@ function SubmitPieRanking({
           >
             Submit
           </Button>
-        </CardActions>
-      )}
+        )}
+        <Button
+          style={{ width: "100%", textAlign: "center" }}
+          onClick={() => signOut()}
+        >
+          Log Out
+        </Button>
+      </CardActions>
     </Card>
   );
 }
