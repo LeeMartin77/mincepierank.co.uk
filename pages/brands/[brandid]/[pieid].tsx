@@ -179,9 +179,6 @@ function SubmitPieRanking({
     if (userid) {
       fetch(`/api/brands/${makerid}/${pieid}/ranking`, {
         method: "GET",
-        headers: {
-          userid: userid,
-        },
       })
         .then((response) => {
           if (response.status === 404) {

@@ -2,8 +2,37 @@ import { err, ok } from "neverthrow";
 import { StorageError } from "../../../../../system/storage";
 import handler from "./ranking";
 
+const testEmail = "happypath@email.com";
+
+jest.mock("next-auth/jwt", () => {
+  return {
+    getToken: jest.fn().mockResolvedValue({ email: "happypath@email.com" }),
+  };
+});
+
 describe("Pie Ranking Endpoint", () => {
   const badMethods = ["PUT", "DELETE"];
+
+  test("Not authenticated :: reject with 401", async () => {
+    const mockResponse = {
+      status: jest.fn().mockReturnThis(),
+      send: jest.fn(),
+    };
+    await handler(
+      {
+        method: "GET",
+        body: JSON.stringify({ makerid: "something", pieid: "somethingelse" }),
+      } as any,
+      mockResponse as any,
+      undefined,
+      undefined,
+      undefined,
+      jest.fn().mockResolvedValue(null)
+    );
+    expect(mockResponse.status).toBeCalledWith(401);
+    expect(mockResponse.send).toBeCalled();
+    expect(mockResponse.status).toHaveBeenCalledBefore(mockResponse.send);
+  });
 
   test.each(badMethods)("%s Request :: Returns Bad Result", (method) => {
     const mockResponse = {
@@ -27,7 +56,6 @@ describe("Pie Ranking Endpoint", () => {
         status: jest.fn().mockReturnThis(),
         send: jest.fn(),
       };
-      const testUserId = "test-user-id";
       const mockQuery = { brandid: "test-brand-id", pieid: "test-pie-id" };
       const mockCassResponse = { something: "whatever" };
       const fakeMethod = jest.fn().mockResolvedValue(ok(mockCassResponse));
@@ -35,7 +63,6 @@ describe("Pie Ranking Endpoint", () => {
         {
           method: "GET",
           query: mockQuery,
-          headers: { userid: testUserId },
         } as any,
         mockResponse as any,
         jest.fn(),
@@ -45,7 +72,7 @@ describe("Pie Ranking Endpoint", () => {
       expect(fakeMethod).toBeCalledWith(
         mockQuery.brandid,
         mockQuery.pieid,
-        testUserId
+        testEmail
       );
       expect(mockResponse.status).toBeCalledWith(200);
       expect(mockResponse.send).toBeCalledWith(mockCassResponse);
@@ -56,7 +83,6 @@ describe("Pie Ranking Endpoint", () => {
         status: jest.fn().mockReturnThis(),
         send: jest.fn(),
       };
-      const testUserId = "test-user-id";
       const mockQuery = { brandid: "test-brand-id", pieid: "test-pie-id" };
       const fakeMethod = jest
         .fn()
@@ -65,7 +91,6 @@ describe("Pie Ranking Endpoint", () => {
         {
           method: "GET",
           query: mockQuery,
-          headers: { userid: testUserId },
         } as any,
         mockResponse as any,
         jest.fn(),
@@ -81,7 +106,6 @@ describe("Pie Ranking Endpoint", () => {
         status: jest.fn().mockReturnThis(),
         send: jest.fn(),
       };
-      const testUserId = "test-user-id";
       const mockQuery = { brandid: "test-brand-id", pieid: "test-pie-id" };
       const fakeMethod = jest
         .fn()
@@ -90,7 +114,6 @@ describe("Pie Ranking Endpoint", () => {
         {
           method: "GET",
           query: mockQuery,
-          headers: { userid: testUserId },
         } as any,
         mockResponse as any,
         jest.fn(),
@@ -194,7 +217,10 @@ describe("Pie Ranking Endpoint", () => {
         getPieFunction,
         insertStorageFunction
       );
-      expect(insertStorageFunction).toBeCalledWith(fakeBody);
+      expect(insertStorageFunction).toBeCalledWith({
+        ...fakeBody,
+        userid: testEmail,
+      });
       expect(mockResponse.status).toBeCalledWith(400);
       expect(mockResponse.send).toBeCalled();
       expect(mockResponse.status).toHaveBeenCalledBefore(mockResponse.send);
@@ -220,7 +246,10 @@ describe("Pie Ranking Endpoint", () => {
         getPieFunction,
         insertStorageFunction
       );
-      expect(insertStorageFunction).toBeCalledWith(fakeBody);
+      expect(insertStorageFunction).toBeCalledWith({
+        ...fakeBody,
+        userid: testEmail,
+      });
       expect(mockResponse.status).toBeCalledWith(500);
       expect(mockResponse.send).toBeCalled();
       expect(mockResponse.status).toHaveBeenCalledBefore(mockResponse.send);
@@ -244,7 +273,10 @@ describe("Pie Ranking Endpoint", () => {
         getPieFunction,
         insertStorageFunction
       );
-      expect(insertStorageFunction).toBeCalledWith(fakeBody);
+      expect(insertStorageFunction).toBeCalledWith({
+        ...fakeBody,
+        userid: testEmail,
+      });
       expect(mockResponse.status).toBeCalledWith(200);
       expect(mockResponse.send).toBeCalledWith({ status: "ok" });
       expect(mockResponse.status).toHaveBeenCalledBefore(mockResponse.send);

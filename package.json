@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "test": "jest",
-    "dev": "next dev",
+    "dev": "NEXTAUTH_SECRET=development-secret next dev",
     "dev:startlocaldb": ".database/cql_setup_local.sh",
     "dev:migrations": "node .database/schema.js",
     "dev:seedlocaltestdata": "node .database/test_data.js",
