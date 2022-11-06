@@ -18,6 +18,8 @@ import {
   Typography,
 } from "@mui/material";
 import { useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
+import Link from "next/link";
 
 export const getServerSideProps = async ({
   params: { brandid, pieid },
@@ -158,7 +160,6 @@ function SubmitPieRanking({
   makerid: string;
   pieid: string;
 }) {
-  const userid = "test-user-id";
   const [myRanking, setMyRanking] = useState<PieRankingDetails>({
     filling: 0,
     pastry: 0,
@@ -171,25 +172,30 @@ function SubmitPieRanking({
   const [error, setError] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
 
+  const { data: session, status } = useSession();
+  const userid = session?.user?.email;
+
   useEffect(() => {
-    fetch(`/api/brands/${makerid}/${pieid}/ranking`, {
-      method: "GET",
-      headers: {
-        userid: userid,
-      },
-    })
-      .then((response) => {
-        if (response.status === 404) {
-          setLoading(false);
-        } else if (response.status === 200) {
-          setAlreadyRanked(true);
-          return response.json().then(setMyRanking);
-        } else {
-          setError(true);
-        }
+    if (userid) {
+      fetch(`/api/brands/${makerid}/${pieid}/ranking`, {
+        method: "GET",
+        headers: {
+          userid: userid,
+        },
       })
-      .catch(() => setError(true))
-      .finally(() => setLoading(false));
+        .then((response) => {
+          if (response.status === 404) {
+            setLoading(false);
+          } else if (response.status === 200) {
+            setAlreadyRanked(true);
+            return response.json().then(setMyRanking);
+          } else {
+            setError(true);
+          }
+        })
+        .catch(() => setError(true))
+        .finally(() => setLoading(false));
+    }
   }, [
     userid,
     makerid,
@@ -199,6 +205,32 @@ function SubmitPieRanking({
     setMyRanking,
     setError,
   ]);
+
+  if (status === "loading") {
+    return (
+      <Card>
+        <CardContent>
+          <Alert severity="info">Loading...</Alert>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (status === "unauthenticated") {
+    return (
+      <Card>
+        <CardActions>
+          <Button
+            LinkComponent={Link}
+            style={{ width: "100%", textAlign: "center" }}
+            href="/api/auth/signin"
+          >
+            Sign in to Rank
+          </Button>
+        </CardActions>
+      </Card>
+    );
+  }
 
   return (
     <Card>
@@ -213,7 +245,7 @@ function SubmitPieRanking({
           />
         )}
       </CardContent>
-      {!alreadyRanked && (
+      {!alreadyRanked && userid && (
         <CardActions>
           <Button
             style={{ width: "100%", textAlign: "center" }}

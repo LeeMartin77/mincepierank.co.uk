@@ -17,8 +17,12 @@ import {
   SideNavigationComponent,
   BottomNavigationComponent,
 } from "../components/navigation";
+import { SessionProvider } from "next-auth/react";
 
-export default function App({ Component, pageProps }: AppProps) {
+export default function App({
+  Component,
+  pageProps: { session, ...pageProps },
+}: AppProps) {
   const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
   const theme = useMemo(
     () =>
@@ -46,17 +50,19 @@ export default function App({ Component, pageProps }: AppProps) {
     : "main-container-mobile";
 
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline enableColorScheme />
-      <Box sx={{ display: "flex" }}>
-        {isDesktop && <SideNavigationComponent />}
-        <Box component="main" style={{ width: "100%" }}>
-          <Container className={containerClassName}>
-            <Component {...pageProps} />
-          </Container>
+    <SessionProvider session={session}>
+      <ThemeProvider theme={theme}>
+        <CssBaseline enableColorScheme />
+        <Box sx={{ display: "flex" }}>
+          {isDesktop && <SideNavigationComponent />}
+          <Box component="main" style={{ width: "100%" }}>
+            <Container className={containerClassName}>
+              <Component {...pageProps} />
+            </Container>
+          </Box>
+          {!isDesktop && <BottomNavigationComponent />}
         </Box>
-        {!isDesktop && <BottomNavigationComponent />}
-      </Box>
-    </ThemeProvider>
+      </ThemeProvider>
+    </SessionProvider>
   );
 }
