@@ -1,17 +1,30 @@
 import Head from "next/head";
 import { InferGetServerSidePropsType } from "next";
-import { getAllMakerPies, getMincePieMakers, Maker } from "../system/storage";
-import Link from "next/link";
-import { Divider, Grid } from "@mui/material";
+import { getAllMakerPies, getAllPieRankingSummaries, getMincePieMakers, Maker } from "../system/storage";
+import { Button, Card, CardActions, CardHeader, CardMedia, Divider, Grid } from "@mui/material";
 import { PieSummaryLink } from "../components/pieSummaryLink";
+import { findTopPie } from "../components/findTopPie";
+import Link from "next/link";
 
 export const getServerSideProps = async () => {
   const pies = (await getAllMakerPies()).unwrapOr([]);
   const makers = (await getMincePieMakers()).unwrapOr([]);
+  const rankingSummaries = (await getAllPieRankingSummaries()).unwrapOr([]);
+  const [topPie, topPieRanking] = findTopPie(pies, rankingSummaries) ?? [null, null];
+  if (topPie && topPieRanking) {
+    return {
+      props: {
+        makers,
+        pies,
+        topPie,
+        topPieRanking
+      },
+    };
+  }
   return {
     props: {
       makers,
-      pies,
+      pies
     },
   };
 };
@@ -19,6 +32,8 @@ export const getServerSideProps = async () => {
 function AllMincePies({
   makers,
   pies,
+  topPie,
+  topPieRanking
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const makerMap: { [key: string]: Maker } = {};
   makers.forEach((mkr) => (makerMap[mkr.id] = mkr));
@@ -34,7 +49,27 @@ function AllMincePies({
       </Head>
       <main>
         <h1>All Pies</h1>
-        <Divider />
+        {topPie && topPieRanking && <Card>
+          <CardHeader title="The Top Pie"/>
+          <Link href={`/brands/${topPie.makerid}/${topPie.id}`}>
+            <CardMedia
+              component="img"
+              height="200"
+              image={topPie.image_file}
+              alt={`${topPie.displayname}`}
+            />
+          </Link>
+          <CardActions>
+            <Button
+              LinkComponent={Link}
+              href={`/brands/${topPie.makerid}/${topPie.id}`}
+              style={{ width: "100%", textAlign: "center" }}
+            >
+              {topPie.displayname}
+            </Button>
+          </CardActions>
+        </Card>}
+        <Divider style={{ marginTop: "1em", marginBottom: "1em" }} />
         <Grid container spacing={2}>
           {pies.map((pie) => {
             return (
