@@ -8,6 +8,7 @@ import {
 } from "../../../system/storage";
 import {
   Alert,
+  Breadcrumbs,
   Button,
   Card,
   CardActions,
@@ -285,6 +286,18 @@ function Brands({
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main>
+      <Breadcrumbs aria-label="breadcrumb">
+        <Link color="inherit" href="/">
+          Home
+        </Link>
+        <Link
+          color="inherit"
+          href={`/brands/${maker?.id}/`}
+        >
+          {maker?.name}
+        </Link>
+        <Typography color="text.primary">{pie?.displayname}</Typography>
+      </Breadcrumbs>
         <h1>{pie && pie.displayname}</h1>
         <h3>{maker && maker.name}</h3>
         {pie && (

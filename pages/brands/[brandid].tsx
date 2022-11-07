@@ -2,7 +2,7 @@ import Head from "next/head";
 import { InferGetServerSidePropsType } from "next";
 import { getMakerPieRankingSummaries, getMincePieMaker, getPiesByMaker } from "../../system/storage";
 import Link from "next/link";
-import { Button, Card, CardActions, CardHeader, CardMedia, Divider, Grid } from "@mui/material";
+import { Breadcrumbs, Button, Card, CardActions, CardHeader, CardMedia, Divider, Grid, Typography } from "@mui/material";
 import { PieSummaryLink } from "../../components/pieSummaryLink";
 import { findTopPie } from "../../components/findTopPie";
 
@@ -50,6 +50,12 @@ function Brands({
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main>
+      <Breadcrumbs aria-label="breadcrumb">
+        <Link color="inherit" href="/">
+          Home
+        </Link>
+        <Typography color="text.primary">{maker?.name}</Typography>
+      </Breadcrumbs>
         {maker && <h1>{maker.name}</h1>}
         {topPie && topPieRanking && maker && <Card>
           <CardHeader title={`${maker.name} Best Pie`}/>
