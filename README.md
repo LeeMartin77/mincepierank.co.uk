@@ -1,8 +1,43 @@
 # MincePieRank.co.uk
 
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+Because someone has to try and figure out who has the best mince pies.
 
-## Getting Started
+## Container Tags:
+Other than versions, the intent is to have two tags:
+- `latest` will be the latest published release
+- `bleed` will be the latest build of main
+
+## Development
+
+### Before you run the app
+
+The appliction expects a cassandra database setup to run. The environment variables you can control the connection with are:
+
+- `CASSANDRA_CONTACT_POINTS` (split on ;)
+- `CASSANDRA_LOCALDATACENTER`
+- `CASSANDRA_USER`
+- `CASSANDRA_PASSWORD`
+
+However, if you set none up, you can simply hook up to a local database which can be run with `podman` with:
+
+```
+npm run dev:startlocaldb
+```
+
+You can then apply the migrations to this database with:
+
+```
+npm run dev:migrations
+```
+
+And seed some local test data with:
+
+```bash
+# TODO: This test data could do with a refresh...
+npm run dev:seedlocaltestdata
+```
+
+### Running the app
 
 First, run the development server:
 
@@ -14,13 +49,11 @@ yarn dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
-
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
+[API routes documentation](https://nextjs.org/docs/api-routes/introduction).
 
 The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
 
-## Learn More
+### Learn More about Next.js
 
 To learn more about Next.js, take a look at the following resources:
 
