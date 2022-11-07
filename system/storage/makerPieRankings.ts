@@ -50,46 +50,75 @@ export async function getPieRankingSummary(
   makerid: string,
   pieid: string,
   client = CASSANDRA_CLIENT,
-  rowToObjectFn = rowToObject
 ): Promise<Result<PieRankingSummary, StorageError>> {
   try {
     const result = await client.execute(
-      "SELECT * FROM mincepierank.maker_pie_ranking WHERE makerid = ? AND pieid = ? ALLOW FILTERING;",
-      [makerid, pieid]
+      `SELECT makerid,
+        pieid,
+        AVG(pastry) as pastry,
+        AVG(filling) as filling,
+        AVG(topping) as topping,
+        AVG(looks) as looks,
+        AVG(value) as value,
+        CAST(COUNT(1) as int) as count 
+      FROM mincepierank.maker_pie_ranking
+      WHERE makerid = ? AND pieid = ? ALLOW FILTERING;`,
+      [makerid, pieid],
+      { prepare: true }
     );
 
-    const mapped = result.rows.map(rowToObjectFn) as MakerPieRanking[];
-    const reduced: PieRankingSummary = mapped.reduce(
-      (prev, curr) => {
-        return {
-          ...prev,
-          pastry: curr.pastry + prev.pastry,
-          filling: curr.filling + prev.filling,
-          topping: curr.topping + prev.topping,
-          looks: curr.looks + prev.looks,
-          value: curr.value + prev.value,
-          count: prev.count + 1,
-        };
-      },
-      {
-        makerid,
+    return ok(rowToObject(result.first()));
+  } catch {
+    return err(StorageError.GenericError);
+  }
+}
+
+
+export async function getMakerPieRankingSummaries(
+  makerid: string,
+  client = CASSANDRA_CLIENT,
+): Promise<Result<PieRankingSummary[], StorageError>> {
+  try {
+    const result = await client.execute(
+      `SELECT makerid,
         pieid,
-        pastry: 0,
-        filling: 0,
-        topping: 0,
-        looks: 0,
-        value: 0,
-        count: 0,
-      }
+        AVG(pastry) as pastry,
+        AVG(filling) as filling,
+        AVG(topping) as topping,
+        AVG(looks) as looks,
+        AVG(value) as value,
+        CAST(COUNT(1) as int) as count 
+      FROM mincepierank.maker_pie_ranking
+      WHERE makerid = ?;`,
+      [makerid],
+      { prepare: true }
     );
-    if (reduced.count > 1) {
-      reduced.pastry = reduced.pastry / reduced.count;
-      reduced.filling = reduced.filling / reduced.count;
-      reduced.topping = reduced.topping / reduced.count;
-      reduced.looks = reduced.looks / reduced.count;
-      reduced.value = reduced.value / reduced.count;
-    }
-    return ok(reduced);
+
+    return ok(result.rows.map(rowToObject) as PieRankingSummary[]);
+  } catch {
+    return err(StorageError.GenericError);
+  }
+}
+
+
+export async function getAllPieRankingSummaries(
+  client = CASSANDRA_CLIENT
+): Promise<Result<PieRankingSummary[], StorageError>> {
+  try {
+    const result = await client.execute(
+      `SELECT makerid,
+        pieid,
+        AVG(pastry) as pastry,
+        AVG(filling) as filling,
+        AVG(topping) as topping,
+        AVG(looks) as looks,
+        AVG(value) as value,
+        CAST(COUNT(1) as int) as count 
+      FROM mincepierank.maker_pie_ranking;`,
+      { prepare: true }
+    );
+
+    return ok(result.rows.map(rowToObject) as PieRankingSummary[]);
   } catch {
     return err(StorageError.GenericError);
   }
