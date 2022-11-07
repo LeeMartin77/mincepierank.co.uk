@@ -43,11 +43,11 @@ export function BottomNavigationComponent() {
               label={x.label}
             />
           ))}
-        <BottomNavigationAction
+        {navigationConfig.filter(x => x.mobileHidden).length > 0 && <BottomNavigationAction
           icon={<MenuIcon />}
           onClick={handleClick}
           label="More"
-        />
+        />}
       </BottomNavigation>
       <Menu
         id="more-menu"
