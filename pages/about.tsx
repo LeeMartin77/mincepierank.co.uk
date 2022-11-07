@@ -20,7 +20,7 @@ function About() {
         <h3>Cookie and Privacy Policy</h3>
         <p>
           We use a simple authentication cookie once a user is logged in, and only store a user identifier so that users
-          know what pies they have ranked. We store no other user data than this, and I've got no intention of storing more.
+          know what pies they have ranked. We store no other user data than this, and I&apos;ve got no intention of storing more.
         </p>          
         <p>
           <Link href="https://github.com/LeeMartin77/mincepierank.co.uk">Source code is publicly available on Github.</Link>
