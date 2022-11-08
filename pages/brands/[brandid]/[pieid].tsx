@@ -31,6 +31,11 @@ export const getServerSideProps = async ({
 }) => {
   const maker = (await getMincePieMaker(brandid)).unwrapOr(undefined);
   const pie = (await getPieByMakerAndId(brandid, pieid)).unwrapOr(undefined);
+  if (!maker || !pie) {
+    return {
+      notFound: true,
+    };
+  }
   const rankingSummary = (await getPieRankingSummary(brandid, pieid)).unwrapOr(
     undefined
   );

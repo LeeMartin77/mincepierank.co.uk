@@ -4,6 +4,8 @@ import {
   getMakerPieRankingSummaries,
   getMincePieMaker,
   getPiesByMaker,
+  MakerPie,
+  PieRankingSummary,
 } from "../../system/storage";
 import Link from "next/link";
 import {
@@ -26,16 +28,23 @@ export const getServerSideProps = async ({
   params: { brandid: string };
 }) => {
   const maker = (await getMincePieMaker(brandid)).unwrapOr(undefined);
-  const pies = (await getPiesByMaker(brandid)).unwrapOr([]);
+  if (!maker) {
+    return {
+      notFound: true,
+    };
+  }
+
+  const pies = (await getPiesByMaker(brandid)).unwrapOr([] as MakerPie[]);
   const rankingSummaries = (
     await getMakerPieRankingSummaries(brandid)
-  ).unwrapOr([]);
+  ).unwrapOr([] as PieRankingSummary[]);
   const [topPie, topPieRanking] = findTopPie(pies, rankingSummaries) ?? [];
   if (topPie && topPieRanking) {
     return {
       props: {
         maker,
         pies,
+        rankingSummaries,
         topPie,
         topPieRanking,
       },
@@ -45,6 +54,7 @@ export const getServerSideProps = async ({
     props: {
       maker,
       pies,
+      rankingSummaries,
     },
   };
 };
