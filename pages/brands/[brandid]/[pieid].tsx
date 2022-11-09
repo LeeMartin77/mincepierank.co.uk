@@ -16,12 +16,13 @@ import {
   CardHeader,
   CardMedia,
   Divider,
+  Grid,
   Rating,
   Typography,
 } from "@mui/material";
+import { Link as LinkIcon } from "@mui/icons-material";
 import { useEffect, useState } from "react";
 import { signIn, signOut, useSession } from "next-auth/react";
-import Image from "next/image";
 import Link from "next/link";
 
 export const getServerSideProps = async ({
@@ -86,51 +87,67 @@ function PieRanking({
   pieRanking: PieRankingDetails;
   setPieRanking?: (pr: PieRankingDetails) => void;
 }) {
+  const xs = 12;
+  const sm = 6;
+  const md = 4;
   return (
-    <>
-      <RankingSummary
-        label="Filling"
-        value={pieRanking.filling}
-        setValue={
-          setPieRanking &&
-          ((newVal: number) =>
-            setPieRanking({ ...pieRanking, filling: newVal }))
-        }
-      />
-      <RankingSummary
-        label="Pastry"
-        value={pieRanking.pastry}
-        setValue={
-          setPieRanking &&
-          ((newVal: number) => setPieRanking({ ...pieRanking, pastry: newVal }))
-        }
-      />
-      <RankingSummary
-        label="Topping"
-        value={pieRanking.topping}
-        setValue={
-          setPieRanking &&
-          ((newVal: number) =>
-            setPieRanking({ ...pieRanking, topping: newVal }))
-        }
-      />
-      <RankingSummary
-        label="Looks"
-        value={pieRanking.looks}
-        setValue={
-          setPieRanking &&
-          ((newVal: number) => setPieRanking({ ...pieRanking, looks: newVal }))
-        }
-      />
-      <RankingSummary
-        label="Value"
-        value={pieRanking.value}
-        setValue={
-          setPieRanking &&
-          ((newVal: number) => setPieRanking({ ...pieRanking, value: newVal }))
-        }
-      />
-    </>
+    <Grid container spacing={2}>
+      <Grid item xs={xs} sm={sm} md={md}>
+        <RankingSummary
+          label="Filling"
+          value={pieRanking.filling}
+          setValue={
+            setPieRanking &&
+            ((newVal: number) =>
+              setPieRanking({ ...pieRanking, filling: newVal }))
+          }
+        />
+      </Grid>
+      <Grid item xs={xs} sm={sm} md={md}>
+        <RankingSummary
+          label="Pastry"
+          value={pieRanking.pastry}
+          setValue={
+            setPieRanking &&
+            ((newVal: number) =>
+              setPieRanking({ ...pieRanking, pastry: newVal }))
+          }
+        />
+      </Grid>
+      <Grid item xs={xs} sm={sm} md={md}>
+        <RankingSummary
+          label="Topping"
+          value={pieRanking.topping}
+          setValue={
+            setPieRanking &&
+            ((newVal: number) =>
+              setPieRanking({ ...pieRanking, topping: newVal }))
+          }
+        />
+      </Grid>
+      <Grid item xs={xs} sm={sm} md={md}>
+        <RankingSummary
+          label="Looks"
+          value={pieRanking.looks}
+          setValue={
+            setPieRanking &&
+            ((newVal: number) =>
+              setPieRanking({ ...pieRanking, looks: newVal }))
+          }
+        />
+      </Grid>
+      <Grid item xs={xs} sm={sm} md={md}>
+        <RankingSummary
+          label="Value"
+          value={pieRanking.value}
+          setValue={
+            setPieRanking &&
+            ((newVal: number) =>
+              setPieRanking({ ...pieRanking, value: newVal }))
+          }
+        />
+      </Grid>
+    </Grid>
   );
 }
 
@@ -237,8 +254,17 @@ function SubmitPieRanking({
         )}
       </CardContent>
       <CardActions>
+        <Button
+          color="secondary"
+          style={{ width: "100%", textAlign: "center" }}
+          onClick={() => signOut()}
+        >
+          Log Out
+        </Button>
         {!alreadyRanked && (
           <Button
+            variant="contained"
+            color="success"
             style={{ width: "100%", textAlign: "center" }}
             disabled={!validRanking(myRanking) || submitting}
             onClick={() => {
@@ -260,12 +286,6 @@ function SubmitPieRanking({
             Submit
           </Button>
         )}
-        <Button
-          style={{ width: "100%", textAlign: "center" }}
-          onClick={() => signOut()}
-        >
-          Log Out
-        </Button>
       </CardActions>
     </Card>
   );
@@ -311,8 +331,14 @@ function Brands({
               alt={`${pie.displayname}`}
             />
             <CardActions>
-              <Button LinkComponent={Link} href={pie.web_link}>
-                Website
+              <Button
+                variant="outlined"
+                LinkComponent={Link}
+                href={pie.web_link}
+                style={{ width: "100%" }}
+                endIcon={<LinkIcon />}
+              >
+                Go To Website
               </Button>
             </CardActions>
           </Card>
