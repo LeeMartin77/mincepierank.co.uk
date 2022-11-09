@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 import { MakerPie, PieRankingSummary } from "../../system/storage";
 import {
   Button,
@@ -11,7 +12,6 @@ import {
   Rating,
   Typography,
 } from "@mui/material";
-import Image from "next/image";
 
 export function PieSummaryLink({
   pie,
@@ -27,13 +27,17 @@ export function PieSummaryLink({
           <div
             style={{
               width: "47.5%",
+              height: "120px",
             }}
           >
-            <Image
+            <img
               src={pie.image_file}
               alt={pie.displayname}
-              height={200}
-              width={200}
+              style={{
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+              }}
             />
           </div>
           <div
