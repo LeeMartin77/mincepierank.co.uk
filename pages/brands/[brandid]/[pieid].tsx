@@ -15,8 +15,10 @@ import {
   CardContent,
   CardHeader,
   CardMedia,
+  CircularProgress,
   Divider,
   Grid,
+  LinearProgress,
   Rating,
   Typography,
 } from "@mui/material";
@@ -306,10 +308,11 @@ function Pie({
       fetch(`/api/brands/${maker.id}/${pie.id}/rankingSummary`).then((res) => {
         res.json().then((summary) => {
           setLocalSummary(summary);
+          setRefresh(false);
         });
       });
     }
-  }, [maker.id, pie.id, refresh, setLocalSummary]);
+  }, [maker.id, pie.id, refresh, setLocalSummary, setRefresh]);
   return (
     <>
       <Head>
@@ -361,7 +364,8 @@ function Pie({
               subheader={`${localSummary.count} Rankings`}
             />
             <CardContent>
-              <PieRanking pieRanking={localSummary} />
+              {!refresh && <PieRanking pieRanking={localSummary} />}
+              {refresh && <CircularProgress />}
             </CardContent>
           </Card>
         )}
