@@ -44,12 +44,24 @@ export async function getMyRankingForPie(
 
 export type PieRankingSummary = Omit<MakerPieRanking, "userid" | "notes"> & {
   count: number;
+  average: number;
 };
+
+function addAverageScore(mapped: any) {
+  mapped.average =
+    (mapped.filling +
+      mapped.pastry +
+      mapped.topping +
+      mapped.value +
+      mapped.looks) /
+    5;
+  return mapped;
+}
 
 export async function getPieRankingSummary(
   makerid: string,
   pieid: string,
-  client = CASSANDRA_CLIENT,
+  client = CASSANDRA_CLIENT
 ): Promise<Result<PieRankingSummary, StorageError>> {
   try {
     const result = await client.execute(
@@ -67,16 +79,15 @@ export async function getPieRankingSummary(
       { prepare: true }
     );
 
-    return ok(rowToObject(result.first()));
+    return ok(addAverageScore(rowToObject(result.first())));
   } catch {
     return err(StorageError.GenericError);
   }
 }
 
-
 export async function getMakerPieRankingSummaries(
   makerid: string,
-  client = CASSANDRA_CLIENT,
+  client = CASSANDRA_CLIENT
 ): Promise<Result<PieRankingSummary[], StorageError>> {
   try {
     const result = await client.execute(
@@ -94,12 +105,13 @@ export async function getMakerPieRankingSummaries(
       { prepare: true }
     );
 
-    return ok(result.rows.map(rowToObject) as PieRankingSummary[]);
+    return ok(
+      result.rows.map(rowToObject).map(addAverageScore) as PieRankingSummary[]
+    );
   } catch {
     return err(StorageError.GenericError);
   }
 }
-
 
 export async function getAllPieRankingSummaries(
   client = CASSANDRA_CLIENT
@@ -118,7 +130,9 @@ export async function getAllPieRankingSummaries(
       { prepare: true }
     );
 
-    return ok(result.rows.map(rowToObject) as PieRankingSummary[]);
+    return ok(
+      result.rows.map(rowToObject).map(addAverageScore) as PieRankingSummary[]
+    );
   } catch {
     return err(StorageError.GenericError);
   }

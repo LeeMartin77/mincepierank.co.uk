@@ -1,9 +1,9 @@
+import { MakerPie, PieRankingSummary } from "../../system/storage";
 import { Button, Card, CardActions, CardMedia, Link } from "@mui/material";
-import { MakerPie } from "../system/storage";
 
 export function PieSummaryLink({ pie }: { pie: MakerPie }) {
   return (
-    <Card>
+    <Card data-testid={pie.id + "-link-card"}>
       <Link href={`/brands/${pie.makerid}/${pie.id}`}>
         <CardMedia
           component="img"
@@ -22,5 +22,21 @@ export function PieSummaryLink({ pie }: { pie: MakerPie }) {
         </Button>
       </CardActions>
     </Card>
+  );
+}
+
+export function PieList({
+  pies,
+  rankings,
+}: {
+  pies: MakerPie[];
+  rankings: PieRankingSummary[];
+}) {
+  return (
+    <>
+      {pies.map((pie) => (
+        <PieSummaryLink key={pie.id} pie={pie} />
+      ))}
+    </>
   );
 }

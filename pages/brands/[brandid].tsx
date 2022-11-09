@@ -19,8 +19,7 @@ import {
   Grid,
   Typography,
 } from "@mui/material";
-import { PieSummaryLink } from "../../components/pieSummaryLink";
-import { findTopPie } from "../../components/findTopPie";
+import { PieList } from "../../components/pieList/pieList";
 
 export const getServerSideProps = async ({
   params: { brandid },
@@ -38,18 +37,6 @@ export const getServerSideProps = async ({
   const rankingSummaries = (
     await getMakerPieRankingSummaries(brandid)
   ).unwrapOr([] as PieRankingSummary[]);
-  const [topPie, topPieRanking] = findTopPie(pies, rankingSummaries) ?? [];
-  if (topPie && topPieRanking) {
-    return {
-      props: {
-        maker,
-        pies,
-        rankingSummaries,
-        topPie,
-        topPieRanking,
-      },
-    };
-  }
   return {
     props: {
       maker,
@@ -62,18 +49,15 @@ export const getServerSideProps = async ({
 function Brands({
   maker,
   pies,
-  topPie,
-  topPieRanking,
+  rankingSummaries,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   return (
     <>
       <Head>
-        <title>{`Mince Pie Rank :: ${maker ? maker.name : "Not Found"}`}</title>
+        <title>{`Mince Pie Rank :: ${maker.name}`}</title>
         <meta
           name="description"
-          content={`The overarching brands of pie ${
-            maker ? maker.name : "Not Found"
-          } we have in our database`}
+          content={`The pies of ${maker.name} we have in our database`}
         />
         <link rel="icon" href="/favicon.ico" />
       </Head>
@@ -82,41 +66,11 @@ function Brands({
           <Link color="inherit" href="/">
             Home
           </Link>
-          <Typography color="text.primary">{maker?.name}</Typography>
+          <Typography color="text.primary">{maker.name}</Typography>
         </Breadcrumbs>
-        {maker && <h1>{maker.name}</h1>}
-        {topPie && topPieRanking && maker && (
-          <Card>
-            <CardHeader title={`${maker.name} Best Pie`} />
-            <Link href={`/brands/${topPie.makerid}/${topPie.id}`}>
-              <CardMedia
-                component="img"
-                height="200"
-                image={topPie.image_file}
-                alt={`${topPie.displayname}`}
-              />
-            </Link>
-            <CardActions>
-              <Button
-                LinkComponent={Link}
-                href={`/brands/${topPie.makerid}/${topPie.id}`}
-                style={{ width: "100%", textAlign: "center" }}
-              >
-                {topPie.displayname}
-              </Button>
-            </CardActions>
-          </Card>
-        )}
+        <h1>{maker.name}</h1>
         <Divider style={{ marginTop: "1em", marginBottom: "1em" }} />
-        <Grid container spacing={2}>
-          {pies.map((pie) => {
-            return (
-              <Grid key={pie.id + pie.makerid} item xs={6} sm={4} md={3}>
-                <PieSummaryLink pie={pie} />
-              </Grid>
-            );
-          })}
-        </Grid>
+        <PieList pies={pies} rankings={rankingSummaries} />
       </main>
     </>
   );
