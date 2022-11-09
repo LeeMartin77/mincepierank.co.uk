@@ -179,9 +179,11 @@ const submitRanking = (
 function SubmitPieRanking({
   makerid,
   pieid,
+  setRefresh,
 }: {
   makerid: string;
   pieid: string;
+  setRefresh: (inp: boolean) => void;
 }) {
   const [myRanking, setMyRanking] = useState<PieRankingDetails>({
     filling: 0,
@@ -276,6 +278,7 @@ function SubmitPieRanking({
                   if (res && res.status === 200) {
                     setError(false);
                     setAlreadyRanked(true);
+                    setRefresh(true);
                   } else {
                     setError(true);
                   }
@@ -291,22 +294,29 @@ function SubmitPieRanking({
   );
 }
 
-function Brands({
+function Pie({
   maker,
   pie,
   rankingSummary,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
+  const [refresh, setRefresh] = useState(false);
+  const [localSummary, setLocalSummary] = useState(rankingSummary);
+  useEffect(() => {
+    if (refresh) {
+      fetch(`/api/brands/${maker.id}/${pie.id}/rankingSummary`).then((res) => {
+        res.json().then((summary) => {
+          setLocalSummary(summary);
+        });
+      });
+    }
+  }, [maker.id, pie.id, refresh, setLocalSummary]);
   return (
     <>
       <Head>
-        <title>
-          {`Mince Pie Rank :: ${maker ? maker.name : "Not Found"} :: ${
-            pie ? pie.displayname : "Not Found"
-          }`}
-        </title>
+        <title>{`Mince Pie Rank :: ${maker.name} :: ${pie.displayname}`}</title>
         <meta
           name="description"
-          content={`The rankings we have for ${maker?.name} ${pie?.displayname}`}
+          content={`The rankings we have for ${maker.name} ${pie.displayname}`}
         />
         <link rel="icon" href="/favicon.ico" />
       </Head>
@@ -344,22 +354,28 @@ function Brands({
           </Card>
         )}
         <Divider style={{ marginTop: "1em", marginBottom: "1em" }} />
-        {rankingSummary && (
+        {localSummary && (
           <Card>
             <CardHeader
               title="Summary"
-              subheader={`${rankingSummary.count} Rankings`}
+              subheader={`${localSummary.count} Rankings`}
             />
             <CardContent>
-              <PieRanking pieRanking={rankingSummary} />
+              <PieRanking pieRanking={localSummary} />
             </CardContent>
           </Card>
         )}
         <Divider style={{ marginTop: "1em", marginBottom: "1em" }} />
-        {pie && <SubmitPieRanking makerid={pie.makerid} pieid={pie.id} />}
+        {pie && (
+          <SubmitPieRanking
+            makerid={pie.makerid}
+            pieid={pie.id}
+            setRefresh={setRefresh}
+          />
+        )}
       </main>
     </>
   );
 }
 
-export default Brands;
+export default Pie;
