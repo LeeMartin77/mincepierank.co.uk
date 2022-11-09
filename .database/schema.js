@@ -35,7 +35,7 @@ const schema = [
       looks int,
       value int,
       notes text,
-      PRIMARY KEY ((makerid, pieid, userid))
+      PRIMARY KEY ((makerid, pieid), userid)
   );`,
   `CREATE INDEX IF NOT EXISTS ON mincepierank.maker_pie_ranking (makerid);`,
   `CREATE INDEX IF NOT EXISTS ON mincepierank.maker_pie_ranking (pieid);`,

@@ -100,7 +100,8 @@ export async function getMakerPieRankingSummaries(
         AVG(value) as value,
         CAST(COUNT(1) as int) as count 
       FROM mincepierank.maker_pie_ranking
-      WHERE makerid = ?;`,
+      WHERE makerid = ?
+      GROUP BY makerid, pieid;`,
       [makerid],
       { prepare: true }
     );
@@ -108,7 +109,8 @@ export async function getMakerPieRankingSummaries(
     return ok(
       result.rows.map(rowToObject).map(addAverageScore) as PieRankingSummary[]
     );
-  } catch {
+  } catch (ex: any) {
+    console.log(ex);
     return err(StorageError.GenericError);
   }
 }
@@ -126,7 +128,8 @@ export async function getAllPieRankingSummaries(
         AVG(looks) as looks,
         AVG(value) as value,
         CAST(COUNT(1) as int) as count 
-      FROM mincepierank.maker_pie_ranking;`,
+      FROM mincepierank.maker_pie_ranking
+      GROUP BY makerid, pieid;`,
       { prepare: true }
     );
 

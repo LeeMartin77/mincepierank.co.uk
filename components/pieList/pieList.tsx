@@ -5,6 +5,7 @@ import {
   CardActions,
   CardContent,
   CardMedia,
+  Divider,
   Grid,
   Link,
   Rating,
@@ -72,19 +73,54 @@ export function PieList({
   rankings: PieRankingSummary[];
 }) {
   const mappedRankings: { [key: string]: PieRankingSummary | undefined } = {};
-  rankings.forEach((ranking) => {
-    mappedRankings[ranking.makerid + "-" + ranking.pieid] = ranking;
+  const mappedPies: { [key: string]: MakerPie } = {};
+  const rankingOrder: string[] = [];
+
+  const unrankedPies: Set<string> = new Set();
+  pies.forEach((pie) => {
+    const uniqId = pie.makerid + "-" + pie.id;
+    mappedPies[uniqId] = pie;
+    unrankedPies.add(uniqId);
   });
+  rankings
+    .sort((a, b) => b.average - a.average)
+    .forEach((ranking) => {
+      const uniqId = ranking.makerid + "-" + ranking.pieid;
+      rankingOrder.push(uniqId);
+      unrankedPies.delete(uniqId);
+      mappedRankings[uniqId] = ranking;
+    });
+  const topPieId = rankingOrder.shift();
   return (
-    <Grid container spacing={2}>
-      {pies.map((pie) => (
-        <Grid item key={pie.makerid + pie.id} xs={12} md={6} lg={4}>
+    <>
+      {topPieId && mappedPies[topPieId] && (
+        <>
+          <h1>Top Pie</h1>
           <PieSummaryLink
-            pie={pie}
-            ranking={mappedRankings[pie.makerid + "-" + pie.id]}
+            pie={mappedPies[topPieId]}
+            ranking={mappedRankings[topPieId]}
           />
-        </Grid>
-      ))}
-    </Grid>
+        </>
+      )}
+      <Divider style={{ marginTop: "1em", marginBottom: "1em" }} />
+      <Grid container spacing={2}>
+        {rankingOrder.map((uniqid) => (
+          <Grid item key={uniqid} xs={12} md={6} lg={4}>
+            <PieSummaryLink
+              pie={mappedPies[uniqid]}
+              ranking={mappedRankings[uniqid]}
+            />
+          </Grid>
+        ))}
+        {Array.from(unrankedPies).map((uniqid) => {
+          console.log(uniqid);
+          return (
+            <Grid item key={uniqid} xs={12} md={6} lg={4}>
+              <PieSummaryLink pie={mappedPies[uniqid]} />
+            </Grid>
+          );
+        })}
+      </Grid>
+    </>
   );
 }
