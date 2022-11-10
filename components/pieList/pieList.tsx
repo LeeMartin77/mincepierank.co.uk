@@ -106,6 +106,19 @@ export function PieList({
           />
         </>
       )}
+      {!topPieId && (
+        <Typography
+          variant="h4"
+          style={{
+            width: "100%",
+            marginTop: "1em",
+            marginBottom: "1em",
+            textAlign: "center",
+          }}
+        >
+          No top pie yet...
+        </Typography>
+      )}
       <Divider style={{ marginTop: "1em", marginBottom: "1em" }} />
       <Grid container spacing={2}>
         {rankingOrder.map((uniqid) => (
