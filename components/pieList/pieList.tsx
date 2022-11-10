@@ -16,12 +16,27 @@ import {
 export function PieSummaryLink({
   pie,
   ranking,
+  isTop = false,
 }: {
   pie: MakerPie;
   ranking?: PieRankingSummary;
+  isTop?: boolean;
 }) {
   return (
-    <Card data-testid={pie.id + "-link-card"}>
+    <Card
+      data-testid={pie.id + "-link-card"}
+      elevation={isTop ? 8 : 1}
+      style={
+        !isTop
+          ? {}
+          : {
+              color: "black",
+              fontWeight: "bold",
+              background:
+                "linear-gradient(29deg, rgba(255,160,27,1) 0%, rgba(255,209,144,1) 60%, rgba(252,176,69,1) 100%)",
+            }
+      }
+    >
       <CardContent>
         <div style={{ display: "flex" }}>
           <div
@@ -46,10 +61,30 @@ export function PieSummaryLink({
               width: "47.5%",
             }}
           >
-            <Typography component="legend">Avg. Ranking</Typography>
-            <Rating name="read-only" value={ranking?.average ?? 0} readOnly />
+            <Typography
+              component="legend"
+              style={isTop ? { fontWeight: "bold" } : {}}
+            >
+              Avg. Ranking
+            </Typography>
+            <Rating
+              style={
+                isTop
+                  ? {
+                      boxShadow: "2px 2px 5px rgba(0,0,0,0.4)",
+                      backgroundColor: "rgba(0,0,0,0.4)",
+                    }
+                  : {}
+              }
+              name="read-only"
+              value={ranking?.average ?? 0}
+              readOnly
+            />
             <div style={{ paddingLeft: "0.25em" }}>
-              <Typography variant="caption">
+              <Typography
+                variant="caption"
+                style={isTop ? { fontWeight: "bold" } : {}}
+              >
                 {ranking?.count ?? 0} Rankings
               </Typography>
             </div>
@@ -59,8 +94,19 @@ export function PieSummaryLink({
       <CardActions>
         <Button
           LinkComponent={Link}
+          variant={isTop ? "outlined" : undefined}
           href={`/brands/${pie.makerid}/${pie.id}`}
-          style={{ width: "100%", textAlign: "center" }}
+          style={
+            isTop
+              ? {
+                  width: "100%",
+                  textAlign: "center",
+                  color: "black",
+                  borderColor: "black",
+                  fontWeight: "bold",
+                }
+              : { width: "100%", textAlign: "center" }
+          }
         >
           {pie.displayname}
         </Button>
@@ -101,6 +147,7 @@ export function PieList({
         <>
           <h1>Top Pie</h1>
           <PieSummaryLink
+            isTop
             pie={mappedPies[topPieId]}
             ranking={mappedRankings[topPieId]}
           />
