@@ -109,8 +109,7 @@ export async function getMakerPieRankingSummaries(
     return ok(
       result.rows.map(rowToObject).map(addAverageScore) as PieRankingSummary[]
     );
-  } catch (ex: any) {
-    console.log(ex);
+  } catch {
     return err(StorageError.GenericError);
   }
 }

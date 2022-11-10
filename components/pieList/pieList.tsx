@@ -177,7 +177,6 @@ export function PieList({
           </Grid>
         ))}
         {Array.from(unrankedPies).map((uniqid) => {
-          console.log(uniqid);
           return (
             <Grid item key={uniqid} xs={12} md={6} lg={4}>
               <PieSummaryLink pie={mappedPies[uniqid]} />
