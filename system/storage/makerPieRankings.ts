@@ -67,11 +67,11 @@ export async function getPieRankingSummary(
     const result = await client.execute(
       `SELECT makerid,
         pieid,
-        AVG(pastry) as pastry,
-        AVG(filling) as filling,
-        AVG(topping) as topping,
-        AVG(looks) as looks,
-        AVG(value) as value,
+        AVG(cast(pastry as float)) as pastry,
+        AVG(cast(filling as float)) as filling,
+        AVG(cast(topping as float)) as topping,
+        AVG(cast(looks as float)) as looks,
+        AVG(cast(value as float)) as value,
         CAST(COUNT(1) as int) as count 
       FROM mincepierank.maker_pie_ranking
       WHERE makerid = ? AND pieid = ? ALLOW FILTERING;`,
@@ -93,11 +93,11 @@ export async function getMakerPieRankingSummaries(
     const result = await client.execute(
       `SELECT makerid,
         pieid,
-        AVG(pastry) as pastry,
-        AVG(filling) as filling,
-        AVG(topping) as topping,
-        AVG(looks) as looks,
-        AVG(value) as value,
+        AVG(cast(pastry as float)) as pastry,
+        AVG(cast(filling as float)) as filling,
+        AVG(cast(topping as float)) as topping,
+        AVG(cast(looks as float)) as looks,
+        AVG(cast(value as float)) as value,
         CAST(COUNT(1) as int) as count 
       FROM mincepierank.maker_pie_ranking
       WHERE makerid = ?
@@ -121,11 +121,11 @@ export async function getAllPieRankingSummaries(
     const result = await client.execute(
       `SELECT makerid,
         pieid,
-        AVG(pastry) as pastry,
-        AVG(filling) as filling,
-        AVG(topping) as topping,
-        AVG(looks) as looks,
-        AVG(value) as value,
+        AVG(cast(pastry as float)) as pastry,
+        AVG(cast(filling as float)) as filling,
+        AVG(cast(topping as float)) as topping,
+        AVG(cast(looks as float)) as looks,
+        AVG(cast(value as float)) as value,
         CAST(COUNT(1) as int) as count 
       FROM mincepierank.maker_pie_ranking
       GROUP BY makerid, pieid;`,
