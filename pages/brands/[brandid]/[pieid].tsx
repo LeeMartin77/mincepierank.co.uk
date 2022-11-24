@@ -23,7 +23,7 @@ import {
   Typography,
 } from "@mui/material";
 import { Link as LinkIcon } from "@mui/icons-material";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { signIn, signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 
@@ -194,10 +194,37 @@ function SubmitPieRanking({
     looks: 0,
     value: 0,
   });
+
   const [alreadyRanked, setAlreadyRanked] = useState<boolean>(false);
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [error, setError] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
+
+  const saveRanking = useCallback(
+    (imakerid: string, ipieid: string, iranking: PieRankingDetails) => {
+      setError(false);
+      setSubmitting(true);
+      submitRanking(imakerid, ipieid, iranking)
+        .catch(() => setError(true))
+        .then((res) => {
+          if (res && res.status === 200) {
+            setError(false);
+            setAlreadyRanked(true);
+            setRefresh(true);
+          } else {
+            setError(true);
+          }
+        })
+        .finally(() => setSubmitting(false));
+    },
+    [setError, setSubmitting, setAlreadyRanked, setRefresh]
+  );
+
+  useEffect(() => {
+    if (validRanking(myRanking)) {
+      saveRanking(makerid, pieid, myRanking);
+    }
+  }, [saveRanking, myRanking, makerid, pieid]);
 
   const { data: session, status } = useSession();
 
@@ -232,12 +259,20 @@ function SubmitPieRanking({
   if (status === "unauthenticated") {
     return (
       <Card>
+        <CardHeader title="Sign in to Rank" />
         <CardActions>
           <Button
             style={{ width: "100%", textAlign: "center" }}
-            onClick={() => signIn()}
+            onClick={() =>
+              signIn(
+                process.env.NODE_ENV === "development"
+                  ? "Development"
+                  : "google"
+              )
+            }
           >
-            Sign in to Rank
+            Sign in with{" "}
+            {process.env.NODE_ENV === "development" ? "Development" : "Google"}
           </Button>
         </CardActions>
       </Card>
@@ -251,46 +286,25 @@ function SubmitPieRanking({
         {error && <Alert severity="error">Something has gone wrong...</Alert>}
         {loading && <Alert severity="info">Loading...</Alert>}
         {!loading && (
-          <PieRanking
-            pieRanking={myRanking}
-            setPieRanking={!alreadyRanked ? setMyRanking : undefined}
-          />
+          <PieRanking pieRanking={myRanking} setPieRanking={setMyRanking} />
         )}
       </CardContent>
       <CardActions>
         <Button
-          color="secondary"
+          variant="contained"
+          color="success"
           style={{ width: "100%", textAlign: "center" }}
-          onClick={() => signOut()}
+          disabled={!validRanking(myRanking) || submitting}
+          onClick={() => saveRanking(makerid, pieid, myRanking)}
         >
-          Log Out
+          {submitting
+            ? alreadyRanked
+              ? "Updating..."
+              : "Submitting..."
+            : alreadyRanked
+            ? "Update"
+            : "Submit"}
         </Button>
-        {!alreadyRanked && (
-          <Button
-            variant="contained"
-            color="success"
-            style={{ width: "100%", textAlign: "center" }}
-            disabled={!validRanking(myRanking) || submitting}
-            onClick={() => {
-              setError(false);
-              setSubmitting(true);
-              submitRanking(makerid, pieid, myRanking)
-                .catch(() => setError(true))
-                .then((res) => {
-                  if (res && res.status === 200) {
-                    setError(false);
-                    setAlreadyRanked(true);
-                    setRefresh(true);
-                  } else {
-                    setError(true);
-                  }
-                })
-                .finally(() => setSubmitting(false));
-            }}
-          >
-            Submit
-          </Button>
-        )}
       </CardActions>
     </Card>
   );
@@ -360,12 +374,14 @@ function Pie({
         {localSummary && (
           <Card>
             <CardHeader
-              title="Summary"
-              subheader={`${localSummary.count} Rankings`}
+              title={"Summary"}
+              subheader={
+                `${localSummary.count} Rankings` +
+                (refresh ? " (refreshing...)" : "")
+              }
             />
             <CardContent>
-              {!refresh && <PieRanking pieRanking={localSummary} />}
-              {refresh && <CircularProgress />}
+              <PieRanking pieRanking={localSummary} />
             </CardContent>
           </Card>
         )}
