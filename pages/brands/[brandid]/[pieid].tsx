@@ -279,9 +279,27 @@ function SubmitPieRanking({
     );
   }
 
+  let subHeader = "Loading...";
+
+  if (!submitting && alreadyRanked) {
+    subHeader = "Ranked!";
+  }
+
+  if (!submitting && !alreadyRanked) {
+    subHeader = "Awaiting Ranking";
+  }
+
+  if (submitting && !alreadyRanked) {
+    subHeader = "Submitting...";
+  }
+
+  if (submitting && alreadyRanked) {
+    subHeader = "Updating...";
+  }
+
   return (
     <Card>
-      <CardHeader title="My Ranking" />
+      <CardHeader title="My Ranking" subheader={subHeader} />
       <CardContent>
         {error && <Alert severity="error">Something has gone wrong...</Alert>}
         {loading && <Alert severity="info">Loading...</Alert>}
@@ -289,23 +307,6 @@ function SubmitPieRanking({
           <PieRanking pieRanking={myRanking} setPieRanking={setMyRanking} />
         )}
       </CardContent>
-      <CardActions>
-        <Button
-          variant="contained"
-          color="success"
-          style={{ width: "100%", textAlign: "center" }}
-          disabled={!validRanking(myRanking) || submitting}
-          onClick={() => saveRanking(makerid, pieid, myRanking)}
-        >
-          {submitting
-            ? alreadyRanked
-              ? "Updating..."
-              : "Submitting..."
-            : alreadyRanked
-            ? "Update"
-            : "Submit"}
-        </Button>
-      </CardActions>
     </Card>
   );
 }
