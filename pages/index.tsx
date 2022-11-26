@@ -19,6 +19,9 @@ function BrandCard(maker: Maker) {
       <Card>
         <Link href={`/brands/${maker.id}`}>
           <CardMedia
+            style={{
+              objectFit: "contain",
+            }}
             component="img"
             height="150"
             image={maker.logo}

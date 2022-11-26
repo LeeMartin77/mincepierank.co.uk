@@ -357,6 +357,9 @@ function Pie({
               height="200"
               image={pie.image_file}
               alt={`${pie.displayname}`}
+              style={{
+                objectFit: "contain",
+              }}
             />
             <CardActions>
               <Button
