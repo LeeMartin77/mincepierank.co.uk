@@ -5,8 +5,10 @@ import {
   Box,
   createTheme,
   CssBaseline,
+  Divider,
   ThemeProvider,
   useMediaQuery,
+  Link,
 } from "@mui/material";
 import "@fontsource/roboto/300.css";
 import "@fontsource/roboto/400.css";
@@ -18,6 +20,7 @@ import {
   BottomNavigationComponent,
 } from "../components/navigation";
 import { SessionProvider } from "next-auth/react";
+import nxLink from "next/link";
 
 export default function App({
   Component,
@@ -59,6 +62,18 @@ export default function App({
             <Container className={containerClassName}>
               <Component {...pageProps} />
             </Container>
+            <Divider style={{ marginTop: "1em", marginBottom: "1em" }} />
+            <div
+              style={{
+                width: "100%",
+                textAlign: "center",
+                marginBottom: "3em",
+              }}
+            >
+              <Link component={nxLink} href={"/about"}>
+                About
+              </Link>
+            </div>
           </Box>
           {!isDesktop && <BottomNavigationComponent />}
         </Box>

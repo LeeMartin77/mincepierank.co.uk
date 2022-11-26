@@ -42,6 +42,33 @@ export async function getMyRankingForPie(
   }
 }
 
+export async function getUserPieRankings(
+  userid: string,
+  client = CASSANDRA_CLIENT
+): Promise<
+  Result<
+    (MakerPieRanking & { average: number; count: undefined })[],
+    StorageError
+  >
+> {
+  try {
+    const result = await client.execute(
+      "SELECT * FROM mincepierank.maker_pie_ranking WHERE userid = ? ALLOW FILTERING;",
+      [userid],
+      { prepare: true }
+    );
+
+    return ok(
+      result.rows.map(rowToObject).map(addAverageScore) as (MakerPieRanking & {
+        count: undefined;
+        average: number;
+      })[]
+    );
+  } catch {
+    return err(StorageError.GenericError);
+  }
+}
+
 export type PieRankingSummary = Omit<MakerPieRanking, "userid" | "notes"> & {
   count: number;
   average: number;

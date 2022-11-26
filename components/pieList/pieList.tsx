@@ -1,5 +1,9 @@
 /* eslint-disable @next/next/no-img-element */
-import { MakerPie, PieRankingSummary } from "../../system/storage";
+import {
+  MakerPie,
+  MakerPieRanking,
+  PieRankingSummary,
+} from "../../system/storage";
 import {
   Button,
   Card,
@@ -13,13 +17,18 @@ import {
   Typography,
 } from "@mui/material";
 
+export type PieListRanking = Omit<MakerPieRanking, "userid" | "notes"> & {
+  count: number | undefined;
+  average: number;
+};
+
 export function PieSummaryLink({
   pie,
   ranking,
   isTop = false,
 }: {
   pie: MakerPie;
-  ranking?: PieRankingSummary;
+  ranking?: PieListRanking;
   isTop?: boolean;
 }) {
   return (
@@ -80,14 +89,16 @@ export function PieSummaryLink({
               value={ranking?.average ?? 0}
               readOnly
             />
-            <div style={{ paddingLeft: "0.25em" }}>
-              <Typography
-                variant="caption"
-                style={isTop ? { fontWeight: "bold" } : {}}
-              >
-                {ranking?.count ?? 0} Rankings
-              </Typography>
-            </div>
+            {ranking && ranking.count != undefined && (
+              <div style={{ paddingLeft: "0.25em" }}>
+                <Typography
+                  variant="caption"
+                  style={isTop ? { fontWeight: "bold" } : {}}
+                >
+                  {ranking?.count ?? 0} Rankings
+                </Typography>
+              </div>
+            )}
           </div>
         </div>
       </CardContent>
@@ -120,9 +131,11 @@ export function PieList({
   rankings,
 }: {
   pies: MakerPie[];
-  rankings: PieRankingSummary[];
+  rankings: PieListRanking[];
 }) {
-  const mappedRankings: { [key: string]: PieRankingSummary | undefined } = {};
+  const mappedRankings: {
+    [key: string]: PieListRanking | undefined;
+  } = {};
   const mappedPies: { [key: string]: MakerPie } = {};
   const rankingOrder: string[] = [];
 
