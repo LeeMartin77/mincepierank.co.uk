@@ -17,6 +17,7 @@ import {
   Typography,
 } from "@mui/material";
 import { formatPrice } from "../formatPrice";
+import { mapPiesAndRankings } from "../mapPiesAndRankings";
 
 export type PieListRanking = Omit<MakerPieRanking, "userid" | "notes"> & {
   count: number | undefined;
@@ -142,26 +143,7 @@ export function PieList({
   pies: MakerPie[];
   rankings: PieListRanking[];
 }) {
-  const mappedRankings: {
-    [key: string]: PieListRanking | undefined;
-  } = {};
-  const mappedPies: { [key: string]: MakerPie } = {};
-  const rankingOrder: string[] = [];
-
-  const unrankedPies: Set<string> = new Set();
-  pies.forEach((pie) => {
-    const uniqId = pie.makerid + "-" + pie.id;
-    mappedPies[uniqId] = pie;
-    unrankedPies.add(uniqId);
-  });
-  rankings
-    .sort((a, b) => b.average - a.average)
-    .forEach((ranking) => {
-      const uniqId = ranking.makerid + "-" + ranking.pieid;
-      rankingOrder.push(uniqId);
-      unrankedPies.delete(uniqId);
-      mappedRankings[uniqId] = ranking;
-    });
+  const { mappedRankings, mappedPies, rankingOrder, unrankedPies } = mapPiesAndRankings(pies, rankings)
   const topPieId = rankingOrder.shift();
   return (
     <>

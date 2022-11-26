@@ -1,14 +1,25 @@
 import Head from "next/head";
 import { InferGetServerSidePropsType } from "next";
-import { getMincePieMakers, Maker } from "../system/storage";
+import { 
+  getAllMakerPies,
+  getAllPieRankingSummaries,
+  getMincePieMakers, Maker } from "../system/storage";
 import Link from "next/link";
-import { Button, Card, CardActions, CardMedia, Grid } from "@mui/material";
+import { Button, Card, CardActions, CardMedia, Divider, Grid } from "@mui/material";
+import { mapPiesAndRankings } from "../components/mapPiesAndRankings";
+import { PieSummaryLink } from "../components/pieList/pieList";
 
 export const getServerSideProps = async () => {
-  const data = await getMincePieMakers();
+  const data = (await getMincePieMakers()).unwrapOr([]);
+  const pies = (await getAllMakerPies()).unwrapOr([]);
+  const rankingSummaries = (await getAllPieRankingSummaries()).unwrapOr([]);
+  const { mappedRankings, mappedPies, rankingOrder, unrankedPies } = mapPiesAndRankings(pies, rankingSummaries)
+  const topPieId = rankingOrder.shift();
   return {
     props: {
-      makers: data.unwrapOr([]),
+      makers: data,
+      topPie: topPieId ? mappedPies[topPieId] : undefined,
+      topPieRanking: topPieId ? mappedRankings[topPieId] : undefined
     },
   };
 };
@@ -44,6 +55,8 @@ function BrandCard(maker: Maker) {
 
 function Home({
   makers,
+  topPie,
+  topPieRanking
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   return (
     <>
@@ -51,11 +64,22 @@ function Home({
         <title>Mince Pie Rank</title>
         <meta
           name="description"
-          content="Rankings of UK mince pies for 2022."
+          content={`Rankings of UK mince pies for 2022.${topPie ? ` The current leader is ${topPie.displayname} from ${makers.find(x => x.id === topPie.makerid)?.name} with ${topPieRanking?.average.toFixed(1)} stars across ${topPieRanking?.count} votes.` : ``}`}
         />
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main>
+        {topPie && topPieRanking && (
+          <>
+            <h1>Current Top Pie</h1>
+            <PieSummaryLink
+              isTop
+              pie={topPie}
+              ranking={topPieRanking}
+            />
+          </>
+        )}
+        <Divider style={{ marginTop: '1em', marginBottom: '1em' }}/>
         <Grid container spacing={2}>
           {makers.map(BrandCard)}
         </Grid>

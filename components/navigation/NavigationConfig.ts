@@ -7,7 +7,7 @@ export const navigationConfig = [
     icon: Home,
   },
   {
-    label: "List",
+    label: "All Pies",
     route: "/all-mince-pies",
     icon: FormatListBulleted,
   },
