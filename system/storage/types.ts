@@ -14,6 +14,7 @@ export type MakerPie = {
   image_file: string;
   web_link: string;
   pack_count: number;
+  pack_price_in_pence: number;
 };
 
 export type MakerPieRanking = {

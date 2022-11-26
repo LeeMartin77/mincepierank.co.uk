@@ -15,17 +15,22 @@ import {
   CardContent,
   CardHeader,
   CardMedia,
-  CircularProgress,
   Divider,
   Grid,
-  LinearProgress,
   Rating,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
   Typography,
 } from "@mui/material";
 import { Link as LinkIcon } from "@mui/icons-material";
 import { useCallback, useEffect, useState } from "react";
-import { signIn, signOut, useSession } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
 import Link from "next/link";
+import { formatPrice } from "../../../components/formatPrice";
 
 export const getServerSideProps = async ({
   params: { brandid, pieid },
@@ -328,6 +333,12 @@ function Pie({
       });
     }
   }, [maker.id, pie.id, refresh, setLocalSummary, setRefresh]);
+
+  const statistics: { name: string, value: string }[] = [
+    { name: "Pack Quantity", value: pie.pack_count.toString()},
+    { name: "Pack Price", value: formatPrice(pie.pack_price_in_pence)},
+    { name: "Price per Pie", value: formatPrice(pie.pack_price_in_pence / pie.pack_count)},
+  ]
   return (
     <>
       <Head>
@@ -361,6 +372,26 @@ function Pie({
                 objectFit: "contain",
               }}
             />
+            <TableContainer component={CardContent}>
+              <Table size="small" aria-label="Mince Pie Stats">
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Statistics</TableCell>
+                    <TableCell></TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {statistics.map((val, i) => 
+                    <TableRow
+                      key={`property-${i}`}
+                      sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                    >
+                      <TableCell component="th" scope="row">{val.name}</TableCell>
+                      <TableCell>{val.value}</TableCell>
+                    </TableRow>)}
+                </TableBody>
+              </Table>
+            </TableContainer>
             <CardActions>
               <Button
                 variant="outlined"

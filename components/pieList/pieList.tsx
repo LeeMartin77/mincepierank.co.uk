@@ -16,6 +16,7 @@ import {
   Rating,
   Typography,
 } from "@mui/material";
+import { formatPrice } from "../formatPrice";
 
 export type PieListRanking = Omit<MakerPieRanking, "userid" | "notes"> & {
   count: number | undefined;
@@ -99,6 +100,14 @@ export function PieSummaryLink({
                 </Typography>
               </div>
             )}
+            <div style={{ paddingLeft: "0.25em" }}>
+              <Typography
+                variant="caption"
+                style={isTop ? { fontWeight: "bold" } : {}}
+              >
+                {formatPrice(pie.pack_price_in_pence / pie.pack_count)} per pie
+              </Typography>
+            </div>
           </div>
         </div>
       </CardContent>
