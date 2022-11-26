@@ -314,7 +314,7 @@ function SubmitPieRanking({
         title="My Ranking"
         subheader={subHeader}
         action={
-          alreadyRanked ? (
+          alreadyRanked && navigator.share ? (
             <IconButton
               aria-label="share"
               onClick={() =>
