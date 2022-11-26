@@ -1,7 +1,7 @@
 import { err, ok, Result } from "neverthrow";
 import { CASSANDRA_CLIENT } from "./cassandra";
 import { MakerPieRanking, StorageError } from "./types";
-import { rowToObject } from "./utilities";
+import { calculateAverage, rowToObject } from "./utilities";
 
 export async function getAllRankingsForPie(
   makerid: string,
@@ -75,13 +75,7 @@ export type PieRankingSummary = Omit<MakerPieRanking, "userid" | "notes"> & {
 };
 
 function addAverageScore(mapped: any) {
-  mapped.average =
-    (mapped.filling +
-      mapped.pastry +
-      mapped.topping +
-      mapped.value +
-      mapped.looks) /
-    5;
+  mapped.average = calculateAverage(mapped);
   return mapped;
 }
 

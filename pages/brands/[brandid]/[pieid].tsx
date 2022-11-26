@@ -4,6 +4,7 @@ import {
   getMincePieMaker,
   getPieByMakerAndId,
   getPieRankingSummary,
+  MakerPie,
   MakerPieRanking,
 } from "../../../system/storage";
 import {
@@ -17,6 +18,7 @@ import {
   CardMedia,
   Divider,
   Grid,
+  IconButton,
   Rating,
   Table,
   TableBody,
@@ -31,6 +33,8 @@ import { useCallback, useEffect, useState } from "react";
 import { signIn, useSession } from "next-auth/react";
 import Link from "next/link";
 import { formatPrice } from "../../../components/formatPrice";
+import { Share } from "@mui/icons-material";
+import { calculateAverage } from "../../../system/storage/utilities";
 
 export const getServerSideProps = async ({
   params: { brandid, pieid },
@@ -184,12 +188,10 @@ const submitRanking = (
 };
 
 function SubmitPieRanking({
-  makerid,
-  pieid,
+  pie,
   setRefresh,
 }: {
-  makerid: string;
-  pieid: string;
+  pie: MakerPie;
   setRefresh: (inp: boolean) => void;
 }) {
   const [myRanking, setMyRanking] = useState<PieRankingDetails>({
@@ -199,6 +201,8 @@ function SubmitPieRanking({
     looks: 0,
     value: 0,
   });
+
+  const { makerid, id: pieid } = pie;
 
   const [alreadyRanked, setAlreadyRanked] = useState<boolean>(false);
   const [submitting, setSubmitting] = useState<boolean>(false);
@@ -304,7 +308,28 @@ function SubmitPieRanking({
 
   return (
     <Card>
-      <CardHeader title="My Ranking" subheader={subHeader} />
+      <CardHeader
+        title="My Ranking"
+        subheader={subHeader}
+        action={
+          alreadyRanked && navigator.share ? (
+            <IconButton
+              aria-label="share"
+              onClick={() =>
+                navigator.share({
+                  url: `https://mincepierank.co.uk/${pie.makerid}/${pie.id}`,
+                  title: `${pie.displayname} :: Mince Pie Rank`,
+                  text: `${pie.displayname} :: I gave it ${calculateAverage(
+                    myRanking
+                  ).toFixed(1)}/5 on Mince Pie Rank`,
+                })
+              }
+            >
+              <Share />
+            </IconButton>
+          ) : undefined
+        }
+      />
       <CardContent>
         {error && <Alert severity="error">Something has gone wrong...</Alert>}
         {loading && <Alert severity="info">Loading...</Alert>}
@@ -334,18 +359,34 @@ function Pie({
     }
   }, [maker.id, pie.id, refresh, setLocalSummary, setRefresh]);
 
-  const statistics: { name: string, value: string }[] = [
-    { name: "Pack Quantity", value: pie.pack_count.toString()},
-    { name: "Pack Price", value: formatPrice(pie.pack_price_in_pence)},
-    { name: "Price per Pie", value: formatPrice(pie.pack_price_in_pence / pie.pack_count)},
-  ]
+  const statistics: { name: string; value: string }[] = [
+    { name: "Pack Quantity", value: pie.pack_count.toString() },
+    { name: "Pack Price", value: formatPrice(pie.pack_price_in_pence) },
+    {
+      name: "Price per Pie",
+      value: formatPrice(pie.pack_price_in_pence / pie.pack_count),
+    },
+  ];
+  useEffect(() => {
+    if (navigator.canShare) {
+      navigator.canShare({
+        url: `https://mincepierank.co.uk/${pie.makerid}/${pie.id}`,
+        title: `${pie.displayname} :: Mince Pie Rank`,
+        text: `${pie.displayname} :: ${
+          rankingSummary?.average.toFixed(1) ?? 0
+        }/5 on Mince Pie Rank`,
+      });
+    }
+  });
   return (
     <>
       <Head>
         <title>{`Mince Pie Rank :: ${maker.name} :: ${pie.displayname}`}</title>
         <meta
           name="description"
-          content={`${pie.displayname} from ${maker.name} has ${rankingSummary?.average.toFixed(1) ?? 0} stars across ${rankingSummary?.count ?? 0} votes.`}
+          content={`${pie.displayname} from ${maker.name} has ${
+            rankingSummary?.average.toFixed(1) ?? 0
+          } stars across ${rankingSummary?.count ?? 0} votes.`}
         />
       </Head>
       <main>
@@ -380,14 +421,17 @@ function Pie({
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {statistics.map((val, i) => 
+                  {statistics.map((val, i) => (
                     <TableRow
                       key={`property-${i}`}
-                      sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                      sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                     >
-                      <TableCell component="th" scope="row">{val.name}</TableCell>
+                      <TableCell component="th" scope="row">
+                        {val.name}
+                      </TableCell>
                       <TableCell>{val.value}</TableCell>
-                    </TableRow>)}
+                    </TableRow>
+                  ))}
                 </TableBody>
               </Table>
             </TableContainer>
@@ -420,13 +464,7 @@ function Pie({
           </Card>
         )}
         <Divider style={{ marginTop: "1em", marginBottom: "1em" }} />
-        {pie && (
-          <SubmitPieRanking
-            makerid={pie.makerid}
-            pieid={pie.id}
-            setRefresh={setRefresh}
-          />
-        )}
+        {pie && <SubmitPieRanking pie={pie} setRefresh={setRefresh} />}
       </main>
     </>
   );
