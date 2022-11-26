@@ -257,10 +257,6 @@ function SubmitPieRanking({
 
   const [shareFn, setShareFn] = useState<any>(undefined);
 
-  useEffect(() => {
-    setShareFn(navigator.share);
-  }, [setShareFn]);
-
   if (status === "loading") {
     return (
       <Card>
@@ -318,11 +314,11 @@ function SubmitPieRanking({
         title="My Ranking"
         subheader={subHeader}
         action={
-          alreadyRanked && shareFn ? (
+          alreadyRanked ? (
             <IconButton
               aria-label="share"
               onClick={() =>
-                shareFn({
+                navigator.share({
                   url: `https://mincepierank.co.uk/${pie.makerid}/${pie.id}`,
                   title: `${pie.displayname} :: Mince Pie Rank`,
                   text: `${pie.displayname} :: I gave it ${calculateAverage(
