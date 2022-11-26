@@ -44,6 +44,7 @@ function AllMincePies({
       <Head>
         <title>Mince Pie Rank :: My Rankings</title>
         <meta name="description" content="All my pie rankings" />
+        <meta name="robots" content="noindex" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main>

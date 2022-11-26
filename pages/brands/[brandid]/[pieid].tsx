@@ -345,7 +345,7 @@ function Pie({
         <title>{`Mince Pie Rank :: ${maker.name} :: ${pie.displayname}`}</title>
         <meta
           name="description"
-          content={`The rankings we have for ${maker.name} ${pie.displayname}`}
+          content={`${pie.displayname} from ${maker.name} has ${rankingSummary?.average.toFixed(1) ?? 0} stars across ${rankingSummary?.count ?? 0} votes.`}
         />
         <link rel="icon" href="/favicon.ico" />
       </Head>
