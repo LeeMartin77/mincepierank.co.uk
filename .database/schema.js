@@ -19,6 +19,7 @@ const schema = [
       image_file text,
       web_link text,
       pack_count int,
+      pack_price_in_pence int,
       PRIMARY KEY ((makerId, id))
   );`,
   `CREATE INDEX IF NOT EXISTS ON mincepierank.maker_pie (makerId);`,
