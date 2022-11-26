@@ -67,7 +67,7 @@ export default function App({
               style={{
                 width: "100%",
                 textAlign: "center",
-                marginBottom: "3em",
+                marginBottom: isDesktop ? "1em" : "5em",
               }}
             >
               <Link component={nxLink} href={"/about"}>
