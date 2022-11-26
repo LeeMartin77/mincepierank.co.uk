@@ -319,7 +319,7 @@ function SubmitPieRanking({
               aria-label="share"
               onClick={() =>
                 navigator.share({
-                  url: `https://mincepierank.co.uk/${pie.makerid}/${pie.id}`,
+                  url: `https://mincepierank.co.uk/brands/${pie.makerid}/${pie.id}`,
                   title: `${pie.displayname} :: Mince Pie Rank`,
                   text: `${pie.displayname} :: I gave it ${calculateAverage(
                     myRanking
@@ -372,7 +372,7 @@ function Pie({
   useEffect(() => {
     if (navigator.canShare) {
       navigator.canShare({
-        url: `https://mincepierank.co.uk/${pie.makerid}/${pie.id}`,
+        url: `https://mincepierank.co.uk/brands/${pie.makerid}/${pie.id}`,
         title: `${pie.displayname} :: Mince Pie Rank`,
         text: `${pie.displayname} :: ${
           rankingSummary?.average.toFixed(1) ?? 0
