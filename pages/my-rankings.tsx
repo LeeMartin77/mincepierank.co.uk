@@ -2,10 +2,7 @@ import Head from "next/head";
 import { InferGetServerSidePropsType } from "next";
 import {
   getAllMakerPies,
-  getAllPieRankingSummaries,
-  getMincePieMakers,
   getUserPieRankings,
-  Maker,
 } from "../system/storage";
 import { Breadcrumbs, Button, Divider } from "@mui/material";
 import Link from "next/link";
@@ -45,7 +42,6 @@ function AllMincePies({
         <title>Mince Pie Rank :: My Rankings</title>
         <meta name="description" content="All my pie rankings" />
         <meta name="robots" content="noindex" />
-        <link rel="icon" href="/favicon.ico" />
       </Head>
       <main>
         <Breadcrumbs aria-label="breadcrumb">
@@ -71,7 +67,7 @@ function AllMincePies({
           </Button>
         )}
         {loggedIn && pies && rankings && rankings.length > 0 && (
-          <PieList pies={pies} rankings={rankings} />
+          <PieList pies={pies} rankings={rankings}/>
         )}
         {loggedIn && (!rankings || rankings.length === 0) && (
           <div style={{ width: "100%", textAlign: "center" }}>

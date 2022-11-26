@@ -55,11 +55,6 @@ function Brands({
     <>
       <Head>
         <title>{`Mince Pie Rank :: ${maker.name}`}</title>
-        <meta
-          name="description"
-          content={`The pies of ${maker.name} we have in our database`}
-        />
-        <link rel="icon" href="/favicon.ico" />
       </Head>
       <main>
         <Breadcrumbs aria-label="breadcrumb">
@@ -70,7 +65,7 @@ function Brands({
         </Breadcrumbs>
         <h1>{maker.name}</h1>
         <Divider style={{ marginTop: "1em", marginBottom: "1em" }} />
-        <PieList pies={pies} rankings={rankingSummaries} />
+        <PieList pies={pies} rankings={rankingSummaries} addMetaDescription metaPrefix={`The pies of ${maker.name} ranked by you. `}/>
       </main>
     </>
   );

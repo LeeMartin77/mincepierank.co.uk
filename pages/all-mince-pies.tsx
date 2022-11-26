@@ -34,11 +34,6 @@ function AllMincePies({
     <>
       <Head>
         <title>Mince Pie Rank :: All Pies</title>
-        <meta
-          name="description"
-          content="A big list of all the pies in our database"
-        />
-        <link rel="icon" href="/favicon.ico" />
       </Head>
       <main>
         <Breadcrumbs aria-label="breadcrumb">
@@ -48,7 +43,7 @@ function AllMincePies({
         </Breadcrumbs>
         <h1>All Pies</h1>
         <Divider style={{ marginTop: "1em", marginBottom: "1em" }} />
-        <PieList pies={pies} rankings={rankingSummaries} />
+        <PieList pies={pies} rankings={rankingSummaries} addMetaDescription metaPrefix={`All the pies in our list, ranked by you. `}/>
       </main>
     </>
   );

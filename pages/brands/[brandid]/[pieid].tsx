@@ -347,7 +347,6 @@ function Pie({
           name="description"
           content={`${pie.displayname} from ${maker.name} has ${rankingSummary?.average.toFixed(1) ?? 0} stars across ${rankingSummary?.count ?? 0} votes.`}
         />
-        <link rel="icon" href="/favicon.ico" />
       </Head>
       <main>
         <Breadcrumbs aria-label="breadcrumb">

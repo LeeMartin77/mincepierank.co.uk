@@ -18,6 +18,8 @@ import {
 } from "@mui/material";
 import { formatPrice } from "../formatPrice";
 import { mapPiesAndRankings } from "../mapPiesAndRankings";
+import Head from "next/head";
+import { descriptionSummary } from "../descriptionSummary";
 
 export type PieListRanking = Omit<MakerPieRanking, "userid" | "notes"> & {
   count: number | undefined;
@@ -139,14 +141,24 @@ export function PieSummaryLink({
 export function PieList({
   pies,
   rankings,
+  addMetaDescription = false,
+  metaPrefix = ""
 }: {
   pies: MakerPie[];
   rankings: PieListRanking[];
+  addMetaDescription?: boolean;
+  metaPrefix?: string;
 }) {
   const { mappedRankings, mappedPies, rankingOrder, unrankedPies } = mapPiesAndRankings(pies, rankings)
   const topPieId = rankingOrder.shift();
   return (
     <>
+      {addMetaDescription && <Head>
+        <meta
+          name="description"
+          content={`${metaPrefix}${topPieId ? descriptionSummary(mappedPies[topPieId]!, mappedRankings[topPieId]!) : ''}`}
+        />
+      </Head>}
       {topPieId && mappedPies[topPieId] && (
         <>
           <h1>Top Pie</h1>

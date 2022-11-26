@@ -21,6 +21,7 @@ import {
 } from "../components/navigation";
 import { SessionProvider } from "next-auth/react";
 import nxLink from "next/link";
+import Head from "next/head";
 
 export default function App({
   Component,
@@ -56,6 +57,9 @@ export default function App({
     <SessionProvider session={session}>
       <ThemeProvider theme={theme}>
         <CssBaseline enableColorScheme />
+        <Head>
+          <link rel="icon" href="/favicon.ico" />
+        </Head>
         <Box sx={{ display: "flex" }}>
           {isDesktop && <SideNavigationComponent />}
           <Box component="main" style={{ width: "100%" }}>
