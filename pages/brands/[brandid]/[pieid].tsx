@@ -63,21 +63,24 @@ export const getServerSideProps = async ({
 function RankingSummary({
   label,
   value,
+  bold = false,
   setValue,
 }: {
   label: string;
   value: number;
+  bold?: boolean;
   setValue?: (n: number) => void;
 }) {
   return (
     <>
-      <Typography component="legend">
-        {`${label} (${value.toFixed(2)})`}
+      <Typography component="legend" style={bold ? { fontWeight: "bold" } : {}}>
+        {`${label} (${value.toFixed(1)})`}
       </Typography>
       <Rating
         name="read-only"
         value={value}
         readOnly={!setValue}
+        precision={setValue ? 1 : 0.1}
         onChange={(event, newValue) => {
           setValue && newValue && setValue(newValue);
         }}
@@ -156,6 +159,13 @@ function PieRanking({
             ((newVal: number) =>
               setPieRanking({ ...pieRanking, value: newVal }))
           }
+        />
+      </Grid>
+      <Grid item xs={xs} sm={sm} md={md}>
+        <RankingSummary
+          label="Total Score"
+          value={calculateAverage(pieRanking)}
+          bold
         />
       </Grid>
     </Grid>

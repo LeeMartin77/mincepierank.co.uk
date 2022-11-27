@@ -90,6 +90,7 @@ export function PieSummaryLink({
                   : {}
               }
               name="read-only"
+              precision={0.1}
               value={ranking?.average ?? 0}
               readOnly
             />
@@ -142,23 +143,33 @@ export function PieList({
   pies,
   rankings,
   addMetaDescription = false,
-  metaPrefix = ""
+  metaPrefix = "",
 }: {
   pies: MakerPie[];
   rankings: PieListRanking[];
   addMetaDescription?: boolean;
   metaPrefix?: string;
 }) {
-  const { mappedRankings, mappedPies, rankingOrder, unrankedPies } = mapPiesAndRankings(pies, rankings)
+  const { mappedRankings, mappedPies, rankingOrder, unrankedPies } =
+    mapPiesAndRankings(pies, rankings);
   const topPieId = rankingOrder.shift();
   return (
     <>
-      {addMetaDescription && <Head>
-        <meta
-          name="description"
-          content={`${metaPrefix}${topPieId ? descriptionSummary(mappedPies[topPieId]!, mappedRankings[topPieId]!) : ''}`}
-        />
-      </Head>}
+      {addMetaDescription && (
+        <Head>
+          <meta
+            name="description"
+            content={`${metaPrefix}${
+              topPieId
+                ? descriptionSummary(
+                    mappedPies[topPieId]!,
+                    mappedRankings[topPieId]!
+                  )
+                : ""
+            }`}
+          />
+        </Head>
+      )}
       {topPieId && mappedPies[topPieId] && (
         <>
           <h1>Top Pie</h1>
