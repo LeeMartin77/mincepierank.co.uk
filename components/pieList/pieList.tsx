@@ -167,7 +167,15 @@ function PieFilter({
   setFilteredCategories: (cats: Set<string>) => void;
 }) {
   return (
-    <div style={{ display: "flex", gap: "0.5em" }}>
+    <div
+      style={{
+        display: "flex",
+        gap: "0.5em",
+        maxWidth: "100%",
+        scrollbarWidth: "none",
+        overflowX: "auto",
+      }}
+    >
       {Array.from(availableCategories)
         .sort((a, b) => a.localeCompare(b))
         .map((available) => {
