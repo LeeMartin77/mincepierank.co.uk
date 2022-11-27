@@ -10,7 +10,7 @@ function About() {
       <Head>
         <title>Mince Pie Rank :: About</title>
         <meta name="description" content="All about Mince Pie Rank" />
-        <meta property="og:image" content="/logo.svg" />
+        <meta property="og:image" content="/logo-social.png" />
       </Head>
       <main>
         <h1>Mince Pie Rank</h1>

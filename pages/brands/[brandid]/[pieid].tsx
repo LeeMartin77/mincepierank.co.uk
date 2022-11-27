@@ -459,7 +459,7 @@ function Pie({
             rankingSummary?.average.toFixed(1) ?? 0
           } stars across ${rankingSummary?.count ?? 0} votes.`}
         />
-        <meta property="og:image" content="/logo.svg" />
+        <meta property="og:image" content="/logo-social.png" />
       </Head>
       <main>
         <Breadcrumbs aria-label="breadcrumb">
