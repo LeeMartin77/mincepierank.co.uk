@@ -1,5 +1,5 @@
 import { MakerPie } from "../system/storage";
-import { PieListRanking } from "./pieList/pieList";
+import { PieListRanking } from "./pieList/pieSummaryLink";
 
 export function mapPiesAndRankings(
   pies: MakerPie[],

@@ -16,9 +16,9 @@ import {
   Grid,
 } from "@mui/material";
 import { mapPiesAndRankings } from "../components/mapPiesAndRankings";
-import { PieSummaryLink } from "../components/pieList/pieList";
 import { descriptionSummary } from "../components/descriptionSummary";
 import { ppCategory } from "../components/formatCategory";
+import { PieSummaryLink } from "../components/pieList/pieSummaryLink";
 
 export const getServerSideProps = async () => {
   const data = (await getMincePieMakers()).unwrapOr([]);
