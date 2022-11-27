@@ -343,6 +343,64 @@ function SubmitPieRanking({
   );
 }
 
+function PieDetails({ pie }: { pie: MakerPie }) {
+  const statistics: { name: string; value: string }[] = [
+    { name: "Pack Quantity", value: pie.pack_count.toString() },
+    { name: "Pack Price", value: formatPrice(pie.pack_price_in_pence) },
+    {
+      name: "Price per Pie",
+      value: formatPrice(pie.pack_price_in_pence / pie.pack_count),
+    },
+  ];
+  return (
+    <Card>
+      <CardMedia
+        component="img"
+        height="200"
+        image={pie.image_file}
+        alt={`${pie.displayname}`}
+        style={{
+          objectFit: "contain",
+        }}
+      />
+      <TableContainer component={CardContent}>
+        <Table size="small" aria-label="Mince Pie Stats">
+          <TableHead>
+            <TableRow>
+              <TableCell>Statistics</TableCell>
+              <TableCell></TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {statistics.map((val, i) => (
+              <TableRow
+                key={`property-${i}`}
+                sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+              >
+                <TableCell component="th" scope="row">
+                  {val.name}
+                </TableCell>
+                <TableCell>{val.value}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+      <CardActions>
+        <Button
+          variant="outlined"
+          LinkComponent={Link}
+          href={pie.web_link}
+          style={{ width: "100%" }}
+          endIcon={<LinkIcon />}
+        >
+          Go To Website
+        </Button>
+      </CardActions>
+    </Card>
+  );
+}
+
 function Pie({
   maker,
   pie,
@@ -361,14 +419,6 @@ function Pie({
     }
   }, [maker.id, pie.id, refresh, setLocalSummary, setRefresh]);
 
-  const statistics: { name: string; value: string }[] = [
-    { name: "Pack Quantity", value: pie.pack_count.toString() },
-    { name: "Pack Price", value: formatPrice(pie.pack_price_in_pence) },
-    {
-      name: "Price per Pie",
-      value: formatPrice(pie.pack_price_in_pence / pie.pack_count),
-    },
-  ];
   useEffect(() => {
     if (navigator.canShare) {
       navigator.canShare({
@@ -401,55 +451,9 @@ function Pie({
           </Link>
           <Typography color="text.primary">{pie?.displayname}</Typography>
         </Breadcrumbs>
-        <h1>{pie && pie.displayname}</h1>
-        <h3>{maker && maker.name}</h3>
-        {pie && (
-          <Card>
-            <CardMedia
-              component="img"
-              height="200"
-              image={pie.image_file}
-              alt={`${pie.displayname}`}
-              style={{
-                objectFit: "contain",
-              }}
-            />
-            <TableContainer component={CardContent}>
-              <Table size="small" aria-label="Mince Pie Stats">
-                <TableHead>
-                  <TableRow>
-                    <TableCell>Statistics</TableCell>
-                    <TableCell></TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {statistics.map((val, i) => (
-                    <TableRow
-                      key={`property-${i}`}
-                      sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-                    >
-                      <TableCell component="th" scope="row">
-                        {val.name}
-                      </TableCell>
-                      <TableCell>{val.value}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
-            <CardActions>
-              <Button
-                variant="outlined"
-                LinkComponent={Link}
-                href={pie.web_link}
-                style={{ width: "100%" }}
-                endIcon={<LinkIcon />}
-              >
-                Go To Website
-              </Button>
-            </CardActions>
-          </Card>
-        )}
+        <h1>{pie.displayname}</h1>
+        <h3>{maker.name}</h3>
+        <PieDetails pie={pie} />
         <Divider style={{ marginTop: "1em", marginBottom: "1em" }} />
         {localSummary && (
           <Card>
