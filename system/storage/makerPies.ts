@@ -34,6 +34,25 @@ export async function getPiesByMaker(
     return err(StorageError.GenericError);
   }
 }
+
+export async function getPiesWithCategory(
+  category: string,
+  client = CASSANDRA_CLIENT
+): Promise<Result<MakerPie[], StorageError>> {
+  try {
+    const result = await client.execute(
+      "SELECT * FROM mincepierank.maker_pie WHERE labels contains ?;",
+      [category],
+      { prepare: true }
+    );
+
+    const mapped = result.rows.map(rowToObject);
+    return ok(mapped as MakerPie[]);
+  } catch {
+    return err(StorageError.GenericError);
+  }
+}
+
 export async function getPieByMakerAndId(
   makerId: string,
   id: string,

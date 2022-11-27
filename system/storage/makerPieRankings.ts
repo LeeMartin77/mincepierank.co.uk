@@ -106,6 +106,36 @@ export async function getPieRankingSummary(
   }
 }
 
+export async function getPieRankingSummariesByIds(
+  makerid: string,
+  pieids: string[],
+  client = CASSANDRA_CLIENT
+): Promise<Result<PieRankingSummary[], StorageError>> {
+  try {
+    const result = await client.execute(
+      `SELECT makerid,
+        pieid,
+        AVG(cast(pastry as float)) as pastry,
+        AVG(cast(filling as float)) as filling,
+        AVG(cast(topping as float)) as topping,
+        AVG(cast(looks as float)) as looks,
+        AVG(cast(value as float)) as value,
+        CAST(COUNT(1) as int) as count 
+      FROM mincepierank.maker_pie_ranking
+      WHERE makerid = ? and pieid in ?
+      GROUP BY makerid, pieid;`,
+      [makerid, pieids],
+      { prepare: true }
+    );
+
+    return ok(
+      result.rows.map(rowToObject).map(addAverageScore) as PieRankingSummary[]
+    );
+  } catch {
+    return err(StorageError.GenericError);
+  }
+}
+
 export async function getMakerPieRankingSummaries(
   makerid: string,
   client = CASSANDRA_CLIENT
