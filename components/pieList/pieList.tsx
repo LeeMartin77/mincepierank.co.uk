@@ -236,6 +236,7 @@ export function PieList({
   const { mappedRankings, mappedPies, rankingOrder, unrankedPies } =
     mapPiesAndRankings(pies, rankings, filteredCategories);
   const topPieId = rankingOrder.shift();
+  const showFurtherList = rankingOrder.length > 0 || unrankedPies.size > 0;
   return (
     <>
       {addMetaDescription && (
@@ -283,10 +284,10 @@ export function PieList({
           No top pie yet...
         </Typography>
       )}
-      {unrankedPies.size > 0 && (
+      {showFurtherList && (
         <Divider style={{ marginTop: "1em", marginBottom: "1em" }} />
       )}
-      {unrankedPies.size > 0 && (
+      {showFurtherList && (
         <Grid container spacing={2}>
           {rankingOrder.map((uniqid) => (
             <Grid item key={uniqid} xs={12} md={6} lg={4}>
@@ -305,7 +306,7 @@ export function PieList({
           })}
         </Grid>
       )}
-      {unrankedPies.size === 0 && !topPieId && (
+      {!showFurtherList && !topPieId && (
         <Typography
           variant="h4"
           style={{
