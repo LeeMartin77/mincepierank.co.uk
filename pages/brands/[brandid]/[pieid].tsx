@@ -379,7 +379,15 @@ function PieDetails({ pie }: { pie: MakerPie }) {
         {pie.labels
           .sort((a, b) => a.localeCompare(b))
           .map((lb) => {
-            return <Chip key={lb} label={ppCategory(lb)} />;
+            return (
+              <Chip
+                key={lb}
+                label={ppCategory(lb)}
+                onClick={() => {}}
+                component={Link}
+                href={`/categories/${lb}`}
+              />
+            );
           })}
       </div>
       <TableContainer component={CardContent}>

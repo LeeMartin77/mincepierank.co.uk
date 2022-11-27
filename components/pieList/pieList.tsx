@@ -127,6 +127,9 @@ export function PieSummaryLink({
                   size="small"
                   key={lb}
                   label={ppCategory(lb)}
+                  onClick={() => {}}
+                  component={Link}
+                  href={`/categories/${lb}`}
                   style={isTop ? { color: "black" } : {}}
                 />
               );
