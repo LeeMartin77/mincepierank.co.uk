@@ -16,6 +16,7 @@ import {
   CardContent,
   CardHeader,
   CardMedia,
+  Chip,
   Divider,
   Grid,
   IconButton,
@@ -35,6 +36,7 @@ import Link from "next/link";
 import { formatPrice } from "../../../components/formatPrice";
 import { Share } from "@mui/icons-material";
 import { calculateAverage } from "../../../system/storage/utilities";
+import { ppCategory } from "../../../components/formatCategory";
 
 export const getServerSideProps = async ({
   params: { brandid, pieid },
@@ -373,6 +375,13 @@ function PieDetails({ pie }: { pie: MakerPie }) {
           objectFit: "contain",
         }}
       />
+      <div style={{ display: "flex", gap: "0.5em", margin: "0.5em 1em" }}>
+        {pie.labels
+          .sort((a, b) => a.localeCompare(b))
+          .map((lb) => {
+            return <Chip key={lb} label={ppCategory(lb)} />;
+          })}
+      </div>
       <TableContainer component={CardContent}>
         <Table size="small" aria-label="Mince Pie Stats">
           <TableHead>

@@ -118,6 +118,20 @@ export function PieSummaryLink({
             </div>
           </div>
         </div>
+        <div style={{ display: "flex", gap: "0.25em" }}>
+          {pie.labels
+            .sort((a, b) => a.localeCompare(b))
+            .map((lb) => {
+              return (
+                <Chip
+                  size="small"
+                  key={lb}
+                  label={ppCategory(lb)}
+                  style={isTop ? { color: "black" } : {}}
+                />
+              );
+            })}
+        </div>
       </CardContent>
       <CardActions>
         <Button
@@ -154,34 +168,36 @@ function PieFilter({
 }) {
   return (
     <div style={{ display: "flex", gap: "0.5em" }}>
-      {Array.from(availableCategories).map((available) => {
-        if (filteredCategories.has(available)) {
+      {Array.from(availableCategories)
+        .sort((a, b) => a.localeCompare(b))
+        .map((available) => {
+          if (filteredCategories.has(available)) {
+            return (
+              <Chip
+                key={available}
+                icon={<Check />}
+                label={ppCategory(available)}
+                onClick={() => {
+                  const newSet = new Set(filteredCategories);
+                  newSet.delete(available);
+                  setFilteredCategories(newSet);
+                }}
+              />
+            );
+          }
           return (
             <Chip
               key={available}
-              icon={<Check />}
               label={ppCategory(available)}
+              variant="outlined"
               onClick={() => {
                 const newSet = new Set(filteredCategories);
-                newSet.delete(available);
+                newSet.add(available);
                 setFilteredCategories(newSet);
               }}
             />
           );
-        }
-        return (
-          <Chip
-            key={available}
-            label={ppCategory(available)}
-            variant="outlined"
-            onClick={() => {
-              const newSet = new Set(filteredCategories);
-              newSet.add(available);
-              setFilteredCategories(newSet);
-            }}
-          />
-        );
-      })}
+        })}
     </div>
   );
 }
