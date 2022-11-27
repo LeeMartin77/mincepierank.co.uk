@@ -65,7 +65,12 @@ function Brands({
         </Breadcrumbs>
         <h1>{maker.name}</h1>
         <Divider style={{ marginTop: "1em", marginBottom: "1em" }} />
-        <PieList pies={pies} rankings={rankingSummaries} addMetaDescription metaPrefix={`The pies of ${maker.name} ranked by you. `}/>
+        <PieList
+          pies={pies}
+          rankings={rankingSummaries}
+          addMetaDescription
+          metaPrefix={`The pies of ${maker.name} ranked by you. `}
+        />
       </main>
     </>
   );

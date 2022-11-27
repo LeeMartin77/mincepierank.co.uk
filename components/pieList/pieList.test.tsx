@@ -21,6 +21,7 @@ describe("PieSummaryLink", () => {
         image_file: "/image/pie1.jpg",
         web_link: "",
         pack_count: 6,
+        pack_price_in_pence: 100,
       },
       {
         makerid: "some-maker-id-2",
@@ -31,6 +32,7 @@ describe("PieSummaryLink", () => {
         image_file: "/image/pie2.jpg",
         web_link: "",
         pack_count: 6,
+        pack_price_in_pence: 100,
       },
       {
         makerid: "some-maker-id-3",
@@ -41,6 +43,7 @@ describe("PieSummaryLink", () => {
         image_file: "/image/pie3.jpg",
         web_link: "",
         pack_count: 6,
+        pack_price_in_pence: 100,
       },
     ];
 

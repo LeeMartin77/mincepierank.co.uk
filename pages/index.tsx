@@ -99,6 +99,13 @@ function Home({
             <PieSummaryLink isTop pie={topPie} ranking={topPieRanking} />
           </>
         )}
+        <Button
+          LinkComponent={Link}
+          href={`/all-mince-pies`}
+          style={{ width: "100%", textAlign: "center", marginTop: "1em" }}
+        >
+          All Mince Pies
+        </Button>
         <Divider style={{ marginTop: "1em", marginBottom: "1em" }} />
         <h2>Categories</h2>
         <Grid container spacing={2}>

@@ -76,6 +76,7 @@ function Category({
           rankings={rankingSummaries}
           addMetaDescription
           metaPrefix={`The ${ppCategory(categoryid)} pies ranked by you. `}
+          lockedCategory={categoryid}
         />
       </main>
     </>

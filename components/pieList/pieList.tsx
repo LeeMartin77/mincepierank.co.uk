@@ -10,6 +10,7 @@ import {
   CardActions,
   CardContent,
   CardMedia,
+  Chip,
   Divider,
   Grid,
   Link,
@@ -17,9 +18,12 @@ import {
   Typography,
 } from "@mui/material";
 import { formatPrice } from "../formatPrice";
+import { Check } from "@mui/icons-material";
 import { mapPiesAndRankings } from "../mapPiesAndRankings";
 import Head from "next/head";
 import { descriptionSummary } from "../descriptionSummary";
+import { useEffect, useState } from "react";
+import { ppCategory } from "../formatCategory";
 
 export type PieListRanking = Omit<MakerPieRanking, "userid" | "notes"> & {
   count: number | undefined;
@@ -139,19 +143,74 @@ export function PieSummaryLink({
   );
 }
 
+function PieFilter({
+  availableCategories,
+  filteredCategories,
+  setFilteredCategories,
+}: {
+  availableCategories: Set<string>;
+  filteredCategories: Set<string>;
+  setFilteredCategories: (cats: Set<string>) => void;
+}) {
+  return (
+    <div style={{ display: "flex", gap: "0.5em" }}>
+      {Array.from(availableCategories).map((available) => {
+        if (filteredCategories.has(available)) {
+          return (
+            <Chip
+              key={available}
+              icon={<Check />}
+              label={ppCategory(available)}
+              onClick={() => {
+                const newSet = new Set(filteredCategories);
+                newSet.delete(available);
+                setFilteredCategories(newSet);
+              }}
+            />
+          );
+        }
+        return (
+          <Chip
+            key={available}
+            label={ppCategory(available)}
+            variant="outlined"
+            onClick={() => {
+              const newSet = new Set(filteredCategories);
+              newSet.add(available);
+              setFilteredCategories(newSet);
+            }}
+          />
+        );
+      })}
+    </div>
+  );
+}
+
 export function PieList({
   pies,
   rankings,
   addMetaDescription = false,
   metaPrefix = "",
+  lockedCategory = undefined,
 }: {
   pies: MakerPie[];
   rankings: PieListRanking[];
   addMetaDescription?: boolean;
   metaPrefix?: string;
+  lockedCategory?: string;
 }) {
+  const availableCategories = pies.reduce((prev, pie) => {
+    return new Set([...Array.from(prev), ...pie.labels]);
+  }, new Set([] as string[]));
+  if (lockedCategory) {
+    availableCategories.delete(lockedCategory);
+  }
+  const [filteredCategories, setFilteredCategories] = useState(
+    new Set([]) as Set<string>
+  );
+
   const { mappedRankings, mappedPies, rankingOrder, unrankedPies } =
-    mapPiesAndRankings(pies, rankings);
+    mapPiesAndRankings(pies, rankings, filteredCategories);
   const topPieId = rankingOrder.shift();
   return (
     <>
@@ -170,6 +229,14 @@ export function PieList({
           />
         </Head>
       )}
+      <PieFilter
+        availableCategories={availableCategories}
+        filteredCategories={filteredCategories}
+        setFilteredCategories={setFilteredCategories}
+      />
+      {unrankedPies.size > 0 && (
+        <Divider style={{ marginTop: "1em", marginBottom: "1em" }} />
+      )}
       {topPieId && mappedPies[topPieId] && (
         <>
           <h1>Top Pie</h1>
@@ -180,7 +247,7 @@ export function PieList({
           />
         </>
       )}
-      {!topPieId && (
+      {!topPieId && unrankedPies.size > 0 && (
         <Typography
           variant="h4"
           style={{
@@ -194,23 +261,38 @@ export function PieList({
         </Typography>
       )}
       <Divider style={{ marginTop: "1em", marginBottom: "1em" }} />
-      <Grid container spacing={2}>
-        {rankingOrder.map((uniqid) => (
-          <Grid item key={uniqid} xs={12} md={6} lg={4}>
-            <PieSummaryLink
-              pie={mappedPies[uniqid]}
-              ranking={mappedRankings[uniqid]}
-            />
-          </Grid>
-        ))}
-        {Array.from(unrankedPies).map((uniqid) => {
-          return (
+      {unrankedPies.size > 0 && (
+        <Grid container spacing={2}>
+          {rankingOrder.map((uniqid) => (
             <Grid item key={uniqid} xs={12} md={6} lg={4}>
-              <PieSummaryLink pie={mappedPies[uniqid]} />
+              <PieSummaryLink
+                pie={mappedPies[uniqid]}
+                ranking={mappedRankings[uniqid]}
+              />
             </Grid>
-          );
-        })}
-      </Grid>
+          ))}
+          {Array.from(unrankedPies).map((uniqid) => {
+            return (
+              <Grid item key={uniqid} xs={12} md={6} lg={4}>
+                <PieSummaryLink pie={mappedPies[uniqid]} />
+              </Grid>
+            );
+          })}
+        </Grid>
+      )}
+      {unrankedPies.size === 0 && (
+        <Typography
+          variant="h4"
+          style={{
+            width: "100%",
+            marginTop: "1em",
+            marginBottom: "1em",
+            textAlign: "center",
+          }}
+        >
+          No pies meeting criteria - try removing some categories.
+        </Typography>
+      )}
     </>
   );
 }
