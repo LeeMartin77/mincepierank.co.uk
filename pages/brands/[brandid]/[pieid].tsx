@@ -74,7 +74,7 @@ function RankingSummary({
   return (
     <>
       <Typography component="legend" style={bold ? { fontWeight: "bold" } : {}}>
-        {`${label} (${value.toFixed(1)})`}
+        {`${label}${!setValue ? ` (${value.toFixed(1)})` : ``}`}
       </Typography>
       <Rating
         name="read-only"
