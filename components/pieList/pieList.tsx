@@ -250,9 +250,8 @@ export function PieList({
         filteredCategories={filteredCategories}
         setFilteredCategories={setFilteredCategories}
       />
-      {unrankedPies.size > 0 && (
-        <Divider style={{ marginTop: "1em", marginBottom: "1em" }} />
-      )}
+      <Divider style={{ marginTop: "1em", marginBottom: "1em" }} />
+
       {topPieId && mappedPies[topPieId] && (
         <>
           <h1>Top Pie</h1>
@@ -276,7 +275,9 @@ export function PieList({
           No top pie yet...
         </Typography>
       )}
-      <Divider style={{ marginTop: "1em", marginBottom: "1em" }} />
+      {unrankedPies.size > 0 && (
+        <Divider style={{ marginTop: "1em", marginBottom: "1em" }} />
+      )}
       {unrankedPies.size > 0 && (
         <Grid container spacing={2}>
           {rankingOrder.map((uniqid) => (
@@ -296,7 +297,7 @@ export function PieList({
           })}
         </Grid>
       )}
-      {unrankedPies.size === 0 && (
+      {unrankedPies.size === 0 && !topPieId && (
         <Typography
           variant="h4"
           style={{
