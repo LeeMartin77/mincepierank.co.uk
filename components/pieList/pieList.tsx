@@ -118,7 +118,7 @@ export function PieSummaryLink({
             </div>
           </div>
         </div>
-        <div style={{ display: "flex", gap: "0.25em" }}>
+        <div style={{ display: "flex", gap: "0.25em", marginTop: "0.5em" }}>
           {pie.labels
             .sort((a, b) => a.localeCompare(b))
             .map((lb) => {
