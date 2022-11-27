@@ -91,6 +91,7 @@ function Home({
           name="description"
           content={`Rankings of UK mince pies for 2022.${description}`}
         />
+        <meta property="og:image" content="/logo.svg" />
       </Head>
       <main>
         {topPie && topPieRanking && (

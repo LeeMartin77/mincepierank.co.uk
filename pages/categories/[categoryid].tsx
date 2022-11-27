@@ -61,6 +61,7 @@ function Category({
     <>
       <Head>
         <title>{`Mince Pie Rank :: ${ppCategory(categoryid)}`}</title>
+        <meta property="og:image" content="/logo.svg" />
       </Head>
       <main>
         <Breadcrumbs aria-label="breadcrumb">

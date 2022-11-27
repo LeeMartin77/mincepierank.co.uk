@@ -34,6 +34,7 @@ function AllMincePies({
     <>
       <Head>
         <title>Mince Pie Rank :: All Pies</title>
+        <meta property="og:image" content="/logo.svg" />
       </Head>
       <main>
         <Breadcrumbs aria-label="breadcrumb">
@@ -43,7 +44,12 @@ function AllMincePies({
         </Breadcrumbs>
         <h1>All Pies</h1>
         <Divider style={{ marginTop: "1em", marginBottom: "1em" }} />
-        <PieList pies={pies} rankings={rankingSummaries} addMetaDescription metaPrefix={`All the pies in our list, ranked by you. `}/>
+        <PieList
+          pies={pies}
+          rankings={rankingSummaries}
+          addMetaDescription
+          metaPrefix={`All the pies in our list, ranked by you. `}
+        />
       </main>
     </>
   );

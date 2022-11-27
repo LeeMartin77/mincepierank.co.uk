@@ -55,6 +55,7 @@ function Brands({
     <>
       <Head>
         <title>{`Mince Pie Rank :: ${maker.name}`}</title>
+        <meta property="og:image" content="/logo.svg" />
       </Head>
       <main>
         <Breadcrumbs aria-label="breadcrumb">
