@@ -8,17 +8,7 @@ import {
   PieRankingSummary,
 } from "../../system/storage";
 import Link from "next/link";
-import {
-  Breadcrumbs,
-  Button,
-  Card,
-  CardActions,
-  CardHeader,
-  CardMedia,
-  Divider,
-  Grid,
-  Typography,
-} from "@mui/material";
+import { Breadcrumbs, Divider, Typography } from "@mui/material";
 import { PieList } from "../../components/pieList/pieList";
 
 export const getServerSideProps = async ({

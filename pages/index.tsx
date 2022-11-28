@@ -19,6 +19,7 @@ import { mapPiesAndRankings } from "../components/mapPiesAndRankings";
 import { descriptionSummary } from "../components/descriptionSummary";
 import { ppCategory } from "../components/formatCategory";
 import { PieSummaryLink } from "../components/pieList/pieSummaryLink";
+import { BrandCard } from "../components/brandCard";
 
 export const getServerSideProps = async () => {
   const data = (await getMincePieMakers()).unwrapOr([]);
@@ -35,35 +36,6 @@ export const getServerSideProps = async () => {
     },
   };
 };
-
-function BrandCard(maker: Maker) {
-  return (
-    <Grid key={maker.id} item xs={6} sm={4} md={3}>
-      <Card>
-        <Link href={`/brands/${maker.id}`}>
-          <CardMedia
-            style={{
-              objectFit: "contain",
-            }}
-            component="img"
-            height="150"
-            image={maker.logo}
-            alt={`${maker.name} Logo`}
-          />
-        </Link>
-        <CardActions>
-          <Button
-            LinkComponent={Link}
-            href={`/brands/${maker.id}`}
-            style={{ width: "100%", textAlign: "center" }}
-          >
-            {maker.name}
-          </Button>
-        </CardActions>
-      </Card>
-    </Grid>
-  );
-}
 
 function Home({
   makers,
@@ -125,7 +97,9 @@ function Home({
         <Divider style={{ marginTop: "1em", marginBottom: "1em" }} />
         <h2>Brands</h2>
         <Grid container spacing={2}>
-          {makers.map(BrandCard)}
+          {makers.map((mkr) => (
+            <BrandCard key={mkr.id} maker={mkr} />
+          ))}
         </Grid>
       </main>
     </>

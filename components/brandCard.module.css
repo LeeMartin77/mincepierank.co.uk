@@ -1,0 +1,7 @@
+.brandImage {
+  object-fit: contain;
+}
+.brandButton {
+  width: 100%;
+  text-align: center;
+}
