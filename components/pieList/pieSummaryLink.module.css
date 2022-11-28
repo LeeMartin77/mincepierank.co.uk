@@ -1,79 +1,79 @@
 .topCard {
-  color: black;
-  font-weight: bold;
+  color: black !important;
+  font-weight: bold !important;
   background: linear-gradient(
     29deg,
     rgba(255, 160, 27, 1) 0%,
     rgba(255, 209, 144, 1) 60%,
     rgba(252, 176, 69, 1) 100%
-  );
-  height: 100%;
-  display: flex;
-  flex-direction: column;
+  ) !important;
+  height: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
 }
 
 .stretch {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
+  height: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: space-between !important;
 }
 
 .boldText {
-  font-weight: bold;
+  font-weight: bold !important;
 }
 
 .blackText {
-  color: black;
+  color: black !important;
 }
 
 .leftQuarterPad {
-  padding-left: 0.25em;
+  padding-left: 0.25em !important;
 }
 
 .chipContainer {
-  display: flex;
-  justify-content: center;
-  gap: 0.25em;
-  margin-top: 1em;
+  display: flex !important;
+  justify-content: center !important;
+  gap: 0.25em !important;
+  margin-top: 1em !important;
 }
 
 .flexWrapper {
-  display: flex;
+  display: flex !important;
 }
 
 .flexLeftPanel {
-  width: 47.5%;
-  height: 120px;
+  width: 47.5% !important;
+  height: 120px !important;
 }
 
 .flexLeftPanel img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain !important;
 }
 
 .flexRightPanel {
-  margin-left: 5%;
-  width: 47.5%;
+  margin-left: 5% !important;
+  width: 47.5% !important;
 }
 
 .topRating {
-  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.4);
-  background-color: rgba(0, 0, 0, 0.4);
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.4) !important;
+  background-color: rgba(0, 0, 0, 0.4) !important;
 }
 
 .topButton {
-  width: 100%;
-  text-align: center;
-  color: black;
-  border-color: black;
-  font-weight: bold;
-  min-height: 4em;
+  width: 100% !important;
+  text-align: center !important;
+  color: black !important;
+  border-color: black !important;
+  font-weight: bold !important;
+  min-height: 4em !important;
 }
 
 .regularButton {
-  width: 100%;
-  text-align: center;
-  min-height: 4em;
+  width: 100% !important;
+  text-align: center !important;
+  min-height: 4em !important;
 }
