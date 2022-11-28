@@ -4,17 +4,9 @@ import {
   getAllMakerPies,
   getAllPieRankingSummaries,
   getMincePieMakers,
-  Maker,
 } from "../system/storage";
 import Link from "next/link";
-import {
-  Button,
-  Card,
-  CardActions,
-  CardMedia,
-  Divider,
-  Grid,
-} from "@mui/material";
+import { Button, Divider, Grid } from "@mui/material";
 import { mapPiesAndRankings } from "../components/mapPiesAndRankings";
 import { descriptionSummary } from "../components/descriptionSummary";
 import { ppCategory } from "../components/formatCategory";
@@ -75,9 +67,14 @@ function Home({
         <Button
           LinkComponent={Link}
           href={`/all-mince-pies`}
-          style={{ width: "100%", textAlign: "center", marginTop: "1em" }}
+          style={{
+            width: "100%",
+            textAlign: "center",
+            marginTop: "1em",
+            height: "4em",
+          }}
         >
-          All Mince Pies
+          Browse All Mince Pies
         </Button>
         <Divider style={{ marginTop: "1em", marginBottom: "1em" }} />
         <h2>Categories</h2>

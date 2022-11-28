@@ -7,6 +7,16 @@
     rgba(255, 209, 144, 1) 60%,
     rgba(252, 176, 69, 1) 100%
   );
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.stretch {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
 .boldText {
@@ -23,8 +33,9 @@
 
 .chipContainer {
   display: flex;
+  justify-content: center;
   gap: 0.25em;
-  margin-top: 0.5em;
+  margin-top: 1em;
 }
 
 .flexWrapper {
@@ -58,9 +69,11 @@
   color: black;
   border-color: black;
   font-weight: bold;
+  min-height: 4em;
 }
 
 .regularButton {
   width: 100%;
   text-align: center;
+  min-height: 4em;
 }

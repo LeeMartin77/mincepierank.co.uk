@@ -32,7 +32,7 @@ export function PieSummaryLink({
     <Card
       data-testid={pie.id + "-link-card"}
       elevation={isTop ? 8 : 1}
-      className={isTop ? styles.topCard : undefined}
+      className={isTop ? styles.topCard : styles.stretch}
     >
       <CardContent>
         <div className={styles.flexWrapper}>
@@ -91,7 +91,7 @@ export function PieSummaryLink({
             })}
         </div>
       </CardContent>
-      <CardActions>
+      <CardActions className={styles.actions}>
         <Button
           LinkComponent={Link}
           variant={isTop ? "outlined" : undefined}

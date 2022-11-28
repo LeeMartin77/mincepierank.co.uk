@@ -2,6 +2,7 @@ import { Button, Divider, Grid, LinearProgress } from "@mui/material";
 import { useEffect, useState } from "react";
 import { MakerPie } from "../../system/storage";
 import { PieListRanking, PieSummaryLink } from "./pieSummaryLink";
+import styles from "./innerPieList.module.css";
 
 const PIES_TO_RENDER_BATCH_SIZE = 9;
 
@@ -53,7 +54,14 @@ export default function InnerPieList({
           if (pieCounter > 0) {
             pieCounter--;
             return (
-              <Grid item key={uniqid} xs={12} md={6} lg={4}>
+              <Grid
+                item
+                className={styles.item}
+                key={uniqid}
+                xs={12}
+                md={6}
+                lg={4}
+              >
                 <PieSummaryLink
                   pie={mappedPies[uniqid]}
                   ranking={mappedRankings[uniqid]}
@@ -66,7 +74,14 @@ export default function InnerPieList({
           if (pieCounter > 0) {
             pieCounter--;
             return (
-              <Grid item key={uniqid} xs={12} md={6} lg={4}>
+              <Grid
+                item
+                className={styles.item}
+                key={uniqid}
+                xs={12}
+                md={6}
+                lg={4}
+              >
                 <PieSummaryLink pie={mappedPies[uniqid]} />
               </Grid>
             );
