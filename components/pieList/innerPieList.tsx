@@ -1,7 +1,9 @@
-import { Button, Divider, Grid } from "@mui/material";
-import { useEffect, useRef, useState } from "react";
+import { Button, Divider, Grid, LinearProgress } from "@mui/material";
+import { useEffect, useState } from "react";
 import { MakerPie } from "../../system/storage";
 import { PieListRanking, PieSummaryLink } from "./pieSummaryLink";
+
+const PIES_TO_RENDER_BATCH_SIZE = 9;
 
 export default function InnerPieList({
   rankingOrder,
@@ -16,8 +18,10 @@ export default function InnerPieList({
   rankingOrder: string[];
   unrankedPies: Set<string>;
 }) {
-  const [piesToRender, setPiesToRender] = useState(9);
-
+  const [piesToRender, setPiesToRender] = useState(PIES_TO_RENDER_BATCH_SIZE);
+  useEffect(() => {
+    setPiesToRender(PIES_TO_RENDER_BATCH_SIZE);
+  }, [mappedPies]);
   useEffect(() => {
     // TODO: This is bad as it assumes the list is always the only
     // reason the page will hit the bottom, but I'm just
@@ -28,7 +32,7 @@ export default function InnerPieList({
         document.documentElement.scrollHeight - 1500;
 
       if (loadMore) {
-        setPiesToRender(piesToRender + 9);
+        setPiesToRender(piesToRender + PIES_TO_RENDER_BATCH_SIZE);
       }
     };
     window.addEventListener("scroll", handleScroll, {
@@ -70,13 +74,16 @@ export default function InnerPieList({
         })}
       </Grid>
       {pieCounter === 0 && (
-        <Button
-          style={{ width: "100%", marginTop: "1em" }}
-          variant="contained"
-          onClick={() => setPiesToRender(piesToRender + 9)}
-        >
-          View More
-        </Button>
+        <>
+          <LinearProgress style={{ margin: "0.5em" }} />
+          <Button
+            style={{ width: "100%", marginTop: "1em" }}
+            variant="contained"
+            onClick={() => setPiesToRender(piesToRender + 9)}
+          >
+            View More
+          </Button>
+        </>
       )}
     </>
   );
