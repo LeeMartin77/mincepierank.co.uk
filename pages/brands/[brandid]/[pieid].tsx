@@ -37,6 +37,7 @@ import { formatPrice } from "../../../components/formatPrice";
 import { Share } from "@mui/icons-material";
 import { calculateAverage } from "../../../system/storage/utilities";
 import { ppCategory } from "../../../components/formatCategory";
+import { PieRankingSummary } from "../../../components/pieRankingSummary";
 
 export const getServerSideProps = async ({
   params: { brandid, pieid },
@@ -62,29 +63,26 @@ export const getServerSideProps = async ({
   };
 };
 
-function RankingSummary({
+function RankPieAttribute({
   label,
   value,
-  bold = false,
   setValue,
 }: {
   label: string;
   value: number;
-  bold?: boolean;
-  setValue?: (n: number) => void;
+  setValue: (n: number) => void;
 }) {
   return (
     <>
-      <Typography component="legend" style={bold ? { fontWeight: "bold" } : {}}>
+      <Typography component="legend">
         {`${label}${!setValue ? ` (${value.toFixed(1)})` : ``}`}
       </Typography>
       <Rating
-        name="read-only"
+        name={label}
         value={value}
-        readOnly={!setValue}
-        precision={setValue ? 1 : 0.1}
+        precision={1}
         onChange={(event, newValue) => {
-          setValue && newValue && setValue(newValue);
+          newValue && setValue(newValue);
         }}
       />
     </>
@@ -96,12 +94,12 @@ type PieRankingDetails = Pick<
   "filling" | "pastry" | "topping" | "looks" | "value"
 >;
 
-function PieRanking({
+function UserRankingControl({
   pieRanking,
   setPieRanking,
 }: {
   pieRanking: PieRankingDetails;
-  setPieRanking?: (pr: PieRankingDetails) => void;
+  setPieRanking: (pr: PieRankingDetails) => void;
 }) {
   const xs = 12;
   const sm = 6;
@@ -109,65 +107,59 @@ function PieRanking({
   return (
     <Grid container spacing={2}>
       <Grid item xs={xs} sm={sm} md={md}>
-        <RankingSummary
+        <RankPieAttribute
           label="Filling"
           value={pieRanking.filling}
-          setValue={
-            setPieRanking &&
-            ((newVal: number) =>
-              setPieRanking({ ...pieRanking, filling: newVal }))
+          setValue={(newVal: number) =>
+            setPieRanking({ ...pieRanking, filling: newVal })
           }
         />
       </Grid>
       <Grid item xs={xs} sm={sm} md={md}>
-        <RankingSummary
+        <RankPieAttribute
           label="Pastry"
           value={pieRanking.pastry}
-          setValue={
-            setPieRanking &&
-            ((newVal: number) =>
-              setPieRanking({ ...pieRanking, pastry: newVal }))
+          setValue={(newVal: number) =>
+            setPieRanking({ ...pieRanking, pastry: newVal })
           }
         />
       </Grid>
       <Grid item xs={xs} sm={sm} md={md}>
-        <RankingSummary
+        <RankPieAttribute
           label="Topping"
           value={pieRanking.topping}
-          setValue={
-            setPieRanking &&
-            ((newVal: number) =>
-              setPieRanking({ ...pieRanking, topping: newVal }))
+          setValue={(newVal: number) =>
+            setPieRanking({ ...pieRanking, topping: newVal })
           }
         />
       </Grid>
       <Grid item xs={xs} sm={sm} md={md}>
-        <RankingSummary
+        <RankPieAttribute
           label="Looks"
           value={pieRanking.looks}
-          setValue={
-            setPieRanking &&
-            ((newVal: number) =>
-              setPieRanking({ ...pieRanking, looks: newVal }))
+          setValue={(newVal: number) =>
+            setPieRanking({ ...pieRanking, looks: newVal })
           }
         />
       </Grid>
       <Grid item xs={xs} sm={sm} md={md}>
-        <RankingSummary
+        <RankPieAttribute
           label="Value"
           value={pieRanking.value}
-          setValue={
-            setPieRanking &&
-            ((newVal: number) =>
-              setPieRanking({ ...pieRanking, value: newVal }))
+          setValue={(newVal: number) =>
+            setPieRanking({ ...pieRanking, value: newVal })
           }
         />
       </Grid>
       <Grid item xs={xs} sm={sm} md={md}>
-        <RankingSummary
-          label="Total Score"
+        <Typography component="legend" style={{ fontWeight: "bold" }}>
+          {`Total Score  (${calculateAverage(pieRanking).toFixed(1)})`}
+        </Typography>
+        <Rating
+          name={"summary"}
           value={calculateAverage(pieRanking)}
-          bold
+          precision={0.1}
+          readOnly
         />
       </Grid>
     </Grid>
@@ -267,8 +259,6 @@ function SubmitPieRanking({
       .finally(() => setLoading(false));
   }, [makerid, pieid, setAlreadyRanked, setLoading, setMyRanking, setError]);
 
-  const [shareFn, setShareFn] = useState<any>(undefined);
-
   if (status === "loading") {
     return (
       <Card>
@@ -348,7 +338,10 @@ function SubmitPieRanking({
         {error && <Alert severity="error">Something has gone wrong...</Alert>}
         {loading && <Alert severity="info">Loading...</Alert>}
         {!loading && (
-          <PieRanking pieRanking={myRanking} setPieRanking={setMyRanking} />
+          <UserRankingControl
+            pieRanking={myRanking}
+            setPieRanking={setMyRanking}
+          />
         )}
       </CardContent>
     </Card>
@@ -493,7 +486,7 @@ function Pie({
               }
             />
             <CardContent>
-              <PieRanking pieRanking={localSummary} />
+              <PieRankingSummary pieRanking={localSummary} />
             </CardContent>
           </Card>
         )}
