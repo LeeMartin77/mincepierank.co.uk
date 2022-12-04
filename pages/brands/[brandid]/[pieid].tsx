@@ -444,7 +444,7 @@ function Pie({
       navigator.canShare({
         url: `https://mincepierank.co.uk/brands/${pie.makerid}/${pie.id}`,
         title: `${pie.displayname} :: Mince Pie Rank`,
-        text: `${pie.displayname} :: ${
+        text: `${pie.displayname} has ${
           rankingSummary?.average.toFixed(1) ?? 0
         }/5 on Mince Pie Rank`,
       });
@@ -453,7 +453,11 @@ function Pie({
   return (
     <>
       <Head>
-        <title>{`Mince Pie Rank :: ${maker.name} :: ${pie.displayname}`}</title>
+        <title>{`${
+          rankingSummary
+            ? `${calculateAverage(rankingSummary)}/5`
+            : "No rankings"
+        } for ${pie.displayname} from ${maker.name} :: Mince Pie Rank`}</title>
         <meta
           name="description"
           content={`${pie.displayname} from ${maker.name} has ${
@@ -476,20 +480,7 @@ function Pie({
         <h3>{maker.name}</h3>
         <PieDetails pie={pie} />
         <Divider style={{ marginTop: "1em", marginBottom: "1em" }} />
-        {localSummary && (
-          <Card>
-            <CardHeader
-              title={"Summary"}
-              subheader={
-                `${localSummary.count} Rankings` +
-                (refresh ? " (refreshing...)" : "")
-              }
-            />
-            <CardContent>
-              <PieRankingSummary pieRanking={localSummary} />
-            </CardContent>
-          </Card>
-        )}
+        {localSummary && <PieRankingSummary pieRanking={localSummary} />}
         <Divider style={{ marginTop: "1em", marginBottom: "1em" }} />
         {pie && <SubmitPieRanking pie={pie} setRefresh={setRefresh} />}
       </main>
