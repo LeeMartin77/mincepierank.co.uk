@@ -466,7 +466,7 @@ function Pie({
     <>
       <Head>
         <title>{`${
-          rankingSummary
+          rankingSummary && calculateAverage(rankingSummary) > 0
             ? `${calculateAverage(rankingSummary)}/5`
             : "No rankings"
         } for ${pie.displayname} from ${maker.name} :: Mince Pie Rank`}</title>
