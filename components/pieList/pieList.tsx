@@ -69,12 +69,14 @@ export function PieList({
   addMetaDescription = false,
   metaPrefix = "",
   lockedCategory = undefined,
+  showDates = false,
 }: {
   pies: MakerPie[];
   rankings: PieListRanking[];
   addMetaDescription?: boolean;
   metaPrefix?: string;
   lockedCategory?: string;
+  showDates?: boolean;
 }) {
   const availableCategories = pies.reduce((prev, pie) => {
     return new Set([...Array.from(prev), ...pie.labels]);
@@ -121,6 +123,7 @@ export function PieList({
             isTop
             pie={mappedPies[topPieId]}
             ranking={mappedRankings[topPieId]}
+            showDate={showDates}
           />
         </>
       )}
@@ -143,6 +146,7 @@ export function PieList({
           mappedRankings={mappedRankings}
           rankingOrder={rankingOrder}
           unrankedPies={unrankedPies}
+          showDates={showDates}
         />
       )}
       {!showFurtherList && !topPieId && (

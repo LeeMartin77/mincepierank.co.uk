@@ -11,6 +11,7 @@ export default function InnerPieList({
   mappedPies,
   mappedRankings,
   unrankedPies,
+  showDates = false,
 }: {
   mappedRankings: {
     [key: string]: PieListRanking | undefined;
@@ -18,6 +19,7 @@ export default function InnerPieList({
   mappedPies: { [key: string]: MakerPie };
   rankingOrder: string[];
   unrankedPies: Set<string>;
+  showDates?: boolean;
 }) {
   const [piesToRender, setPiesToRender] = useState(PIES_TO_RENDER_BATCH_SIZE);
   useEffect(() => {
@@ -65,6 +67,7 @@ export default function InnerPieList({
                 <PieSummaryLink
                   pie={mappedPies[uniqid]}
                   ranking={mappedRankings[uniqid]}
+                  showDate={showDates}
                 />
               </Grid>
             );
@@ -82,7 +85,7 @@ export default function InnerPieList({
                 md={6}
                 lg={4}
               >
-                <PieSummaryLink pie={mappedPies[uniqid]} />
+                <PieSummaryLink pie={mappedPies[uniqid]} showDate={showDates} />
               </Grid>
             );
           }

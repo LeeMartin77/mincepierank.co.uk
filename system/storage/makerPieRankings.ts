@@ -21,6 +21,41 @@ export async function getAllRankingsForPie(
   }
 }
 
+export async function getLatestRanking(
+  client = CASSANDRA_CLIENT
+): Promise<Result<MakerPieRanking, StorageError>> {
+  try {
+    const whenresult = await client.execute(
+      "SELECT MAX(last_updated) as last_updated FROM mincepierank.maker_pie_ranking;"
+    );
+
+    if (whenresult.rowLength === 0) {
+      return err(StorageError.NotFound);
+    }
+
+    const when = whenresult.first().get("last_updated");
+    if (!when) {
+      return err(StorageError.NotFound);
+    }
+
+    const top = await client.execute(
+      `SELECT makerid,
+      pieid,
+      pastry,
+      filling,
+      topping,
+      looks,
+      value,
+      CAST(last_updated as text) as last_updated FROM mincepierank.maker_pie_ranking where last_updated >= ? ALLOW FILTERING;`,
+      [new Date(when)]
+    );
+    return ok(rowToObject(top.first()));
+  } catch (ex: any) {
+    console.error(ex.message);
+    return err(StorageError.GenericError);
+  }
+}
+
 export async function getMyRankingForPie(
   makerid: string,
   pieid: string,
@@ -29,7 +64,14 @@ export async function getMyRankingForPie(
 ): Promise<Result<MakerPieRanking, StorageError>> {
   try {
     const result = await client.execute(
-      "SELECT * FROM mincepierank.maker_pie_ranking WHERE makerid = ? AND pieid = ? AND userid = ? ALLOW FILTERING;",
+      `SELECT makerid,
+      pieid,
+      pastry,
+      filling,
+      topping,
+      looks,
+      value,
+      CAST(last_updated as text) as last_updated FROM mincepierank.maker_pie_ranking WHERE makerid = ? AND pieid = ? AND userid = ? ALLOW FILTERING;`,
       [makerid, pieid, userid]
     );
     if (result.rows.length === 0) {
@@ -53,7 +95,15 @@ export async function getUserPieRankings(
 > {
   try {
     const result = await client.execute(
-      "SELECT * FROM mincepierank.maker_pie_ranking WHERE userid = ? ALLOW FILTERING;",
+      `SELECT makerid,
+        pieid,
+        pastry,
+        filling,
+        topping,
+        looks,
+        value,
+        CAST(last_updated as text) as last_updated
+        FROM mincepierank.maker_pie_ranking WHERE userid = ? ALLOW FILTERING;`,
       [userid],
       { prepare: true }
     );
@@ -74,7 +124,7 @@ export type PieRankingSummary = Omit<MakerPieRanking, "userid" | "notes"> & {
   average: number;
 };
 
-function addAverageScore(mapped: any) {
+export function addAverageScore(mapped: any) {
   mapped.average = calculateAverage(mapped);
   return mapped;
 }
@@ -93,6 +143,7 @@ export async function getPieRankingSummary(
         AVG(cast(topping as float)) as topping,
         AVG(cast(looks as float)) as looks,
         AVG(cast(value as float)) as value,
+        CAST(MAX(last_updated) as text) as last_updated,
         CAST(COUNT(1) as int) as count 
       FROM mincepierank.maker_pie_ranking
       WHERE makerid = ? AND pieid = ? ALLOW FILTERING;`,
@@ -120,6 +171,7 @@ export async function getPieRankingSummariesByIds(
         AVG(cast(topping as float)) as topping,
         AVG(cast(looks as float)) as looks,
         AVG(cast(value as float)) as value,
+        CAST(MAX(last_updated) as text) as last_updated,
         CAST(COUNT(1) as int) as count 
       FROM mincepierank.maker_pie_ranking
       WHERE makerid = ? and pieid in ?
@@ -149,6 +201,7 @@ export async function getMakerPieRankingSummaries(
         AVG(cast(topping as float)) as topping,
         AVG(cast(looks as float)) as looks,
         AVG(cast(value as float)) as value,
+        CAST(MAX(last_updated) as text) as last_updated,
         CAST(COUNT(1) as int) as count 
       FROM mincepierank.maker_pie_ranking
       WHERE makerid = ?
@@ -177,6 +230,7 @@ export async function getAllPieRankingSummaries(
         AVG(cast(topping as float)) as topping,
         AVG(cast(looks as float)) as looks,
         AVG(cast(value as float)) as value,
+        CAST(MAX(last_updated) as text) as last_updated,
         CAST(COUNT(1) as int) as count 
       FROM mincepierank.maker_pie_ranking
       GROUP BY makerid, pieid;`,
@@ -195,7 +249,9 @@ export async function addPieRanking(
   ranking: MakerPieRanking,
   client = CASSANDRA_CLIENT
 ): Promise<Result<boolean, StorageError>> {
-  const mapRanking = ranking as { [key: string]: string | number | undefined };
+  const mapRanking = ranking as {
+    [key: string]: string | number | Date | undefined;
+  };
   const rankingValues = ["pastry", "filling", "topping", "looks", "value"];
 
   rankingValues.forEach(
@@ -228,9 +284,10 @@ export async function addPieRanking(
           topping, 
           looks, 
           value,
-          notes
+          notes,
+          last_updated
         )
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);`,
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`,
       [
         ranking.makerid,
         ranking.pieid,
@@ -241,6 +298,7 @@ export async function addPieRanking(
         ranking.looks,
         ranking.value,
         ranking.notes,
+        new Date(),
       ],
       { prepare: true }
     );

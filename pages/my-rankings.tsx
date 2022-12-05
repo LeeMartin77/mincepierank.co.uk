@@ -1,9 +1,6 @@
 import Head from "next/head";
 import { InferGetServerSidePropsType } from "next";
-import {
-  getAllMakerPies,
-  getUserPieRankings,
-} from "../system/storage";
+import { getAllMakerPies, getUserPieRankings } from "../system/storage";
 import { Breadcrumbs, Button, Divider } from "@mui/material";
 import Link from "next/link";
 import { PieList } from "../components/pieList/pieList";
@@ -67,7 +64,7 @@ function AllMincePies({
           </Button>
         )}
         {loggedIn && pies && rankings && rankings.length > 0 && (
-          <PieList pies={pies} rankings={rankings}/>
+          <PieList pies={pies} rankings={rankings} showDates />
         )}
         {loggedIn && (!rankings || rankings.length === 0) && (
           <div style={{ width: "100%", textAlign: "center" }}>

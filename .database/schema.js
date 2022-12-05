@@ -36,6 +36,7 @@ const schema = [
       looks int,
       value int,
       notes text,
+      last_updated timestamp,
       PRIMARY KEY ((makerid, pieid), userid)
   );`,
   `CREATE INDEX IF NOT EXISTS ON mincepierank.maker_pie_ranking (makerid);`,
@@ -46,6 +47,7 @@ const schema = [
   `CREATE INDEX IF NOT EXISTS ON mincepierank.maker_pie_ranking (topping);`,
   `CREATE INDEX IF NOT EXISTS ON mincepierank.maker_pie_ranking (looks);`,
   `CREATE INDEX IF NOT EXISTS ON mincepierank.maker_pie_ranking (value);`,
+  `CREATE INDEX IF NOT EXISTS ON mincepierank.maker_pie_ranking (last_updated);`,
 ];
 
 const MIGRATION_CLIENT_CONFIG = {

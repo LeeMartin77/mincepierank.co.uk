@@ -27,6 +27,7 @@ export type MakerPieRanking = {
   looks: number;
   value: number;
   notes?: string;
+  last_updated?: string;
 };
 
 export enum StorageError {

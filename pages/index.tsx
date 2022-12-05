@@ -1,8 +1,10 @@
 import Head from "next/head";
 import { InferGetServerSidePropsType } from "next";
 import {
+  addAverageScore,
   getAllMakerPies,
   getAllPieRankingSummaries,
+  getLatestRanking,
   getMincePieMakers,
 } from "../system/storage";
 import Link from "next/link";
@@ -12,25 +14,42 @@ import { descriptionSummary } from "../components/descriptionSummary";
 import { ppCategory } from "../components/formatCategory";
 import { PieSummaryLink } from "../components/pieList/pieSummaryLink";
 import { BrandCard } from "../components/brandCard";
+import { format } from "date-fns";
 
 export const getServerSideProps = async () => {
   const data = (await getMincePieMakers()).unwrapOr([]);
   const pies = (await getAllMakerPies()).unwrapOr([]);
   const rankingSummaries = (await getAllPieRankingSummaries()).unwrapOr([]);
-  const { mappedRankings, mappedPies, rankingOrder, unrankedPies } =
-    mapPiesAndRankings(pies, rankingSummaries);
+  const latestRanking = (await getLatestRanking()).unwrapOr(undefined);
+  const { mappedRankings, mappedPies, rankingOrder } = mapPiesAndRankings(
+    pies,
+    rankingSummaries
+  );
   const topPieId = rankingOrder.shift();
+  const latestPie = latestRanking
+    ? mappedPies[latestRanking.makerid + "-" + latestRanking.pieid]
+    : null;
   return {
     props: {
       makers: data,
-      topPie: topPieId ? mappedPies[topPieId] : undefined,
-      topPieRanking: topPieId ? mappedRankings[topPieId] : undefined,
+      latestPie,
+      latestRanking: latestRanking
+        ? {
+            ...addAverageScore(latestRanking),
+            userid: null,
+            notes: null,
+          }
+        : null,
+      topPie: topPieId ? mappedPies[topPieId] : null,
+      topPieRanking: topPieId ? mappedRankings[topPieId] : null,
     },
   };
 };
 
 function Home({
   makers,
+  latestPie,
+  latestRanking,
   topPie,
   topPieRanking,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
@@ -64,6 +83,21 @@ function Home({
             <PieSummaryLink isTop pie={topPie} ranking={topPieRanking} />
           </>
         )}
+        {latestPie && latestRanking && (
+          <>
+            <h2>
+              Latest Ranking:{" "}
+              {format(new Date(latestRanking.last_updated), "eeee d MMM H:mma")}
+            </h2>
+            <PieSummaryLink
+              pie={latestPie}
+              ranking={{
+                ...latestRanking,
+                count: undefined,
+              }}
+            />
+          </>
+        )}
         <Button
           LinkComponent={Link}
           href={`/all-mince-pies`}
@@ -77,7 +111,7 @@ function Home({
           Browse All Mince Pies
         </Button>
         <Divider style={{ marginTop: "1em", marginBottom: "1em" }} />
-        <h2>Categories</h2>
+        <h3>Categories</h3>
         <Grid container spacing={2}>
           {mainCategories.map((categoryid) => (
             <Grid key={categoryid} item xs={6} sm={4}>
@@ -92,7 +126,7 @@ function Home({
           ))}
         </Grid>
         <Divider style={{ marginTop: "1em", marginBottom: "1em" }} />
-        <h2>Brands</h2>
+        <h3>Brands</h3>
         <Grid container spacing={2}>
           {makers.map((mkr) => (
             <BrandCard key={mkr.id} maker={mkr} />

@@ -38,6 +38,7 @@ import { Share } from "@mui/icons-material";
 import { calculateAverage } from "../../../system/storage/utilities";
 import { ppCategory } from "../../../components/formatCategory";
 import { PieRankingSummary } from "../../../components/pieRankingSummary";
+import { format } from "date-fns";
 
 export const getServerSideProps = async ({
   params: { brandid, pieid },
@@ -91,7 +92,7 @@ function RankPieAttribute({
 
 type PieRankingDetails = Pick<
   MakerPieRanking,
-  "filling" | "pastry" | "topping" | "looks" | "value"
+  "filling" | "pastry" | "topping" | "looks" | "value" | "last_updated"
 >;
 
 function UserRankingControl({
@@ -250,7 +251,12 @@ function SubmitPieRanking({
           setLoading(false);
         } else if (response.status === 200) {
           setAlreadyRanked(true);
-          return response.json().then(setMyRanking);
+          return response.json().then((res) => {
+            res.last_updated = res.last_updated
+              ? new Date(res.last_updated)
+              : undefined;
+            setMyRanking(res);
+          });
         } else {
           setError(true);
         }
@@ -295,7 +301,13 @@ function SubmitPieRanking({
   let subHeader = "Loading...";
 
   if (!submitting && alreadyRanked) {
-    subHeader = "Ranked!";
+    if (myRanking.last_updated) {
+      subHeader =
+        "Ranked on " +
+        format(new Date(myRanking.last_updated), "yyyy/MM/dd 'at' HH:mm");
+    } else {
+      subHeader = "Ranked!";
+    }
   }
 
   if (!submitting && !alreadyRanked) {
