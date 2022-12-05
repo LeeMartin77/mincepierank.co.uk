@@ -8,7 +8,7 @@ import {
   getMincePieMakers,
 } from "../system/storage";
 import Link from "next/link";
-import { Button, Divider, Grid } from "@mui/material";
+import { Button, Divider, Grid, Typography } from "@mui/material";
 import { mapPiesAndRankings } from "../components/mapPiesAndRankings";
 import { descriptionSummary } from "../components/descriptionSummary";
 import { ppCategory } from "../components/formatCategory";
@@ -85,10 +85,10 @@ function Home({
         )}
         {latestPie && latestRanking && (
           <>
-            <h2>
-              Latest Ranking:{" "}
+            <h2 style={{ marginBottom: "0.1em" }}>Latest Ranking</h2>
+            <Typography style={{ marginBottom: "1em" }} variant="subtitle1">
               {format(new Date(latestRanking.last_updated), "eeee d MMM H:mma")}
-            </h2>
+            </Typography>
             <PieSummaryLink
               pie={latestPie}
               ranking={{
