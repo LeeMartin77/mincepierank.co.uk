@@ -192,6 +192,19 @@ const submitRanking = (
   });
 };
 
+function rankingsDifferent(
+  rankingOne: { [key: string]: any },
+  rankingTwo: { [key: string]: any }
+) {
+  const fields = ["filling", "pastry", "topping", "looks", "value"];
+  for (let field of fields) {
+    if (rankingOne[field] != rankingTwo[field]) {
+      return true;
+    }
+  }
+  return false;
+}
+
 function SubmitPieRanking({
   pie,
   setRefresh,
@@ -209,7 +222,9 @@ function SubmitPieRanking({
 
   const { makerid, id: pieid } = pie;
 
-  const [alreadyRanked, setAlreadyRanked] = useState<boolean>(false);
+  const [alreadyRanked, setAlreadyRanked] = useState<
+    PieRankingDetails | undefined
+  >(undefined);
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [error, setError] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
@@ -223,7 +238,7 @@ function SubmitPieRanking({
         .then((res) => {
           if (res && res.status === 200) {
             setError(false);
-            setAlreadyRanked(true);
+            setAlreadyRanked(iranking);
             setRefresh(true);
           } else {
             setError(true);
@@ -235,10 +250,13 @@ function SubmitPieRanking({
   );
 
   useEffect(() => {
-    if (validRanking(myRanking)) {
+    if (
+      validRanking(myRanking) &&
+      (!alreadyRanked || rankingsDifferent(alreadyRanked, myRanking))
+    ) {
       saveRanking(makerid, pieid, myRanking);
     }
-  }, [saveRanking, myRanking, makerid, pieid]);
+  }, [saveRanking, alreadyRanked, myRanking, makerid, pieid]);
 
   const { data: session, status } = useSession();
 
@@ -250,11 +268,11 @@ function SubmitPieRanking({
         if (response.status === 404) {
           setLoading(false);
         } else if (response.status === 200) {
-          setAlreadyRanked(true);
           return response.json().then((res) => {
             res.last_updated = res.last_updated
               ? new Date(res.last_updated)
               : undefined;
+            setAlreadyRanked(res);
             setMyRanking(res);
           });
         } else {
