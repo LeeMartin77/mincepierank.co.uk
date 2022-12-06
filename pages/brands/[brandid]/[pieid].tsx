@@ -238,7 +238,10 @@ function SubmitPieRanking({
         .then((res) => {
           if (res && res.status === 200) {
             setError(false);
-            setAlreadyRanked(iranking);
+            setAlreadyRanked({
+              ...iranking,
+              last_updated: new Date().toISOString(),
+            });
             setRefresh(true);
           } else {
             setError(true);
@@ -319,10 +322,10 @@ function SubmitPieRanking({
   let subHeader = "Loading...";
 
   if (!submitting && alreadyRanked) {
-    if (myRanking.last_updated) {
+    if (alreadyRanked.last_updated) {
       subHeader =
         "Ranked on " +
-        format(new Date(myRanking.last_updated), "yyyy/MM/dd 'at' HH:mm");
+        format(new Date(alreadyRanked.last_updated), "yyyy/MM/dd 'at' HH:mm");
     } else {
       subHeader = "Ranked!";
     }
