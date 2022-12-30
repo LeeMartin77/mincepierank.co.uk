@@ -55,7 +55,10 @@ export function PieSummaryLink({
       <CardContent>
         <div className={styles.flexWrapper}>
           <div className={styles.flexLeftPanel}>
-            <img src={pie.image_file} alt={pie.displayname} />
+            <img
+              src={pie.image_file + "?width=300&filter=gaussian"}
+              alt={pie.displayname}
+            />
           </div>
           <div className={styles.flexRightPanel}>
             <Rating

@@ -395,7 +395,7 @@ function PieDetails({ pie }: { pie: MakerPie }) {
       <CardMedia
         component="img"
         height="200"
-        image={pie.image_file}
+        image={pie.image_file + "?width=600&filter=gaussian"}
         alt={`${pie.displayname}`}
         style={{
           objectFit: "contain",

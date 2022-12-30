@@ -18,7 +18,7 @@ export function BrandCard({ maker }: { maker: Maker }) {
             className={styles.brandImage}
             component="img"
             height="150"
-            image={maker.logo}
+            image={maker.logo + "?width=250&filter=gaussian"}
             alt={`${maker.name} Logo`}
           />
         </Link>

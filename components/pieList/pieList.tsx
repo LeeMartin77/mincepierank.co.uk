@@ -1,4 +1,3 @@
-/* eslint-disable @next/next/no-img-element */
 import { MakerPie } from "../../system/storage";
 import { Chip, Divider, Typography } from "@mui/material";
 import { Check } from "@mui/icons-material";
