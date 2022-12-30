@@ -39,6 +39,7 @@ import { calculateAverage } from "../../../system/storage/utilities";
 import { ppCategory } from "../../../components/formatCategory";
 import { PieRankingSummary } from "../../../components/pieRankingSummary";
 import { format } from "date-fns";
+import { timeInSeason } from "../../../system/seasonConfig";
 
 export const getServerSideProps = async ({
   params: { brandid, pieid },
@@ -82,6 +83,7 @@ function RankPieAttribute({
         name={label}
         value={value}
         precision={1}
+        readOnly={!timeInSeason(Date.now())}
         onChange={(event, newValue) => {
           newValue && setValue(newValue);
         }}
@@ -341,6 +343,10 @@ function SubmitPieRanking({
 
   if (submitting && alreadyRanked) {
     subHeader = "Updating...";
+  }
+
+  if (!timeInSeason(Date.now()) && !alreadyRanked) {
+    return <></>;
   }
 
   return (

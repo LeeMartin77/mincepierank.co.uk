@@ -15,6 +15,7 @@ import { ppCategory } from "../components/formatCategory";
 import { PieSummaryLink } from "../components/pieList/pieSummaryLink";
 import { BrandCard } from "../components/brandCard";
 import { format } from "date-fns";
+import { SeasonBanner } from "../components/seasonBanner";
 
 export const getServerSideProps = async () => {
   const data = (await getMincePieMakers()).unwrapOr([]);
@@ -77,6 +78,7 @@ function Home({
         <meta property="og:image" content="/logo-social.png" />
       </Head>
       <main>
+        <SeasonBanner />
         {topPie && topPieRanking && (
           <>
             <h1>Current Top Pie</h1>
