@@ -8,13 +8,19 @@ import {
   StorageError,
 } from "../../../../../system/storage";
 
+// TODO: Break this up to be every year when we're supporting
+// multiple years
+const SEASON_START_DATE = new Date(2022, 9, 1, 0, 0, 1).getTime();
+const SEASON_END_DATE = new Date(2022, 11, 31, 23, 59, 59).getTime();
+
 export default function handler(
   req: NextApiRequest,
   res: NextApiResponse,
   fnGetPie = getPieByMakerAndId,
   fnAddPieRanking = addPieRanking,
   fnGetMyRankingForPie = getMyRankingForPie,
-  fnGetToken = getToken
+  fnGetToken = getToken,
+  fnGetTime = Date.now
 ) {
   if (!["GET", "POST"].includes(req.method as string)) {
     return res.status(400).send("GET or POST Requests only");
@@ -47,6 +53,10 @@ export default function handler(
     }
     const parsedBody = JSON.parse(req.body);
     if (req.method === "POST" && parsedBody.makerid && parsedBody.pieid) {
+      const now = fnGetTime();
+      if (now > SEASON_END_DATE || now < SEASON_START_DATE) {
+        return res.status(400).send("Out of Season");
+      }
       return fnGetPie(parsedBody.makerid, parsedBody.pieid).then((pieRes) => {
         pieRes
           .mapErr((se) => {

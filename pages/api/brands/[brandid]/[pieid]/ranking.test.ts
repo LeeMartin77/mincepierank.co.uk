@@ -10,6 +10,8 @@ jest.mock("next-auth/jwt", () => {
   };
 });
 
+const happypathDatefunction = () => new Date(2022, 11, 12).getTime();
+
 describe("Pie Ranking Endpoint", () => {
   const badMethods = ["PUT", "DELETE"];
 
@@ -138,7 +140,10 @@ describe("Pie Ranking Endpoint", () => {
         { method: "POST", body: JSON.stringify(fakeBody) } as any,
         mockResponse as any,
         getPieFunction,
-        insertStorageFunction
+        insertStorageFunction,
+        undefined,
+        undefined,
+        happypathDatefunction
       );
       expect(getPieFunction).not.toBeCalled();
       expect(insertStorageFunction).not.toBeCalled();
@@ -163,7 +168,10 @@ describe("Pie Ranking Endpoint", () => {
         { method: "POST", body: JSON.stringify(fakeBody) } as any,
         mockResponse as any,
         getPieFunction,
-        insertStorageFunction
+        insertStorageFunction,
+        undefined,
+        undefined,
+        happypathDatefunction
       );
       expect(getPieFunction).toBeCalledWith(makerid, pieid);
       expect(insertStorageFunction).not.toBeCalled();
@@ -188,7 +196,10 @@ describe("Pie Ranking Endpoint", () => {
         { method: "POST", body: JSON.stringify(fakeBody) } as any,
         mockResponse as any,
         getPieFunction,
-        insertStorageFunction
+        insertStorageFunction,
+        undefined,
+        undefined,
+        happypathDatefunction
       );
       expect(getPieFunction).toBeCalledWith(makerid, pieid);
       expect(insertStorageFunction).not.toBeCalled();
@@ -215,7 +226,10 @@ describe("Pie Ranking Endpoint", () => {
         { method: "POST", body: JSON.stringify(fakeBody) } as any,
         mockResponse as any,
         getPieFunction,
-        insertStorageFunction
+        insertStorageFunction,
+        undefined,
+        undefined,
+        happypathDatefunction
       );
       expect(insertStorageFunction).toBeCalledWith({
         ...fakeBody,
@@ -244,7 +258,10 @@ describe("Pie Ranking Endpoint", () => {
         { method: "POST", body: JSON.stringify(fakeBody) } as any,
         mockResponse as any,
         getPieFunction,
-        insertStorageFunction
+        insertStorageFunction,
+        undefined,
+        undefined,
+        happypathDatefunction
       );
       expect(insertStorageFunction).toBeCalledWith({
         ...fakeBody,
@@ -255,13 +272,61 @@ describe("Pie Ranking Endpoint", () => {
       expect(mockResponse.status).toHaveBeenCalledBefore(mockResponse.send);
     });
 
-    test("Passes Request :: Good Response :: Returns 200 OK", async () => {
+    const goodDates = [
+      new Date(2022, 11, 31, 23, 58, 58),
+      new Date(2022, 10, 12, 12, 30, 30),
+      new Date(2022, 9, 1, 0, 1, 1),
+    ];
+
+    test.each(goodDates)(
+      "Passes Request :: Good Response :: Returns 200 OK",
+      async (date) => {
+        const mockResponse = {
+          status: jest.fn().mockReturnThis(),
+          send: jest.fn(),
+        };
+        const getPieFunction = jest.fn().mockResolvedValue(ok({}));
+        const insertStorageFunction = jest.fn().mockResolvedValue(ok(true));
+        const fakeBody = {
+          makerid: "test-maker-id",
+          pieid: "test-pie-id",
+          something: "else",
+        };
+        await handler(
+          { method: "POST", body: JSON.stringify(fakeBody) } as any,
+          mockResponse as any,
+          getPieFunction,
+          insertStorageFunction,
+          undefined,
+          undefined,
+          () => date.getTime()
+        );
+        expect(insertStorageFunction).toBeCalledWith({
+          ...fakeBody,
+          userid: testEmail,
+        });
+        expect(mockResponse.status).toBeCalledWith(200);
+        expect(mockResponse.send).toBeCalledWith({ status: "ok" });
+        expect(mockResponse.status).toHaveBeenCalledBefore(mockResponse.send);
+      }
+    );
+  });
+
+  const badDates = [
+    new Date(2023, 0, 1, 0, 1, 0),
+    new Date(2022, 8, 30, 22, 58, 0),
+    new Date(2022, 4, 12, 12, 30, 0),
+  ];
+
+  test.each(badDates)(
+    "POST Outside of season :: %s :: rejects with 400",
+    async (date) => {
       const mockResponse = {
         status: jest.fn().mockReturnThis(),
         send: jest.fn(),
       };
-      const getPieFunction = jest.fn().mockResolvedValue(ok({}));
-      const insertStorageFunction = jest.fn().mockResolvedValue(ok(true));
+      const getPieFunction = jest.fn();
+      const insertStorageFunction = jest.fn();
       const fakeBody = {
         makerid: "test-maker-id",
         pieid: "test-pie-id",
@@ -271,15 +336,16 @@ describe("Pie Ranking Endpoint", () => {
         { method: "POST", body: JSON.stringify(fakeBody) } as any,
         mockResponse as any,
         getPieFunction,
-        insertStorageFunction
+        insertStorageFunction,
+        undefined,
+        undefined,
+        () => date.getTime()
       );
-      expect(insertStorageFunction).toBeCalledWith({
-        ...fakeBody,
-        userid: testEmail,
-      });
-      expect(mockResponse.status).toBeCalledWith(200);
-      expect(mockResponse.send).toBeCalledWith({ status: "ok" });
+      expect(getPieFunction).not.toBeCalled();
+      expect(insertStorageFunction).not.toBeCalled();
+      expect(mockResponse.status).toBeCalledWith(400);
+      expect(mockResponse.send).toBeCalled();
       expect(mockResponse.status).toHaveBeenCalledBefore(mockResponse.send);
-    });
-  });
+    }
+  );
 });
