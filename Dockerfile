@@ -12,7 +12,7 @@ ENV NEXT_TELEMETRY_DISABLED 1
 RUN npm run build
 
 # Production image, copy all the files and run next
-FROM node:18.7.0-bullseye-slim AS runner
+FROM node:18.13.0-bullseye-slim AS runner
 WORKDIR /app
 
 ENV NODE_ENV production
