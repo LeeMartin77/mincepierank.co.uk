@@ -5,9 +5,9 @@
   "scripts": {
     "test": "jest",
     "dev": "NEXTAUTH_URL=http://localhost:3000 NEXTAUTH_SECRET=development-secret next dev",
-    "dev:startlocaldb": ".database/cql_setup_local.sh",
-    "dev:migrations": "node .database/schema.js",
-    "dev:seedlocaltestdata": "node .database/test_data.js",
+    "dev:startlocaldb": ".development/manual/cql_setup_local.sh",
+    "dev:migrations": "node .development/migrations/schema.js",
+    "dev:seedlocaltestdata": "node .development/migrations/test_data.js",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"

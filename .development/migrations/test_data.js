@@ -13,8 +13,18 @@ const MIGRATION_CLIENT_CONFIG = {
 };
 
 const makers = [
-  { id: "tesco", name: "Tesco" },
-  { id: "morrisons", name: "Morrisons" },
+  { 
+    id: "tesco",
+    name: "Tesco",
+    logo: "https://static.mincepierank.co.uk/images/tesco/logo.png", 
+    website: "https://www.tesco.com/"
+  },
+  { 
+    id: "morrisons",
+    name: "Morrisons",
+    logo: "https://static.mincepierank.co.uk/images/morrisons/logo.png", 
+    website: "https://groceries.morrisons.com/webshop/startWebshop.do"
+  },
 ];
 
 const makerPies = [
@@ -24,6 +34,10 @@ const makerPies = [
     displayName: "Very Nice Pie",
     fresh: false,
     labels: ["good", "value"],
+    image_file: "https://static.mincepierank.co.uk/images/waitrose/all-butter.jpg",
+    web_link: "https://www.waitrose.com/ecom/products/waitrose-christmas-all-butter-mince-pies/735193-785976-785977",
+    pack_count: 6,
+    pack_price_in_pence: 120
   },
   {
     makerId: "tesco",
@@ -31,6 +45,10 @@ const makerPies = [
     displayName: "Okay Nice Pie",
     fresh: false,
     labels: ["okay", "mediocre"],
+    image_file: "https://static.mincepierank.co.uk/images/waitrose/all-butter.jpg",
+    web_link: "https://www.waitrose.com/ecom/products/waitrose-christmas-all-butter-mince-pies/735193-785976-785977",
+    pack_count: 6,
+    pack_price_in_pence: 120
   },
   {
     makerId: "morrisons",
@@ -38,6 +56,10 @@ const makerPies = [
     displayName: "Super Good Pie",
     fresh: false,
     labels: ["amazing"],
+    image_file: "https://static.mincepierank.co.uk/images/waitrose/all-butter.jpg",
+    web_link: "https://www.waitrose.com/ecom/products/waitrose-christmas-all-butter-mince-pies/735193-785976-785977",
+    pack_count: 6,
+    pack_price_in_pence: 120
   },
   {
     makerId: "morrisons",
@@ -45,6 +67,10 @@ const makerPies = [
     displayName: "Okay Pie",
     fresh: false,
     labels: ["okay"],
+    image_file: "https://static.mincepierank.co.uk/images/waitrose/all-butter.jpg",
+    web_link: "https://www.waitrose.com/ecom/products/waitrose-christmas-all-butter-mince-pies/735193-785976-785977",
+    pack_count: 6,
+    pack_price_in_pence: 120
   },
 ];
 
@@ -60,6 +86,7 @@ const pieRankings = makerPies.reduce((rankings, pie) => {
       looks: number,
       value: number,
       notes: "Some Notes for " + number + " :: " + randomUUID(),
+      last_updated: new Date().toISOString()
     };
   });
   return [...rankings, ...newRankings];
@@ -71,8 +98,8 @@ client.connect().then(async () => {
   await client.execute("TRUNCATE mincepierank.maker");
   for (let maker of makers) {
     await client.execute(
-      `INSERT INTO mincepierank.maker (id, name)
-            values (?, ?);`,
+      `INSERT INTO mincepierank.maker (id, name, logo, website)
+            values (?, ?, ?, ?);`,
       Object.values(maker),
       { prepare: true }
     );
@@ -81,8 +108,8 @@ client.connect().then(async () => {
 
   for (let makerPie of makerPies) {
     await client.execute(
-      `INSERT INTO mincepierank.maker_pie (makerId, id, displayName, fresh, labels)
-            values (?, ?, ?, ?, ?);`,
+      `INSERT INTO mincepierank.maker_pie (makerId, id, displayName, fresh, labels, image_file, web_link, pack_count, pack_price_in_pence)
+            values (?, ?, ?, ?, ?, ?, ?, ?, ?);`,
       Object.values(makerPie),
       { prepare: true }
     );
@@ -90,8 +117,8 @@ client.connect().then(async () => {
 
   for (let pieRanking of pieRankings) {
     await client.execute(
-      `INSERT INTO mincepierank.maker_pie_ranking (makerid, pieid, userid, pastry, filling, topping, looks, value, notes)
-            values (?, ?, ?, ?, ?, ?, ?, ?, ?);`,
+      `INSERT INTO mincepierank.maker_pie_ranking (makerid, pieid, userid, pastry, filling, topping, looks, value, notes, last_updated)
+            values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`,
       Object.values(pieRanking),
       { prepare: true }
     );

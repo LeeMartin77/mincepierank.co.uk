@@ -1,4 +1,4 @@
-FROM --platform=$BUILDPLATFORM node:18.7.0 as builder
+FROM --platform=$BUILDPLATFORM node:18.13.0 as builder
 WORKDIR /app
 
 # Install dependencies based on the preferred package manager

@@ -33,7 +33,6 @@ npm run dev:migrations
 And seed some local test data with:
 
 ```bash
-# TODO: This test data could do with a refresh...
 npm run dev:seedlocaltestdata
 ```
 
