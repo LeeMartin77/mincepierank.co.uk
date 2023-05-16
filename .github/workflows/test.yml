@@ -1,0 +1,52 @@
+name: Test
+
+on:
+  workflow_call:
+  workflow_dispatch:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  lint-and-unit-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version-file: ".nvmrc"
+      - name: Restore dependencies
+        run: npm ci
+      - name: lint
+        run: npm run lint
+      - name: Test
+        run: npm test
+
+  build-and-test-with-tilt:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version-file: ".nvmrc"
+      - name: Restore dependencies
+        run: npm ci
+      - name: Install Kind
+        uses: helm/kind-action@v1.4.0
+        with:
+          install_only: true
+      - name: Setup cluster with registry
+        run: curl -fsSL https://raw.githubusercontent.com/tilt-dev/kind-local/master/kind-with-registry.sh | bash
+      - name: Install tilt
+        run: curl -fsSL https://raw.githubusercontent.com/tilt-dev/tilt/master/scripts/install.sh | bash
+      - name: Run Tilt CI w/ cypress
+        run: tilt ci -- --run-cypress
+      - uses: actions/upload-artifact@v3
+        if: always()
+        name: Upload test results
+        with:
+          name: cypress-test-results
+          path: |
+            cypress/screenshots
+            cypress/videos

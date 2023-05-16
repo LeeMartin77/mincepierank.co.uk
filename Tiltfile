@@ -1,5 +1,9 @@
 load('ext://namespace', 'namespace_create', 'namespace_inject')
 
+config.define_bool("run-cypress")
+cfg = config.parse()
+run_cypress = cfg.get("run-cypress", False)
+
 development_namespace='mincepierank-development'
 
 namespace_create(development_namespace)
@@ -37,14 +41,35 @@ local_resource('mincepierank local',
 local_resource('migrate cassandra',
   cmd='npm run dev:migrations',
   dir='.',
-  auto_init=False,
-  trigger_mode=TRIGGER_MODE_MANUAL,
+  auto_init=run_cypress,
+  resource_deps=['cassandra'],
+  trigger_mode=TRIGGER_MODE_AUTO if run_cypress else TRIGGER_MODE_MANUAL,
   labels=["tools"]
 )
 local_resource('seed cassandra',
   cmd='npm run dev:seedlocaltestdata',
   dir='.',
+  auto_init=run_cypress,
+  resource_deps=['migrate cassandra'],
+  trigger_mode=TRIGGER_MODE_AUTO if run_cypress else TRIGGER_MODE_MANUAL,
+  labels=["tools"]
+)
+
+local_resource('cypress run',
+  env={'CYPRESS_BASE_URL':'http://localhost:4024'},
+  cmd='npm run cypress:run',
+  dir='.',
+  resource_deps=['mincepierank', 'seed cassandra'],
+  auto_init=run_cypress,
+  trigger_mode=TRIGGER_MODE_AUTO if run_cypress else TRIGGER_MODE_MANUAL,
+  labels=["tests"]
+)
+
+local_resource('cypress open - local',
+  env={'CYPRESS_BASE_URL':'http://localhost:3000'},
+  serve_cmd='npm run cypress:open',
+  serve_dir='.',
   auto_init=False,
   trigger_mode=TRIGGER_MODE_MANUAL,
-  labels=["tools"]
+  labels=["tests"]
 )
