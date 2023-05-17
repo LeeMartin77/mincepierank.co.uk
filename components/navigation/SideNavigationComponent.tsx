@@ -27,7 +27,7 @@ export function SideNavigationComponent({ width = 200 }: { width?: number }) {
       <List>
         {navigationConfig.map((nav, index) => (
           <ListItem key={index}>
-            <ListItemButton LinkComponent={Link} href={nav.route}>
+            <ListItemButton LinkComponent={Link} href={nav.route} data-testid="navigation-menu-link">
               <ListItemIcon>
                 <nav.icon />
               </ListItemIcon>
