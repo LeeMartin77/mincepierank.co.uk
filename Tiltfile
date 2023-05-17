@@ -22,7 +22,9 @@ docker_build('ghcr.io/leemartin77/mincepierank.co.uk', '.')
 # Watch: tell Tilt how to connect locally (optional)
 
 k8s_resource('cassandra', port_forwards="9143:9042", labels=["services"])
-k8s_resource('mincepierank', port_forwards="4024:3000", labels=["application"],  resource_deps=['cassandra'])
+k8s_resource('mincepierank', port_forwards="4024:3000", labels=["application"],  resource_deps=['cassandra'],
+  auto_init=run_cypress,
+  trigger_mode=TRIGGER_MODE_AUTO if run_cypress else TRIGGER_MODE_MANUAL,)
 
 local_resource('mincepierank local',
   serve_cmd='npm run dev',
