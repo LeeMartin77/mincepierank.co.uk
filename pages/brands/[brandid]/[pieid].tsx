@@ -399,6 +399,7 @@ function PieDetails({ pie }: { pie: MakerPie }) {
   return (
     <Card>
       <CardMedia
+        data-testid="pie-page-picture"
         component="img"
         height="200"
         image={pie.image_file + "?width=600&filter=gaussian"}
@@ -422,7 +423,7 @@ function PieDetails({ pie }: { pie: MakerPie }) {
             );
           })}
       </div>
-      <TableContainer component={CardContent}>
+      <TableContainer component={CardContent} data-testid="pie-page-statistics">
         <Table size="small" aria-label="Mince Pie Stats">
           <TableHead>
             <TableRow>
@@ -515,7 +516,7 @@ function Pie({
           </Link>
           <Typography color="text.primary">{pie?.displayname}</Typography>
         </Breadcrumbs>
-        <h1>{pie.displayname}</h1>
+        <h1 data-testid="pie-page-display-name-header">{pie.displayname}</h1>
         <h3>{maker.name}</h3>
         <PieDetails pie={pie} />
         <Divider style={{ marginTop: "1em", marginBottom: "1em" }} />

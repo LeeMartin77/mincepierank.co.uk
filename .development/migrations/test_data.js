@@ -104,22 +104,22 @@ client.connect().then(async () => {
       { prepare: true }
     );
   }
-  await client.execute("TRUNCATE mincepierank.maker_pie");
+  await client.execute("TRUNCATE mincepierank.maker_pie_yearly");
 
   for (let makerPie of makerPies) {
     await client.execute(
-      `INSERT INTO mincepierank.maker_pie (makerId, id, displayName, fresh, labels, image_file, web_link, pack_count, pack_price_in_pence)
-            values (?, ?, ?, ?, ?, ?, ?, ?, ?);`,
-      Object.values(makerPie),
+      `INSERT INTO mincepierank.maker_pie_yearly (year, makerId, id, displayName, fresh, labels, image_file, web_link, pack_count, pack_price_in_pence)
+            values (2022, ?, ?, ?, ?, ?, ?, ?, ?, ?);`,
+      [...Object.values(makerPie)],
       { prepare: true }
     );
   }
 
   for (let pieRanking of pieRankings) {
     await client.execute(
-      `INSERT INTO mincepierank.maker_pie_ranking (makerid, pieid, userid, pastry, filling, topping, looks, value, notes, last_updated)
-            values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`,
-      Object.values(pieRanking),
+      `INSERT INTO mincepierank.maker_pie_ranking_yearly (year, makerid, pieid, userid, pastry, filling, topping, looks, value, notes, last_updated)
+            values (2022, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`,
+      [...Object.values(pieRanking)],
       { prepare: true }
     );
   }

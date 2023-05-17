@@ -118,6 +118,7 @@ export function PieSummaryLink({
       </CardContent>
       <CardActions className={styles.actions}>
         <Button
+          data-testid="pie-summary-card-link-to-pie"
           LinkComponent={Link}
           variant={isTop ? "outlined" : undefined}
           href={`/brands/${pie.makerid}/${pie.id}`}

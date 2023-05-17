@@ -9,8 +9,9 @@ const schema = [
       logo text,
       website text
   )`,
-  `CREATE TABLE IF NOT EXISTS mincepierank.maker_pie
+  `CREATE TABLE IF NOT EXISTS mincepierank.maker_pie_yearly
   (
+      year int,
       makerid text,
       id text,
       displayname text,
@@ -20,13 +21,15 @@ const schema = [
       web_link text,
       pack_count int,
       pack_price_in_pence int,
-      PRIMARY KEY ((makerId, id))
+      PRIMARY KEY ((year, makerId, id))
   );`,
-  `CREATE INDEX IF NOT EXISTS ON mincepierank.maker_pie (makerId);`,
-  `CREATE INDEX IF NOT EXISTS ON mincepierank.maker_pie (fresh);`,
-  `CREATE INDEX IF NOT EXISTS ON mincepierank.maker_pie (labels);`,
-  `CREATE TABLE IF NOT EXISTS mincepierank.maker_pie_ranking
+  `CREATE INDEX IF NOT EXISTS ON mincepierank.maker_pie_yearly (year);`,
+  `CREATE INDEX IF NOT EXISTS ON mincepierank.maker_pie_yearly (makerId);`,
+  `CREATE INDEX IF NOT EXISTS ON mincepierank.maker_pie_yearly (fresh);`,
+  `CREATE INDEX IF NOT EXISTS ON mincepierank.maker_pie_yearly (labels);`,
+  `CREATE TABLE IF NOT EXISTS mincepierank.maker_pie_ranking_yearly
   (
+      year int,
       makerid text,
       pieid text,
       userid text,
@@ -37,17 +40,18 @@ const schema = [
       value int,
       notes text,
       last_updated timestamp,
-      PRIMARY KEY ((makerid, pieid), userid)
+      PRIMARY KEY ((year, makerid, pieid), userid)
   );`,
-  `CREATE INDEX IF NOT EXISTS ON mincepierank.maker_pie_ranking (makerid);`,
-  `CREATE INDEX IF NOT EXISTS ON mincepierank.maker_pie_ranking (pieid);`,
-  `CREATE INDEX IF NOT EXISTS ON mincepierank.maker_pie_ranking (userId);`,
-  `CREATE INDEX IF NOT EXISTS ON mincepierank.maker_pie_ranking (pastry);`,
-  `CREATE INDEX IF NOT EXISTS ON mincepierank.maker_pie_ranking (filling);`,
-  `CREATE INDEX IF NOT EXISTS ON mincepierank.maker_pie_ranking (topping);`,
-  `CREATE INDEX IF NOT EXISTS ON mincepierank.maker_pie_ranking (looks);`,
-  `CREATE INDEX IF NOT EXISTS ON mincepierank.maker_pie_ranking (value);`,
-  `CREATE INDEX IF NOT EXISTS ON mincepierank.maker_pie_ranking (last_updated);`,
+  `CREATE INDEX IF NOT EXISTS ON mincepierank.maker_pie_ranking_yearly (year);`,
+  `CREATE INDEX IF NOT EXISTS ON mincepierank.maker_pie_ranking_yearly (makerid);`,
+  `CREATE INDEX IF NOT EXISTS ON mincepierank.maker_pie_ranking_yearly (pieid);`,
+  `CREATE INDEX IF NOT EXISTS ON mincepierank.maker_pie_ranking_yearly (userId);`,
+  `CREATE INDEX IF NOT EXISTS ON mincepierank.maker_pie_ranking_yearly (pastry);`,
+  `CREATE INDEX IF NOT EXISTS ON mincepierank.maker_pie_ranking_yearly (filling);`,
+  `CREATE INDEX IF NOT EXISTS ON mincepierank.maker_pie_ranking_yearly (topping);`,
+  `CREATE INDEX IF NOT EXISTS ON mincepierank.maker_pie_ranking_yearly (looks);`,
+  `CREATE INDEX IF NOT EXISTS ON mincepierank.maker_pie_ranking_yearly (value);`,
+  `CREATE INDEX IF NOT EXISTS ON mincepierank.maker_pie_ranking_yearly (last_updated);`,
 ];
 
 const MIGRATION_CLIENT_CONFIG = {

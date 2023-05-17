@@ -8,7 +8,7 @@ export async function getAllMakerPies(
 ): Promise<Result<MakerPie[], StorageError>> {
   try {
     const result = await client.execute(
-      "SELECT * FROM mincepierank.maker_pie;"
+      "SELECT * FROM mincepierank.maker_pie_yearly;"
     );
 
     const mapped = result.rows.map(rowToObject);
@@ -24,8 +24,9 @@ export async function getPiesByMaker(
 ): Promise<Result<MakerPie[], StorageError>> {
   try {
     const result = await client.execute(
-      "SELECT * FROM mincepierank.maker_pie WHERE makerId = ?;",
-      [makerId]
+      "SELECT * FROM mincepierank.maker_pie_yearly WHERE year = ? AND makerId = ?;",
+      [2022, makerId],
+      { prepare: true }
     );
 
     const mapped = result.rows.map(rowToObject);
@@ -41,8 +42,8 @@ export async function getPiesWithCategory(
 ): Promise<Result<MakerPie[], StorageError>> {
   try {
     const result = await client.execute(
-      "SELECT * FROM mincepierank.maker_pie WHERE labels contains ?;",
-      [category],
+      "SELECT * FROM mincepierank.maker_pie_yearly WHERE year = ? AND labels contains ?;",
+      [2022, category],
       { prepare: true }
     );
 
@@ -60,8 +61,9 @@ export async function getPieByMakerAndId(
 ): Promise<Result<MakerPie, StorageError>> {
   try {
     const result = await client.execute(
-      "SELECT * FROM mincepierank.maker_pie WHERE makerId = ? AND id = ?;",
-      [makerId, id]
+      "SELECT * FROM mincepierank.maker_pie_yearly WHERE year = ? AND makerId = ? AND id = ?;",
+      [2022, makerId, id],
+      { prepare: true }
     );
     if (result.rows.length !== 1) {
       return err(StorageError.NotFound);

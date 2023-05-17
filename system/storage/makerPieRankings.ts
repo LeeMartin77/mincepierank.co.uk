@@ -10,8 +10,8 @@ export async function getAllRankingsForPie(
 ): Promise<Result<MakerPieRanking[], StorageError>> {
   try {
     const result = await client.execute(
-      "SELECT * FROM mincepierank.maker_pie_ranking WHERE makerid = ? AND pieid = ? ALLOW FILTERING;",
-      [makerid, pieid]
+      "SELECT * FROM mincepierank.maker_pie_ranking_yearly WHERE year = ? AND makerid = ? AND pieid = ? ALLOW FILTERING;",
+      [2022, makerid, pieid]
     );
 
     const mapped = result.rows.map(rowToObject);
@@ -26,7 +26,7 @@ export async function getLatestRanking(
 ): Promise<Result<MakerPieRanking, StorageError>> {
   try {
     const whenresult = await client.execute(
-      "SELECT MAX(last_updated) as last_updated FROM mincepierank.maker_pie_ranking;"
+      "SELECT MAX(last_updated) as last_updated FROM mincepierank.maker_pie_ranking_yearly where year = 2022;"
     );
 
     if (whenresult.rowLength === 0) {
@@ -46,8 +46,8 @@ export async function getLatestRanking(
       topping,
       looks,
       value,
-      CAST(last_updated as text) as last_updated FROM mincepierank.maker_pie_ranking where last_updated >= ? ALLOW FILTERING;`,
-      [new Date(when)]
+      CAST(last_updated as text) as last_updated FROM mincepierank.maker_pie_ranking_yearly where year = ? AND last_updated >= ? ALLOW FILTERING;`,
+      [2022, new Date(when)]
     );
     return ok(rowToObject(top.first()));
   } catch (ex: any) {
@@ -71,8 +71,8 @@ export async function getMyRankingForPie(
       topping,
       looks,
       value,
-      CAST(last_updated as text) as last_updated FROM mincepierank.maker_pie_ranking WHERE makerid = ? AND pieid = ? AND userid = ? ALLOW FILTERING;`,
-      [makerid, pieid, userid]
+      CAST(last_updated as text) as last_updated FROM mincepierank.maker_pie_ranking_yearly WHERE year = ? makerid = ? AND pieid = ? AND userid = ? ALLOW FILTERING;`,
+      [2022, makerid, pieid, userid]
     );
     if (result.rows.length === 0) {
       return err(StorageError.NotFound);
@@ -103,8 +103,8 @@ export async function getUserPieRankings(
         looks,
         value,
         CAST(last_updated as text) as last_updated
-        FROM mincepierank.maker_pie_ranking WHERE userid = ? ALLOW FILTERING;`,
-      [userid],
+        FROM mincepierank.maker_pie_ranking_yearly WHERE year = ? AND userid = ? ALLOW FILTERING;`,
+      [2022, userid],
       { prepare: true }
     );
 
@@ -145,14 +145,15 @@ export async function getPieRankingSummary(
         AVG(cast(value as float)) as value,
         CAST(MAX(last_updated) as text) as last_updated,
         CAST(COUNT(1) as int) as count 
-      FROM mincepierank.maker_pie_ranking
-      WHERE makerid = ? AND pieid = ? ALLOW FILTERING;`,
-      [makerid, pieid],
+      FROM mincepierank.maker_pie_ranking_yearly
+      WHERE year = ? AND makerid = ? AND pieid = ? ALLOW FILTERING;`,
+      [2022, makerid, pieid],
       { prepare: true }
     );
 
     return ok(addAverageScore(rowToObject(result.first())));
-  } catch {
+  } catch (ex) {
+    console.log(ex)
     return err(StorageError.GenericError);
   }
 }
@@ -173,10 +174,10 @@ export async function getPieRankingSummariesByIds(
         AVG(cast(value as float)) as value,
         CAST(MAX(last_updated) as text) as last_updated,
         CAST(COUNT(1) as int) as count 
-      FROM mincepierank.maker_pie_ranking
-      WHERE makerid = ? and pieid in ?
+      FROM mincepierank.maker_pie_ranking_yearly
+      WHERE year = ? AND makerid = ? and pieid in ?
       GROUP BY makerid, pieid;`,
-      [makerid, pieids],
+      [2022, makerid, pieids],
       { prepare: true }
     );
 
@@ -203,9 +204,9 @@ export async function getMakerPieRankingSummaries(
         AVG(cast(value as float)) as value,
         CAST(MAX(last_updated) as text) as last_updated,
         CAST(COUNT(1) as int) as count 
-      FROM mincepierank.maker_pie_ranking
+      FROM mincepierank.maker_pie_ranking_yearly
       WHERE makerid = ?
-      GROUP BY makerid, pieid;`,
+      GROUP BY year, makerid, pieid;`,
       [makerid],
       { prepare: true }
     );
@@ -232,8 +233,8 @@ export async function getAllPieRankingSummaries(
         AVG(cast(value as float)) as value,
         CAST(MAX(last_updated) as text) as last_updated,
         CAST(COUNT(1) as int) as count 
-      FROM mincepierank.maker_pie_ranking
-      GROUP BY makerid, pieid;`,
+      FROM mincepierank.maker_pie_ranking_yearly
+      GROUP BY year, makerid, pieid;`,
       { prepare: true }
     );
 
@@ -275,7 +276,8 @@ export async function addPieRanking(
   try {
     await client.execute(
       `INSERT INTO 
-        mincepierank.maker_pie_ranking (
+        mincepierank.maker_pie_ranking_yearly (
+          year
           makerid, 
           pieid, 
           userid, 
@@ -287,8 +289,9 @@ export async function addPieRanking(
           notes,
           last_updated
         )
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`,
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`,
       [
+        2022,
         ranking.makerid,
         ranking.pieid,
         ranking.userid,
