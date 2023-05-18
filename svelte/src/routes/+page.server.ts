@@ -1,0 +1,33 @@
+import { error } from '@sveltejs/kit';
+import type { PageLoad } from './$types';
+import { addAverageScore, getAllMakerPies, getAllPieRankingSummaries, getLatestRanking, getMincePieMakers } from '../lib/storage';
+import { mapPiesAndRankings } from '../components/mapPiesAndRankings';
+
+export const load = (async ({ params }) => {
+    const data = (await getMincePieMakers()).unwrapOr([]);
+    const pies = (await getAllMakerPies()).unwrapOr([]);
+    const rankingSummaries = (await getAllPieRankingSummaries()).unwrapOr([]);
+    const latestRanking = (await getLatestRanking()).unwrapOr(undefined);
+    const { mappedRankings, mappedPies, rankingOrder } = mapPiesAndRankings(
+      pies,
+      rankingSummaries
+    );
+    const topPieId = rankingOrder.shift();
+    const latestPie = latestRanking
+      ? mappedPies[latestRanking.makerid + "-" + latestRanking.pieid]
+      : null;
+    return {
+        makers: data,
+        latestPie,
+        latestRanking: latestRanking
+          ? {
+              ...addAverageScore(latestRanking),
+              userid: null,
+              notes: null,
+            }
+          : null,
+        topPie: topPieId ? mappedPies[topPieId] : null,
+        topPieRanking: topPieId ? mappedRankings[topPieId] : null,
+    };
+    
+}) satisfies PageLoad;

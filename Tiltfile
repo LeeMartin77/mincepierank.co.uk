@@ -27,11 +27,11 @@ docker_build('ghcr.io/leemartin77/mincepierank.co.uk-svelte', 'svelte')
 k8s_resource('cassandra', port_forwards="9143:9042", labels=["services"])
 k8s_resource('mincepierank', port_forwards="4024:3000", labels=["application"],  resource_deps=['cassandra'],
   auto_init=run_cypress,
-  trigger_mode=TRIGGER_MODE_AUTO if run_cypress else TRIGGER_MODE_MANUAL,)
+  trigger_mode=TRIGGER_MODE_MANUAL if run_cypress else TRIGGER_MODE_AUTO)
 
 k8s_resource('mincepierank-svelte', port_forwards="4025:3000", labels=["application"],  resource_deps=['cassandra'],
   auto_init=run_cypress,
-  trigger_mode=TRIGGER_MODE_AUTO if run_cypress else TRIGGER_MODE_MANUAL,)
+  trigger_mode=TRIGGER_MODE_MANUAL if run_cypress else TRIGGER_MODE_AUTO)
 
 local_resource('mincepierank local',
   serve_cmd='npm run dev',
@@ -67,7 +67,7 @@ local_resource('migrate cassandra',
   dir='.',
   auto_init=run_cypress,
   resource_deps=['cassandra'],
-  trigger_mode=TRIGGER_MODE_AUTO if run_cypress else TRIGGER_MODE_MANUAL,
+  trigger_mode=TRIGGER_MODE_MANUAL,
   labels=["tools"]
 )
 local_resource('seed cassandra',
@@ -75,7 +75,7 @@ local_resource('seed cassandra',
   dir='.',
   auto_init=run_cypress,
   resource_deps=['migrate cassandra'],
-  trigger_mode=TRIGGER_MODE_AUTO if run_cypress else TRIGGER_MODE_MANUAL,
+  trigger_mode=TRIGGER_MODE_MANUAL,
   labels=["tools"]
 )
 
@@ -85,7 +85,7 @@ local_resource('cypress run',
   dir='.',
   resource_deps=['mincepierank', 'seed cassandra'],
   auto_init=run_cypress,
-  trigger_mode=TRIGGER_MODE_AUTO if run_cypress else TRIGGER_MODE_MANUAL,
+  trigger_mode=TRIGGER_MODE_MANUAL,
   labels=["tests"]
 )
 
