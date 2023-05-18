@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: mincepierank
+  name: mincepierank-svelte
 spec:
   ports:
     - name: http
@@ -9,30 +9,30 @@ spec:
       protocol: TCP
       targetPort: 3000
   selector:
-    app: mincepierank
+    app: mincepierank-svelte
   type: ClusterIP
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: mincepierank
-  name: mincepierank
+    app: mincepierank-svelte
+  name: mincepierank-svelte
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: mincepierank
+      app: mincepierank-svelte
   template:
     metadata:
       labels:
-        app: mincepierank
-      namespace: mincepierank
-      name: mincepierank
+        app: mincepierank-svelte
+      namespace: mincepierank-svelte
+      name: mincepierank-svelte
     spec:
       containers:
-        - name: mincepierank
-          image: ghcr.io/leemartin77/mincepierank.co.uk:bleed
+        - name: mincepierank-svelte
+          image: ghcr.io/leemartin77/mincepierank.co.uk-svelte:bleed
           imagePullPolicy: Always
           # resources:
           #   limits:
@@ -62,7 +62,7 @@ spec:
                   key: cassandrapassword
                   optional: false
             - name: NEXTAUTH_URL
-              value: http://localhost:4024
+              value: http://localhost:4025
             - name: NEXTAUTH_SECRET
               value: some-weird-random-string
 

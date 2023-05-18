@@ -40,3 +40,6 @@ cypress
 .development
 .github
 .next
+
+# Alternative
+svelte
