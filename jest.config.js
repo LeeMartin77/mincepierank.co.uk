@@ -13,6 +13,7 @@ const customJestConfig = {
     "^@/pages/(.*)$": "<rootDir>/pages/$1",
   },
   testEnvironment: "jest-environment-jsdom",
+  testPathIgnorePatterns: ["svelte/"]
 };
 
 module.exports = createJestConfig(customJestConfig);
