@@ -1,33 +1,16 @@
+import { error } from '@sveltejs/kit';
 import type { PageServerLoadEvent } from './$types';
-import { addAverageScore, getAllMakerPies, getAllPieRankingSummaries, getLatestRanking, getMincePieMakers } from '$lib/storage';
-import { mapPiesAndRankings } from '$components/mapPiesAndRankings';
+import { getMincePieMaker, getPiesByMaker } from '$lib/storage';
 
 export const load = (async ({ params }: PageServerLoadEvent) => {
-  const { year } = params;
-  const data = (await getMincePieMakers()).unwrapOr([]);
-  const pies = (await getAllMakerPies(parseInt(year))).unwrapOr([]);
-    const rankingSummaries = (await getAllPieRankingSummaries()).unwrapOr([]);
-    const latestRanking = (await getLatestRanking()).unwrapOr(undefined);
-    const { mappedRankings, mappedPies, rankingOrder } = mapPiesAndRankings(
-      pies,
-      rankingSummaries
-    );
-    const topPieId = rankingOrder.shift();
-    const latestPie = latestRanking
-      ? mappedPies[latestRanking.makerid + "-" + latestRanking.pieid]
-      : null;
-    return {
-        makers: data,
-        latestPie,
-        latestRanking: latestRanking
-          ? {
-              ...addAverageScore(latestRanking),
-              userid: null,
-              notes: null,
-            }
-          : null,
-        topPie: topPieId ? mappedPies[topPieId] : null,
-        topPieRanking: topPieId ? mappedRankings[topPieId] : null,
-    };
-    
+  const { year, maker } = params;
+  const makerData = (await getMincePieMaker(maker)).unwrapOr(undefined);
+  const pies = (await getPiesByMaker(parseInt(year), maker)).unwrapOr([]);
+  if (makerData === undefined || pies.length === 0) {
+    throw error(404, 'Maker not found for year');
+  }
+  return {
+    makerData,
+    pies
+  };
 });

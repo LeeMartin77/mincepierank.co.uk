@@ -16,7 +16,7 @@
 
 <ul>
 	{#each data.makers as maker}
-		<li><a href={`/${maker.id}`}>
+		<li><a href={`/years/2022/makers/${maker.id}`}>
 			{maker.name}
 		</a></li>
 	{/each}

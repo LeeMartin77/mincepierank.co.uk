@@ -25,14 +25,15 @@ export async function getPiesByMaker(
 ): Promise<Result<MakerPie[], StorageError>> {
   try {
     const result = await CASSANDRA_CLIENT.execute(
-      "SELECT * FROM mincepierank.maker_pie_yearly WHERE year = ? AND makerId = ?;",
+      "SELECT * FROM mincepierank.maker_pie_yearly WHERE year = ? AND makerid = ? ALLOW FILTERING",
       [year, makerId],
       { prepare: true }
     );
 
     const mapped = result.rows.map(rowToObject);
     return ok(mapped as MakerPie[]);
-  } catch {
+  } catch (ex: any){
+    console.error(ex)
     return err(StorageError.GenericError);
   }
 }
@@ -43,7 +44,7 @@ export async function getPiesWithCategory(
 ): Promise<Result<MakerPie[], StorageError>> {
   try {
     const result = await CASSANDRA_CLIENT.execute(
-      "SELECT * FROM mincepierank.maker_pie_yearly WHERE year = ? AND labels contains ?;",
+      "SELECT * FROM mincepierank.maker_pie_yearly WHERE year = ? AND labels contains ? ALLOW FILTERING;",
       [year, category],
       { prepare: true }
     );
