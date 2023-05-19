@@ -4,11 +4,9 @@ import type { Maker } from "./types";
 import { StorageError } from "./types";
 import { rowToObject } from "./utilities";
 
-export async function getMincePieMakers(
-  client = CASSANDRA_CLIENT
-): Promise<Result<Maker[], StorageError>> {
+export async function getMincePieMakers(): Promise<Result<Maker[], StorageError>> {
   try {
-    const result = await client.execute("SELECT * FROM mincepierank.maker;");
+    const result = await CASSANDRA_CLIENT.execute("SELECT * FROM mincepierank.maker;");
 
     const mapped = result.rows.map(rowToObject);
     return ok(mapped as Maker[]);
@@ -18,11 +16,10 @@ export async function getMincePieMakers(
 }
 
 export async function getMincePieMaker(
-  id: string,
-  client = CASSANDRA_CLIENT
+  id: string
 ): Promise<Result<Maker, StorageError>> {
   try {
-    const result = await client.execute(
+    const result = await CASSANDRA_CLIENT.execute(
       "SELECT * FROM mincepierank.maker WHERE id = ?;",
       [id]
     );

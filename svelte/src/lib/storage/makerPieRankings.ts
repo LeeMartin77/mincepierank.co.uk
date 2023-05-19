@@ -5,14 +5,14 @@ import { StorageError } from "./types";
 import { calculateAverage, rowToObject } from "./utilities";
 
 export async function getAllRankingsForPie(
+  year: number,
   makerid: string,
-  pieid: string,
-  client = CASSANDRA_CLIENT
+  pieid: string
 ): Promise<Result<MakerPieRanking[], StorageError>> {
   try {
-    const result = await client.execute(
+    const result = await CASSANDRA_CLIENT.execute(
       "SELECT * FROM mincepierank.maker_pie_ranking_yearly WHERE year = ? AND makerid = ? AND pieid = ? ALLOW FILTERING;",
-      [2022, makerid, pieid],
+      [year, makerid, pieid],
       { prepare : true }
     );
 
@@ -23,11 +23,9 @@ export async function getAllRankingsForPie(
   }
 }
 
-export async function getLatestRanking(
-  client = CASSANDRA_CLIENT
-): Promise<Result<MakerPieRanking, StorageError>> {
+export async function getLatestRanking(): Promise<Result<MakerPieRanking, StorageError>> {
   try {
-    const whenresult = await client.execute(
+    const whenresult = await CASSANDRA_CLIENT.execute(
       "SELECT MAX(last_updated) as last_updated FROM mincepierank.maker_pie_ranking_yearly where year = 2022;"
     );
 
@@ -40,34 +38,35 @@ export async function getLatestRanking(
       return err(StorageError.NotFound);
     }
 
-    const top = await client.execute(
-      `SELECT makerid,
+    const top = await CASSANDRA_CLIENT.execute(
+      `SELECT year,
+      makerid,
       pieid,
       pastry,
       filling,
       topping,
       looks,
       value,
-      CAST(last_updated as text) as last_updated FROM mincepierank.maker_pie_ranking_yearly where year = ? AND last_updated >= ? ALLOW FILTERING;`,
-      [2022, new Date(when)],
+      CAST(last_updated as text) as last_updated FROM mincepierank.maker_pie_ranking_yearly where last_updated >= ? ALLOW FILTERING;`,
+      [new Date(when)],
       { prepare : true }
     );
     return ok(rowToObject(top.first()));
-  } catch (ex: any) {
-    console.error(ex.message);
+  } catch {
     return err(StorageError.GenericError);
   }
 }
 
 export async function getMyRankingForPie(
+  year: number,
   makerid: string,
   pieid: string,
-  userid: string,
-  client = CASSANDRA_CLIENT
+  userid: string
 ): Promise<Result<MakerPieRanking, StorageError>> {
   try {
-    const result = await client.execute(
-      `SELECT makerid,
+    const result = await CASSANDRA_CLIENT.execute(
+      `SELECT year,
+      makerid,
       pieid,
       pastry,
       filling,
@@ -75,7 +74,7 @@ export async function getMyRankingForPie(
       looks,
       value,
       CAST(last_updated as text) as last_updated FROM mincepierank.maker_pie_ranking_yearly WHERE year = ? makerid = ? AND pieid = ? AND userid = ? ALLOW FILTERING;`,
-      [2022, makerid, pieid, userid],
+      [year, makerid, pieid, userid],
       { prepare : true }
     );
     if (result.rows.length === 0) {
@@ -89,8 +88,8 @@ export async function getMyRankingForPie(
 }
 
 export async function getUserPieRankings(
-  userid: string,
-  client = CASSANDRA_CLIENT
+  year: number,
+  userid: string
 ): Promise<
   Result<
     (MakerPieRanking & { average: number; count: undefined })[],
@@ -98,8 +97,9 @@ export async function getUserPieRankings(
   >
 > {
   try {
-    const result = await client.execute(
-      `SELECT makerid,
+    const result = await CASSANDRA_CLIENT.execute(
+      `SELECT year,
+        makerid,
         pieid,
         pastry,
         filling,
@@ -108,7 +108,7 @@ export async function getUserPieRankings(
         value,
         CAST(last_updated as text) as last_updated
         FROM mincepierank.maker_pie_ranking_yearly WHERE year = ? AND userid = ? ALLOW FILTERING;`,
-      [2022, userid],
+      [year, userid],
       { prepare: true }
     );
 
@@ -134,13 +134,14 @@ export function addAverageScore(mapped: any) {
 }
 
 export async function getPieRankingSummary(
+  year: number,
   makerid: string,
-  pieid: string,
-  client = CASSANDRA_CLIENT
+  pieid: string
 ): Promise<Result<PieRankingSummary, StorageError>> {
   try {
-    const result = await client.execute(
-      `SELECT makerid,
+    const result = await CASSANDRA_CLIENT.execute(
+      `SELECT year,
+        makerid,
         pieid,
         AVG(cast(pastry as float)) as pastry,
         AVG(cast(filling as float)) as filling,
@@ -151,7 +152,7 @@ export async function getPieRankingSummary(
         CAST(COUNT(1) as int) as count 
       FROM mincepierank.maker_pie_ranking_yearly
       WHERE year = ? AND makerid = ? AND pieid = ? ALLOW FILTERING;`,
-      [2022, makerid, pieid],
+      [year, makerid, pieid],
       { prepare: true }
     );
 
@@ -163,13 +164,14 @@ export async function getPieRankingSummary(
 }
 
 export async function getPieRankingSummariesByIds(
+  year: number,
   makerid: string,
-  pieids: string[],
-  client = CASSANDRA_CLIENT
+  pieids: string[]
 ): Promise<Result<PieRankingSummary[], StorageError>> {
   try {
-    const result = await client.execute(
-      `SELECT makerid,
+    const result = await CASSANDRA_CLIENT.execute(
+      `SELECT year,
+        makerid,
         pieid,
         AVG(cast(pastry as float)) as pastry,
         AVG(cast(filling as float)) as filling,
@@ -181,7 +183,7 @@ export async function getPieRankingSummariesByIds(
       FROM mincepierank.maker_pie_ranking_yearly
       WHERE year = ? AND makerid = ? and pieid in ?
       GROUP BY makerid, pieid;`,
-      [2022, makerid, pieids],
+      [year, makerid, pieids],
       { prepare: true }
     );
 
@@ -194,12 +196,13 @@ export async function getPieRankingSummariesByIds(
 }
 
 export async function getMakerPieRankingSummaries(
-  makerid: string,
-  client = CASSANDRA_CLIENT
+  year: number,
+  makerid: string
 ): Promise<Result<PieRankingSummary[], StorageError>> {
   try {
-    const result = await client.execute(
-      `SELECT makerid,
+    const result = await CASSANDRA_CLIENT.execute(
+      `SELECT year,
+        makerid,
         pieid,
         AVG(cast(pastry as float)) as pastry,
         AVG(cast(filling as float)) as filling,
@@ -209,9 +212,9 @@ export async function getMakerPieRankingSummaries(
         CAST(MAX(last_updated) as text) as last_updated,
         CAST(COUNT(1) as int) as count 
       FROM mincepierank.maker_pie_ranking_yearly
-      WHERE makerid = ?
+      WHERE year = ? AND makerid = ?
       GROUP BY year, makerid, pieid;`,
-      [makerid],
+      [year, makerid],
       { prepare: true }
     );
 
@@ -223,12 +226,11 @@ export async function getMakerPieRankingSummaries(
   }
 }
 
-export async function getAllPieRankingSummaries(
-  client = CASSANDRA_CLIENT
-): Promise<Result<PieRankingSummary[], StorageError>> {
+export async function getAllPieRankingSummaries(): Promise<Result<PieRankingSummary[], StorageError>> {
   try {
-    const result = await client.execute(
-      `SELECT makerid,
+    const result = await CASSANDRA_CLIENT.execute(
+      `SELECT year,
+        makerid,
         pieid,
         AVG(cast(pastry as float)) as pastry,
         AVG(cast(filling as float)) as filling,
@@ -251,8 +253,7 @@ export async function getAllPieRankingSummaries(
 }
 
 export async function addPieRanking(
-  ranking: MakerPieRanking,
-  client = CASSANDRA_CLIENT
+  ranking: MakerPieRanking
 ): Promise<Result<boolean, StorageError>> {
   const mapRanking = ranking as {
     [key: string]: string | number | Date | undefined;
@@ -278,7 +279,7 @@ export async function addPieRanking(
     return err(StorageError.BadInput);
   }
   try {
-    await client.execute(
+    await CASSANDRA_CLIENT.execute(
       `INSERT INTO 
         mincepierank.maker_pie_ranking_yearly (
           year
@@ -295,7 +296,7 @@ export async function addPieRanking(
         )
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`,
       [
-        2022,
+        ranking.year,
         ranking.makerid,
         ranking.pieid,
         ranking.userid,

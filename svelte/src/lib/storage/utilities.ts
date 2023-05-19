@@ -1,4 +1,4 @@
-import { types } from "cassandra-driver";
+import type { types } from "cassandra-driver";
 
 export function rowToObject<T>(row: types.Row): T {
   const constructed: any = {};

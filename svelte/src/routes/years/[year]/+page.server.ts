@@ -12,7 +12,7 @@ export const load = (async ({ params }: PageServerLoadEvent) => {
       throw error(404, 'Not Found')
     }
     const data = (await getMincePieMakers()).unwrapOr([]);
-    const pies = (await getAllMakerPies()).unwrapOr([]);
+    const pies = (await getAllMakerPies(parseInt(year))).unwrapOr([]);
     const rankingSummaries = (await getAllPieRankingSummaries()).unwrapOr([]);
     const latestRanking = (await getLatestRanking()).unwrapOr(undefined);
     const { mappedRankings, mappedPies, rankingOrder } = mapPiesAndRankings(

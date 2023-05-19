@@ -6,6 +6,7 @@ export type Maker = {
 };
 
 export type MakerPie = {
+  year: number;
   makerid: string;
   id: string;
   displayname: string;
@@ -18,6 +19,7 @@ export type MakerPie = {
 };
 
 export type MakerPieRanking = {
+  year: number;
   makerid: string;
   pieid: string;
   userid: string;

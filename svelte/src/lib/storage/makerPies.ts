@@ -4,12 +4,12 @@ import type { MakerPie } from "./types";
 import { StorageError } from "./types";
 import { rowToObject } from "./utilities";
 
-export async function getAllMakerPies(
-  client = CASSANDRA_CLIENT
-): Promise<Result<MakerPie[], StorageError>> {
+export async function getAllMakerPies(year: number): Promise<Result<MakerPie[], StorageError>> {
   try {
-    const result = await client.execute(
-      "SELECT * FROM mincepierank.maker_pie_yearly;"
+    const result = await CASSANDRA_CLIENT.execute(
+      "SELECT * FROM mincepierank.maker_pie_yearly where year = ?;",
+      [year],
+      { prepare: true }
     );
 
     const mapped = result.rows.map(rowToObject);
@@ -20,13 +20,13 @@ export async function getAllMakerPies(
 }
 
 export async function getPiesByMaker(
-  makerId: string,
-  client = CASSANDRA_CLIENT
+  year: number,
+  makerId: string
 ): Promise<Result<MakerPie[], StorageError>> {
   try {
-    const result = await client.execute(
+    const result = await CASSANDRA_CLIENT.execute(
       "SELECT * FROM mincepierank.maker_pie_yearly WHERE year = ? AND makerId = ?;",
-      [2022, makerId],
+      [year, makerId],
       { prepare: true }
     );
 
@@ -38,13 +38,13 @@ export async function getPiesByMaker(
 }
 
 export async function getPiesWithCategory(
-  category: string,
-  client = CASSANDRA_CLIENT
+  year: number,
+  category: string
 ): Promise<Result<MakerPie[], StorageError>> {
   try {
-    const result = await client.execute(
+    const result = await CASSANDRA_CLIENT.execute(
       "SELECT * FROM mincepierank.maker_pie_yearly WHERE year = ? AND labels contains ?;",
-      [2022, category],
+      [year, category],
       { prepare: true }
     );
 
@@ -56,14 +56,14 @@ export async function getPiesWithCategory(
 }
 
 export async function getPieByMakerAndId(
+  year: number,
   makerId: string,
-  id: string,
-  client = CASSANDRA_CLIENT
+  id: string
 ): Promise<Result<MakerPie, StorageError>> {
   try {
-    const result = await client.execute(
+    const result = await CASSANDRA_CLIENT.execute(
       "SELECT * FROM mincepierank.maker_pie_yearly WHERE year = ? AND makerId = ? AND id = ?;",
-      [2022, makerId, id],
+      [year, makerId, id],
       { prepare: true }
     );
     if (result.rows.length !== 1) {

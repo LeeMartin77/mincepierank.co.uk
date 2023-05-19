@@ -3,10 +3,9 @@ import { addAverageScore, getAllMakerPies, getAllPieRankingSummaries, getLatestR
 import { mapPiesAndRankings } from '$components/mapPiesAndRankings';
 
 export const load = (async ({ params }: PageServerLoadEvent) => {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { year } = params;
-    const data = (await getMincePieMakers()).unwrapOr([]);
-    const pies = (await getAllMakerPies()).unwrapOr([]);
+  const { year } = params;
+  const data = (await getMincePieMakers()).unwrapOr([]);
+  const pies = (await getAllMakerPies(parseInt(year))).unwrapOr([]);
     const rankingSummaries = (await getAllPieRankingSummaries()).unwrapOr([]);
     const latestRanking = (await getLatestRanking()).unwrapOr(undefined);
     const { mappedRankings, mappedPies, rankingOrder } = mapPiesAndRankings(

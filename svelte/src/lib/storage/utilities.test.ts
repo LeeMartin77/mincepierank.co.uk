@@ -1,4 +1,4 @@
-import { types } from "cassandra-driver";
+import type { types } from "cassandra-driver";
 import { rowToObject } from "./utilities";
 
 describe("rowToObject", () => {
