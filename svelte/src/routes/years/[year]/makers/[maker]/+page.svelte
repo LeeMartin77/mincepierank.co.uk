@@ -2,6 +2,8 @@
   import type { PageData } from './$types';
 
   export let data: PageData;
+
+
 </script>
 
 <h1>Welcome to SvelteKit</h1>
@@ -9,7 +11,6 @@
 
 {#if data.topPie}
 <div>
-  <img src={data.topPie.image_file} alt={data.topPie.displayname}/>
   <h2>{data.topPie.displayname}</h2>
 </div>
 {/if}

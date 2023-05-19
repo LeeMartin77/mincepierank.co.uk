@@ -1,9 +1,16 @@
+import { error } from '@sveltejs/kit';
 import type { PageServerLoadEvent } from './$types';
 import { addAverageScore, getAllMakerPies, getAllPieRankingSummaries, getLatestRanking, getMincePieMakers } from '$lib/storage';
-import { mapPiesAndRankings } from '../components/mapPiesAndRankings';
+import { mapPiesAndRankings } from '$components/mapPiesAndRankings';
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export const load = (async (_event: PageServerLoadEvent) => {
+// TODO: Make this truly data driven
+const years = ['2022'];
+
+export const load = (async ({ params }: PageServerLoadEvent) => {
+    const { year } = params;
+    if (!years.includes(year)) {
+      throw error(404, 'Not Found')
+    }
     const data = (await getMincePieMakers()).unwrapOr([]);
     const pies = (await getAllMakerPies()).unwrapOr([]);
     const rankingSummaries = (await getAllPieRankingSummaries()).unwrapOr([]);

@@ -9,7 +9,6 @@
 
 {#if data.topPie}
 <div>
-  <img src={data.topPie.image_file} alt={data.topPie.displayname}/>
   <h2>{data.topPie.displayname}</h2>
 </div>
 {/if}

@@ -1,9 +1,9 @@
 import type { PageServerLoadEvent } from './$types';
 import { addAverageScore, getAllMakerPies, getAllPieRankingSummaries, getLatestRanking, getMincePieMakers } from '$lib/storage';
-import { mapPiesAndRankings } from '../components/mapPiesAndRankings';
+import { mapPiesAndRankings } from '$components/mapPiesAndRankings';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export const load = (async (_event: PageServerLoadEvent) => {
+export const load = (async ({ params }: PageServerLoadEvent) => {
     const data = (await getMincePieMakers()).unwrapOr([]);
     const pies = (await getAllMakerPies()).unwrapOr([]);
     const rankingSummaries = (await getAllPieRankingSummaries()).unwrapOr([]);
