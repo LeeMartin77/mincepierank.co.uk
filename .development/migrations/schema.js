@@ -71,5 +71,6 @@ client.connect().then(async () => {
   for (let migration of schema) {
     await client.execute(migration);
   }
-  return client.shutdown();
+  await client.shutdown();
+  process.exit(0);
 });
