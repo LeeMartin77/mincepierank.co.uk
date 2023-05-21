@@ -1,6 +1,6 @@
 import adapter from '@sveltejs/adapter-node';
 import { vitePreprocess } from '@sveltejs/kit/vite';
-import path from "path";
+import path from 'path';
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
@@ -14,11 +14,10 @@ const config = {
 		// See https://kit.svelte.dev/docs/adapters for more information about adapters.
 		adapter: adapter(),
 		alias: {
-			$components: path.resolve("./src/components"),
-			$lib: path.resolve("./src/lib")
+			$components: path.resolve('./src/components'),
+			$lib: path.resolve('./src/lib')
 		}
-	},
-	
+	}
 };
 
 export default config;
