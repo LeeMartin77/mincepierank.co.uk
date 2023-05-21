@@ -32,8 +32,7 @@ export async function getPiesByMaker(
 
 		const mapped = result.rows.map(rowToObject);
 		return ok(mapped as MakerPie[]);
-	} catch (ex: any) {
-		console.error(ex);
+	} catch {
 		return err(StorageError.GenericError);
 	}
 }
