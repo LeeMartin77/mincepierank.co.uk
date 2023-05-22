@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { ppCategory } from '$components/utilities/formatCategory';
+	import BrandLinkCard from '$components/BrandLinkCard.svelte';
+	import PieLinkCard from '$components/PieLinkCard.svelte';
 	import type { PageData } from './$types';
 
 	export let data: PageData;
@@ -16,26 +17,10 @@
 
 {#if topPie}
 	<h2>Current Top Pie</h2>
-	<div>
-		<img src={`${topPie.image_file}?width=250&filter=gaussian`} alt={topPie.displayname} />
-		<div>
-			{#each topPie.labels as label}
-				<a href={`/years/${topPie.year}/categories/${label}`}>{ppCategory(label)}</a>
-			{/each}
-		</div>
-		<a href={`/years/${topPie.year}/makers/${topPie.makerid}/${topPie.id}`}>{topPie.displayname}</a>
-
-	</div>
+	<PieLinkCard pie={topPie} />
 {/if}
 
 <h2>Brands</h2>
-<ul>
-	{#each data.makers as maker}
-		<li>
-			<a href={`/years/2022/makers/${maker.id}`}>
-				<img src={`${maker.logo}?width=250&filter=gaussian`} alt={`${maker.name} Logo`}>
-				<h4>{maker.name}</h4>
-			</a>
-		</li>
-	{/each}
-</ul>
+{#each data.makers as maker}
+	<BrandLinkCard maker={maker} />
+{/each}
