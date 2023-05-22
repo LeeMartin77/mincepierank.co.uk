@@ -13,6 +13,7 @@ export const load = async ({ params }: PageServerLoadEvent) => {
 	const yearInt = parseInt(year);
 	const data = (await getMincePieMakersForYear(yearInt)).unwrapOr([]);
 	return {
-		makers: data
+		makers: data,
+		year: parseInt(year)
 	};
 };

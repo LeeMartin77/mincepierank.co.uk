@@ -55,7 +55,7 @@ const makerPies = [
     id: "super-nice",
     displayName: "Super Good Pie",
     fresh: false,
-    labels: ["alternative", "gluten free"],
+    labels: ["alternative", "gluten-free"],
     image_file: "https://static.mincepierank.co.uk/images/waitrose/all-butter.jpg",
     web_link: "https://www.waitrose.com/ecom/products/waitrose-christmas-all-butter-mince-pies/735193-785976-785977",
     pack_count: 6,

@@ -22,5 +22,5 @@
 
 <h2>Brands</h2>
 {#each data.makers as maker}
-	<BrandLinkCard maker={maker} />
+	<BrandLinkCard year={2022} maker={maker} />
 {/each}
