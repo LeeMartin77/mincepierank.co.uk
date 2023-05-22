@@ -1,4 +1,4 @@
-import { MakerPie, PieRankingSummary } from '../system/storage';
+import type { MakerPie, PieRankingSummary } from '$lib/storage';
 
 export function findTopPie(
 	pies: MakerPie[],

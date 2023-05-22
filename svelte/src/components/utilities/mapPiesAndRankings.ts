@@ -1,4 +1,4 @@
-import type { MakerPie, MakerPieRanking } from '../lib/storage';
+import type { MakerPie, MakerPieRanking } from '$lib/storage';
 
 export type PieListRanking = Omit<MakerPieRanking, 'userid' | 'notes'> & {
 	count: number | undefined;

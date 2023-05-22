@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { ppCategory } from '$components/formatCategory';
+	import { ppCategory } from '$components/utilities/formatCategory';
 	import type { PageData } from './$types';
 
 	export let data: PageData;
