@@ -1,5 +1,5 @@
 import type { PageServerLoadEvent } from './$types';
-import { getPieByMakerAndId } from '$lib/storage';
+import { getPieByMakerAndId, getPieRankingSummary } from '$lib/storage';
 import { error } from '@sveltejs/kit';
 export const load = async ({ params }: PageServerLoadEvent) => {
 	const { year, maker, pie } = params;
@@ -7,8 +7,10 @@ export const load = async ({ params }: PageServerLoadEvent) => {
 	if (res.isErr()) {
 		throw error(404, 'Not Found');
 	}
+	const rankingRes = await getPieRankingSummary(parseInt(year), maker, pie);
 
 	return {
-		pie: res.value
+		pie: res.value,
+		ranking: rankingRes.isOk() ? rankingRes.value : undefined
 	};
 };
