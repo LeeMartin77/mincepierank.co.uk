@@ -6,7 +6,7 @@ import {
 	getLatestRanking,
 	getMincePieMakers
 } from '$lib/storage';
-import { mapPiesAndRankings } from '../components/mapPiesAndRankings';
+import { mapPiesAndRankings } from '$components/utilities/mapPiesAndRankings';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const load = async (_event: PageServerLoadEvent) => {
