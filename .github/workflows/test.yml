@@ -5,8 +5,12 @@ on:
   workflow_dispatch:
   push:
     branches: ["main"]
+    paths:
+      - "!svelte/**"
   pull_request:
     branches: ["main"]
+    paths:
+      - "!svelte/**"
 
 jobs:
   lint-and-unit-test:
