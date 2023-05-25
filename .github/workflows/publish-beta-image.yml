@@ -4,7 +4,7 @@ on:
   push:
     branches: ["main"]
     paths:
-      - "!svelte/**"
+      - "svelte/**"
 
 jobs:
   publish-bleed:
@@ -23,7 +23,8 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and Publish the Docker image
+        working-directory: svelte
         run: |
           export REPOSITORY="ghcr.io/leemartin77/mincepierank.co.uk"
-          export VERSION="v0.0.${{ github.run_number }}"
-          docker buildx build --platform linux/arm/v7,linux/arm64/v8,linux/amd64 -t "$REPOSITORY:bleed" -t "$REPOSITORY:$VERSION" --push .
+          export VERSION="v0.0.${{ github.run_number }}-beta"
+          docker buildx build --platform linux/arm/v7,linux/arm64/v8,linux/amd64 -t "$REPOSITORY:beta" -t "$REPOSITORY:$VERSION" --push .
