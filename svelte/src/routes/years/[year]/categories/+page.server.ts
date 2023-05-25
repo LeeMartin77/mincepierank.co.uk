@@ -1,4 +1,4 @@
-import { getAllMakerPies, getPiesWithCategory } from '$lib/storage';
+import { getAllMakerPies } from '$lib/storage';
 import { error } from '@sveltejs/kit';
 import type { PageServerLoadEvent } from './$types';
 

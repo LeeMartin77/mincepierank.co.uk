@@ -3,7 +3,8 @@
 	import type { PageData } from './$types';
 
 	export let data: PageData;
-	const { pie, ranking } = data;
+	$: pie = data.pie;
+	$: ranking = data.ranking;
 </script>
 
 <h1>{pie.displayname}</h1>
