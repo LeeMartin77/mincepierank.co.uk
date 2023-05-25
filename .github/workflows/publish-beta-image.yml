@@ -1,4 +1,4 @@
-name: Publish Bleed Container
+name: Publish Beta Container
 
 on:
   push:
