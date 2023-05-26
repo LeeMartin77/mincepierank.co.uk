@@ -1,6 +1,6 @@
 import { error } from '@sveltejs/kit';
 import type { PageServerLoadEvent } from './$types';
-import { getMincePieMaker, getPiesByMaker } from '$lib/storage';
+import { getMakerPieRankingSummaries, getMincePieMaker, getPiesByMaker } from '$lib/storage';
 
 export const load = async ({ params }: PageServerLoadEvent) => {
 	const { year, maker } = params;
@@ -21,9 +21,12 @@ export const load = async ({ params }: PageServerLoadEvent) => {
 			return acc;
 		}, new Set<string>())
 	);
+
+	const pieRankings = await getMakerPieRankingSummaries(parseInt(year), maker);
 	return {
 		makerData: makerData.value,
 		pies: pies.value,
+		pieRankings: pieRankings.isOk() ? pieRankings.value : [],
 		year: parseInt(year),
 		categories
 	};

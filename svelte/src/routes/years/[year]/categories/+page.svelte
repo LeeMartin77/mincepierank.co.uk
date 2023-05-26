@@ -11,4 +11,6 @@
 
 <CategoryLinkList year={data.year} categories={data.categories} />
 
-<FilterablePieList pies={data.pies} />
+<FilterablePieList 
+	pies={data.pies}
+	pieRankings={data.pieRankings}/>

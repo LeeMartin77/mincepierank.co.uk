@@ -5,18 +5,22 @@ export type PieListRanking = Omit<MakerPieRanking, 'userid' | 'notes'> & {
 	average: number;
 };
 
+export type MappedPiesAndRankings = {
+	mappedRankings: {
+		[key: string]: PieListRanking | undefined;
+	};
+	mappedPies: {
+		[key: string]: MakerPie;
+	};
+	rankingOrder: string[];
+	unrankedPies: Set<string>;
+};
+
 export function mapPiesAndRankings(
 	pies: MakerPie[],
 	rankings: PieListRanking[],
 	filteredCategoryIds?: Set<string>
-): {
-	mappedRankings: {
-		[key: string]: PieListRanking | undefined;
-	};
-	mappedPies: { [key: string]: MakerPie };
-	rankingOrder: string[];
-	unrankedPies: Set<string>;
-} {
+): MappedPiesAndRankings {
 	const mappedRankings: {
 		[key: string]: PieListRanking | undefined;
 	} = {};
