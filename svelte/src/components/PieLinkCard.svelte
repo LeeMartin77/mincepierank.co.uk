@@ -1,15 +1,25 @@
 <script lang="ts">
 	import type { MakerPie } from "$lib/storage";
 	import { ppCategory } from "./utilities/formatCategory";
+	import type { PieListRanking } from "./utilities/mapPiesAndRankings";
   export let pie: MakerPie;
+  export let pieListRanking: PieListRanking | undefined = undefined;
 
 </script>
 
 <div class="pie-card">
-  <div>
-    <img width="30%" src={`${pie.image_file}?width=250&height=250&filter=gaussian`} alt={pie.displayname} />
+  <div class="pie-card-top">
+    <div style="width: 30%">
+      <img width="100%" src={`${pie.image_file}?width=250&height=250&filter=gaussian`} alt={pie.displayname} />
+    </div>
     <div>
-      
+      <dl>
+        <dt>Average</dt>
+        <dd>{(pieListRanking?.average || 0).toFixed(2)}</dd>
+        <dl>
+        <dt>Votes</dt>
+        <dd>{pieListRanking?.count || 0}</dd>
+      </dl>
     </div>
   </div>
   <div class="category-links">
@@ -25,6 +35,13 @@
   padding: 1em;
   border: 1px solid black;
   border-radius: 1em;
+  display: flex;
+  flex-direction: column;
+}
+.pie-card-top {
+  display: flex;
+  gap: 2em;
+  justify-content: center;
 }
 .pie-link {
   display: block;

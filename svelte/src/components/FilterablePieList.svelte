@@ -6,13 +6,30 @@
   export let pies: MakerPie[];
   export let pieRankings: PieRankingSummary[];
   export let fixedCategory: string | undefined = undefined;
-  $: mappedPiesAndRankings = mapPiesAndRankings(pies, pieRankings)
+  $: mpr = mapPiesAndRankings(pies, pieRankings)
 </script>
 
 {#if fixedCategory}
   <h3>{ppCategory(fixedCategory)}</h3>
 {/if}
 
-{#each pies as pie}
-  <PieLinkCard pie={pie} />
+<div class="pie-list">
+{#each mpr.rankingOrder as pieId}
+  <PieLinkCard 
+    pie={mpr.mappedPies[pieId]} 
+    pieListRanking={mpr.mappedRankings[pieId]} />
 {/each}
+{#each Array.from(mpr.unrankedPies) as pieId}
+  <PieLinkCard 
+    pie={mpr.mappedPies[pieId]} 
+    pieListRanking={mpr.mappedRankings[pieId]} />
+{/each}
+</div>
+
+<style>
+  .pie-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+  }
+</style>
