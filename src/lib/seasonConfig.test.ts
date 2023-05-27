@@ -1,4 +1,5 @@
 import { timeInSeason } from './seasonConfig';
+import { describe, test, expect } from 'vitest';
 
 describe('Season Config', () => {
 	const badDates = [
@@ -14,9 +15,9 @@ describe('Season Config', () => {
 	];
 
 	test.each(badDates)('%s Out of season', (date) => {
-		expect(timeInSeason(date.getTime())).toBeFalse();
+		expect(timeInSeason(date.getTime())).toBe(false);
 	});
 	test.each(midSeason)('%s In season', (date) => {
-		expect(timeInSeason(date.getTime())).toBeTrue();
+		expect(timeInSeason(date.getTime())).toBe(true);
 	});
 });

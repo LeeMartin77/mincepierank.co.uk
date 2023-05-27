@@ -1,4 +1,5 @@
 import { ppCategory } from './formatCategory';
+import { describe, test, expect } from 'vitest';
 
 describe('ppCategory', () => {
 	const testcases = [

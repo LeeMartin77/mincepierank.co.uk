@@ -5,7 +5,6 @@ import {
 } from '$lib/storage';
 import { error } from '@sveltejs/kit';
 import type { PageServerLoad, PageServerLoadEvent } from './$types';
-import { mapPiesAndRankings } from '$components/utilities/mapPiesAndRankings';
 
 export const load = (async ({ params }: PageServerLoadEvent) => {
 	const { year, category } = params;

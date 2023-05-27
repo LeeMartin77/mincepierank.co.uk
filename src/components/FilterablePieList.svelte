@@ -1,6 +1,5 @@
 <script lang="ts">
 	import type { MakerPie, PieRankingSummary } from '$lib/storage';
-	// @ts-ignore this is annoying in VSCode https://github.com/jamesbirtles/svelte-vscode/issues/64
 	import PieLinkCard from '$components/PieLinkCard.svelte';
 	import { ppCategory } from './utilities/formatCategory';
 	import { mapPiesAndRankings } from './utilities/mapPiesAndRankings';

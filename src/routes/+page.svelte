@@ -1,6 +1,5 @@
 <script lang="ts">
 	import BrandLinkList from '$components/BrandLinkList.svelte';
-	// @ts-ignore
 	import PieLinkCard from '$components/PieLinkCard.svelte';
 	import type { PageData } from './$types';
 

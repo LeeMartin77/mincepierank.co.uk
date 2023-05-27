@@ -1,5 +1,6 @@
 import type { types } from 'cassandra-driver';
 import { rowToObject } from './utilities';
+import { describe, test, expect } from 'vitest';
 
 describe('rowToObject', () => {
 	test('Maps row to object', () => {
@@ -19,6 +20,6 @@ describe('rowToObject', () => {
 
 		const result = rowToObject(testRow as types.Row);
 
-		expect(result).toEqual(fakeObject);
+		expect(result).toStrictEqual(fakeObject);
 	});
 });
