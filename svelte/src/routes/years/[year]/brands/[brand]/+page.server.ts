@@ -3,9 +3,9 @@ import type { PageServerLoadEvent } from './$types';
 import { getMakerPieRankingSummaries, getMincePieMaker, getPiesByMaker } from '$lib/storage';
 
 export const load = async ({ params }: PageServerLoadEvent) => {
-	const { year, maker } = params;
-	const makerData = await getMincePieMaker(maker);
-	const pies = await getPiesByMaker(parseInt(year), maker);
+	const { year, brand } = params;
+	const makerData = await getMincePieMaker(brand);
+	const pies = await getPiesByMaker(parseInt(year), brand);
 	if (makerData.isErr() || pies.isErr()) {
 		throw error(500, 'Something went wrong');
 	}
@@ -22,7 +22,7 @@ export const load = async ({ params }: PageServerLoadEvent) => {
 		}, new Set<string>())
 	);
 
-	const pieRankings = await getMakerPieRankingSummaries(parseInt(year), maker);
+	const pieRankings = await getMakerPieRankingSummaries(parseInt(year), brand);
 	return {
 		makerData: makerData.value,
 		pies: pies.value,

@@ -26,7 +26,7 @@
       <a class="category-link" href={`/years/${pie.year}/categories/${label}`}>{ppCategory(label)}</a>
     {/each}
   </div>
-  <a class="pie-link" href={`/years/${pie.year}/makers/${pie.makerid}/${pie.id}`}>{pie.displayname}</a>
+  <a class="pie-link" href={`/years/${pie.year}/brands/${pie.makerid}/${pie.id}`}>{pie.displayname}</a>
 </div>
 
 <style>
