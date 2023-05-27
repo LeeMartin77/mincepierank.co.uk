@@ -1,14 +1,14 @@
-const cassandra = require('cassandra-driver');
-const { randomUUID } = require('crypto');
-
-// This is for local only - no env
+import cassandra from 'cassandra-driver';
+import { randomUUID } from 'crypto';
 
 const MIGRATION_CLIENT_CONFIG = {
-	contactPoints: ['localhost:9143'],
-	localDataCenter: 'datacenter1',
+	contactPoints: process.env.CASSANDRA_CONTACT_POINTS
+		? process.env.CASSANDRA_CONTACT_POINTS.split(';')
+		: ['localhost:9143'],
+	localDataCenter: process.env.CASSANDRA_LOCALDATACENTER ?? 'datacenter1',
 	credentials: {
-		username: 'cassandra',
-		password: 'cassandra'
+		username: process.env.CASSANDRA_USER ?? 'cassandra',
+		password: process.env.CASSANDRA_PASSWORD ?? 'cassandra'
 	}
 };
 

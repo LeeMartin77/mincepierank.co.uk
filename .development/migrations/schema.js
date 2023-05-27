@@ -1,4 +1,4 @@
-const cassandra = require('cassandra-driver');
+import cassandra from 'cassandra-driver';
 
 const schema = [
 	`CREATE KEYSPACE IF NOT EXISTS mincepierank 
