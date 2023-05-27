@@ -11,7 +11,10 @@
 </svelte:head>
 
 <div>
-	<p style="text-align: center;">Mince Pie Rank is currently closed until the next Christmas period!</p>
+	<p style="text-align: center;">Mince Pie Rank is currently read-only until the next Christmas period</p>
+</div>
+<div>
+	<p style="text-align: center;">Things might be a bit sparse right now - getting ready for the new season!</p>
 </div>
 
 {#if data.topPie && data.topPieRanking}
