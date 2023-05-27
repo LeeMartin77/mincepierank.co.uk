@@ -12,13 +12,17 @@
 		"lint": "prettier --plugin-search-dir . --check . && eslint .",
 		"format": "prettier --plugin-search-dir . --write .",
 		"dev:migrations": "node .development/migrations/schema.js",
-		"dev:seedlocaltestdata": "node .development/migrations/test_data.js"
+		"dev:seedlocaltestdata": "node .development/migrations/test_data.js",
+		"cypress:open": "cypress open",
+		"cypress:run": "cypress run"
 	},
 	"devDependencies": {
 		"@sveltejs/adapter-node": "^1.2.4",
 		"@sveltejs/kit": "^1.18.0",
+		"@testing-library/cypress": "^9.0.0",
 		"@typescript-eslint/eslint-plugin": "^5.45.0",
 		"@typescript-eslint/parser": "^5.45.0",
+		"cypress": "^12.13.0",
 		"eslint": "^8.28.0",
 		"eslint-config-prettier": "^8.5.0",
 		"eslint-plugin-svelte": "^2.26.0",

@@ -68,21 +68,21 @@ local_resource('seed cassandra',
   labels=["tools"]
 )
 
-# local_resource('cypress run',
-#   env={'CYPRESS_BASE_URL':'http://localhost:4024'},
-#   cmd='npm run cypress:run',
-#   dir='.',
-#   resource_deps=['mincepierank', 'seed cassandra'],
-#   auto_init=run_cypress,
-#   trigger_mode=TRIGGER_MODE_MANUAL,
-#   labels=["tests"]
-# )
+local_resource('cypress run',
+  env={'CYPRESS_BASE_URL':'http://localhost:4025'},
+  cmd='npm run cypress:run',
+  dir='.',
+  resource_deps=['mincepierank', 'seed cassandra'],
+  auto_init=run_cypress,
+  trigger_mode=TRIGGER_MODE_MANUAL,
+  labels=["tests"]
+)
 
-# local_resource('cypress open - local',
-#   env={'CYPRESS_BASE_URL':'http://localhost:3000'},
-#   serve_cmd='npm run cypress:open',
-#   serve_dir='.',
-#   auto_init=False,
-#   trigger_mode=TRIGGER_MODE_MANUAL,
-#   labels=["tests"]
-# )
+local_resource('cypress open',
+  env={'CYPRESS_BASE_URL':'http://localhost:4025'},
+  serve_cmd='npm run cypress:open',
+  serve_dir='.',
+  auto_init=False,
+  trigger_mode=TRIGGER_MODE_MANUAL,
+  labels=["tests"]
+)
