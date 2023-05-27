@@ -1,7 +1,6 @@
 <script lang="ts">
-	import BrandLinkCard from '$components/BrandLinkCard.svelte';
+	import BrandLinkList from '$components/BrandLinkList.svelte';
 	import Breadcrumb from '$components/Breadcrumb.svelte';
-	import CategoryLinkList from '$components/CategoryLinkList.svelte';
 	import type { PageData } from './$types';
 
 	export let data: PageData;
@@ -9,8 +8,4 @@
 
 <Breadcrumb />
 
-<CategoryLinkList year={data.year} categories={data.categories} />
-
-{#each data.makers as maker}
-	<BrandLinkCard year={data.year} maker={maker} />
-{/each}
+<BrandLinkList makers={data.makers} year={data.year}/>

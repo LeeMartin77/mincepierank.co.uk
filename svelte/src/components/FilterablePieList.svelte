@@ -1,8 +1,9 @@
 <script lang="ts">
 	import type { MakerPie, PieRankingSummary } from "$lib/storage";
-	import PieLinkCard from "./PieLinkCard.svelte";
+  // @ts-ignore this is annoying in VSCode https://github.com/jamesbirtles/svelte-vscode/issues/64
+	import PieLinkCard from "$components/PieLinkCard.svelte";
 	import { ppCategory } from "./utilities/formatCategory";
-	import { mapPiesAndRankings, type MappedPiesAndRankings } from "./utilities/mapPiesAndRankings";
+	import { mapPiesAndRankings } from "./utilities/mapPiesAndRankings";
   export let pies: MakerPie[];
   export let pieRankings: PieRankingSummary[];
   export let fixedCategory: string | undefined = undefined;
@@ -27,6 +28,9 @@
 </div>
 
 <style>
+  h3 {
+    text-align: center;
+  }
   .pie-list {
     display: flex;
     flex-direction: column;

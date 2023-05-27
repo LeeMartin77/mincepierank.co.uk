@@ -11,3 +11,9 @@
 <h1>{data.makerData.name}</h1>
 
 <FilterablePieList pies={data.pies} pieRankings={data.pieRankings} />
+
+<style>
+	h1 {
+		text-align: center;
+	}
+</style>

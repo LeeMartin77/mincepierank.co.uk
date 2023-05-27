@@ -4,7 +4,6 @@
 	import type { PieListRanking } from "./utilities/mapPiesAndRankings";
   export let pie: MakerPie;
   export let pieListRanking: PieListRanking | undefined = undefined;
-
 </script>
 
 <div class="pie-card">

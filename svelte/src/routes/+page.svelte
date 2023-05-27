@@ -1,5 +1,6 @@
 <script lang="ts">
-	import BrandLinkCard from '$components/BrandLinkCard.svelte';
+	import BrandLinkList from '$components/BrandLinkList.svelte';
+	// @ts-ignore
 	import PieLinkCard from '$components/PieLinkCard.svelte';
 	import type { PageData } from './$types';
 
@@ -10,7 +11,7 @@
 </svelte:head>
 
 <div>
-	<p>Mince Pie Rank is currently closed until the next Christmas period!</p>
+	<p style="text-align: center;">Mince Pie Rank is currently closed until the next Christmas period!</p>
 </div>
 
 {#if data.topPie && data.topPieRanking}
@@ -18,7 +19,10 @@
 	<PieLinkCard pie={data.topPie} pieListRanking={data.topPieRanking} />
 {/if}
 
-<h2>Brands</h2>
-{#each data.makers as maker}
-	<BrandLinkCard year={2022} maker={maker} />
-{/each}
+<BrandLinkList makers={data.makers} year={2022}/>
+
+<style>
+	h2 {
+		text-align: center;
+	}
+</style>
