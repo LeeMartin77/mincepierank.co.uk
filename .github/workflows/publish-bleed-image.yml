@@ -3,8 +3,6 @@ name: Publish Bleed Container
 on:
   push:
     branches: ['main']
-    paths:
-      - '!svelte/**'
 
 jobs:
   publish-bleed:
