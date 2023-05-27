@@ -8,7 +8,4 @@
 
 <Breadcrumb />
 
-<FilterablePieList 
-	pies={data.pies}
-	pieRankings={data.pieRankings}
-	fixedCategory={data.category}/>
+<FilterablePieList pies={data.pies} pieRankings={data.pieRankings} fixedCategory={data.category} />

@@ -3,7 +3,9 @@
 Because someone has to try and figure out who has the best mince pies.
 
 ## Container Tags:
+
 Other than versions, the intent is to have two tags:
+
 - `latest` will be the latest published release
 - `bleed` will be the latest build of main
 

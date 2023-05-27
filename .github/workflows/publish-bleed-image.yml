@@ -2,9 +2,9 @@ name: Publish Bleed Container
 
 on:
   push:
-    branches: ["main"]
+    branches: ['main']
     paths:
-      - "!svelte/**"
+      - '!svelte/**'
 
 jobs:
   publish-bleed:

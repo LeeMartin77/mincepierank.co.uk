@@ -8,4 +8,4 @@
 
 <Breadcrumb />
 
-<BrandLinkList makers={data.makers} year={data.year}/>
+<BrandLinkList makers={data.makers} year={data.year} />

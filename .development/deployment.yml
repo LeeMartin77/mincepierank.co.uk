@@ -65,4 +65,3 @@ spec:
               value: http://localhost:4024
             - name: NEXTAUTH_SECRET
               value: some-weird-random-string
-

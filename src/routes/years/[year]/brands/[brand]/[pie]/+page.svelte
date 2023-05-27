@@ -11,7 +11,7 @@
 <Breadcrumb />
 
 <h1>{pie.displayname}</h1>
-<img src={pie.image_file + "?filter=gaussian&width=250"} alt={pie.displayname}/>
+<img src={pie.image_file + '?filter=gaussian&width=250'} alt={pie.displayname} />
 <div>
 	<h3>Details</h3>
 	<dl>
@@ -27,20 +27,19 @@
 </div>
 
 {#if ranking}
-<div>
-	<h3>Ranking Summary</h3>
-	<dl>
-		<dt>Pastry</dt>
-		<dd>{ranking.pastry}</dd>
-		<dt>Filling</dt>
-		<dd>{ranking.filling}</dd>
-		<dt>Topping</dt>
-		<dd>{ranking.topping}</dd>
-		<dt>Looks</dt>
-		<dd>{ranking.looks}</dd>
-		<dt>value</dt>
-		<dd>{ranking.value}</dd>
-	</dl>
-</div>
+	<div>
+		<h3>Ranking Summary</h3>
+		<dl>
+			<dt>Pastry</dt>
+			<dd>{ranking.pastry}</dd>
+			<dt>Filling</dt>
+			<dd>{ranking.filling}</dd>
+			<dt>Topping</dt>
+			<dd>{ranking.topping}</dd>
+			<dt>Looks</dt>
+			<dd>{ranking.looks}</dd>
+			<dt>value</dt>
+			<dd>{ranking.value}</dd>
+		</dl>
+	</div>
 {/if}
-

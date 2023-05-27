@@ -6,15 +6,20 @@
 
 	export let data: PageData;
 </script>
+
 <svelte:head>
 	<title>Mince Pie Rank :: Homepage</title>
 </svelte:head>
 
 <div>
-	<p style="text-align: center;">Mince Pie Rank is currently read-only until the next Christmas period</p>
+	<p style="text-align: center;">
+		Mince Pie Rank is currently read-only until the next Christmas period
+	</p>
 </div>
 <div>
-	<p style="text-align: center;">Things might be a bit sparse right now - getting ready for the new season!</p>
+	<p style="text-align: center;">
+		Things might be a bit sparse right now - getting ready for the new season!
+	</p>
 </div>
 
 {#if data.topPie && data.topPieRanking}
@@ -22,7 +27,7 @@
 	<PieLinkCard pie={data.topPie} pieListRanking={data.topPieRanking} />
 {/if}
 
-<BrandLinkList makers={data.makers} year={2022}/>
+<BrandLinkList makers={data.makers} year={2022} />
 
 <style>
 	h2 {
