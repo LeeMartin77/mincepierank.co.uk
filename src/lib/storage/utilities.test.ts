@@ -4,7 +4,7 @@ import { describe, test, expect } from 'vitest';
 
 describe('rowToObject', () => {
   test('Maps row to object', () => {
-    const fakeObject: { [key: string]: any } = {
+    const fakeObject: { [key: string]: string | number } = {
       propOne: 'something',
       propTheSecond: 2,
       propThird: 'hello'

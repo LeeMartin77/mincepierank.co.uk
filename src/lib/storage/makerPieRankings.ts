@@ -108,7 +108,7 @@ export async function getUserPieRankings(
     );
 
     return ok(
-      result.rows.map(rowToObject).map(addAverageScore) as (MakerPieRanking & {
+      result.rows.map<MakerPieRanking>(rowToObject).map(addAverageScore) as (MakerPieRanking & {
         count: undefined;
         average: number;
       })[]
@@ -123,9 +123,10 @@ export type PieRankingSummary = Omit<MakerPieRanking, 'userid' | 'notes'> & {
   average: number;
 };
 
-export function addAverageScore(mapped: any) {
-  mapped.average = calculateAverage(mapped);
-  return mapped;
+export function addAverageScore<T>(
+  mapped: Pick<MakerPieRanking, 'filling' | 'pastry' | 'topping' | 'value' | 'looks'> & T
+) {
+  return { ...mapped, average: calculateAverage(mapped) };
 }
 
 export async function getPieRankingSummary(
@@ -182,7 +183,7 @@ export async function getPieRankingSummariesByIds(
       { prepare: true }
     );
 
-    return ok(result.rows.map(rowToObject).map(addAverageScore) as PieRankingSummary[]);
+    return ok(result.rows.map<PieRankingSummary>(rowToObject).map(addAverageScore));
   } catch {
     return err(StorageError.GenericError);
   }
@@ -211,7 +212,7 @@ export async function getMakerPieRankingSummaries(
       { prepare: true }
     );
 
-    return ok(result.rows.map(rowToObject).map(addAverageScore) as PieRankingSummary[]);
+    return ok(result.rows.map<PieRankingSummary>(rowToObject).map(addAverageScore));
   } catch {
     return err(StorageError.GenericError);
   }
@@ -237,7 +238,7 @@ export async function getAllPieRankingSummaries(): Promise<
       { prepare: true }
     );
 
-    return ok(result.rows.map(rowToObject).map(addAverageScore) as PieRankingSummary[]);
+    return ok(result.rows.map<PieRankingSummary>(rowToObject).map(addAverageScore));
   } catch {
     return err(StorageError.GenericError);
   }
@@ -252,10 +253,7 @@ export async function addPieRanking(
   const rankingValues = ['pastry', 'filling', 'topping', 'looks', 'value'];
 
   rankingValues.forEach(
-    (key) =>
-      (mapRanking[key] = parseInt(
-        mapRanking[key] !== undefined ? mapRanking[key]!.toString() : 'NaN'
-      ))
+    (key) => (mapRanking[key] = parseInt(mapRanking[key]?.toString() ?? 'NaN'))
   );
   if (
     !rankingValues.every(
