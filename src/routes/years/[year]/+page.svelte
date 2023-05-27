@@ -1,11 +1,11 @@
 <script lang="ts">
-	import CategoryLinkList from '$components/CategoryLinkList.svelte';
-	import Breadcrumb from '$components/Breadcrumb.svelte';
+  import CategoryLinkList from '$components/CategoryLinkList.svelte';
+  import Breadcrumb from '$components/Breadcrumb.svelte';
 
-	import type { PageData } from './$types';
-	import BrandLinkList from '$components/BrandLinkList.svelte';
+  import type { PageData } from './$types';
+  import BrandLinkList from '$components/BrandLinkList.svelte';
 
-	export let data: PageData;
+  export let data: PageData;
 </script>
 
 <Breadcrumb />
