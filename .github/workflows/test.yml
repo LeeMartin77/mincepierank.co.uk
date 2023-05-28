@@ -14,8 +14,18 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version-file: '.nvmrc'
+
+      - name: Cache NPM packages
+        id: cache-packages
+        uses: actions/cache@v3
+        with:
+          key: npm-cache-${{ hashFiles('package-lock.json') }}
+          path: node_modules
+
       - name: Restore dependencies
+        if: steps.cache-packages.outputs.cache-hit != 'true'
         run: npm ci
+
       - name: lint
         run: npm run lint
 
@@ -26,8 +36,18 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version-file: '.nvmrc'
+
+      - name: Cache NPM packages
+        id: cache-packages
+        uses: actions/cache@v3
+        with:
+          key: npm-cache-${{ hashFiles('package-lock.json') }}
+          path: node_modules
+
       - name: Restore dependencies
+        if: steps.cache-packages.outputs.cache-hit != 'true'
         run: npm ci
+
       - name: Test
         run: npm run test:unit
 
@@ -39,8 +59,17 @@ jobs:
         with:
           node-version-file: '.nvmrc'
 
+      - name: Cache NPM packages
+        id: cache-packages
+        uses: actions/cache@v3
+        with:
+          key: npm-cache-${{ hashFiles('package-lock.json') }}
+          path: node_modules
+
       - name: Restore dependencies
+        if: steps.cache-packages.outputs.cache-hit != 'true'
         run: npm ci
+
       - name: Install Kind
         uses: helm/kind-action@v1.4.0
         with:
