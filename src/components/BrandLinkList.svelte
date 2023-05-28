@@ -9,7 +9,9 @@
 <h2>Brands</h2>
 <div class="brand-list">
   {#each makers as maker}
-    <BrandLinkCard {maker} {year} />
+    <div class="brand-link-container">
+      <BrandLinkCard {maker} {year} />
+    </div>
   {/each}
 </div>
 
@@ -19,7 +21,12 @@
   }
   .brand-list {
     display: flex;
-    flex-direction: column;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
     gap: 1em;
+  }
+  .brand-link-container {
+    max-width: 320px;
   }
 </style>

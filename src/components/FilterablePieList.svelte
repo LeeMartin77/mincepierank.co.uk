@@ -14,11 +14,10 @@
 {/if}
 
 <div class="pie-list">
-  {#each mpr.rankingOrder as pieId}
-    <PieLinkCard pie={mpr.mappedPies[pieId]} pieListRanking={mpr.mappedRankings[pieId]} />
-  {/each}
-  {#each Array.from(mpr.unrankedPies) as pieId}
-    <PieLinkCard pie={mpr.mappedPies[pieId]} pieListRanking={mpr.mappedRankings[pieId]} />
+  {#each [...mpr.rankingOrder, ...Array.from(mpr.unrankedPies)] as pieId}
+    <div class="pie-link-card-container">
+      <PieLinkCard pie={mpr.mappedPies[pieId]} pieListRanking={mpr.mappedRankings[pieId]} />
+    </div>
   {/each}
 </div>
 
@@ -28,7 +27,12 @@
   }
   .pie-list {
     display: flex;
-    flex-direction: column;
+    flex-wrap: wrap;
+    justify-content: center;
+    width: 100%;
     gap: 1em;
+  }
+  .pie-link-card-container {
+    max-width: 320px;
   }
 </style>

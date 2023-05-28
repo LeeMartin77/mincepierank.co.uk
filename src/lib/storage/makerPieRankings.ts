@@ -218,9 +218,9 @@ export async function getMakerPieRankingSummaries(
   }
 }
 
-export async function getAllPieRankingSummaries(): Promise<
-  Result<PieRankingSummary[], StorageError>
-> {
+export async function getAllPieRankingSummaries(
+  year: number
+): Promise<Result<PieRankingSummary[], StorageError>> {
   try {
     const result = await CASSANDRA_CLIENT.execute(
       `SELECT year,
@@ -234,7 +234,9 @@ export async function getAllPieRankingSummaries(): Promise<
         CAST(MAX(last_updated) as text) as last_updated,
         CAST(COUNT(1) as int) as count 
       FROM mincepierank.maker_pie_ranking_yearly
+      WHERE year = ?
       GROUP BY year, makerid, pieid;`,
+      [year],
       { prepare: true }
     );
 
