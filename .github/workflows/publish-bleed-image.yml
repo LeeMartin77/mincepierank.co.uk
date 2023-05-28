@@ -4,6 +4,10 @@ on:
   push:
     branches: ['main']
 
+concurrency:
+  group: publish-from-main
+  cancel-in-progress: true
+
 jobs:
   publish-bleed:
     runs-on: ubuntu-latest
