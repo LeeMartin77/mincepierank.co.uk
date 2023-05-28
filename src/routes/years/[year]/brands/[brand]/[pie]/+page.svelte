@@ -1,5 +1,4 @@
 <script lang="ts">
-  import Breadcrumb from '$components/Breadcrumb.svelte';
   import { ppCategory } from '$components/utilities/formatCategory';
   import type { PageData } from './$types';
 
@@ -7,8 +6,6 @@
   $: pie = data.pie;
   $: ranking = data.ranking;
 </script>
-
-<Breadcrumb />
 
 <h1>{pie.displayname}</h1>
 <img src={pie.image_file + '?filter=gaussian&width=250'} alt={pie.displayname} />

@@ -1,9 +1,3 @@
-<script lang="ts">
-  import Breadcrumb from '$components/Breadcrumb.svelte';
-</script>
-
-<Breadcrumb />
-
 <h1>Years</h1>
 
 <a class="year-link" href="/years/2022">2022</a>
