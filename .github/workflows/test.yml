@@ -7,7 +7,7 @@ on:
     branches: ['main']
 
 jobs:
-  unit-test:
+  lint:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -29,7 +29,7 @@ jobs:
       - name: lint
         run: npm run lint
 
-  lint:
+  test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3

@@ -1,4 +1,14 @@
 .DS_Store
+.development
+.github
+.vscode
+cypress
+cypress.config.ts
+Tiltfile
+.prettierrc
+.prettierignore
+.eslintignore
+.eslintrc.cjs
 node_modules
 /build
 /.svelte-kit
