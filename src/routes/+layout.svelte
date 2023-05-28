@@ -3,12 +3,8 @@
 </script>
 
 <div class="notices">
-  <p>
-    Mince Pie Rank is currently read-only until the next Christmas period
-  </p>
-  <p>
-    Things might be a bit sparse right now - getting ready for the new season!
-  </p>
+  <p>Mince Pie Rank is currently read-only until the next Christmas period</p>
+  <p>Things might be a bit sparse right now - getting ready for the new season!</p>
 </div>
 
 <Breadcrumb />
