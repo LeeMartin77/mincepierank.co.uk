@@ -42,3 +42,20 @@ jobs:
           push: true
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+  update-version:
+    needs: publish-bleed
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          repository: leemartin77/homelab.flux
+          token: ${{ secrets.HOMELAB_AUTOMATION_PAT }}
+      - name: Set new version
+        run: echo "${{ github.sha }}" > versions/mincepierank.txt
+      - name: Commit and Push version
+        run: |
+          git config --global user.name 'MincePieRank Bot'
+          git config --global user.email 'mincepierank@users.noreply.github.com'
+          git commit -am "Automated report"
+          git push
