@@ -70,6 +70,9 @@ jobs:
         if: steps.cache-packages.outputs.cache-hit != 'true'
         run: npm ci
 
+      - name: Install Cypress
+        run: npx cypress install
+
       - name: Install Kind
         uses: helm/kind-action@v1.4.0
         with:
