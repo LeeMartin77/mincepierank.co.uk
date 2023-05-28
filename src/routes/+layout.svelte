@@ -2,6 +2,15 @@
   import Breadcrumb from '$components/Breadcrumb.svelte';
 </script>
 
+<div class="notices">
+  <p>
+    Mince Pie Rank is currently read-only until the next Christmas period
+  </p>
+  <p>
+    Things might be a bit sparse right now - getting ready for the new season!
+  </p>
+</div>
+
 <Breadcrumb />
 
 <div class="content-container">
@@ -15,6 +24,11 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+  }
+  .notices {
+    text-align: center;
+    border: 1px dashed grey;
+    border-radius: 1em;
   }
 
   @media only screen and (max-width: 640px) {
