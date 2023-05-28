@@ -5,7 +5,7 @@
   $: route = ($page.route.id || '/').slice(1).split('/');
   $: breadcrumbs = route.reduce<{ url: string; name: string }[]>(
     (acc, curr) => {
-      if (curr === "") {
+      if (curr === '') {
         return acc;
       }
       const last = acc[acc.length - 1];
@@ -32,7 +32,7 @@
   <div class="breadcrumb-container">
     {#each breadcrumbs as breadcrumb, i}
       {#if i > 0}
-      <div>/</div>
+        <div>/</div>
       {/if}
       <a href={breadcrumb.url}>{breadcrumb.name}</a>
     {/each}
