@@ -55,7 +55,7 @@ jobs:
         run: echo "${{ github.sha }}" > versions/mincepierank.txt
       - name: Commit and Push version
         run: |
-          git config --global user.name 'MincePieRank Bot'
-          git config --global user.email 'mincepierank@users.noreply.github.com'
-          git commit -am "Automated report"
+          git config --global user.name 'Lee Martin[Automated]'
+          git config --global user.email 'leemartin77@users.noreply.github.com'
+          git commit -am "New MincePieRank Version"
           git push
