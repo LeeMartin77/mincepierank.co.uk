@@ -15,7 +15,7 @@
     "dev:seedlocaltestdata": "node .development/migrations/test_data.js",
     "cypress:open": "cypress open",
     "cypress:run": "cypress run",
-    "prepare": "husky install"
+    "husky:install": "husky install"
   },
   "devDependencies": {
     "@sveltejs/adapter-node": "^1.2.4",
