@@ -3,6 +3,12 @@ name: Publish Bleed Container
 on:
   push:
     branches: ['main']
+    paths:
+      - '!.development/**'
+      - '!.husky/**'
+      - '!kustomize/**'
+      - '!.vscode/**'
+      - '!cypress/**'
 
 concurrency:
   group: publish-from-main

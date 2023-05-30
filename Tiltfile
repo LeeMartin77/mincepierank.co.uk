@@ -12,7 +12,7 @@ namespace_create(development_namespace)
 k8s_yaml(namespace_inject(read_file('.development/cassandra.yml'), development_namespace))
 
 # Create deployment
-deployment = namespace_inject(read_file('.development/deployment.yml'), development_namespace)
+deployment = namespace_inject(read_file('kustomize/deployment.yml'), development_namespace)
 k8s_yaml(deployment)
 
 # Build: tell Tilt what images to build from which directories

@@ -2,6 +2,7 @@
 .development
 .github
 .vscode
+kustomize
 cypress
 cypress.config.ts
 Tiltfile
