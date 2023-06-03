@@ -32,7 +32,7 @@ spec:
               containerPort: 3000
           env:
             - name: NODE_ENV
-              value: production
+              value: development
             - name: CASSANDRA_CONTACT_POINTS
               value: cassandra:9042
             - name: CASSANDRA_USER
@@ -47,7 +47,5 @@ spec:
                   name: cassandra-creds
                   key: cassandrapassword
                   optional: false
-            - name: NEXTAUTH_URL
-              value: http://localhost:4024
-            - name: NEXTAUTH_SECRET
+            - name: AUTH_SECRET
               value: some-weird-random-string
