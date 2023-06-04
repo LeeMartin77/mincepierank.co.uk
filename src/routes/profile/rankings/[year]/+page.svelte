@@ -7,7 +7,7 @@
 
 <h1>Your Rankings</h1>
 
-<FilterablePieList pies={data.pies} pieRankings={data.rankings} hideUnranked={true} />
+<FilterablePieList pies={data.pies} pieRankings={data.rankings} />
 
 <style>
   h1 {
