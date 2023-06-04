@@ -119,7 +119,7 @@ export async function getUserPieRankings(
 }
 
 export type PieRankingSummary = Omit<MakerPieRanking, 'userid' | 'notes'> & {
-  count: number;
+  count: number | undefined;
   average: number;
 };
 

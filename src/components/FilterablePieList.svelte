@@ -6,6 +6,7 @@
   export let pies: MakerPie[];
   export let pieRankings: PieRankingSummary[];
   export let fixedCategory: string | undefined = undefined;
+  export let hideUnranked: boolean = false;
   $: availableCategoryIds = Array.from(
     new Set(
       pies.reduce<string[]>((acc, curr) => {
@@ -15,7 +16,10 @@
   );
   $: filteredCategoryIds = [] as string[];
   $: mpr = mapPiesAndRankings(pies, pieRankings, new Set(filteredCategoryIds));
-  $: orderedFilteredPieIds = [...mpr.rankingOrder, ...Array.from(mpr.unrankedPies)];
+  $: orderedFilteredPieIds = [
+    ...mpr.rankingOrder,
+    ...(hideUnranked ? [] : Array.from(mpr.unrankedPies))
+  ];
   const toggleFilter = (categoryId: string) => {
     const index = filteredCategoryIds.indexOf(categoryId);
     if (index !== -1) {

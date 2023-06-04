@@ -16,7 +16,7 @@ if (env.NODE_ENV === 'development') {
       async authorize(credentials) {
         if (credentials?.username === 'john' && credentials?.password === 'doe') {
           return {
-            id: 'TEST_AUTH_test-user-id',
+            id: 'TEST_AUTH_john.doe@example.com',
             email: 'TEST_AUTH_john.doe@example.com',
             name: 'TEST_AUTH_LeeMartin'
           };

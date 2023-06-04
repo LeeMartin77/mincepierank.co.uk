@@ -78,23 +78,65 @@ const makerPies = [
   }
 ];
 
-const pieRankings = makerPies.reduce((rankings, pie) => {
-  const newRankings = [1, 2, 3, 4, 5].map((number) => {
-    return {
-      makerid: pie.makerId,
-      pieid: pie.id,
-      userid: randomUUID(),
-      pastry: number,
-      filling: number,
-      topping: number,
-      looks: number,
-      value: number,
-      notes: 'Some Notes for ' + number + ' :: ' + randomUUID(),
-      last_updated: new Date().toISOString()
-    };
-  });
-  return [...rankings, ...newRankings];
-}, []);
+const testUserPieRankings = [
+  {
+    makerid: makerPies[0].makerId,
+    pieid: makerPies[0].id,
+    userid: 'TEST_AUTH_john.doe@example.com',
+    pastry: 5,
+    filling: 4,
+    topping: 3,
+    looks: 2,
+    value: 1,
+    notes: 'Some Notes for ' + 3 + ' :: ' + randomUUID(),
+    last_updated: new Date().toISOString()
+  },
+  {
+    makerid: makerPies[1].makerId,
+    pieid: makerPies[1].id,
+    userid: 'TEST_AUTH_john.doe@example.com',
+    pastry: 4,
+    filling: 4,
+    topping: 3,
+    looks: 5,
+    value: 2,
+    notes: 'Some Notes for ' + 3 + ' :: ' + randomUUID(),
+    last_updated: new Date().toISOString()
+  },
+  {
+    makerid: makerPies[2].makerId,
+    pieid: makerPies[3].id,
+    userid: 'TEST_AUTH_john.doe@example.com',
+    pastry: 1,
+    filling: 2,
+    topping: 1,
+    looks: 2,
+    value: 1,
+    notes: 'Some Notes for ' + 3 + ' :: ' + randomUUID(),
+    last_updated: new Date().toISOString()
+  }
+];
+
+const pieRankings = [
+  ...makerPies.reduce((rankings, pie) => {
+    const newRankings = [1, 2, 3, 4, 5].map((number) => {
+      return {
+        makerid: pie.makerId,
+        pieid: pie.id,
+        userid: randomUUID(),
+        pastry: number,
+        filling: number,
+        topping: number,
+        looks: number,
+        value: number,
+        notes: 'Some Notes for ' + number + ' :: ' + randomUUID(),
+        last_updated: new Date().toISOString()
+      };
+    });
+    return [...rankings, ...newRankings];
+  }, []),
+  ...testUserPieRankings
+];
 
 const client = new cassandra.Client(MIGRATION_CLIENT_CONFIG);
 
