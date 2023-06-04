@@ -6,7 +6,7 @@
   export let pies: MakerPie[];
   export let pieRankings: PieRankingSummary[];
   export let fixedCategory: string | undefined = undefined;
-  export let hideUnranked: boolean = false;
+  export let hideUnranked = false;
   $: availableCategoryIds = Array.from(
     new Set(
       pies.reduce<string[]>((acc, curr) => {

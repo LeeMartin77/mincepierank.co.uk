@@ -3,6 +3,7 @@ import CredentialsProvider from '@auth/core/providers/credentials';
 import GoogleProvider from '@auth/core/providers/google';
 import { env } from '$env/dynamic/private';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const providers: any[] = [];
 
 if (env.NODE_ENV === 'development') {

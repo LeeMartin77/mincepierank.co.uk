@@ -1,9 +1,3 @@
-<script lang="ts">
-  import type { PageData } from './$types';
-
-  export let data: PageData;
-</script>
-
 <a class="year-link" href="/profile/rankings/2022">2022</a>
 
 <style>
