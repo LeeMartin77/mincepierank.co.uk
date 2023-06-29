@@ -43,19 +43,6 @@ local_resource('mincepierank local',
   labels=["application"]
 )
 
-local_resource('migrate cassandra',
-  cmd='npm run dev:migrations',
-  dir='.',
-  env={
-    'CASSANDRA_CONTACT_POINTS': "localhost:9145",
-    'CASSANDRA_USER':'cassandra',
-    'CASSANDRA_PASSWORD':'cassandra',
-  },
-  auto_init=run_cypress,
-  resource_deps=['cassandra'],
-  trigger_mode=TRIGGER_MODE_MANUAL,
-  labels=["tools"]
-)
 local_resource('seed cassandra',
   cmd='npm run dev:seedlocaltestdata',
   dir='.',
@@ -65,7 +52,7 @@ local_resource('seed cassandra',
     'CASSANDRA_PASSWORD':'cassandra',
   },
   auto_init=run_cypress,
-  resource_deps=['migrate cassandra'],
+  resource_deps=['mincepierank'],
   trigger_mode=TRIGGER_MODE_MANUAL,
   labels=["tools"]
 )

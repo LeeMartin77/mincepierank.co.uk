@@ -4,15 +4,14 @@
   "private": true,
   "scripts": {
     "dev": "vite dev",
-    "build": "vite build",
+    "build": "VITE_BUILDING=building vite build",
     "preview": "vite preview",
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
     "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
     "test:unit": "vitest",
     "lint": "prettier --plugin-search-dir . --check . && eslint .",
     "format": "prettier --plugin-search-dir . --write .",
-    "dev:migrations": "node .development/migrations/schema.js",
-    "dev:seedlocaltestdata": "node .development/migrations/test_data.js",
+    "dev:seedlocaltestdata": "node .development/testdata/test_data.js",
     "cypress:open": "cypress open",
     "cypress:run": "cypress run",
     "husky:install": "husky install"

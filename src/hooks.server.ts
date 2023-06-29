@@ -3,6 +3,14 @@ import CredentialsProvider from '@auth/core/providers/credentials';
 import GoogleProvider from '@auth/core/providers/google';
 import { env } from '$env/dynamic/private';
 
+import { runMigrations } from '$lib/storage/migrations';
+
+// This is because for whatever reason, vite tries
+// to talk to the DB during the "build"
+if (env.VITE_BUILDING !== 'building') {
+  await runMigrations();
+}
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const providers: any[] = [];
 
