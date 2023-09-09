@@ -1,11 +1,15 @@
 <script lang="ts">
   import Breadcrumb from '$components/Breadcrumb.svelte';
+  import type { LayoutData } from './$types';
+  export let data: LayoutData;
 </script>
 
-<div class="notices">
-  <p>Mince Pie Rank is read-only until the next Christmas period</p>
-  <p>Things are a bit sparse right now - preparing for the new season!</p>
-</div>
+{#if data.readonly}
+  <div class="notices">
+    <p>Mince Pie Rank is read-only until the next Christmas period</p>
+    <p>Things are a bit sparse right now - preparing for the new season!</p>
+  </div>
+{/if}
 
 <Breadcrumb />
 

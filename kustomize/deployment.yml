@@ -47,5 +47,7 @@ spec:
                   name: cassandra-creds
                   key: cassandrapassword
                   optional: false
+            - name: READONLY
+              value: 'false'
             - name: AUTH_SECRET
               value: some-weird-random-string
