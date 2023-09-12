@@ -1,8 +1,10 @@
 load('ext://namespace', 'namespace_create', 'namespace_inject')
 
 config.define_bool("run-cypress")
+config.define_bool("local")
 cfg = config.parse()
 run_cypress = cfg.get("run-cypress", False)
+local = cfg.get("local", False)
 
 development_namespace='mincepierank-development'
 
@@ -26,7 +28,7 @@ docker_build('ghcr.io/leemartin77/mincepierank.co.uk', '.')
 k8s_resource('cassandra', port_forwards="9145:9042", labels=["services"])
 
 k8s_resource('mincepierank', port_forwards="4025:3000", labels=["application"],  resource_deps=['cassandra'],
-  auto_init=True,
+  auto_init=False if local else True,
   trigger_mode=TRIGGER_MODE_MANUAL if run_cypress else TRIGGER_MODE_AUTO)
 
 local_resource('mincepierank local',
@@ -39,7 +41,7 @@ local_resource('mincepierank local',
     'READONLY': 'false'
   },
   dir='.',
-  auto_init=False,
+  auto_init=True if local else False,
   trigger_mode=TRIGGER_MODE_MANUAL,
   labels=["application"]
 )
@@ -54,7 +56,7 @@ local_resource('seed cassandra',
     'READONLY': 'false'
   },
   auto_init=run_cypress,
-  resource_deps=['mincepierank'],
+  resource_deps=[] if local else ['mincepierank'],
   trigger_mode=TRIGGER_MODE_MANUAL,
   labels=["tools"]
 )
