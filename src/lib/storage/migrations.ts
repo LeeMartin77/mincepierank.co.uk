@@ -58,7 +58,9 @@ const MIGRATIONS = [
   ['000014', `CREATE INDEX IF NOT EXISTS ON mincepierank.maker_pie_ranking_yearly (topping);`],
   ['000015', `CREATE INDEX IF NOT EXISTS ON mincepierank.maker_pie_ranking_yearly (looks);`],
   ['000016', `CREATE INDEX IF NOT EXISTS ON mincepierank.maker_pie_ranking_yearly (value);`],
-  ['000017', `CREATE INDEX IF NOT EXISTS ON mincepierank.maker_pie_ranking_yearly (last_updated);`]
+  ['000017', `CREATE INDEX IF NOT EXISTS ON mincepierank.maker_pie_ranking_yearly (last_updated);`],
+  ['000018', `ALTER TABLE mincepierank.maker_pie_yearly ADD validated boolean;`],
+  ['000019', `CREATE INDEX IF NOT EXISTS ON mincepierank.maker_pie_yearly (validated);`]
 ];
 
 const SEEDS = [];
