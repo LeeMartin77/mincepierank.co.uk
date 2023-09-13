@@ -3,7 +3,7 @@ import type { PageServerLoadEvent } from './$types';
 import { getAllMakerPies, getMincePieMakersForYear, type MakerPie } from '$lib/storage';
 
 // TODO: Make this truly data driven
-const years = ['2022'];
+const years = ['2022', '2023'];
 
 export const load = async ({ params }: PageServerLoadEvent) => {
   const { year } = params;

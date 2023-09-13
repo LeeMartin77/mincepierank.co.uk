@@ -13,6 +13,9 @@
       <BrandLinkCard {maker} {year} />
     </div>
   {/each}
+  {#if makers.length === 0}
+    <span>No Makers</span>
+  {/if}
 </div>
 
 <style>

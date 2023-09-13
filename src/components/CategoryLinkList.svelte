@@ -11,6 +11,9 @@
       >{ppCategory(category)}</a
     >
   {/each}
+  {#if categories.length === 0}
+    <span>No Categories</span>
+  {/if}
 </div>
 
 <style>

@@ -1,5 +1,6 @@
 <h1>Years</h1>
 
+<a class="year-link" href="/years/2023">2023</a>
 <a class="year-link" href="/years/2022">2022</a>
 
 <style>
