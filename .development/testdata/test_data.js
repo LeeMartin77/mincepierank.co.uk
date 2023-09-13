@@ -38,7 +38,8 @@ const makerPies = [
     web_link:
       'https://www.waitrose.com/ecom/products/waitrose-christmas-all-butter-mince-pies/735193-785976-785977',
     pack_count: 6,
-    pack_price_in_pence: 120
+    pack_price_in_pence: 120,
+    validated: true
   },
   {
     makerId: 'tesco',
@@ -50,7 +51,8 @@ const makerPies = [
     web_link:
       'https://www.waitrose.com/ecom/products/waitrose-christmas-all-butter-mince-pies/735193-785976-785977',
     pack_count: 6,
-    pack_price_in_pence: 120
+    pack_price_in_pence: 120,
+    validated: true
   },
   {
     makerId: 'morrisons',
@@ -62,7 +64,8 @@ const makerPies = [
     web_link:
       'https://www.waitrose.com/ecom/products/waitrose-christmas-all-butter-mince-pies/735193-785976-785977',
     pack_count: 6,
-    pack_price_in_pence: 120
+    pack_price_in_pence: 120,
+    validated: true
   },
   {
     makerId: 'morrisons',
@@ -74,7 +77,8 @@ const makerPies = [
     web_link:
       'https://www.waitrose.com/ecom/products/waitrose-christmas-all-butter-mince-pies/735193-785976-785977',
     pack_count: 6,
-    pack_price_in_pence: 120
+    pack_price_in_pence: 120,
+    validated: true
   }
 ];
 
@@ -154,8 +158,8 @@ client.connect().then(async () => {
 
   for (let makerPie of makerPies) {
     await client.execute(
-      `INSERT INTO mincepierank.maker_pie_yearly (year, makerId, id, displayName, fresh, labels, image_file, web_link, pack_count, pack_price_in_pence)
-            values (2022, ?, ?, ?, ?, ?, ?, ?, ?, ?);`,
+      `INSERT INTO mincepierank.maker_pie_yearly (year, makerId, id, displayName, fresh, labels, image_file, web_link, pack_count, pack_price_in_pence, validated)
+            values (2022, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`,
       [...Object.values(makerPie)],
       { prepare: true }
     );
