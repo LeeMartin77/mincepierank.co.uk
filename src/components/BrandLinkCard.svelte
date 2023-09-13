@@ -33,7 +33,7 @@
     align-items: center;
   }
   .brand-link {
-    color: initial;
+    color: #111;
     text-decoration: none;
     font-weight: bold;
     padding: 0.5em;
@@ -44,5 +44,19 @@
   }
   .brand-link:visited {
     color: initial;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .brand-link-card {
+      border: 1px solid #fff;
+    }
+    .brand-link {
+      border: 1px solid #fff;
+      color: #fff;
+    }
+    .brand-link:visited {
+      border: 1px solid #fff;
+      color: #fff;
+    }
   }
 </style>

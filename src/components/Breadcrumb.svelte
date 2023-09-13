@@ -50,9 +50,18 @@
     border-radius: 1em;
   }
   .breadcrumb-container > a {
-    color: initial;
+    color: #111;
   }
   .breadcrumb-container > a:visited {
-    color: initial;
+    color: #111;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .breadcrumb-container > a {
+      color: #fff;
+    }
+    .breadcrumb-container > a:visited {
+      color: #fff;
+    }
   }
 </style>

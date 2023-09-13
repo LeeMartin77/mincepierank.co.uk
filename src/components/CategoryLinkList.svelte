@@ -32,9 +32,20 @@
     padding: 0.5em 1em;
     text-decoration: none;
     text-align: center;
-    color: initial;
+    color: #111;
   }
   .category-link:visited {
-    color: initial;
+    color: #111;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .category-link {
+      border: 1px solid #fff;
+      color: #fff;
+    }
+    .category-link:visited {
+      border: 1px solid #fff;
+      color: #fff;
+    }
   }
 </style>

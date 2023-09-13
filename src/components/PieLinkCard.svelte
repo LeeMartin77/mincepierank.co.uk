@@ -41,7 +41,7 @@
 <style>
   .pie-card {
     padding: 1em;
-    border: 1px solid black;
+    border: 1px solid #111;
     border-radius: 1em;
     display: flex;
     flex-direction: column;
@@ -53,16 +53,16 @@
   }
   .pie-link {
     display: block;
-    border: 1px solid black;
+    border: 1px solid #111;
     border-radius: 1em;
     padding: 1em;
     text-decoration: none;
     text-align: center;
     font-weight: bold;
-    color: initial;
+    color: #111;
   }
   .pie-link:visited {
-    color: initial;
+    color: #111;
   }
 
   .category-links {
@@ -75,7 +75,7 @@
 
   .category-link {
     display: block;
-    border: 1px solid black;
+    border: 1px solid #111;
     font-size: 0.8em;
     border-radius: 2em;
     padding: 0.5em;
@@ -85,5 +85,27 @@
   }
   .category-link:visited {
     color: initial;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .pie-card {
+      border: 1px solid #fff;
+    }
+    .pie-link {
+      border: 1px solid #fff;
+      color: #fff;
+    }
+    .pie-link:visited {
+      border: 1px solid #fff;
+      color: #fff;
+    }
+    .category-link {
+      border: 1px solid #fff;
+      color: #fff;
+    }
+    .category-link:visited {
+      border: 1px solid #fff;
+      color: #fff;
+    }
   }
 </style>
