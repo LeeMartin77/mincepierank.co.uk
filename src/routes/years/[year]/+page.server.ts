@@ -1,13 +1,12 @@
 import { error } from '@sveltejs/kit';
 import type { PageServerLoadEvent } from './$types';
 import { getAllMakerPies, getMincePieMakersForYear, type MakerPie } from '$lib/storage';
-
-// TODO: Make this truly data driven
-const years = ['2022', '2023'];
+import { getYears } from '$lib/storage/config';
 
 export const load = async ({ params }: PageServerLoadEvent) => {
   const { year } = params;
-  if (!years.includes(year)) {
+  const years = await getYears();
+  if (!years.includes(parseInt(year))) {
     throw error(404, 'Not Found');
   }
   const yearInt = parseInt(year);
