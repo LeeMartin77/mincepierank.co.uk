@@ -16,3 +16,9 @@ export async function getYears(): Promise<number[]> {
   const result = await CASSANDRA_CLIENT.execute('SELECT year FROM mincepierank.year;');
   return result.rows.map((x) => parseInt(x.get('year')));
 }
+
+export async function getAdmins(): Promise<{ id: string }[]> {
+  const result = await CASSANDRA_CLIENT.execute('SELECT * FROM mincepierank.admins;');
+
+  return result.rows.map((x) => rowToObject<{ id: string }>(x));
+}
