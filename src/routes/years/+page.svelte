@@ -1,7 +1,14 @@
+<script lang="ts">
+  import type { PageData } from './$types';
+  export let data: PageData;
+  const years = data.years.sort().reverse();
+</script>
+
 <h1>Years</h1>
 
-<a class="year-link" href="/years/2023">2023</a>
-<a class="year-link" href="/years/2022">2022</a>
+{#each years as year}
+  <a class="year-link" href={`/years/${year}`}>{year}</a>
+{/each}
 
 <style>
   h1 {

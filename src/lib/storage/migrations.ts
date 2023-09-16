@@ -60,7 +60,30 @@ const MIGRATIONS = [
   ['000016', `CREATE INDEX IF NOT EXISTS ON mincepierank.maker_pie_ranking_yearly (value);`],
   ['000017', `CREATE INDEX IF NOT EXISTS ON mincepierank.maker_pie_ranking_yearly (last_updated);`],
   ['000018', `ALTER TABLE mincepierank.maker_pie_yearly ADD validated boolean;`],
-  ['000019', `CREATE INDEX IF NOT EXISTS ON mincepierank.maker_pie_yearly (validated);`]
+  ['000019', `CREATE INDEX IF NOT EXISTS ON mincepierank.maker_pie_yearly (validated);`],
+  [
+    '000020',
+    `CREATE TABLE IF NOT EXISTS mincepierank.year (
+      year int PRIMARY KEY
+    )`
+  ],
+  [
+    '000021',
+    `CREATE TABLE IF NOT EXISTS mincepierank.config (
+      key text PRIMARY KEY,
+      value text
+    )`
+  ],
+  [
+    '000022',
+    `CREATE TABLE IF NOT EXISTS mincepierank.admins (
+      id text PRIMARY KEY
+    )`
+  ],
+  // these are just to make my life easier
+  ['000023', `INSERT INTO mincepierank.year (year) VALUES (2022)`],
+  ['000024', `INSERT INTO mincepierank.year (year) VALUES (2023)`],
+  ['000025', `INSERT INTO mincepierank.config (key, value) VALUES ('readonly', 'true')`]
 ];
 
 const SEEDS = [];

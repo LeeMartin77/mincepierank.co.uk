@@ -29,7 +29,7 @@ k8s_resource('cassandra', port_forwards="9145:9042", labels=["services"])
 
 k8s_resource('mincepierank', port_forwards="4025:3000", labels=["application"],  resource_deps=['cassandra'],
   auto_init=False if local else True,
-  trigger_mode=TRIGGER_MODE_MANUAL if run_cypress else TRIGGER_MODE_AUTO)
+  trigger_mode=TRIGGER_MODE_MANUAL if run_cypress or local else TRIGGER_MODE_AUTO)
 
 local_resource('mincepierank local',
   serve_cmd='npm run dev',
