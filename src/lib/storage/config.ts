@@ -12,6 +12,20 @@ export async function getConfig(): Promise<{ [key: string]: string }> {
   return config;
 }
 
+export async function setConfigValue(key: string, value: string): Promise<void> {
+  await CASSANDRA_CLIENT.execute(
+    'INSERT INTO mincepierank.config (key, value) VALUES (?, ?);',
+    [key, value],
+    { prepare: true }
+  );
+}
+
+export async function deleteConfigValue(key: string): Promise<void> {
+  await CASSANDRA_CLIENT.execute('DELETE FROM mincepierank.config WHERE key = ?;', [key], {
+    prepare: true
+  });
+}
+
 export async function getYears(): Promise<number[]> {
   const result = await CASSANDRA_CLIENT.execute('SELECT year FROM mincepierank.year;');
   return result.rows.map((x) => parseInt(x.get('year')));
