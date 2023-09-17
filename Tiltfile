@@ -12,6 +12,7 @@ namespace_create(development_namespace)
 
 # Create external resources
 k8s_yaml(namespace_inject(read_file('.development/cassandra.yml'), development_namespace))
+k8s_yaml(namespace_inject(read_file('.development/development-images.yaml'), development_namespace))
 
 # Create deployment
 deployment = namespace_inject(read_file('kustomize/deployment.yml'), development_namespace)
@@ -26,6 +27,7 @@ docker_build('ghcr.io/leemartin77/mincepierank.co.uk', '.')
 # Watch: tell Tilt how to connect locally (optional)
 
 k8s_resource('cassandra', port_forwards="9145:9042", labels=["services"])
+k8s_resource('mincepierank-imgprssr', port_forwards="3013:3013", labels=["services"])
 
 k8s_resource('mincepierank', port_forwards="4025:3000", labels=["application"],  resource_deps=['cassandra'],
   auto_init=False if local else True,
@@ -38,7 +40,8 @@ local_resource('mincepierank local',
     'CASSANDRA_CONTACT_POINTS': "localhost:9145",
     'CASSANDRA_USER':'cassandra',
     'CASSANDRA_PASSWORD':'cassandra',
-    'READONLY': 'false'
+    'READONLY': 'false',
+    'IMGPRSSR_DIR': '/private/tmp/mpr/' #Make this configurable
   },
   dir='.',
   auto_init=True if local else False,

@@ -1,0 +1,85 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: mincepierank-imgprssr
+spec:
+  ports:
+    - name: http
+      port: 3013
+      protocol: TCP
+      targetPort: 3013
+  selector:
+    app: mincepierank-imgprssr
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: mincepierank-imgprssr
+  name: mincepierank-imgprssr
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mincepierank-imgprssr
+  template:
+    metadata:
+      labels:
+        app: mincepierank-imgprssr
+      namespace: mincepierank
+      name: mincepierank-imgprssr
+    spec:
+      containers:
+        - name: mincepierank-live
+          image: ghcr.io/leemartin77/imgprssr:v0.2.1
+          imagePullPolicy: IfNotPresent
+          resources:
+            limits:
+              cpu: 500m
+              memory: 500Mi
+            requests:
+              cpu: 500m
+              memory: 500Mi
+          ports:
+            - name: http
+              containerPort: 3013
+          volumeMounts:
+            - name: images-dir
+              mountPath: /images
+          env:
+            - name: IMGPRSSR_IMAGE_SOURCE
+              value: /images
+            - name: IMGPRSSR_PORT
+              value: '3013'
+      volumes:
+        - name: images-dir
+          persistentVolumeClaim:
+            claimName: mincepierank-imgprssr-pvc
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mincepierank-imgprssr-pvc
+spec:
+  accessModes:
+    - 'ReadWriteMany'
+  resources:
+    requests:
+      storage: 20Gi
+  storageClassName: manual
+  volumeName: mincepierank-imgprssr
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: mincepierank-imgprssr
+spec:
+  capacity:
+    storage: 20Gi
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Delete
+  storageClassName: manual
+  hostPath:
+    path: '/private/tmp/mpr'

@@ -173,5 +173,9 @@ client.connect().then(async () => {
       { prepare: true }
     );
   }
+
+  await client.execute(
+    `INSERT INTO mincepierank.admins (id) VALUES ('TEST_AUTH_john.doe@example.com')`
+  );
   return client.shutdown();
 });

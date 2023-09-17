@@ -18,6 +18,8 @@ WORKDIR /app
 
 ENV NODE_ENV production
 
+RUN mkdir /imgprssr
+
 COPY package.json package-lock.json ./
 
 COPY --from=dep-builder /app/node_modules ./node_modules

@@ -30,6 +30,9 @@ spec:
           ports:
             - name: http
               containerPort: 3000
+          volumeMounts:
+            - name: images-dir
+              mountPath: /imgprssr
           env:
             - name: NODE_ENV
               value: development
@@ -51,3 +54,7 @@ spec:
               value: 'false'
             - name: AUTH_SECRET
               value: some-weird-random-string
+      volumes:
+        - name: images-dir
+          persistentVolumeClaim:
+            claimName: mincepierank-imgprssr-pvc
