@@ -14,7 +14,7 @@ if (env.VITE_BUILDING !== 'building') {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const providers: any[] = [];
 
-if (env.NODE_ENV === 'development') {
+if (env.AUTHENTICATION === 'development') {
   providers.push(
     CredentialsProvider({
       name: 'Development',

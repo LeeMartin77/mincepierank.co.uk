@@ -82,4 +82,4 @@ spec:
   persistentVolumeReclaimPolicy: Delete
   storageClassName: manual
   hostPath:
-    path: '/private/tmp/mpr'
+    path: '/tmp/mpr'

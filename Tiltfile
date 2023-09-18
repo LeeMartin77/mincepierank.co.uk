@@ -10,9 +10,15 @@ development_namespace='mincepierank-development'
 
 namespace_create(development_namespace)
 
+local_images="%s/.development/testdata/images" %(os.getcwd())
+
 # Create external resources
 k8s_yaml(namespace_inject(read_file('.development/cassandra.yml'), development_namespace))
-k8s_yaml(namespace_inject(read_file('.development/development-images.yaml'), development_namespace))
+imgprssr = read_yaml_stream('.development/development-images.yaml')
+for o in imgprssr:
+  o['metadata']['namespace'] = development_namespace
+imgprssr[3]['spec']['hostPath']['path'] = local_images
+k8s_yaml(encode_yaml_stream(imgprssr))
 
 # Create deployment
 deployment = namespace_inject(read_file('kustomize/deployment.yml'), development_namespace)
@@ -41,7 +47,9 @@ local_resource('mincepierank local',
     'CASSANDRA_USER':'cassandra',
     'CASSANDRA_PASSWORD':'cassandra',
     'READONLY': 'false',
-    'IMGPRSSR_DIR': '/private/tmp/mpr/' #Make this configurable
+    'AUTH_STRING': 'super-secret-string',
+    'IMGPRSSR_DIR': local_images,
+    'AUTHENTICATION': 'development'
   },
   dir='.',
   auto_init=True if local else False,
@@ -56,7 +64,9 @@ local_resource('seed cassandra',
     'CASSANDRA_CONTACT_POINTS': "localhost:9145",
     'CASSANDRA_USER':'cassandra',
     'CASSANDRA_PASSWORD':'cassandra',
-    'READONLY': 'false'
+    'READONLY': 'false',
+    'AUTH_STRING': 'super-secret-string',
+    'AUTHENTICATION': 'development'
   },
   auto_init=run_cypress,
   resource_deps=[] if local else ['mincepierank'],
