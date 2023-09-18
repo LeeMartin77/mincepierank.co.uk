@@ -86,7 +86,7 @@ const MIGRATIONS = [
   ['000025', `INSERT INTO mincepierank.config (key, value) VALUES ('readonly', 'true')`]
 ];
 
-const SEEDS = [];
+const SEEDS: [string, string[][]][] = [];
 
 export const runMigrations = async () => {
   await CASSANDRA_CLIENT.execute(

@@ -79,3 +79,54 @@ export async function getPieByMakerAndId(
     return err(StorageError.GenericError);
   }
 }
+
+export async function setMakerPie(pie: MakerPie): Promise<Result<boolean, StorageError>> {
+  try {
+    await CASSANDRA_CLIENT.execute(
+      `INSERT INTO mincepierank.maker_pie_yearly
+        (
+          'year',
+          'makerid',
+          'id',
+          'displayname',
+          'fresh',
+          'labels',
+          'image_file',
+          'web_link',
+          'pack_count', 
+          'pack_price_in_pence'
+        )
+        VALUES
+        (
+          ?,
+          ?,
+          ?,
+          ?,
+          ?,
+          ?,
+          ?,
+          ?,
+          ?,
+          ?
+        )
+      `,
+      [
+        pie.year,
+        pie.makerid,
+        pie.id,
+        pie.displayname,
+        pie.fresh,
+        pie.labels,
+        pie.image_file,
+        pie.web_link,
+        pie.pack_count, 
+        pie.pack_price_in_pence
+      ],
+      { prepare: true }
+    );
+    return ok(true);
+  } catch (ex) {
+    console.error(ex)
+    return err(StorageError.GenericError);
+  }
+}
