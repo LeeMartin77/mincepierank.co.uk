@@ -119,14 +119,14 @@ export async function setMakerPie(pie: MakerPie): Promise<Result<boolean, Storag
         pie.labels,
         pie.image_file,
         pie.web_link,
-        pie.pack_count, 
+        pie.pack_count,
         pie.pack_price_in_pence
       ],
       { prepare: true }
     );
     return ok(true);
   } catch (ex) {
-    console.error(ex)
+    console.error(ex);
     return err(StorageError.GenericError);
   }
 }

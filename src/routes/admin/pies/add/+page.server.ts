@@ -25,21 +25,21 @@ export const actions = {
       'fresh',
       'labels',
       'web_link',
-      'pack_count', 
+      'pack_count',
       'pack_price_in_pence'
     ];
 
-    const pulledData: { [key:string]: any } = textFields.reduce((acc, curr) => {
+    const pulledData: { [key: string]: any } = textFields.reduce((acc, curr) => {
       acc[curr] = data.get(curr);
       return acc;
-    }, {} as {[key: string]: any})
+    }, {} as { [key: string]: any });
 
     const image = data.get('image') as any;
 
-    if (!textFields.every(f => !!pulledData[f]) || !image || !image.stream) {
+    if (!textFields.every((f) => !!pulledData[f]) || !image || !image.stream) {
       return fail(400, { incorrect: true });
     }
-    const imgpath = `${pulledData.year}/${pulledData.makerid}/${pulledData.id}/${image.name}`
+    const imgpath = `${pulledData.year}/${pulledData.makerid}/${pulledData.id}/${image.name}`;
     const route = `${process.env.IMGPRSSR_DIR || '/imgprssr/'}${imgpath}`;
     await mkdir(route, {
       recursive: true
@@ -48,9 +48,9 @@ export const actions = {
 
     pulledData.image_file = imgpath;
 
-    pulledData.labels = pulledData.labels.split(',')
+    pulledData.labels = pulledData.labels.split(',');
 
-    setMakerPie(pulledData as MakerPie)
+    setMakerPie(pulledData as MakerPie);
 
     return { success: true };
   }

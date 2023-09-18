@@ -10,7 +10,7 @@
 <form method="POST" action="?/upload" enctype="multipart/form-data">
   <div>
     <label for="year">Year</label>
-    <input name="year" value="2023"/>
+    <input name="year" value="2023" />
   </div>
   <div>
     <label for="makerid">makerid</label>
