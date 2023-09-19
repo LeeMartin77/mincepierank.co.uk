@@ -22,35 +22,45 @@ export const actions = {
       'makerid',
       'id',
       'displayname',
-      'fresh',
       'labels',
       'web_link',
       'pack_count',
       'pack_price_in_pence'
     ];
 
-    const pulledData: { [key: string]: any } = textFields.reduce((acc, curr) => {
-      acc[curr] = data.get(curr);
-      return acc;
-    }, {} as { [key: string]: any });
+    const pulledData: { [key: string]: any } = textFields.reduce(
+      (acc, curr) => {
+        acc[curr] = data.get(curr);
+        return acc;
+      },
+      { fresh: false, validated: false } as { [key: string]: any }
+    );
+
+    if (data.get('fresh')) {
+      pulledData.fresh = data.get('fresh');
+    }
+
+    if (data.get('validated')) {
+      pulledData.validated = data.get('validated');
+    }
 
     const image = data.get('image') as any;
 
     if (!textFields.every((f) => !!pulledData[f]) || !image || !image.stream) {
       return fail(400, { incorrect: true });
     }
-    const imgpath = `${pulledData.year}/${pulledData.makerid}/${pulledData.id}/${image.name}`;
-    const route = `${process.env.IMGPRSSR_DIR || '/imgprssr/'}${imgpath}`;
+    const imgpath = `/${pulledData.year}/${pulledData.makerid}/${pulledData.id}`;
+    const route = `${process.env.IMGPRSSR_DIR || '/imgprssr'}${imgpath}`;
     await mkdir(route, {
       recursive: true
     });
-    await writeFile(`${route}${image.name}`, image.stream());
+    await writeFile(`${route}/${image.name}`, image.stream());
 
-    pulledData.image_file = imgpath;
+    pulledData.image_file = imgpath + '/' + image.name;
 
     pulledData.labels = pulledData.labels.split(',');
 
-    setMakerPie(pulledData as MakerPie);
+    await setMakerPie(pulledData as MakerPie);
 
     return { success: true };
   }

@@ -45,5 +45,9 @@
     <input type="number" name="pack_price_in_pence" />
   </div>
   <input type="file" name="image" />
+  <div>
+    <label for="validated">validated</label>
+    <input type="checkbox" name="validated" />
+  </div>
   <button>Upload</button>
 </form>

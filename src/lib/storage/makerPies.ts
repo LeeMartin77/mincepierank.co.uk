@@ -85,19 +85,21 @@ export async function setMakerPie(pie: MakerPie): Promise<Result<boolean, Storag
     await CASSANDRA_CLIENT.execute(
       `INSERT INTO mincepierank.maker_pie_yearly
         (
-          'year',
-          'makerid',
-          'id',
-          'displayname',
-          'fresh',
-          'labels',
-          'image_file',
-          'web_link',
-          'pack_count', 
-          'pack_price_in_pence'
+          year,
+          makerid,
+          id,
+          displayname,
+          fresh,
+          labels,
+          image_file,
+          web_link,
+          pack_count, 
+          pack_price_in_pence,
+          validated
         )
         VALUES
         (
+          ?,
           ?,
           ?,
           ?,
@@ -120,7 +122,8 @@ export async function setMakerPie(pie: MakerPie): Promise<Result<boolean, Storag
         pie.image_file,
         pie.web_link,
         pie.pack_count,
-        pie.pack_price_in_pence
+        pie.pack_price_in_pence,
+        pie.validated
       ],
       { prepare: true }
     );

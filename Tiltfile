@@ -48,7 +48,7 @@ local_resource('mincepierank local',
     'CASSANDRA_PASSWORD':'cassandra',
     'READONLY': 'false',
     'AUTH_STRING': 'super-secret-string',
-    'IMGPRSSR_DIR': local_images,
+    'IMGPRSSR_DIR': "%s/" %local_images,
     'IMGPRSSR_ROOT': 'http://localhost:3013',
     'AUTHENTICATION': 'development'
   },

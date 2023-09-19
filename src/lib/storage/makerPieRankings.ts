@@ -272,7 +272,7 @@ export async function addPieRanking(
     await CASSANDRA_CLIENT.execute(
       `INSERT INTO 
         mincepierank.maker_pie_ranking_yearly (
-          year
+          year,
           makerid, 
           pieid, 
           userid, 

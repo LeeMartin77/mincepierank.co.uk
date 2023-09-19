@@ -3,4 +3,6 @@
 
 <a href="/admin/config">Change config settings</a>
 
+<a href="/admin/pies">Manage Pies</a>
+
 <a href="/admin/images">Upload arbitary images</a>
