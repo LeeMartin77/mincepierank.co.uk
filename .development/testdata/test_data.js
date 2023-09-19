@@ -16,13 +16,13 @@ const makers = [
   {
     id: 'tesco',
     name: 'Tesco',
-    logo: 'https://static.mincepierank.co.uk/images/tesco/logo.png',
+    logo: '/tesco-logo.png',
     website: 'https://www.tesco.com/'
   },
   {
     id: 'morrisons',
     name: 'Morrisons',
-    logo: 'https://static.mincepierank.co.uk/images/morrisons/logo.png',
+    logo: '/morrisons-logo.png',
     website: 'https://groceries.morrisons.com/webshop/startWebshop.do'
   }
 ];
@@ -34,7 +34,7 @@ const makerPies = [
     displayName: 'Very Nice Pie',
     fresh: false,
     labels: ['classic', 'vegan'],
-    image_file: 'https://static.mincepierank.co.uk/images/waitrose/all-butter.jpg',
+    image_file: '/w-all-butter.jpg',
     web_link:
       'https://www.waitrose.com/ecom/products/waitrose-christmas-all-butter-mince-pies/735193-785976-785977',
     pack_count: 6,
@@ -47,7 +47,7 @@ const makerPies = [
     displayName: 'Okay Nice Pie',
     fresh: false,
     labels: ['premium', 'mini'],
-    image_file: 'https://static.mincepierank.co.uk/images/waitrose/all-butter.jpg',
+    image_file: '/w-all-butter.jpg',
     web_link:
       'https://www.waitrose.com/ecom/products/waitrose-christmas-all-butter-mince-pies/735193-785976-785977',
     pack_count: 6,
@@ -60,7 +60,7 @@ const makerPies = [
     displayName: 'Super Good Pie',
     fresh: false,
     labels: ['alternative', 'gluten-free'],
-    image_file: 'https://static.mincepierank.co.uk/images/waitrose/all-butter.jpg',
+    image_file: '/w-all-butter.jpg',
     web_link:
       'https://www.waitrose.com/ecom/products/waitrose-christmas-all-butter-mince-pies/735193-785976-785977',
     pack_count: 6,
@@ -73,7 +73,7 @@ const makerPies = [
     displayName: 'Okay Pie',
     fresh: false,
     labels: ['classic', 'mini'],
-    image_file: 'https://static.mincepierank.co.uk/images/waitrose/all-butter.jpg',
+    image_file: '/w-all-butter.jpg',
     web_link:
       'https://www.waitrose.com/ecom/products/waitrose-christmas-all-butter-mince-pies/735193-785976-785977',
     pack_count: 6,

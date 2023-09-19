@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { imgprssrPrefix } from '$lib/imgprssr';
   import type { Maker } from '$lib/storage';
 
   export let maker: Maker;
@@ -8,7 +9,10 @@
 <div class="brand-link-card">
   <a class="brand-link-image" href={`/years/${year}/brands/${maker.id}`}>
     <div>
-      <img src={`${maker.logo}?width=200&filter=gaussian`} alt={`${maker.name} Logo`} />
+      <img
+        src={`${imgprssrPrefix(maker.logo)}?width=200&filter=gaussian`}
+        alt={`${maker.name} Logo`}
+      />
     </div>
   </a>
 

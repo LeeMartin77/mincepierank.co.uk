@@ -1,5 +1,6 @@
 <script lang="ts">
   import { ppCategory } from '$components/utilities/formatCategory';
+  import { imgprssrPrefix } from '$lib/imgprssr';
   import type { PageData } from './$types';
 
   export let data: PageData;
@@ -8,7 +9,7 @@
 </script>
 
 <h1>{pie.displayname}</h1>
-<img src={pie.image_file + '?filter=gaussian&width=250'} alt={pie.displayname} />
+<img src={imgprssrPrefix(pie.image_file + '?filter=gaussian&width=250')} alt={pie.displayname} />
 <div>
   <h3>Details</h3>
   <dl>

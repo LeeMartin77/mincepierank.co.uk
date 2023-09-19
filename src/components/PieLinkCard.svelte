@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { imgprssrPrefix } from '$lib/imgprssr';
   import type { MakerPie } from '$lib/storage';
   import { ppCategory } from './utilities/formatCategory';
   import type { PieListRanking } from './utilities/mapPiesAndRankings';
@@ -11,7 +12,7 @@
     <div style="width: 30%">
       <img
         width="100%"
-        src={`${pie.image_file}?width=250&height=250&filter=gaussian`}
+        src={`${imgprssrPrefix(pie.image_file)}?width=250&height=250&filter=gaussian`}
         alt={pie.displayname}
       />
     </div>
