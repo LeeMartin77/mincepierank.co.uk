@@ -5,6 +5,7 @@
   import type { PieListRanking } from './utilities/mapPiesAndRankings';
   export let pie: MakerPie;
   export let pieListRanking: PieListRanking | undefined = undefined;
+  export let imgprssr: string;
 </script>
 
 <div class="pie-card">
@@ -12,7 +13,7 @@
     <div style="width: 30%">
       <img
         width="100%"
-        src={`${imgprssrPrefix(pie.image_file)}?width=250&height=250&filter=gaussian`}
+        src={`${imgprssrPrefix(pie.image_file, imgprssr)}?width=250&height=250&filter=gaussian`}
         alt={pie.displayname}
       />
     </div>

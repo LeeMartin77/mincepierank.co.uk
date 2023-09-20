@@ -6,6 +6,7 @@
   export let pies: MakerPie[];
   export let pieRankings: PieRankingSummary[];
   export let fixedCategory: string | undefined = undefined;
+  export let imgprssr: string;
   $: availableCategoryIds = Array.from(
     new Set(
       pies.reduce<string[]>((acc, curr) => {
@@ -46,7 +47,11 @@
   {/if}
   {#each orderedFilteredPieIds as pieId}
     <div class="pie-link-card-container">
-      <PieLinkCard pie={mpr.mappedPies[pieId]} pieListRanking={mpr.mappedRankings[pieId]} />
+      <PieLinkCard
+        pie={mpr.mappedPies[pieId]}
+        pieListRanking={mpr.mappedRankings[pieId]}
+        {imgprssr}
+      />
     </div>
   {/each}
 </div>

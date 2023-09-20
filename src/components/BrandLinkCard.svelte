@@ -4,13 +4,14 @@
 
   export let maker: Maker;
   export let year: number;
+  export let imgprssr: string;
 </script>
 
 <div class="brand-link-card">
   <a class="brand-link-image" href={`/years/${year}/brands/${maker.id}`}>
     <div>
       <img
-        src={`${imgprssrPrefix(maker.logo)}?width=200&filter=gaussian`}
+        src={`${imgprssrPrefix(maker.logo, imgprssr)}?width=200&filter=gaussian`}
         alt={`${maker.name} Logo`}
       />
     </div>

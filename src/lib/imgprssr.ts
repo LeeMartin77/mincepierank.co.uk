@@ -1,6 +1,6 @@
-export const imgprssrPrefix = (link: string) => {
+export const imgprssrPrefix = (link: string, root = 'https://static.mincepierank.co.uk') => {
   if (link.startsWith('http://') || link.startsWith('https://')) {
     return link;
   }
-  return `${process.env.IMGPRSSR_ROOT || 'https://static.mincepierank.co.uk'}${link}`;
+  return `${root}${link}`;
 };

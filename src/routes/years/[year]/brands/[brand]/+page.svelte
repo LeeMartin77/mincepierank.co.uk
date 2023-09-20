@@ -7,7 +7,7 @@
 
 <h1>{data.makerData.name}</h1>
 
-<FilterablePieList pies={data.pies} pieRankings={data.pieRankings} />
+<FilterablePieList pies={data.pies} pieRankings={data.pieRankings} imgprssr={data.imgprssr} />
 
 <style>
   h1 {

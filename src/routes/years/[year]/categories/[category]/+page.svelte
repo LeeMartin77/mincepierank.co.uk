@@ -5,4 +5,9 @@
   export let data: PageData;
 </script>
 
-<FilterablePieList pies={data.pies} pieRankings={data.pieRankings} fixedCategory={data.category} />
+<FilterablePieList
+  pies={data.pies}
+  pieRankings={data.pieRankings}
+  fixedCategory={data.category}
+  imgprssr={data.imgprssr}
+/>

@@ -12,10 +12,10 @@
 
 {#if data.topPie && data.topPieRanking}
   <h2>Current Top Pie</h2>
-  <PieLinkCard pie={data.topPie} pieListRanking={data.topPieRanking} />
+  <PieLinkCard pie={data.topPie} pieListRanking={data.topPieRanking} imgprssr={data.imgprssr} />
 {/if}
 
-<BrandLinkList makers={data.makers} year={2022} />
+<BrandLinkList makers={data.makers} year={2022} imgprssr={data.imgprssr} />
 
 <style>
   h2 {

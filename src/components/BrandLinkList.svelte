@@ -4,13 +4,14 @@
 
   export let makers: Maker[];
   export let year: number;
+  export let imgprssr: string;
 </script>
 
 <h2>Brands</h2>
 <div class="brand-list">
   {#each makers as maker}
     <div class="brand-link-container">
-      <BrandLinkCard {maker} {year} />
+      <BrandLinkCard {maker} {year} {imgprssr} />
     </div>
   {/each}
   {#if makers.length === 0}

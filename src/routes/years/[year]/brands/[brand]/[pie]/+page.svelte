@@ -9,7 +9,10 @@
 </script>
 
 <h1>{pie.displayname}</h1>
-<img src={imgprssrPrefix(pie.image_file + '?filter=gaussian&width=250')} alt={pie.displayname} />
+<img
+  src={imgprssrPrefix(pie.image_file + '?filter=gaussian&width=250', data.imgprssr)}
+  alt={pie.displayname}
+/>
 <div>
   <h3>Details</h3>
   <dl>
