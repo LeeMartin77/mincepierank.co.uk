@@ -78,7 +78,7 @@ export async function getMyRankingForPie(
       topping,
       looks,
       value,
-      CAST(last_updated as text) as last_updated FROM mincepierank.maker_pie_ranking_yearly WHERE year = ? makerid = ? AND pieid = ? AND userid = ? ALLOW FILTERING;`,
+      CAST(last_updated as text) as last_updated FROM mincepierank.maker_pie_ranking_yearly WHERE year = ? AND makerid = ? AND pieid = ? AND userid = ? ALLOW FILTERING;`,
       [year, makerid, pieid, userid],
       { prepare: true }
     );
@@ -87,7 +87,8 @@ export async function getMyRankingForPie(
     }
 
     return ok(rowToObject(result.first()) as MakerPieRanking);
-  } catch {
+  } catch (ex) {
+    console.error(ex);
     return err(StorageError.GenericError);
   }
 }
