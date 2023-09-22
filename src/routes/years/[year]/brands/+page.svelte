@@ -5,4 +5,4 @@
   export let data: PageData;
 </script>
 
-<BrandLinkList makers={data.makers} year={data.year} />
+<BrandLinkList makers={data.makers} year={data.year} imgprssr={data.imgprssr} />

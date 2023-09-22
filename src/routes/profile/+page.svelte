@@ -1,10 +1,15 @@
-<script>
+<script lang="ts">
   import { signIn, signOut } from '@auth/sveltekit/client';
   import { page } from '$app/stores';
+  import type { PageData } from './$types';
+
+  export let data: PageData;
 </script>
 
 {#if $page.data.session && $page.data.session.user}
-  <a class="year-link" href="/profile/rankings/2022">2022</a>
+  {#each data.years as year}
+    <a class="year-link" href="/profile/rankings/{year}">{year}</a>
+  {/each}
   <span class="signedInText">
     <small>Signed in as</small><br />
     <strong>{$page.data.session.user.email || $page.data.session.user.name}</strong>

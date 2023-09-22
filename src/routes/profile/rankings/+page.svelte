@@ -1,4 +1,12 @@
-<a class="year-link" href="/profile/rankings/2022">2022</a>
+<script lang="ts">
+  import type { PageData } from './$types';
+
+  export let data: PageData;
+</script>
+
+{#each data.years as year}
+  <a class="year-link" href="/profile/rankings/{year}">{year}</a>
+{/each}
 
 <style>
   .year-link {

@@ -7,13 +7,16 @@ import {
   getMincePieMakers
 } from '$lib/storage';
 import { mapPiesAndRankings } from '$components/utilities/mapPiesAndRankings';
+import { getConfig } from '$lib/storage/config';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const load = async (_event: PageServerLoadEvent) => {
+  const config = await getConfig();
+  const activeYear = parseInt(config.activeYear);
   const data = (await getMincePieMakers()).unwrapOr([]);
-  const pies = (await getAllMakerPies(2022)).unwrapOr([]);
-  const rankingSummaries = (await getAllPieRankingSummaries(2022)).unwrapOr([]);
-  const latestRanking = (await getLatestRanking()).unwrapOr(undefined);
+  const pies = (await getAllMakerPies(activeYear)).unwrapOr([]);
+  const rankingSummaries = (await getAllPieRankingSummaries(activeYear)).unwrapOr([]);
+  const latestRanking = (await getLatestRanking(activeYear)).unwrapOr(undefined);
   const { mappedRankings, mappedPies, rankingOrder } = mapPiesAndRankings(pies, rankingSummaries);
   const topPieId = rankingOrder.shift();
   const latestPie = latestRanking

@@ -10,7 +10,7 @@
 <a href={`/years/${data.year}/all-pies`}>View All Pies</a>
 
 <CategoryLinkList year={data.year} categories={data.categories} />
-<BrandLinkList makers={data.makers} year={data.year} />
+<BrandLinkList makers={data.makers} year={data.year} imgprssr={data.imgprssr} />
 
 <style>
   a {

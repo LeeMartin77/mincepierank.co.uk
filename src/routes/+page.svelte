@@ -15,7 +15,7 @@
   <PieLinkCard pie={data.topPie} pieListRanking={data.topPieRanking} imgprssr={data.imgprssr} />
 {/if}
 
-<BrandLinkList makers={data.makers} year={2022} imgprssr={data.imgprssr} />
+<BrandLinkList makers={data.makers} year={data.activeYear} imgprssr={data.imgprssr} />
 
 <style>
   h2 {

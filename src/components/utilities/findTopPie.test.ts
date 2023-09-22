@@ -20,7 +20,8 @@ describe('findTopPie', () => {
         image_file: 'somefile.jpg',
         web_link: 'somelink.html',
         pack_count: 6,
-        pack_price_in_pence: 100
+        pack_price_in_pence: 100,
+        validated: true
       },
       {
         year: 2022,
@@ -32,7 +33,8 @@ describe('findTopPie', () => {
         image_file: 'somefile.jpg',
         web_link: 'somelink.html',
         pack_count: 6,
-        pack_price_in_pence: 100
+        pack_price_in_pence: 100,
+        validated: true
       },
       {
         year: 2022,
@@ -44,7 +46,8 @@ describe('findTopPie', () => {
         image_file: 'somefile.jpg',
         web_link: 'somelink.html',
         pack_count: 6,
-        pack_price_in_pence: 100
+        pack_price_in_pence: 100,
+        validated: true
       }
     ];
 

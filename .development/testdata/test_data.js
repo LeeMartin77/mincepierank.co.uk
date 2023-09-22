@@ -156,22 +156,24 @@ client.connect().then(async () => {
   }
   await client.execute('TRUNCATE mincepierank.maker_pie_yearly');
 
-  for (let makerPie of makerPies) {
-    await client.execute(
-      `INSERT INTO mincepierank.maker_pie_yearly (year, makerId, id, displayName, fresh, labels, image_file, web_link, pack_count, pack_price_in_pence, validated)
-            values (2022, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`,
-      [...Object.values(makerPie)],
-      { prepare: true }
-    );
-  }
+  for (const year of [2022, 2023]) {
+    for (let makerPie of makerPies) {
+      await client.execute(
+        `INSERT INTO mincepierank.maker_pie_yearly (year, makerId, id, displayName, fresh, labels, image_file, web_link, pack_count, pack_price_in_pence, validated)
+              values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`,
+        [year, ...Object.values(makerPie)],
+        { prepare: true }
+      );
+    }
 
-  for (let pieRanking of pieRankings) {
-    await client.execute(
-      `INSERT INTO mincepierank.maker_pie_ranking_yearly (year, makerid, pieid, userid, pastry, filling, topping, looks, value, notes, last_updated)
-            values (2022, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`,
-      [...Object.values(pieRanking)],
-      { prepare: true }
-    );
+    for (let pieRanking of pieRankings) {
+      await client.execute(
+        `INSERT INTO mincepierank.maker_pie_ranking_yearly (year, makerid, pieid, userid, pastry, filling, topping, looks, value, notes, last_updated)
+              values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`,
+        [year, ...Object.values(pieRanking)],
+        { prepare: true }
+      );
+    }
   }
 
   await client.execute(
