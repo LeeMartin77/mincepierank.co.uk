@@ -4,6 +4,7 @@
   import type { MakerPieRanking } from '$lib/storage';
   import { onMount } from 'svelte';
   import type { PageData } from './$types';
+  import PieRankingInterface from '$components/PieRankingInterface.svelte';
 
   export let data: PageData;
 
@@ -100,78 +101,4 @@
   </div>
 {/if}
 
-{#if initialLoad}
-  <div>Loading</div>
-{:else if userRanking && (data.readonly || data.activeYear !== data.pie.year)}
-  <div>
-    <h3>My Ranking</h3>
-    <dl>
-      <dt>Pastry</dt>
-      <dd>{userRanking.pastry}</dd>
-      <dt>Filling</dt>
-      <dd>{userRanking.filling}</dd>
-      <dt>Topping</dt>
-      <dd>{userRanking.topping}</dd>
-      <dt>Looks</dt>
-      <dd>{userRanking.looks}</dd>
-      <dt>value</dt>
-      <dd>{userRanking.value}</dd>
-    </dl>
-  </div>
-{:else if !data.readonly && data.activeYear === data.pie.year}
-  <div>
-    <h3>My Ranking</h3>
-    <dl>
-      <dt>Pastry</dt>
-      <dd>
-        <input
-          type="number"
-          min="0"
-          max="5"
-          bind:value={hotRanking.pastry}
-          on:change={() => handleRankingChange(hotRanking)}
-        />
-      </dd>
-      <dt>Filling</dt>
-      <dd>
-        <input
-          type="number"
-          min="0"
-          max="5"
-          bind:value={hotRanking.filling}
-          on:change={() => handleRankingChange(hotRanking)}
-        />
-      </dd>
-      <dt>Topping</dt>
-      <dd>
-        <input
-          type="number"
-          min="0"
-          max="5"
-          bind:value={hotRanking.topping}
-          on:change={() => handleRankingChange(hotRanking)}
-        />
-      </dd>
-      <dt>Looks</dt>
-      <dd>
-        <input
-          type="number"
-          min="0"
-          max="5"
-          bind:value={hotRanking.looks}
-          on:change={() => handleRankingChange(hotRanking)}
-        />
-      </dd>
-      <dt>value</dt>
-      <dd>
-        <input
-          type="number"
-          min="0"
-          max="5"
-          bind:value={hotRanking.value}
-          on:change={() => handleRankingChange(hotRanking)}
-        />
-      </dd>
-    </dl>
-  </div>
-{/if}
+<PieRankingInterface readonly={data.readonly || data.activeYear !== data.pie.year} pie={data.pie} />
