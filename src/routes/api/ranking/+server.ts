@@ -40,8 +40,8 @@ export const POST: RequestHandler = async ({ request, locals }) => {
     await request.json();
   const yearInt = parseInt(year);
 
-  await addPieRanking({
-    year,
+  const ranking = {
+    year: yearInt,
     makerid,
     pieid,
     userid: email,
@@ -51,18 +51,18 @@ export const POST: RequestHandler = async ({ request, locals }) => {
     looks,
     value,
     notes
-  });
+  };
 
-  const userPieRankingsRes = await getMyRankingForPie(yearInt, makerid, pieid, email);
-  if (!userPieRankingsRes.isOk()) {
-    if (userPieRankingsRes.error === StorageError.NotFound) {
+  const res = await addPieRanking(ranking);
+  if (!res.isOk()) {
+    if (res.error === StorageError.NotFound) {
       throw error(404, 'Not Ranked');
     }
-    if (userPieRankingsRes.error === StorageError.BadInput) {
+    if (res.error === StorageError.BadInput) {
       throw error(403, 'Bad Input');
     }
     throw error(500, 'Something went wrong');
   }
 
-  return json(userPieRankingsRes.value);
+  return json(ranking);
 };

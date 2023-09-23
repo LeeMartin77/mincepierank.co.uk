@@ -1,16 +1,18 @@
 <script lang="ts">
-  import { ppCategory } from '$components/utilities/formatCategory';
-  import { imgprssrPrefix } from '$lib/imgprssr';
   import type { MakerPieRanking } from '$lib/storage';
   import { onMount } from 'svelte';
 
-  export let readonly: boolean = false;
+  export let readonly = false;
 
-  export let pie: {
-    year: number;
-    makerid: string;
-    id: string;
-  };
+  export let year: number;
+  export let makerid: string;
+  export let pieid: string;
+
+  $: {
+    if (year && makerid && pieid) {
+      loadPie();
+    }
+  }
 
   let initialLoad = true;
   let submitting = false;
@@ -20,17 +22,23 @@
     Omit<MakerPieRanking, 'userid' | 'pastry' | 'filling' | 'topping' | 'looks' | 'value'>;
 
   let hotRanking: HotRanking = {
-    year: pie.year,
-    makerid: pie.makerid,
-    pieid: pie.id
+    year,
+    makerid,
+    pieid
   };
 
-  onMount(() => {
-    fetch(`/api/ranking?year=${pie.year}&makerid=${pie.makerid}&pieid=${pie.id}`)
+  const loadPie = () => {
+    initialLoad = true;
+    fetch(`/api/ranking?year=${year}&makerid=${makerid}&pieid=${pieid}`)
       .then((res) => {
         if (res.status === 200) {
           return res.json();
         }
+        return Promise.resolve({
+          year,
+          makerid,
+          pieid
+        });
       })
       .then((rnking: MakerPieRanking) => {
         userRanking = rnking;
@@ -39,16 +47,12 @@
       .finally(() => {
         initialLoad = false;
       });
-  });
+  };
+
+  onMount(loadPie);
 
   const handleRankingChange = (rnkn: HotRanking) => {
-    if (
-      rnkn.filling === undefined ||
-      rnkn.pastry === undefined ||
-      rnkn.topping === undefined ||
-      rnkn.value === undefined ||
-      rnkn.looks === undefined
-    ) {
+    if (!rnkn.filling || !rnkn.pastry || !rnkn.topping || !rnkn.value || !rnkn.looks) {
       return;
     }
     submitting = true;
@@ -94,7 +98,7 @@
       <dd>
         <input
           type="number"
-          min="0"
+          min="1"
           max="5"
           bind:value={hotRanking.pastry}
           on:change={() => handleRankingChange(hotRanking)}
@@ -104,7 +108,7 @@
       <dd>
         <input
           type="number"
-          min="0"
+          min="1"
           max="5"
           bind:value={hotRanking.filling}
           on:change={() => handleRankingChange(hotRanking)}
@@ -114,7 +118,7 @@
       <dd>
         <input
           type="number"
-          min="0"
+          min="1"
           max="5"
           bind:value={hotRanking.topping}
           on:change={() => handleRankingChange(hotRanking)}
@@ -124,7 +128,7 @@
       <dd>
         <input
           type="number"
-          min="0"
+          min="1"
           max="5"
           bind:value={hotRanking.looks}
           on:change={() => handleRankingChange(hotRanking)}
@@ -134,7 +138,7 @@
       <dd>
         <input
           type="number"
-          min="0"
+          min="1"
           max="5"
           bind:value={hotRanking.value}
           on:change={() => handleRankingChange(hotRanking)}
