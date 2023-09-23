@@ -6,6 +6,7 @@ export const load: LayoutServerLoad = async (event) => {
   return {
     session: await event.locals.getSession(),
     readonly: config.readonly === 'true',
+    notice: config.notice,
     years: await getYears(),
     activeYear: parseInt(config.activeYear),
     imgprssr: process.env.IMGPRSSR_ROOT || 'https://static.mincepierank.co.uk'

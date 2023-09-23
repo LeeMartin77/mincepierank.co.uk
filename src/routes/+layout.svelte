@@ -4,10 +4,14 @@
   export let data: LayoutData;
 </script>
 
-{#if data.readonly}
+{#if data.readonly || data.notice}
   <div class="notices">
-    <p>Mince Pie Rank is read-only until the next Christmas period</p>
-    <p>Things are a bit sparse right now - preparing for the new season!</p>
+    {#if data.readonly}
+      <p>Mince Pie Rank is read-only until the next Christmas period</p>
+    {/if}
+    {#if data.notice}
+      <p>{data.notice}</p>
+    {/if}
   </div>
 {/if}
 
