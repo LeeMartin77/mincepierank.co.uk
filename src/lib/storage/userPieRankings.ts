@@ -83,7 +83,7 @@ export async function getUserPieUserRankings(
   }
 }
 
-type PieRankingSummary = Omit<UserPieRanking, 'userid' | 'notes'> & {
+export type UserPieRankingSummary = Omit<UserPieRanking, 'userid' | 'notes'> & {
   count: number | undefined;
   average: number;
 };
@@ -97,7 +97,7 @@ function addAverageScore<T>(
 export async function getUserPieRankingSummary(
   year: number,
   pieid: string
-): Promise<Result<PieRankingSummary, StorageError>> {
+): Promise<Result<UserPieRankingSummary, StorageError>> {
   try {
     const result = await CASSANDRA_CLIENT.execute(
       `SELECT year,
@@ -125,7 +125,7 @@ export async function getUserPieRankingSummary(
 export async function getUserPieRankingSummariesByIds(
   year: number,
   pieids: string[]
-): Promise<Result<PieRankingSummary[], StorageError>> {
+): Promise<Result<UserPieRankingSummary[], StorageError>> {
   try {
     const result = await CASSANDRA_CLIENT.execute(
       `SELECT year,
@@ -144,7 +144,7 @@ export async function getUserPieRankingSummariesByIds(
       { prepare: true }
     );
 
-    return ok(result.rows.map<PieRankingSummary>(rowToObject).map(addAverageScore));
+    return ok(result.rows.map<UserPieRankingSummary>(rowToObject).map(addAverageScore));
   } catch {
     return err(StorageError.GenericError);
   }

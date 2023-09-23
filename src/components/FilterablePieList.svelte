@@ -1,10 +1,10 @@
 <script lang="ts">
-  import type { MakerPie, PieRankingSummary } from '$lib/storage';
+  import type { MakerPie, PieRankingSummary, UserPie, UserPieRankingSummary } from '$lib/storage';
   import PieLinkCard from '$components/PieLinkCard.svelte';
   import { ppCategory } from './utilities/formatCategory';
   import { mapPiesAndRankings } from './utilities/mapPiesAndRankings';
-  export let pies: MakerPie[];
-  export let pieRankings: PieRankingSummary[];
+  export let pies: (UserPie | MakerPie)[];
+  export let pieRankings: (UserPieRankingSummary | PieRankingSummary)[];
   export let fixedCategory: string | undefined = undefined;
   export let imgprssr: string;
   $: availableCategoryIds = Array.from(

@@ -8,7 +8,8 @@
 
 {#if $page.data.session && $page.data.session.user}
   {#each data.years as year}
-    <a class="year-link" href="/profile/rankings/{year}">{year}</a>
+    <a class="year-link" href="/profile/rankings/{year}">Rankings for {year}</a>
+    <a class="year-link" href="/profile/pies/{year}">Custom pies for {year}</a>
   {/each}
   <span class="signedInText">
     <small>Signed in as</small><br />

@@ -1,21 +1,31 @@
 <script lang="ts">
   import { imgprssrPrefix } from '$lib/imgprssr';
-  import type { MakerPie } from '$lib/storage';
+  import type { MakerPie, UserPie } from '$lib/storage';
   import { ppCategory } from './utilities/formatCategory';
   import type { PieListRanking } from './utilities/mapPiesAndRankings';
-  export let pie: MakerPie;
+  export let pie: UserPie | MakerPie;
   export let pieListRanking: PieListRanking | undefined = undefined;
   export let imgprssr: string;
+  let pielink: string;
+  $: {
+    if ('makerid' in pie) {
+      pielink = `/years/${pie.year}/brands/${pie.makerid}/${pie.id}`;
+    } else {
+      pielink = `/years/${pie.year}/user-pies/${pie.id}`;
+    }
+  }
 </script>
 
 <div class="pie-card">
   <div class="pie-card-top">
     <div style="width: 30%">
-      <img
-        width="100%"
-        src={`${imgprssrPrefix(pie.image_file, imgprssr)}?width=250&height=250&filter=gaussian`}
-        alt={pie.displayname}
-      />
+      {#if pie.image_file}
+        <img
+          width="100%"
+          src={`${imgprssrPrefix(pie.image_file, imgprssr)}?width=250&height=250&filter=gaussian`}
+          alt={pie.displayname}
+        />
+      {/if}
     </div>
     <div>
       <dl>
@@ -35,9 +45,7 @@
       >
     {/each}
   </div>
-  <a class="pie-link" href={`/years/${pie.year}/brands/${pie.makerid}/${pie.id}`}
-    >{pie.displayname}</a
-  >
+  <a class="pie-link" href={pielink}>{pie.displayname}</a>
 </div>
 
 <style>

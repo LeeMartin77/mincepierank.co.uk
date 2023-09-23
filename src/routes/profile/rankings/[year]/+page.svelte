@@ -7,7 +7,11 @@
 
 <h1>Your Rankings</h1>
 
-<FilterablePieList pies={data.pies} pieRankings={data.rankings} imgprssr={data.imgprssr} />
+<FilterablePieList
+  pies={[...data.pies, ...data.customPies]}
+  pieRankings={[...data.rankings, ...data.customRankings]}
+  imgprssr={data.imgprssr}
+/>
 
 <style>
   h1 {

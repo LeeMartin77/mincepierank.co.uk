@@ -49,7 +49,7 @@ export async function getPiesWithCategory(
   try {
     const result = await CASSANDRA_CLIENT.execute(
       'SELECT * FROM mincepierank.maker_pie_yearly WHERE year = ? AND validated = ? AND labels contains ? ALLOW FILTERING;',
-      [year, category, validated],
+      [year, validated, category],
       { prepare: true }
     );
 

@@ -1,35 +1,43 @@
-import type { MakerPie, MakerPieRanking } from '$lib/storage';
+import type { MakerPie, MakerPieRanking, UserPie, UserPieRanking } from '$lib/storage';
 
-export type PieListRanking = Omit<MakerPieRanking, 'userid' | 'notes'> & {
-  count: number | undefined;
-  average: number;
-};
+export type PieListRanking =
+  | (Omit<MakerPieRanking, 'userid' | 'notes'> & {
+      count: number | undefined;
+      average: number;
+    })
+  | (Omit<UserPieRanking, 'userid' | 'notes'> & {
+      count: number | undefined;
+      average: number;
+    });
 
 export type MappedPiesAndRankings = {
   mappedRankings: {
     [key: string]: PieListRanking | undefined;
   };
   mappedPies: {
-    [key: string]: MakerPie;
+    [key: string]: UserPie | MakerPie;
   };
   rankingOrder: string[];
   unrankedPies: Set<string>;
 };
 
 export function mapPiesAndRankings(
-  pies: MakerPie[],
+  pies: (MakerPie | UserPie)[],
   rankings: PieListRanking[],
   filteredCategoryIds?: Set<string>
 ): MappedPiesAndRankings {
   const mappedRankings: {
     [key: string]: PieListRanking | undefined;
   } = {};
-  const mappedPies: { [key: string]: MakerPie } = {};
+  const mappedPies: { [key: string]: MakerPie | UserPie } = {};
   const rankingOrder: string[] = [];
 
   const unrankedPies: Set<string> = new Set();
   pies.forEach((pie) => {
-    const uniqId = pie.makerid + '-' + pie.id;
+    let uniqId = pie.id;
+    if ('makerid' in pie) {
+      uniqId = pie.makerid + '-' + pie.id;
+    }
     mappedPies[uniqId] = pie;
     if (
       filteredCategoryIds === undefined ||
@@ -42,7 +50,10 @@ export function mapPiesAndRankings(
   rankings
     .sort((a, b) => b.average - a.average)
     .forEach((ranking) => {
-      const uniqId = ranking.makerid + '-' + ranking.pieid;
+      let uniqId = ranking.pieid;
+      if ('makerid' in ranking) {
+        uniqId = ranking.makerid + '-' + ranking.pieid;
+      }
       mappedRankings[uniqId] = ranking;
       if (unrankedPies.has(uniqId)) {
         rankingOrder.push(uniqId);

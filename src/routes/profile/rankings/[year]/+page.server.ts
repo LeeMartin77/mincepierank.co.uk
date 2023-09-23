@@ -1,6 +1,13 @@
 import { redirect, error } from '@sveltejs/kit';
 import type { PageServerLoadEvent } from './$types';
-import { getUserPieRankings, getPieByMakerAndId, type MakerPie } from '$lib/storage';
+import {
+  getUserPieRankings,
+  getPieByMakerAndId,
+  type MakerPie,
+  getUserPieUserRankings,
+  getUserPieById,
+  type UserPie
+} from '$lib/storage';
 
 export const load = async ({ params, parent }: PageServerLoadEvent) => {
   const { year } = params;
@@ -20,7 +27,8 @@ export const load = async ({ params, parent }: PageServerLoadEvent) => {
   }
 
   const userPieRankingsRes = await getUserPieRankings(yearInt, session.user.email);
-  if (!userPieRankingsRes.isOk()) {
+  const customPieRankings = await getUserPieUserRankings(yearInt, session.user.email);
+  if (!userPieRankingsRes.isOk() || !customPieRankings.isOk()) {
     throw error(500, 'Something went wrong');
   }
 
@@ -28,9 +36,20 @@ export const load = async ({ params, parent }: PageServerLoadEvent) => {
     userPieRankingsRes.value.map((pr) => getPieByMakerAndId(yearInt, pr.makerid, pr.pieid))
   );
 
+  const customPieRes = await Promise.all(
+    customPieRankings.value.map((pr) => getUserPieById(yearInt, pr.pieid))
+  );
+
   return {
     rankings: userPieRankingsRes.value,
+    customRankings: customPieRankings.value,
     pies: piesRes.reduce<MakerPie[]>((acc, res) => {
+      if (res.isOk()) {
+        acc.push(res.value);
+      }
+      return acc;
+    }, []),
+    customPies: customPieRes.reduce<UserPie[]>((acc, res) => {
       if (res.isOk()) {
         acc.push(res.value);
       }
