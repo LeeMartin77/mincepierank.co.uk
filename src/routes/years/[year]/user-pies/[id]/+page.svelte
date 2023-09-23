@@ -3,8 +3,11 @@
   import { imgprssrPrefix } from '$lib/imgprssr';
   import type { PageData } from './$types';
   import UserPieRankingInterface from '$components/UserPieRankingInterface.svelte';
+  import PieRankingSummary from '$components/PieRankingSummary.svelte';
 
   export let data: PageData;
+
+  $: rankingSummary = data.ranking;
 </script>
 
 <h1>{data.pie.displayname}</h1>
@@ -26,26 +29,23 @@
   </dl>
 </div>
 
-{#if data.ranking}
-  <div>
-    <h3>Ranking Summary</h3>
-    <dl>
-      <dt>Pastry</dt>
-      <dd>{data.ranking.pastry}</dd>
-      <dt>Filling</dt>
-      <dd>{data.ranking.filling}</dd>
-      <dt>Topping</dt>
-      <dd>{data.ranking.topping}</dd>
-      <dt>Looks</dt>
-      <dd>{data.ranking.looks}</dd>
-      <dt>value</dt>
-      <dd>{data.ranking.value}</dd>
-    </dl>
-  </div>
-{/if}
+<PieRankingSummary {rankingSummary} />
 
 <UserPieRankingInterface
   readonly={data.readonly || data.activeYear !== data.pie.year}
   year={data.pie.year}
   pieid={data.pie.id}
+  on:newRanking={({ detail }) => {
+    fetch(
+      `/api/user-ranking/summary?year=${detail.year}&makerid=${detail.makerid}&pieid=${detail.pieid}`
+    )
+      .then((res) => {
+        if (res.status === 200) {
+          return res.json();
+        }
+      })
+      .then((rnking) => {
+        rankingSummary = rnking;
+      });
+  }}
 />

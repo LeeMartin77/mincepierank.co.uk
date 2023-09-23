@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { UserPieRanking } from '$lib/storage';
-  import { onMount } from 'svelte';
+  import { onMount, createEventDispatcher } from 'svelte';
+  const dispatch = createEventDispatcher();
 
   export let readonly = false;
 
@@ -65,6 +66,7 @@
       .then((rnking: UserPieRanking) => {
         userRanking = rnking;
         hotRanking = rnking;
+        dispatch('newRanking', rnking);
       })
       .finally(() => {
         submitting = false;
