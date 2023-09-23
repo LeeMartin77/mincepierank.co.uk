@@ -1,15 +1,14 @@
 <script lang="ts">
-  import type { MakerPieRanking } from '$lib/storage';
+  import type { UserPieRanking } from '$lib/storage';
   import { onMount } from 'svelte';
 
   export let readonly = false;
 
   export let year: number;
-  export let makerid: string;
   export let pieid: string;
 
   $: {
-    if (mounted && year && makerid && pieid) {
+    if (mounted && year && pieid) {
       loadPie();
     }
   }
@@ -17,31 +16,29 @@
   let initialLoad = true;
   let submitting = false;
   let mounted = false;
-  let userRanking: MakerPieRanking;
+  let userRanking: UserPieRanking;
 
-  type HotRanking = Partial<Omit<MakerPieRanking, 'userid'>> &
-    Omit<MakerPieRanking, 'userid' | 'pastry' | 'filling' | 'topping' | 'looks' | 'value'>;
+  type HotRanking = Partial<Omit<UserPieRanking, 'userid'>> &
+    Omit<UserPieRanking, 'userid' | 'pastry' | 'filling' | 'topping' | 'looks' | 'value'>;
 
   let hotRanking: HotRanking = {
     year,
-    makerid,
     pieid
   };
 
   const loadPie = () => {
     initialLoad = true;
-    fetch(`/api/ranking?year=${year}&makerid=${makerid}&pieid=${pieid}`)
+    fetch(`/api/user-ranking?year=${year}&pieid=${pieid}`)
       .then((res) => {
         if (res.status === 200) {
           return res.json();
         }
         return Promise.resolve({
           year,
-          makerid,
           pieid
         });
       })
-      .then((rnking: MakerPieRanking) => {
+      .then((rnking: UserPieRanking) => {
         userRanking = rnking;
         hotRanking = rnking;
       })
@@ -59,13 +56,13 @@
       return;
     }
     submitting = true;
-    fetch(`/api/ranking`, { method: 'POST', body: JSON.stringify(rnkn) })
+    fetch(`/api/user-ranking`, { method: 'POST', body: JSON.stringify(rnkn) })
       .then((res) => {
         if (res.status === 200) {
           return res.json();
         }
       })
-      .then((rnking: MakerPieRanking) => {
+      .then((rnking: UserPieRanking) => {
         userRanking = rnking;
         hotRanking = rnking;
       })

@@ -83,7 +83,44 @@ const MIGRATIONS = [
   // these are just to make my life easier
   ['000023', `INSERT INTO mincepierank.year (year) VALUES (2022)`],
   ['000024', `INSERT INTO mincepierank.year (year) VALUES (2023)`],
-  ['000025', `INSERT INTO mincepierank.config (key, value) VALUES ('readonly', 'true')`]
+  ['000025', `INSERT INTO mincepierank.config (key, value) VALUES ('readonly', 'true')`],
+  [
+    '000026',
+    `CREATE TABLE IF NOT EXISTS mincepierank.user_pie_yearly
+  (
+      year int,
+      id text,
+      owner_userid text,
+      maker text,
+      location text,
+      displayname text,
+      fresh boolean,
+      labels set<text>,
+      image_file text,
+      web_link text,
+      pack_count int,
+      pack_price_in_pence int,
+      clean boolean,
+      PRIMARY KEY ((year, id), owner_userid)
+  );`
+  ],
+  [
+    '000027',
+    `CREATE TABLE IF NOT EXISTS mincepierank.user_pie_ranking_yearly
+  (
+      year int,
+      pieid text,
+      userid text,
+      pastry int,
+      filling int,
+      topping int,
+      looks int,
+      value int,
+      notes text,
+      last_updated timestamp,
+      PRIMARY KEY ((year, pieid), userid)
+  );`
+  ]
 ];
 
 const SEEDS: [string, string[][]][] = [];
