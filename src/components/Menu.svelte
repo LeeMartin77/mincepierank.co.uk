@@ -34,17 +34,17 @@
 <svelte:window bind:innerWidth={screenWidth} />
 {#if screenWidth > 640 || menuOpen}
   <div class="menu-container" use:clickOutside on:clickOutside={() => (menuOpen = false)}>
-    <a href="/">Home</a>
-    <a href="/quickrank">Quickrank</a>
-    <a href="/years/{activeYear}/all-pies">All Pies</a>
-    <a href="/years/{activeYear}/brands">Brands</a>
-    <a href="/profile/rankings/{activeYear}">My Rankings</a>
+    <a on:click={toggleMenu} href="/">Home</a>
+    <a on:click={toggleMenu} href="/quickrank">Quickrank</a>
+    <a on:click={toggleMenu} href="/years/{activeYear}/all-pies">All Pies</a>
+    <a on:click={toggleMenu} href="/years/{activeYear}/brands">Brands</a>
+    <a on:click={toggleMenu} href="/profile/rankings/{activeYear}">My Rankings</a>
     {#if !!$page.data.session?.user?.email}
-      <a href="/profile/pies/{activeYear}">My Custom Pies</a>
+      <a on:click={toggleMenu} href="/profile/pies/{activeYear}">My Custom Pies</a>
     {/if}
 
     {#if !!$page.data.session?.user?.email}
-      <a class="menu-footer" href="/profile"
+      <a on:click={toggleMenu} class="menu-footer" href="/profile"
         >{#if !!$page.data.session.user.name}
           Hi {$page.data.session.user.name}
         {:else}
