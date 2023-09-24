@@ -1,4 +1,4 @@
-import { redirect, error } from '@sveltejs/kit';
+import { error } from '@sveltejs/kit';
 import type { PageServerLoadEvent } from './$types';
 import {
   getUserPieRankings,
@@ -8,16 +8,14 @@ import {
   getUserPieById,
   type UserPie
 } from '$lib/storage';
+import { getAnonId } from '$lib/anonid';
 
-export const load = async ({ params, parent }: PageServerLoadEvent) => {
+export const load = async ({ params, cookies, parent }: PageServerLoadEvent) => {
   const { year } = params;
   const { session } = await parent();
-  if (!session?.user) {
-    throw redirect(302, '/');
-  }
-
-  if (!session.user?.email) {
-    throw error(500, 'Cannot access user info');
+  let userid = session?.user?.email;
+  if (!userid) {
+    userid = getAnonId(cookies);
   }
 
   const yearInt = parseInt(year);
@@ -26,8 +24,8 @@ export const load = async ({ params, parent }: PageServerLoadEvent) => {
     throw error(404, 'Not Found');
   }
 
-  const userPieRankingsRes = await getUserPieRankings(yearInt, session.user.email);
-  const customPieRankings = await getUserPieUserRankings(yearInt, session.user.email);
+  const userPieRankingsRes = await getUserPieRankings(yearInt, userid);
+  const customPieRankings = await getUserPieUserRankings(yearInt, userid);
   if (!userPieRankingsRes.isOk() || !customPieRankings.isOk()) {
     throw error(500, 'Something went wrong');
   }

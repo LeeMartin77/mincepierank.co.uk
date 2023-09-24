@@ -1,13 +1,15 @@
 import { error, json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { StorageError, addPieRanking, getMyRankingForPie } from '$lib/storage';
+import { getAnonId } from '$lib/anonid';
+import { getConfig } from '$lib/storage/config';
 
-export const GET: RequestHandler = async ({ locals, url: { searchParams } }) => {
+export const GET: RequestHandler = async ({ cookies, locals, url: { searchParams } }) => {
   const session = await locals.getSession();
 
-  const email = session?.user?.email;
-  if (!email) {
-    throw error(401, 'Not signed in');
+  let userid = session?.user?.email;
+  if (!userid) {
+    userid = getAnonId(cookies);
   }
 
   const year = searchParams.get('year') || 'NaN';
@@ -19,7 +21,7 @@ export const GET: RequestHandler = async ({ locals, url: { searchParams } }) => 
     throw error(404, 'Not Found');
   }
 
-  const userPieRankingsRes = await getMyRankingForPie(yearInt, makerid, pieid, email);
+  const userPieRankingsRes = await getMyRankingForPie(yearInt, makerid, pieid, userid);
   if (!userPieRankingsRes.isOk()) {
     if (userPieRankingsRes.error === StorageError.NotFound) {
       throw error(404, 'Not Ranked');
@@ -30,12 +32,17 @@ export const GET: RequestHandler = async ({ locals, url: { searchParams } }) => 
   return json(userPieRankingsRes.value);
 };
 
-export const POST: RequestHandler = async ({ request, locals }) => {
+export const POST: RequestHandler = async ({ cookies, request, locals }) => {
   const session = await locals.getSession();
-  const email = session?.user?.email;
-  if (!email) {
-    throw error(401, 'Not signed in');
+  const config = await getConfig();
+  if (config.readonly === 'true') {
+    throw error(400, 'Currently readonly');
   }
+  let userid = session?.user?.email;
+  if (!userid) {
+    userid = getAnonId(cookies);
+  }
+
   const { year, makerid, pieid, pastry, filling, topping, looks, value, notes } =
     await request.json();
   const yearInt = parseInt(year);
@@ -44,7 +51,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
     year: yearInt,
     makerid,
     pieid,
-    userid: email,
+    userid,
     pastry,
     filling,
     topping,

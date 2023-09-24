@@ -12,12 +12,14 @@
     <strong>{$page.data.session.user.email || $page.data.session.user.name}</strong>
   </span>
   <button on:click={() => signOut()} class="button">Sign out</button>
-  <a class="year-link" href="/profile/rankings">All Rankings</a>
+
   <a class="year-link" href="/profile/pies">All Custom pies</a>
 {:else}
   <span class="notSignedInText">You are not signed in</span>
   <button on:click={() => signIn()}>Sign In</button>
 {/if}
+
+<a class="year-link" href="/profile/rankings">All Rankings</a>
 
 <style>
   .year-link {

@@ -1,6 +1,7 @@
 import { error, json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { StorageError, addUserPieRanking, getMyRankingForUserPie } from '$lib/storage';
+import { getConfig } from '$lib/storage/config';
 
 export const GET: RequestHandler = async ({ locals, url: { searchParams } }) => {
   const session = await locals.getSession();
@@ -31,6 +32,10 @@ export const GET: RequestHandler = async ({ locals, url: { searchParams } }) => 
 
 export const POST: RequestHandler = async ({ request, locals }) => {
   const session = await locals.getSession();
+  const config = await getConfig();
+  if (config.readonly === 'true') {
+    throw error(400, 'Currently readonly');
+  }
   const email = session?.user?.email;
   if (!email) {
     throw error(401, 'Not signed in');

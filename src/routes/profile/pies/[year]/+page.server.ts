@@ -1,14 +1,6 @@
 import { redirect, error } from '@sveltejs/kit';
 import type { PageServerLoadEvent } from './$types';
-import {
-  getUserPieRankings,
-  getPieByMakerAndId,
-  type MakerPie,
-  getUserPieUserRankings,
-  getUserPieById,
-  type UserPie,
-  getUserPiesByUser
-} from '$lib/storage';
+import { getUserPieUserRankings, getUserPiesByUser } from '$lib/storage';
 
 export const load = async ({ params, parent }: PageServerLoadEvent) => {
   const { year } = params;
