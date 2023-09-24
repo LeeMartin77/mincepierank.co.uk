@@ -53,6 +53,10 @@
     border-radius: 1em;
   }
 
+  .content {
+    padding-bottom: 6em;
+  }
+
   @media only screen and (max-width: 640px) {
     .content {
       max-width: 460px;

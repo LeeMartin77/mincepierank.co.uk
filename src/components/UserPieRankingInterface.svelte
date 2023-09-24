@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { UserPieRanking } from '$lib/storage';
   import { onMount, createEventDispatcher } from 'svelte';
+  import PieRankingEditor from './PieRankingEditor.svelte';
   const dispatch = createEventDispatcher();
 
   export let readonly = false;
@@ -88,64 +89,15 @@
       <dd>{userRanking.topping}</dd>
       <dt>Looks</dt>
       <dd>{userRanking.looks}</dd>
-      <dt>value</dt>
+      <dt>Value</dt>
       <dd>{userRanking.value}</dd>
     </dl>
   </div>
 {:else if !readonly}
-  <div>
-    <h3>My Ranking</h3>
-    <dl>
-      <dt>Pastry</dt>
-      <dd>
-        <input
-          type="number"
-          min="1"
-          max="5"
-          bind:value={hotRanking.pastry}
-          on:change={() => handleRankingChange(hotRanking)}
-        />
-      </dd>
-      <dt>Filling</dt>
-      <dd>
-        <input
-          type="number"
-          min="1"
-          max="5"
-          bind:value={hotRanking.filling}
-          on:change={() => handleRankingChange(hotRanking)}
-        />
-      </dd>
-      <dt>Topping</dt>
-      <dd>
-        <input
-          type="number"
-          min="1"
-          max="5"
-          bind:value={hotRanking.topping}
-          on:change={() => handleRankingChange(hotRanking)}
-        />
-      </dd>
-      <dt>Looks</dt>
-      <dd>
-        <input
-          type="number"
-          min="1"
-          max="5"
-          bind:value={hotRanking.looks}
-          on:change={() => handleRankingChange(hotRanking)}
-        />
-      </dd>
-      <dt>value</dt>
-      <dd>
-        <input
-          type="number"
-          min="1"
-          max="5"
-          bind:value={hotRanking.value}
-          on:change={() => handleRankingChange(hotRanking)}
-        />
-      </dd>
-    </dl>
-  </div>
+  <PieRankingEditor
+    {hotRanking}
+    on:change={(e) => {
+      handleRankingChange(e.detail);
+    }}
+  />
 {/if}

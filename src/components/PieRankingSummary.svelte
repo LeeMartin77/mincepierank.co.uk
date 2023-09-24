@@ -10,15 +10,15 @@
     <h4>{rankingSummary.count} Rankings</h4>
     <dl>
       <dt>Pastry</dt>
-      <dd>{rankingSummary.pastry}</dd>
+      <dd>{rankingSummary.pastry.toFixed(2)}</dd>
       <dt>Filling</dt>
-      <dd>{rankingSummary.filling}</dd>
+      <dd>{rankingSummary.filling.toFixed(2)}</dd>
       <dt>Topping</dt>
-      <dd>{rankingSummary.topping}</dd>
+      <dd>{rankingSummary.topping.toFixed(2)}</dd>
       <dt>Looks</dt>
-      <dd>{rankingSummary.looks}</dd>
+      <dd>{rankingSummary.looks.toFixed(2)}</dd>
       <dt>value</dt>
-      <dd>{rankingSummary.value}</dd>
+      <dd>{rankingSummary.value.toFixed(2)}</dd>
     </dl>
   </div>
 {/if}

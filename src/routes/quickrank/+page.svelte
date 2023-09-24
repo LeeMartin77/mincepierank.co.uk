@@ -40,13 +40,13 @@
     <a href="/create">Create a custom pie!</a>
   </div>
   <div>
-    <label for="maker">Maker</label>
+    <label for="maker">Brand</label>
     <select
       name="maker"
       bind:value={selectedmaker}
       on:change={() => handleMakerChange(selectedmaker)}
     >
-      <option value="">Select Maker</option>
+      <option value="">Select Brand</option>
       {#each data.makers as maker}
         <option value={maker.id}>{maker.name}</option>
       {/each}
@@ -71,8 +71,9 @@
     </select>
   </div>
   {#if pies && pieindex > -1}
-    <div>
-      <h3>{pies[pieindex].displayname}</h3>
+    <div style="margin-top: 2em;">
+      <hr />
+      <h1 style="text-align: center;">{pies[pieindex].displayname}</h1>
 
       <img
         src={imgprssrPrefix(

@@ -15,10 +15,30 @@
   <PieLinkCard pie={data.topPie} pieListRanking={data.topPieRanking} imgprssr={data.imgprssr} />
 {/if}
 
+<a class="quickrank-link" href="/quickrank">Rank a pie now!</a>
+
 <BrandLinkList makers={data.makers} year={data.activeYear} imgprssr={data.imgprssr} />
 
 <style>
   h2 {
     text-align: center;
+  }
+  .quickrank-link {
+    width: calc(100% - 2em);
+    padding: 1em;
+    display: block;
+    text-align: center;
+    border: 1px solid #111;
+    border-radius: 1em;
+    margin-top: 2em;
+    margin-bottom: 2em;
+    text-decoration: none;
+    font-weight: bold;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .quickrank-link {
+      border: 1px solid #fff;
+    }
   }
 </style>
