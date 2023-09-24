@@ -1,7 +1,15 @@
 <script lang="ts">
   import Breadcrumb from '$components/Breadcrumb.svelte';
+  import { onMount } from 'svelte';
   import type { LayoutData } from './$types';
   export let data: LayoutData;
+
+  onMount(() => {
+    if (data.session?.user?.email) {
+      // need to look into some form of event for this
+      fetch(`/api/claim-anonymous`, { method: 'POST' });
+    }
+  });
 </script>
 
 {#if data.readonly || data.notice}

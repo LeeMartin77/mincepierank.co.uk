@@ -207,3 +207,24 @@ export async function addUserPieRanking(
     return err(StorageError.GenericError);
   }
 }
+
+export async function deleteUserRanking(
+  del: Pick<UserPieRanking, 'year' | 'pieid' | 'userid'>
+): Promise<Result<boolean, StorageError>> {
+  try {
+    await CASSANDRA_CLIENT.execute(
+      `DELETE FROM
+        mincepierank.user_pie_ranking_yearly
+      WHERE
+          year = ? AND
+          pieid = ? AND
+          userid = ?`,
+      [del.year, del.pieid, del.userid],
+      { prepare: true }
+    );
+    return ok(true);
+  } catch (ex) {
+    console.error(ex);
+    return err(StorageError.GenericError);
+  }
+}
