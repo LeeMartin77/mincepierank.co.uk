@@ -34,8 +34,12 @@ spec:
             - name: images-dir
               mountPath: /imgprssr
           env:
-            - name: NODE_ENV
+            - name: AUTHENTICATION
               value: development
+            - name: AUTH_TRUST_HOST
+              value: 'true'
+            - name: IMGPRSSR_ROOT
+              value: 'http://localhost:3013'
             - name: CASSANDRA_CONTACT_POINTS
               value: cassandra:9042
             - name: CASSANDRA_USER
@@ -50,10 +54,8 @@ spec:
                   name: cassandra-creds
                   key: cassandrapassword
                   optional: false
-            - name: READONLY
-              value: 'false'
             - name: AUTH_SECRET
-              value: some-weird-random-string
+              value: super-secret-string
       volumes:
         - name: images-dir
           persistentVolumeClaim:
