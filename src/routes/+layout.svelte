@@ -2,6 +2,7 @@
   import Breadcrumb from '$components/Breadcrumb.svelte';
   import { onMount } from 'svelte';
   import type { LayoutData } from './$types';
+  import Menu from '$components/Menu.svelte';
   export let data: LayoutData;
 
   onMount(() => {
@@ -22,20 +23,30 @@
     {/if}
   </div>
 {/if}
-
-<Breadcrumb />
-
-<div class="content-container">
-  <div class="content">
-    <slot />
+<div class="page-container">
+  <Menu activeYear={data.activeYear} />
+  <div class="content-container">
+    <div class="content">
+      <slot />
+    </div>
   </div>
 </div>
 
+<Breadcrumb />
+
 <style>
+  .page-container {
+    display: flex;
+    flex-direction: row;
+    top: 0;
+    left: 0;
+  }
   .content-container {
     display: flex;
     flex-direction: column;
     align-items: center;
+    margin-left: auto;
+    margin-right: auto;
   }
   .notices {
     text-align: center;
@@ -50,14 +61,14 @@
   }
   @media only screen and (min-width: 640px) and (max-width: 960px) {
     .content {
-      min-width: 640px;
+      min-width: 460px;
       max-width: 960px;
     }
   }
 
-  @media only screen and (min-width: 960px) {
+  @media only screen and (min-width: 1020px) {
     .content {
-      min-width: 960px;
+      min-width: 840px;
       max-width: 1020px;
     }
   }

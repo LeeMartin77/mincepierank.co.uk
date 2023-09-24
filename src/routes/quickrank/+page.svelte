@@ -35,6 +35,10 @@
 </script>
 
 <div>
+  <div style="margin-bottom: 1em;">
+    <p>Can't find what you're looking for?</p>
+    <a href="/create">Create a custom pie!</a>
+  </div>
   <div>
     <label for="maker">Maker</label>
     <select
