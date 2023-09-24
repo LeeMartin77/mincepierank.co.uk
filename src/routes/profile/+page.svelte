@@ -3,7 +3,7 @@
   import { page } from '$app/stores';
   import type { PageData } from './$types';
 
-  export let data: PageData;
+  //export let data: PageData;
 </script>
 
 {#if $page.data.session && $page.data.session.user}
