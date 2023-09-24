@@ -28,7 +28,10 @@ export async function deleteConfigValue(key: string): Promise<void> {
 
 export async function getYears(): Promise<number[]> {
   const result = await CASSANDRA_CLIENT.execute('SELECT year FROM mincepierank.year;');
-  return result.rows.map((x) => parseInt(x.get('year')));
+  return result.rows
+    .map((x) => parseInt(x.get('year')))
+    .sort()
+    .reverse();
 }
 
 export async function getAdmins(): Promise<{ id: string }[]> {

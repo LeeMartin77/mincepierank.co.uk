@@ -19,13 +19,12 @@ clean`;
 
 export async function getUserPiesByUser(
   year: number,
-  userid: string,
-  validated = true
+  userid: string
 ): Promise<Result<UserPie[], StorageError>> {
   try {
     const result = await CASSANDRA_CLIENT.execute(
       `SELECT ${SAFE_FIELDS} FROM mincepierank.user_pie_yearly WHERE year = ? AND owner_userid = ? ALLOW FILTERING`,
-      [year, userid, validated],
+      [year, userid],
       { prepare: true }
     );
 

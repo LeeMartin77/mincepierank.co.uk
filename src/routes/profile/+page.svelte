@@ -7,15 +7,13 @@
 </script>
 
 {#if $page.data.session && $page.data.session.user}
-  {#each data.years as year}
-    <a class="year-link" href="/profile/rankings/{year}">Rankings for {year}</a>
-    <a class="year-link" href="/profile/pies/{year}">Custom pies for {year}</a>
-  {/each}
   <span class="signedInText">
     <small>Signed in as</small><br />
     <strong>{$page.data.session.user.email || $page.data.session.user.name}</strong>
   </span>
   <button on:click={() => signOut()} class="button">Sign out</button>
+  <a class="year-link" href="/profile/rankings">All Rankings</a>
+  <a class="year-link" href="/profile/pies">All Custom pies</a>
 {:else}
   <span class="notSignedInText">You are not signed in</span>
   <button on:click={() => signIn()}>Sign In</button>
@@ -36,5 +34,15 @@
   }
   .year-link:visited {
     color: initial;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .year-link {
+      color: #fff;
+      border: 1px solid #fff;
+    }
+    .year-link:visited {
+      color: #ddd;
+    }
   }
 </style>

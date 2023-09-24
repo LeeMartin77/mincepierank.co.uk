@@ -5,7 +5,7 @@
 </script>
 
 {#each data.years as year}
-  <a class="year-link" href="/profile/rankings/{year}">{year}</a>
+  <a class="year-link" href="/profile/pies/{year}">{year}</a>
 {/each}
 
 <style>
