@@ -79,7 +79,7 @@
 
 {#if initialLoad}
   <div>Loading</div>
-{:else if userRanking && readonly}
+{:else if userRanking && userRanking.pastry && readonly}
   <div>
     <h3>My Ranking</h3>
     <dl>
