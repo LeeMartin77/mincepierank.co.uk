@@ -29,7 +29,7 @@ export async function getLatestRanking(
   try {
     const whenresult = await CASSANDRA_CLIENT.execute(
       'SELECT MAX(last_updated) as last_updated FROM mincepierank.maker_pie_ranking_yearly where year = ?;'[
-      year
+        year
       ],
       { prepare: true }
     );
@@ -221,7 +221,7 @@ export async function getMakerPieRankingSummaries(
 
     return ok(result.rows.map<PieRankingSummary>(rowToObject).map(addAverageScore));
   } catch (ex) {
-    console.error(ex)
+    console.error(ex);
     return err(StorageError.GenericError);
   }
 }
