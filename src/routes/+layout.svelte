@@ -26,13 +26,12 @@
 <div class="page-container">
   <Menu activeYear={data.activeYear} />
   <div class="content-container">
+    <Breadcrumb />
     <div class="content">
       <slot />
     </div>
   </div>
 </div>
-
-<Breadcrumb />
 
 <style>
   .page-container {
