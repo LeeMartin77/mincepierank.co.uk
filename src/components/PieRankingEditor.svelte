@@ -53,7 +53,4 @@
 </div>
 
 <style>
-  label {
-    font-size: 1em;
-  }
 </style>
