@@ -21,33 +21,33 @@
 <div>
   <h3>My Ranking</h3>
   <RankingInput
-    value={hotRanking.pastry}
     displayName={'Pastry'}
     name={'pastry'}
+    bind:value={hotRanking.pastry}
     on:change={() => handleRankingChange(hotRanking)}
   />
   <RankingInput
-    value={hotRanking.filling}
     displayName={'Filling'}
     name={'filling'}
+    bind:value={hotRanking.filling}
     on:change={() => handleRankingChange(hotRanking)}
   />
   <RankingInput
-    value={hotRanking.topping}
     displayName={'Topping'}
     name={'topping'}
+    bind:value={hotRanking.topping}
     on:change={() => handleRankingChange(hotRanking)}
   />
   <RankingInput
-    value={hotRanking.looks}
     displayName={'Looks'}
     name={'looks'}
+    bind:value={hotRanking.looks}
     on:change={() => handleRankingChange(hotRanking)}
   />
   <RankingInput
-    value={hotRanking.value}
     displayName={'Value'}
     name={'value'}
+    bind:value={hotRanking.value}
     on:change={() => handleRankingChange(hotRanking)}
   />
 </div>
