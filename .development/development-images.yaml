@@ -21,20 +21,20 @@ metadata:
     app: mincepierank-imgprssr
 spec:
   containers:
-  - name: mincepierank-imgprssr
-    image: ghcr.io/leemartin77/imgprssr:v0.2.1
-    imagePullPolicy: IfNotPresent
-    ports:
-      - name: http
-        containerPort: 3013
-    volumeMounts:
-      - name: images-dir
-        mountPath: /images
-    env:
-      - name: IMGPRSSR_IMAGE_SOURCE
-        value: /images
-      - name: IMGPRSSR_PORT
-        value: '3013'
+    - name: mincepierank-imgprssr
+      image: ghcr.io/leemartin77/imgprssr:v0.2.1
+      imagePullPolicy: IfNotPresent
+      ports:
+        - name: http
+          containerPort: 3013
+      volumeMounts:
+        - name: images-dir
+          mountPath: /images
+      env:
+        - name: IMGPRSSR_IMAGE_SOURCE
+          value: /images
+        - name: IMGPRSSR_PORT
+          value: '3013'
   volumes:
     - name: images-dir
       persistentVolumeClaim:

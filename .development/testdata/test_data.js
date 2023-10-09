@@ -180,10 +180,7 @@ client.connect().then(async () => {
     `INSERT INTO mincepierank.admins (id) VALUES ('TEST_AUTH_john.doe@example.com')`
   );
 
-
-  await client.execute(
-    `INSERT INTO mincepierank.config (key, value) VALUES ('readonly', 'false')`
-  );
+  await client.execute(`INSERT INTO mincepierank.config (key, value) VALUES ('readonly', 'false')`);
 
   await client.execute(
     `INSERT INTO mincepierank.config (key, value) VALUES ('activeYear', '2023')`
