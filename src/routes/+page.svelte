@@ -35,10 +35,4 @@
     text-decoration: none;
     font-weight: bold;
   }
-
-  @media (prefers-color-scheme: dark) {
-    .quickrank-link {
-      border: 1px solid #fff;
-    }
-  }
 </style>

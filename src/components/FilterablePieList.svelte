@@ -91,16 +91,4 @@
   .filters button.selected {
     border: 1px solid black;
   }
-
-  @media (prefers-color-scheme: dark) {
-    .filters button {
-      color: #fff;
-    }
-    .filters button:hover {
-      background-color: rgba(255, 255, 255, 0.1);
-    }
-    .filters button.selected {
-      border: 1px solid #fff;
-    }
-  }
 </style>

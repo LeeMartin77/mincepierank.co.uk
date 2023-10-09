@@ -40,15 +40,4 @@
   .category-link:visited {
     color: #111;
   }
-
-  @media (prefers-color-scheme: dark) {
-    .category-link {
-      border: 1px solid #fff;
-      color: #fff;
-    }
-    .category-link:visited {
-      border: 1px solid #fff;
-      color: #fff;
-    }
-  }
 </style>

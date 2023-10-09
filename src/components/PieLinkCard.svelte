@@ -96,26 +96,4 @@
   .category-link:visited {
     color: initial;
   }
-
-  @media (prefers-color-scheme: dark) {
-    .pie-card {
-      border: 1px solid #fff;
-    }
-    .pie-link {
-      border: 1px solid #fff;
-      color: #fff;
-    }
-    .pie-link:visited {
-      border: 1px solid #fff;
-      color: #fff;
-    }
-    .category-link {
-      border: 1px solid #fff;
-      color: #fff;
-    }
-    .category-link:visited {
-      border: 1px solid #fff;
-      color: #fff;
-    }
-  }
 </style>

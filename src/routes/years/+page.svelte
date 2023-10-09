@@ -29,15 +29,4 @@
   .year-link:visited {
     color: #111;
   }
-
-  @media (prefers-color-scheme: dark) {
-    .year-link {
-      border: 1px solid #fff;
-      color: #fff;
-    }
-    .year-link:visited {
-      border: 1px solid #fff;
-      color: #fff;
-    }
-  }
 </style>

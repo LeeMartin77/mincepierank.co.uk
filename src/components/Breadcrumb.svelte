@@ -55,13 +55,4 @@
   .breadcrumb-container > a:visited {
     color: #111;
   }
-
-  @media (prefers-color-scheme: dark) {
-    .breadcrumb-container > a {
-      color: #fff;
-    }
-    .breadcrumb-container > a:visited {
-      color: #fff;
-    }
-  }
 </style>

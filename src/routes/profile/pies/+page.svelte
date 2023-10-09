@@ -24,14 +24,4 @@
   .year-link:visited {
     color: initial;
   }
-
-  @media (prefers-color-scheme: dark) {
-    .year-link {
-      color: #fff;
-      border: 1px solid #fff;
-    }
-    .year-link:visited {
-      color: #ddd;
-    }
-  }
 </style>

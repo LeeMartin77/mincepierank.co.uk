@@ -116,30 +116,6 @@
     cursor: pointer;
   }
 
-  @media (prefers-color-scheme: dark) {
-    .menu-container {
-      color: #fff;
-      background-color: #111;
-      border-right: 1px solid #fff;
-    }
-
-    a {
-      color: #fff;
-    }
-    a:visited {
-      color: #ddd;
-    }
-
-    button {
-      color: #fff;
-      background-color: #333;
-    }
-
-    button:hover {
-      background-color: #444;
-    }
-  }
-
   @media only screen and (max-width: 640px) {
     .menu-container {
       position: fixed;

@@ -27,14 +27,4 @@
   a:visited {
     color: #111;
   }
-  @media (prefers-color-scheme: dark) {
-    a {
-      border: 1px solid #fff;
-      color: #fff;
-    }
-    a:visited {
-      border: 1px solid #fff;
-      color: #fff;
-    }
-  }
 </style>
