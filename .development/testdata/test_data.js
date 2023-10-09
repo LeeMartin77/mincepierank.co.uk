@@ -179,5 +179,14 @@ client.connect().then(async () => {
   await client.execute(
     `INSERT INTO mincepierank.admins (id) VALUES ('TEST_AUTH_john.doe@example.com')`
   );
+
+
+  await client.execute(
+    `INSERT INTO mincepierank.config (key, value) VALUES ('readonly', 'false')`
+  );
+
+  await client.execute(
+    `INSERT INTO mincepierank.config (key, value) VALUES ('activeYear', '2023')`
+  );
   return client.shutdown();
 });

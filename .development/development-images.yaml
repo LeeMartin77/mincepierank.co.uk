@@ -11,51 +11,34 @@ spec:
   selector:
     app: mincepierank-imgprssr
   type: ClusterIP
+
 ---
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: v1
+kind: Pod
 metadata:
+  name: mincepierank-imgprssr
   labels:
     app: mincepierank-imgprssr
-  name: mincepierank-imgprssr
 spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: mincepierank-imgprssr
-  template:
-    metadata:
-      labels:
-        app: mincepierank-imgprssr
-      namespace: mincepierank
-      name: mincepierank-imgprssr
-    spec:
-      containers:
-        - name: mincepierank-live
-          image: ghcr.io/leemartin77/imgprssr:v0.2.1
-          imagePullPolicy: IfNotPresent
-          resources:
-            limits:
-              cpu: 500m
-              memory: 500Mi
-            requests:
-              cpu: 500m
-              memory: 500Mi
-          ports:
-            - name: http
-              containerPort: 3013
-          volumeMounts:
-            - name: images-dir
-              mountPath: /images
-          env:
-            - name: IMGPRSSR_IMAGE_SOURCE
-              value: /images
-            - name: IMGPRSSR_PORT
-              value: '3013'
-      volumes:
-        - name: images-dir
-          persistentVolumeClaim:
-            claimName: mincepierank-imgprssr-pvc
+  containers:
+  - name: mincepierank-imgprssr
+    image: ghcr.io/leemartin77/imgprssr:v0.2.1
+    imagePullPolicy: IfNotPresent
+    ports:
+      - name: http
+        containerPort: 3013
+    volumeMounts:
+      - name: images-dir
+        mountPath: /images
+    env:
+      - name: IMGPRSSR_IMAGE_SOURCE
+        value: /images
+      - name: IMGPRSSR_PORT
+        value: '3013'
+  volumes:
+    - name: images-dir
+      persistentVolumeClaim:
+        claimName: mincepierank-imgprssr-pvc
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
