@@ -2,6 +2,7 @@
   import type { MakerPieRanking } from '$lib/storage';
   import { onMount, createEventDispatcher } from 'svelte';
   import PieRankingEditor from './PieRankingEditor.svelte';
+  import PieRankingSummary from './PieRankingSummary.svelte';
   const dispatch = createEventDispatcher();
 
   export let readonly = false;
@@ -83,18 +84,7 @@
 {:else if userRanking && userRanking.pastry && readonly}
   <div>
     <h3>My Ranking</h3>
-    <dl>
-      <dt>Pastry</dt>
-      <dd>{userRanking.pastry}</dd>
-      <dt>Filling</dt>
-      <dd>{userRanking.filling}</dd>
-      <dt>Topping</dt>
-      <dd>{userRanking.topping}</dd>
-      <dt>Looks</dt>
-      <dd>{userRanking.looks}</dd>
-      <dt>value</dt>
-      <dd>{userRanking.value}</dd>
-    </dl>
+    <PieRankingSummary rankingSummary={userRanking} />
   </div>
 {:else if !readonly}
   <PieRankingEditor
