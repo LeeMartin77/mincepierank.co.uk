@@ -1,8 +1,9 @@
 <script lang="ts">
   import type { PageData } from './$types';
   import PieRankingInterface from '$components/PieRankingInterface.svelte';
-  import type { MakerPie } from '$lib/storage';
-  import { imgprssrPrefix } from '$lib/imgprssr';
+  import type { MakerPie, PieRankingSummary } from '$lib/storage';
+  import LinkButton from '$components/generic/LinkButton.svelte';
+  import PieLinkCard from '$components/PieLinkCard.svelte';
 
   export let data: PageData;
 
@@ -11,7 +12,10 @@
 
   let pies: MakerPie[] = [];
 
+  let ranking: PieRankingSummary | undefined = undefined;
+
   let loadingPies = false;
+  let loadingPieRanking = false;
 
   const handleMakerChange = (slmkr: string) => {
     loadingPies = true;
@@ -31,13 +35,30 @@
       });
   };
 
+  const handlePieChange = (slmpie: string) => {
+    loadingPieRanking = true;
+    ranking = undefined;
+    fetch(`/api/ranking/summary?year=${data.activeYear}&makerid=${selectedmaker}&pieid=${slmpie}`)
+      .then((res) => {
+        if (res.status === 200) {
+          return res.json();
+        }
+      })
+      .then((ps: PieRankingSummary) => {
+        ranking = ps;
+      })
+      .finally(() => {
+        loadingPieRanking = false;
+      });
+  };
+
   $: pieindex = pies ? pies.findIndex((x) => x.id === selectedpie) : -1;
 </script>
 
 <div>
   <div style="margin-bottom: 1em;">
     <p>Can't find what you're looking for?</p>
-    <a href="/create">Create a custom pie!</a>
+    <LinkButton href="/create">Create a custom pie!</LinkButton>
   </div>
   <div>
     <label for="maker">Brand</label>
@@ -52,7 +73,7 @@
       {/each}
     </select>
   </div>
-  <div>
+  <div style="margin-bottom: 1em;">
     <label for="pie">Pie</label>
     <select
       disabled={loadingPies || !selectedmaker || pies.length === 0}
@@ -60,6 +81,7 @@
       bind:value={selectedpie}
       on:change={() => {
         selectedpie = selectedpie;
+        handlePieChange(selectedpie);
       }}
     >
       <option value="">Select Pie</option>
@@ -70,19 +92,15 @@
       {/if}
     </select>
   </div>
-  {#if pies && pieindex > -1}
-    <div style="margin-top: 2em;">
-      <hr />
-      <h1 style="text-align: center;">{pies[pieindex].displayname}</h1>
-
-      <img
-        src={imgprssrPrefix(
-          pies[pieindex].image_file + '?filter=gaussian&width=250',
-          data.imgprssr
-        )}
-        alt={pies[pieindex].displayname}
-      />
+  {#if loadingPieRanking}
+    <div
+      style=" margin-top: 2em; margin-bottom: 2em; display: flex; flex-direction: column; width: 100%; align-items:center;"
+    >
+      <img alt="ranking icon" src="/rankicon.svg" width="48" class="spinny" />
     </div>
+  {/if}
+  {#if pies && pieindex > -1 && !loadingPieRanking}
+    <PieLinkCard pie={pies[pieindex]} imgprssr={data.imgprssr} pieListRanking={ranking} />
   {/if}
   {#if pies && selectedmaker && selectedpie}
     <div>
@@ -95,3 +113,17 @@
     </div>
   {/if}
 </div>
+
+<style>
+  .spinny {
+    animation: rotation 4s infinite linear;
+  }
+  @keyframes rotation {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+</style>

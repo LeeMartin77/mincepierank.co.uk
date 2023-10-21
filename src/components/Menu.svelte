@@ -69,7 +69,7 @@
   .menu-button {
     position: fixed;
     bottom: 1em;
-    left: calc(50% - 4em);
+    left: calc(50% - 5em);
     width: 8em;
     border-radius: 2em;
     margin: 1em;
