@@ -1,8 +1,9 @@
 <script lang="ts">
   export let href: string;
+  export let style: string | undefined = undefined;
 </script>
 
-<a class="link-button" {href}><slot /></a>
+<a class="link-button" {style} {href}><slot /></a>
 
 <style>
   .link-button {

@@ -1,32 +1,22 @@
 <script lang="ts">
+  import LinkButton from '$components/generic/LinkButton.svelte';
   import type { PageData } from './$types';
   export let data: PageData;
   const years = data.years.sort().reverse();
 </script>
 
-<h1>Years</h1>
+<h1 style="min-width: 240px;">Years</h1>
 
-{#each years as year}
-  <a class="year-link" href={`/years/${year}`}>{year}</a>
-{/each}
+<div style="width: 100%; display: flex; flex-direction: column; gap: 2em;">
+  {#each years as year}
+    <LinkButton href={`/years/${year}`} style={'width: calc(100% - 2em); display: block;'}
+      >{year}</LinkButton
+    >
+  {/each}
+</div>
 
 <style>
   h1 {
     text-align: center;
-  }
-  .year-link {
-    display: block;
-    padding: 1em;
-    color: #111;
-    text-align: center;
-    text-decoration: none;
-    font-weight: bold;
-    font-size: 2em;
-    padding: 0.5em;
-    border: 1px solid black;
-    border-radius: 1em;
-  }
-  .year-link:visited {
-    color: #111;
   }
 </style>

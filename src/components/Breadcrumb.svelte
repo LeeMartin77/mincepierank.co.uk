@@ -44,10 +44,10 @@
     display: flex;
     flex-wrap: wrap;
     gap: 1em;
-    border: 1px solid grey;
+    background-color: white;
+    box-shadow: 0em 0.2em 0.2em 0 rgba(0, 0, 0, 0.2);
     margin: 1em;
     padding: 1em;
-    border-radius: 1em;
   }
   .breadcrumb-container > a {
     color: #111;

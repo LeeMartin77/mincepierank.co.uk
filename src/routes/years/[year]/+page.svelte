@@ -3,11 +3,12 @@
 
   import type { PageData } from './$types';
   import BrandLinkList from '$components/BrandLinkList.svelte';
+  import LinkButton from '$components/generic/LinkButton.svelte';
 
   export let data: PageData;
 </script>
 
-<a href={`/years/${data.year}/all-pies`}>View All Pies</a>
+<LinkButton href={`/years/${data.year}/all-pies`}>View All Pies</LinkButton>
 
 <CategoryLinkList year={data.year} categories={data.categories} />
 <BrandLinkList makers={data.makers} year={data.year} imgprssr={data.imgprssr} />

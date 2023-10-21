@@ -45,12 +45,13 @@
   {#if orderedFilteredPieIds.length === 0}
     <span>No pies visibile with selected filters - try removing a filter</span>
   {/if}
-  {#each orderedFilteredPieIds as pieId}
+  {#each orderedFilteredPieIds as pieId, i}
     <div class="pie-link-card-container">
       <PieLinkCard
         pie={mpr.mappedPies[pieId]}
         pieListRanking={mpr.mappedRankings[pieId]}
         {imgprssr}
+        raised={i == 0}
       />
     </div>
   {/each}

@@ -56,8 +56,7 @@
     {/if}
     {#if screenWidth <= 640}
       <button
-        style="width:100%; position:relative; margin-top: 1em; left: 0;"
-        class="menu-button"
+        style="width:100%; position:relative; margin: 0; border-radius: 0; margin-top: 1em; left: 0;"
         on:click={toggleMenu}>Close Menu</button
       >
     {/if}
@@ -72,6 +71,9 @@
     bottom: 1em;
     left: calc(50% - 4em);
     width: 8em;
+    border-radius: 2em;
+    margin: 1em;
+    z-index: 99999999;
   }
   .menu-container {
     display: flex;
@@ -84,6 +86,7 @@
     color: #111;
     background-color: #fff;
     border-right: 1px solid #111;
+    z-index: 99999999;
   }
 
   .menu-footer {

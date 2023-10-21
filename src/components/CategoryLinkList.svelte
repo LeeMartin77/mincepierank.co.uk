@@ -28,7 +28,7 @@
 
   .category-link {
     display: block;
-    border: 1px solid black;
+    box-shadow: 0em 0em 0.3em rgba(0, 0, 0, 0.2);
     font-size: 1em;
     font-weight: bold;
     border-radius: 0.5em;
