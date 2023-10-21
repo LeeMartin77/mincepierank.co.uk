@@ -24,7 +24,7 @@
   </div>
 {/if}
 <div class="page-container">
-  <Menu activeYear={data.activeYear} />
+  <Menu activeYear={data.activeYear} customPiesEnabled={data.customPiesEnabled} />
   <div class="content-container">
     <Breadcrumb />
     <div class="content">

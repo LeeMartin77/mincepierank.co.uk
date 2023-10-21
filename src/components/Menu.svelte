@@ -5,6 +5,7 @@
   import { signIn } from '@auth/sveltekit/client';
   import { page } from '$app/stores';
   export let activeYear: number;
+  export let customPiesEnabled: boolean = false;
 
   let screenWidth: number;
 
@@ -39,7 +40,7 @@
     <a on:click={toggleMenu} href="/years/{activeYear}/all-pies">All Pies</a>
     <a on:click={toggleMenu} href="/years/{activeYear}/brands">Brands</a>
     <a on:click={toggleMenu} href="/profile/rankings/{activeYear}">My Rankings</a>
-    {#if !!$page.data.session?.user?.email}
+    {#if !!$page.data.session?.user?.email && customPiesEnabled}
       <a on:click={toggleMenu} href="/profile/pies/{activeYear}">My Custom Pies</a>
     {/if}
 

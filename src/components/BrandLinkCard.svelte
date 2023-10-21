@@ -27,17 +27,4 @@
     height: 250px;
     align-items: center;
   }
-  .brand-link {
-    color: #111;
-    text-decoration: none;
-    font-weight: bold;
-    padding: 0.5em;
-    border: 1px solid black;
-    width: 100%;
-    text-align: center;
-    border-radius: 0.5em;
-  }
-  .brand-link:visited {
-    color: initial;
-  }
 </style>

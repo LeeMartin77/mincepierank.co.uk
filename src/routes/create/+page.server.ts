@@ -8,7 +8,7 @@ import { setUserPie, type UserPie } from '$lib/storage';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const load = async (_event: PageServerLoadEvent) => {
   const config = await getConfig();
-  if (config.readonly === 'true') {
+  if (config.readonly === 'true' || config.customPiesEnabled !== 'true') {
     throw error(404, 'Not Found');
   }
   const activeYear = parseInt(config.activeYear);

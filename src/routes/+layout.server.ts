@@ -9,6 +9,7 @@ export const load: LayoutServerLoad = async (event) => {
     notice: config.notice,
     years: await getYears(),
     activeYear: parseInt(config.activeYear),
+    customPiesEnabled: config.customPiesEnabled === 'true',
     imgprssr: process.env.IMGPRSSR_ROOT || 'https://static.mincepierank.co.uk'
   };
 };

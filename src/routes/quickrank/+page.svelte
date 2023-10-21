@@ -56,11 +56,13 @@
 </script>
 
 <div>
-  <div style="margin-bottom: 1em;">
-    <p>Can't find what you're looking for?</p>
-    <LinkButton href="/create">Create a custom pie!</LinkButton>
-  </div>
-  <div>
+  {#if data.customPiesEnabled}
+    <div style="margin-bottom: 1em;">
+      <p>Can't find what you're looking for?</p>
+      <LinkButton href="/create">Create a custom pie!</LinkButton>
+    </div>
+  {/if}
+  <div style="display: flex; flex-direction: column; align-items: center;">
     <label for="maker">Brand</label>
     <select
       name="maker"
@@ -73,7 +75,7 @@
       {/each}
     </select>
   </div>
-  <div style="margin-bottom: 1em;">
+  <div style="margin-bottom: 1em; display: flex; flex-direction: column; align-items: center;">
     <label for="pie">Pie</label>
     <select
       disabled={loadingPies || !selectedmaker || pies.length === 0}
@@ -115,6 +117,15 @@
 </div>
 
 <style>
+  select {
+    background-color: rgba(0, 0, 0, 0.04);
+    box-shadow: 0 0.2em 0.4em rgba(0, 0, 0, 0.1);
+    width: 16em;
+  }
+  select:disabled {
+    background-color: white;
+    box-shadow: none;
+  }
   .spinny {
     animation: rotation 4s infinite linear;
   }
