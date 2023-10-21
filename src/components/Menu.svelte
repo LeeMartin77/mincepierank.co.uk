@@ -5,7 +5,7 @@
   import { signIn } from '@auth/sveltekit/client';
   import { page } from '$app/stores';
   export let activeYear: number;
-  export let customPiesEnabled: boolean = false;
+  export let customPiesEnabled = false;
 
   let screenWidth: number;
 

@@ -9,7 +9,7 @@
   export let pie: UserPie | MakerPie;
   export let pieListRanking: PieListRanking | undefined = undefined;
   export let imgprssr: string;
-  export let raised: boolean = false;
+  export let raised = false;
   let pielink: string;
   $: {
     if ('makerid' in pie) {

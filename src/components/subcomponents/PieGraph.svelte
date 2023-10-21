@@ -2,8 +2,8 @@
   const bgcolor =
     'filter: invert(96%) sepia(0%) saturate(508%) hue-rotate(145deg) brightness(91%) contrast(90%);';
 
-  export let score: number = 0;
-  export let topRank: number = 5;
+  export let score = 0;
+  export let topRank = 5;
 
   export let centerAlign = false;
 
