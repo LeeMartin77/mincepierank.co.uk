@@ -79,18 +79,19 @@
   };
 </script>
 
-{#if initialLoad}
-  <div>Loading</div>
-{:else if userRanking && userRanking.pastry && readonly}
-  <div>
-    <h3>My Ranking</h3>
+<div style="display: flex; flex-direction: column; align-items: center;">
+  {#if initialLoad}
+    <div>Loading</div>
+  {:else if userRanking && userRanking.pastry && readonly}
+    <h2 style="text-align: center; margin-bottom: 0;">My Ranking</h2>
     <PieRankingSummary rankingSummary={{ ...userRanking, count: undefined, average: undefined }} />
-  </div>
-{:else if !readonly}
-  <PieRankingEditor
-    {hotRanking}
-    on:change={(e) => {
-      handleRankingChange(e.detail);
-    }}
-  />
-{/if}
+  {:else if !readonly}
+    <h2 style="text-align: center; margin-bottom: 0;">My Ranking</h2>
+    <PieRankingEditor
+      {hotRanking}
+      on:change={(e) => {
+        handleRankingChange(e.detail);
+      }}
+    />
+  {/if}
+</div>

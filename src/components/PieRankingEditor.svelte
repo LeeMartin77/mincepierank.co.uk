@@ -19,7 +19,6 @@
 </script>
 
 <div>
-  <h3>My Ranking</h3>
   <RankingInput
     displayName={'Pastry'}
     name={'pastry'}
