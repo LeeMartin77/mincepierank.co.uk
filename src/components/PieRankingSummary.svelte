@@ -22,18 +22,31 @@
 </script>
 
 {#if rankingSummary}
-  <div>
+  <div style="display: flex; flex-direction: column; align-items:center;">
     {#if rankingSummary.count !== undefined}
-      <h3>Ranking Summary</h3>
-      <h4>{rankingSummary.count} Rankings | {rankingSummary.average} Average</h4>
+      <h3>Average</h3>
+      <PieGraph score={rankingSummary.average} centerAlign={true} />
+      <h5>{rankingSummary.count} Rankings</h5>
     {/if}
-    {#each rankingprops as property}
-      <h5>
-        {property.charAt(0).toUpperCase()}{property.slice(1)}: {rankingSummary[property].toFixed(
-          2
-        )}/5.00
-      </h5>
-      <PieGraph score={rankingSummary[property]} />
-    {/each}
+    <table>
+      <tbody>
+        {#each rankingprops as property}
+          <tr>
+            <td><b>{property.charAt(0).toUpperCase()}{property.slice(1)}</b></td>
+            <td><PieGraph score={rankingSummary[property]} /></td>
+          </tr>
+        {/each}
+      </tbody>
+    </table>
   </div>
 {/if}
+
+<style>
+  td {
+    padding: 0.5em 0.75em;
+  }
+
+  td:first-of-type {
+    text-align: right;
+  }
+</style>
