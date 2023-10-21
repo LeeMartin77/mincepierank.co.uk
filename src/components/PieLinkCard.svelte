@@ -1,11 +1,15 @@
 <script lang="ts">
   import { imgprssrPrefix } from '$lib/imgprssr';
   import type { MakerPie, UserPie } from '$lib/storage';
+  import Card from './generic/Card.svelte';
+  import LinkButton from './generic/LinkButton.svelte';
+  import PieGraph from './subcomponents/PieGraph.svelte';
   import { ppCategory } from './utilities/formatCategory';
   import type { PieListRanking } from './utilities/mapPiesAndRankings';
   export let pie: UserPie | MakerPie;
   export let pieListRanking: PieListRanking | undefined = undefined;
   export let imgprssr: string;
+  export let raised: boolean = false;
   let pielink: string;
   $: {
     if ('makerid' in pie) {
@@ -16,7 +20,7 @@
   }
 </script>
 
-<div class="pie-card">
+<Card {raised}>
   <div class="pie-card-top">
     <div style="width: 30%">
       {#if pie.image_file}
@@ -28,14 +32,9 @@
       {/if}
     </div>
     <div>
-      <dl>
-        <dt>Average</dt>
-        <dd>{(pieListRanking?.average || 0).toFixed(2)}</dd>
-        <dl>
-          <dt>Votes</dt>
-          <dd>{pieListRanking?.count || 0}</dd>
-        </dl>
-      </dl>
+      <h4 style="margin-bottom: 0.25em;">Average: {(pieListRanking?.average || 0).toFixed(2)}/5</h4>
+      <PieGraph score={pieListRanking?.average || 0} />
+      <h5 style="margin-top: 0.25em;">{pieListRanking?.count || 0} Votes</h5>
     </div>
   </div>
   <div class="category-links">
@@ -45,36 +44,15 @@
       >
     {/each}
   </div>
-  <a class="pie-link" href={pielink}>{pie.displayname}</a>
-</div>
+  <LinkButton href={pielink}>{pie.displayname}</LinkButton>
+</Card>
 
 <style>
-  .pie-card {
-    padding: 1em;
-    border: 1px solid #111;
-    border-radius: 1em;
-    display: flex;
-    flex-direction: column;
-  }
   .pie-card-top {
     display: flex;
     gap: 2em;
     justify-content: center;
   }
-  .pie-link {
-    display: block;
-    border: 1px solid #111;
-    border-radius: 1em;
-    padding: 1em;
-    text-decoration: none;
-    text-align: center;
-    font-weight: bold;
-    color: #111;
-  }
-  .pie-link:visited {
-    color: #111;
-  }
-
   .category-links {
     display: flex;
     justify-content: center;
@@ -85,7 +63,7 @@
 
   .category-link {
     display: block;
-    border: 1px solid #111;
+    box-shadow: 0em 0em 0.2em rgba(0, 0, 0, 0.2);
     font-size: 0.8em;
     border-radius: 2em;
     padding: 0.5em;

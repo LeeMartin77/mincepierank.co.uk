@@ -12,10 +12,15 @@
 
 {#if data.topPie && data.topPieRanking}
   <h2>Current Top Pie</h2>
-  <PieLinkCard pie={data.topPie} pieListRanking={data.topPieRanking} imgprssr={data.imgprssr} />
+  <PieLinkCard
+    pie={data.topPie}
+    pieListRanking={data.topPieRanking}
+    imgprssr={data.imgprssr}
+    raised={true}
+  />
 {/if}
 
-<a class="quickrank-link" href="/quickrank">Rank a pie now!</a>
+<a class="quickrank-link" href="/quickrank">Click to rank your pie!</a>
 
 <BrandLinkList makers={data.makers} year={data.activeYear} imgprssr={data.imgprssr} />
 
@@ -28,11 +33,17 @@
     padding: 1em;
     display: block;
     text-align: center;
-    border: 1px solid #111;
+    box-shadow: 0em 0em 0.3em rgba(0, 0, 0, 0.2);
+    color: #fff;
+    background-color: rgba(0, 0, 0, 0.8);
     border-radius: 1em;
     margin-top: 2em;
     margin-bottom: 2em;
-    text-decoration: none;
+    text-decoration: underline;
     font-weight: bold;
+  }
+
+  .quickrank-link:visited {
+    color: #fff;
   }
 </style>

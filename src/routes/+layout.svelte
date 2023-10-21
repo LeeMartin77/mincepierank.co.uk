@@ -46,6 +46,7 @@
     align-items: center;
     margin-left: auto;
     margin-right: auto;
+    padding: 1em;
   }
   .notices {
     text-align: center;

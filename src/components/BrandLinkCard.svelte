@@ -1,13 +1,15 @@
 <script lang="ts">
   import { imgprssrPrefix } from '$lib/imgprssr';
   import type { Maker } from '$lib/storage';
+  import Card from './generic/Card.svelte';
+  import LinkButton from './generic/LinkButton.svelte';
 
   export let maker: Maker;
   export let year: number;
   export let imgprssr: string;
 </script>
 
-<div class="brand-link-card">
+<Card>
   <a class="brand-link-image" href={`/years/${year}/brands/${maker.id}`}>
     <div>
       <img
@@ -16,22 +18,10 @@
       />
     </div>
   </a>
-
-  <a class="brand-link" href={`/years/${year}/brands/${maker.id}`}>
-    {maker.name}
-  </a>
-</div>
+  <LinkButton href={`/years/${year}/brands/${maker.id}`}>{maker.name}</LinkButton>
+</Card>
 
 <style>
-  .brand-link-card {
-    display: flex;
-    gap: 0.5em;
-    flex-direction: column;
-    align-items: center;
-    padding: 1em 1.5em;
-    border: 1px solid black;
-    border-radius: 1em;
-  }
   .brand-link-image {
     display: flex;
     height: 250px;

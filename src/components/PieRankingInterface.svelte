@@ -84,7 +84,7 @@
 {:else if userRanking && userRanking.pastry && readonly}
   <div>
     <h3>My Ranking</h3>
-    <PieRankingSummary rankingSummary={userRanking} />
+    <PieRankingSummary rankingSummary={{ ...userRanking, count: undefined, average: undefined }} />
   </div>
 {:else if !readonly}
   <PieRankingEditor
