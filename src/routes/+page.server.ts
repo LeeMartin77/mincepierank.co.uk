@@ -4,7 +4,7 @@ import {
   getAllMakerPies,
   getAllPieRankingSummaries,
   getLatestRanking,
-  getMincePieMakers
+  getMincePieMakersForYear
 } from '$lib/storage';
 import { mapPiesAndRankings } from '$components/utilities/mapPiesAndRankings';
 import { getConfig } from '$lib/storage/config';
@@ -13,7 +13,7 @@ import { getConfig } from '$lib/storage/config';
 export const load = async (_event: PageServerLoadEvent) => {
   const config = await getConfig();
   const activeYear = parseInt(config.activeYear);
-  const data = (await getMincePieMakers()).unwrapOr([]);
+  const data = (await getMincePieMakersForYear(activeYear)).unwrapOr([]);
   const pies = (await getAllMakerPies(activeYear)).unwrapOr([]);
   const rankingSummaries = (await getAllPieRankingSummaries(activeYear)).unwrapOr([]);
   const latestRanking = (await getLatestRanking(activeYear)).unwrapOr(undefined);
