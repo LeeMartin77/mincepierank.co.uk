@@ -20,7 +20,9 @@
   />
 {/if}
 
-<a class="quickrank-link" href="/quickrank">Click to rank your pie!</a>
+{#if !data.readonly}
+  <a class="quickrank-link" href="/quickrank">Click to rank your pie!</a>
+{/if}
 
 <BrandLinkList makers={data.makers} year={data.activeYear} imgprssr={data.imgprssr} />
 
