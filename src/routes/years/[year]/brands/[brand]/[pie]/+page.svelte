@@ -11,65 +11,84 @@
   $: rankingSummary = data.ranking;
 </script>
 
-<div style="display: flex; flex-direction: column; align-items: center;">
-  <h1 style="margin-bottom: 0em;">{data.pie.displayname}</h1>
-  {#if data.maker}
-    <h3>from {data.maker.name}</h3>
-  {/if}
-  <a href={data.pie.web_link}>Link to Website</a>
-  <img
-    src={imgprssrPrefix(data.pie.image_file + '?filter=gaussian&width=250', data.imgprssr)}
-    alt={data.pie.displayname}
-  />
-  <div class="category-links">
-    {#each data.pie.labels as label}
-      <a class="category-link" href={`/years/${data.pie.year}/categories/${label}`}
-        >{ppCategory(label)}</a
-      >
-    {/each}
+<div class="page-wrapper">
+  <div>
+    <h1 style="margin-bottom: 0em;">{data.pie.displayname}</h1>
+    {#if data.maker}
+      <h3>from {data.maker.name}</h3>
+    {/if}
+    <a href={data.pie.web_link}>Link to Website</a>
+    <img
+      src={imgprssrPrefix(data.pie.image_file + '?filter=gaussian&width=250', data.imgprssr)}
+      alt={data.pie.displayname}
+    />
   </div>
-  <h3>Pieformation</h3>
-  <table>
-    <tbody>
-      <tr>
-        <td><b>Pack Count</b></td>
-        <td>{data.pie.pack_count}</td>
-      </tr>
-      <tr>
-        <td><b>Price</b></td>
-        <td>{formatCurrency(data.pie.pack_price_in_pence)}</td>
-      </tr>
-      <tr>
-        <td><b>Cost per pie</b></td>
-        <td>{formatCurrency(data.pie.pack_price_in_pence / data.pie.pack_count)}</td>
-      </tr>
-    </tbody>
-  </table>
+  <div>
+    <div class="category-links">
+      {#each data.pie.labels as label}
+        <a class="category-link" href={`/years/${data.pie.year}/categories/${label}`}
+          >{ppCategory(label)}</a
+        >
+      {/each}
+    </div>
+    <h3>Pieformation</h3>
+    <table>
+      <tbody>
+        <tr>
+          <td><b>Pack Count</b></td>
+          <td>{data.pie.pack_count}</td>
+        </tr>
+        <tr>
+          <td><b>Price</b></td>
+          <td>{formatCurrency(data.pie.pack_price_in_pence)}</td>
+        </tr>
+        <tr>
+          <td><b>Cost per pie</b></td>
+          <td>{formatCurrency(data.pie.pack_price_in_pence / data.pie.pack_count)}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 
-  <PieRankingSummary {rankingSummary} />
-
-  <PieRankingInterface
-    readonly={data.readonly || data.activeYear !== data.pie.year}
-    year={data.pie.year}
-    makerid={data.pie.makerid}
-    pieid={data.pie.id}
-    on:newRanking={({ detail }) => {
-      fetch(
-        `/api/ranking/summary?year=${detail.year}&makerid=${detail.makerid}&pieid=${detail.pieid}`
-      )
-        .then((res) => {
-          if (res.status === 200) {
-            return res.json();
-          }
-        })
-        .then((rnking) => {
-          rankingSummary = rnking;
-        });
-    }}
-  />
+  <div>
+    <PieRankingSummary {rankingSummary} />
+  </div>
+  <div>
+    <PieRankingInterface
+      readonly={data.readonly || data.activeYear !== data.pie.year}
+      year={data.pie.year}
+      makerid={data.pie.makerid}
+      pieid={data.pie.id}
+      on:newRanking={({ detail }) => {
+        fetch(
+          `/api/ranking/summary?year=${detail.year}&makerid=${detail.makerid}&pieid=${detail.pieid}`
+        )
+          .then((res) => {
+            if (res.status === 200) {
+              return res.json();
+            }
+          })
+          .then((rnking) => {
+            rankingSummary = rnking;
+          });
+      }}
+    />
+  </div>
 </div>
 
 <style>
+  .page-wrapper {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 2em;
+  }
+  .page-wrapper > div {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
   td {
     padding: 0.25em 0.75em;
   }
@@ -83,6 +102,7 @@
   }
   .category-links {
     display: flex;
+    flex-direction: row;
     justify-content: center;
     gap: 0.5em;
     margin-top: 0.5em;

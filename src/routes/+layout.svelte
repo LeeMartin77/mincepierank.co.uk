@@ -47,6 +47,8 @@
     margin-left: auto;
     margin-right: auto;
     padding: 1em;
+    overflow-y: scroll;
+    max-height: calc(100vh - 2em);
   }
   .notices {
     text-align: center;

@@ -89,6 +89,7 @@
     background-color: #fff;
     border-right: 1px solid #111;
     z-index: 99999999;
+    overflow-y: scroll;
   }
 
   .menu-footer {
