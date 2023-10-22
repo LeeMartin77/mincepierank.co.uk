@@ -4,6 +4,7 @@
   import type { MakerPie, PieRankingSummary } from '$lib/storage';
   import LinkButton from '$components/generic/LinkButton.svelte';
   import PieLinkCard from '$components/PieLinkCard.svelte';
+  import LoadingIndicator from '$components/generic/LoadingIndicator.svelte';
 
   export let data: PageData;
 
@@ -95,11 +96,7 @@
     </select>
   </div>
   {#if loadingPieRanking}
-    <div
-      style=" margin-top: 2em; margin-bottom: 2em; display: flex; flex-direction: column; width: 100%; align-items:center;"
-    >
-      <img alt="ranking icon" src="/rankicon.svg" width="48" class="spinny" />
-    </div>
+    <LoadingIndicator />
   {/if}
   {#if pies && pieindex > -1 && !loadingPieRanking}
     <PieLinkCard pie={pies[pieindex]} imgprssr={data.imgprssr} pieListRanking={ranking} />
@@ -125,16 +122,5 @@
   select:disabled {
     background-color: white;
     box-shadow: none;
-  }
-  .spinny {
-    animation: rotation 4s infinite linear;
-  }
-  @keyframes rotation {
-    from {
-      transform: rotate(0deg);
-    }
-    to {
-      transform: rotate(360deg);
-    }
   }
 </style>
