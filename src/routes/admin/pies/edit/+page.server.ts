@@ -3,7 +3,12 @@ import { getConfig } from '$lib/storage/config';
 import { fail, type Actions, redirect } from '@sveltejs/kit';
 import { validateAdmin } from '../../utilities';
 import { writeFile, mkdir } from 'node:fs/promises';
-import { setMakerPie, type MakerPie, getPieByMakerAndId } from '$lib/storage';
+import {
+  setMakerPie,
+  type MakerPie,
+  getPieByMakerAndId,
+  deletePieByMakerAndId
+} from '$lib/storage';
 
 export const load: PageServerLoad = async (event) => {
   const config = await getConfig();
@@ -138,5 +143,32 @@ export const actions = {
     await setMakerPie(pie as MakerPie);
 
     throw redirect(303, `/admin/pies/edit?year=${+pie.year}&makerid=${pie.makerid}&id=${pie.id}`);
+  },
+  delete: async ({ request, locals }) => {
+    const session = await locals.getSession();
+    await validateAdmin(session?.user?.email);
+    const data = await request.formData();
+    const pieData = await getPieByMakerAndId(
+      parseInt((data.get('year') as string) || ''),
+      data.get('makerid') as string,
+      data.get('id') as string
+    );
+
+    if (pieData.isErr()) {
+      console.log(data);
+      console.log(data.get('year'));
+      console.log(data.get('makerid'));
+      console.log(data.get('id'));
+      console.error('Err loading pie');
+      return fail(400, { incorrect: true });
+    }
+
+    await deletePieByMakerAndId(
+      parseInt((data.get('year') as string) || ''),
+      data.get('makerid') as string,
+      data.get('id') as string
+    );
+
+    throw redirect(303, `/admin/pies/`);
   }
 } satisfies Actions;

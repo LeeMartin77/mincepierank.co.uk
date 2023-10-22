@@ -62,6 +62,13 @@
     </div>
     <button>Edit</button>
   </form>
+  <h2>Delete this?</h2>
+  <form method="POST" action="?/delete" enctype="multipart/form-data">
+    <input type="hidden" name="year" value={data.pie?.year} />
+    <input type="hidden" name="makerid" value={data.pie?.makerid} />
+    <input type="hidden" name="id" value={data.pie?.id} />
+    <button>Delete</button>
+  </form>
 {:else}
   <h3>Slam a pie onto cassandra</h3>
 
@@ -128,5 +135,8 @@
   }
   form input {
     border: 1px solid black;
+  }
+  button {
+    padding: 1em;
   }
 </style>

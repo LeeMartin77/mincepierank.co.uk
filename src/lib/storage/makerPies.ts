@@ -133,3 +133,23 @@ export async function setMakerPie(pie: MakerPie): Promise<Result<boolean, Storag
     return err(StorageError.GenericError);
   }
 }
+
+export async function deletePieByMakerAndId(
+  year: number,
+  makerId: string,
+  id: string
+): Promise<Result<boolean, StorageError>> {
+  try {
+    const result = await CASSANDRA_CLIENT.execute(
+      'DELETE FROM mincepierank.maker_pie_yearly WHERE year = ? AND makerId = ? AND id = ?;',
+      [year, makerId, id],
+      { prepare: true }
+    );
+    if (result.rows.length !== 1) {
+      return err(StorageError.NotFound);
+    }
+    return ok(true);
+  } catch {
+    return err(StorageError.GenericError);
+  }
+}
