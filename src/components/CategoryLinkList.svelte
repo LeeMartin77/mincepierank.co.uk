@@ -33,7 +33,6 @@
     font-weight: bold;
     border-radius: 0.5em;
     padding: 0.5em 1em;
-    text-decoration: none;
     text-align: center;
     color: #111;
   }

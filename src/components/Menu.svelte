@@ -39,6 +39,7 @@
     <a on:click={toggleMenu} href="/quickrank">Quickrank</a>
     <a on:click={toggleMenu} href="/years/{activeYear}/all-pies">All Pies</a>
     <a on:click={toggleMenu} href="/years/{activeYear}/brands">Brands</a>
+    <a on:click={toggleMenu} href="/years/{activeYear}/categories">Categories</a>
     <a on:click={toggleMenu} href="/profile/rankings/{activeYear}">My Rankings</a>
     {#if !!$page.data.session?.user?.email && customPiesEnabled}
       <a on:click={toggleMenu} href="/profile/pies/{activeYear}">My Custom Pies</a>
