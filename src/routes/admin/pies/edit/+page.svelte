@@ -76,11 +76,15 @@
   <form method="POST" action="?/upload" enctype="multipart/form-data">
     <div>
       <label for="year">Year</label>
-      <input name="year" value={data.activeYear} />
+      <input name="year" value={data.activeYear} type="number" />
     </div>
     <div>
       <label for="makerid">makerid</label>
-      <input name="makerid" />
+      <select name="makerid">
+        {#each data.makers as maker}
+          <option value={maker.id}>{maker.name}</option>
+        {/each}
+      </select>
     </div>
     <div>
       <label for="id">id</label>
@@ -133,7 +137,8 @@
   form label {
     margin: 0;
   }
-  form input {
+  form input,
+  form select {
     border: 1px solid black;
   }
   button {

@@ -7,7 +7,8 @@ import {
   setMakerPie,
   type MakerPie,
   getPieByMakerAndId,
-  deletePieByMakerAndId
+  deletePieByMakerAndId,
+  getMincePieMakers
 } from '$lib/storage';
 
 export const load: PageServerLoad = async (event) => {
@@ -24,10 +25,13 @@ export const load: PageServerLoad = async (event) => {
     pie = (await getPieByMakerAndId(year, makerid, id)).unwrapOr(undefined);
   }
 
+  const makers = (await getMincePieMakers()).unwrapOr([]);
+
   return {
     config,
     editing,
-    pie
+    pie,
+    makers
   };
 };
 

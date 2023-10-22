@@ -4,6 +4,17 @@ import type { Maker } from './types';
 import { StorageError } from './types';
 import { rowToObject } from './utilities';
 
+export async function getMincePieMakers(): Promise<Result<Maker[], StorageError>> {
+  try {
+    const result = await CASSANDRA_CLIENT.execute('SELECT * FROM mincepierank.maker;');
+
+    const mapped = result.rows.map(rowToObject);
+    return ok(mapped as Maker[]);
+  } catch {
+    return err(StorageError.GenericError);
+  }
+}
+
 export async function getMincePieMakersForYear(
   year: number
 ): Promise<Result<Maker[], StorageError>> {
