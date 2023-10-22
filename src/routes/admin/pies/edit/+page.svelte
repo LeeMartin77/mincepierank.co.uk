@@ -47,11 +47,15 @@
       <label for="pack_price_in_pence">pack_price_in_pence</label>
       <input type="number" name="pack_price_in_pence" value={data.pie?.pack_price_in_pence} />
     </div>
-    <img
-      src={imgprssrPrefix(data.pie?.image_file + '?filter=gaussian&width=250', data.imgprssr)}
-      alt={data.pie?.displayname}
-    />
-    <input type="file" name="image" />
+    <div>
+      <img
+        src={imgprssrPrefix(data.pie?.image_file + '?filter=gaussian&width=250', data.imgprssr)}
+        alt={data.pie?.displayname}
+      />
+    </div>
+    <div>
+      <input type="file" name="image" />
+    </div>
     <div>
       <label for="validated">validated</label>
       <input type="checkbox" name="validated" checked={data.pie?.validated} />
@@ -65,7 +69,7 @@
   <form method="POST" action="?/upload" enctype="multipart/form-data">
     <div>
       <label for="year">Year</label>
-      <input name="year" value="2023" />
+      <input name="year" value={data.activeYear} />
     </div>
     <div>
       <label for="makerid">makerid</label>
@@ -99,7 +103,9 @@
       <label for="pack_price_in_pence">pack_price_in_pence</label>
       <input type="number" name="pack_price_in_pence" />
     </div>
-    <input type="file" name="image" />
+    <div>
+      <input type="file" name="image" />
+    </div>
     <div>
       <label for="validated">validated</label>
       <input type="checkbox" name="validated" />
@@ -107,3 +113,20 @@
     <button>Upload</button>
   </form>
 {/if}
+
+<style>
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5em;
+  }
+  form div {
+    display: flex;
+  }
+  form label {
+    margin: 0;
+  }
+  form input {
+    border: 1px solid black;
+  }
+</style>
