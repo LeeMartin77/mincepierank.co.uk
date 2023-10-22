@@ -93,6 +93,7 @@
   {:else if !readonly}
     <PieRankingEditor
       {hotRanking}
+      {submitting}
       on:change={(e) => {
         handleRankingChange(e.detail);
       }}

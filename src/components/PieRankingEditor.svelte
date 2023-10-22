@@ -2,6 +2,7 @@
   import { createEventDispatcher } from 'svelte';
   import RankingInput from './subcomponents/RankingInput.svelte';
   import Card from './generic/Card.svelte';
+  import LoadingIndicator from './generic/LoadingIndicator.svelte';
   const dispatcher = createEventDispatcher();
 
   type HotRanking = {
@@ -10,16 +11,30 @@
     topping?: number;
     looks?: number;
     value?: number;
-    notes?: string;
   };
   export let hotRanking: HotRanking;
+  export let submitting: boolean;
 
   const handleRankingChange = (hotRanking: HotRanking) => {
     dispatcher('change', hotRanking);
   };
+
+  const required: (keyof HotRanking)[] = ['pastry', 'filling', 'topping', 'looks', 'value'];
+
+  $: showHint =
+    !required.every((r) => hotRanking[r] === undefined) &&
+    !required.every((r) => hotRanking[r] !== undefined);
 </script>
 
 <Card>
+  <div class="loading-wrapper">
+    {#if submitting}
+      <LoadingIndicator width={18} />
+    {/if}
+    {#if showHint}
+      <span>Select all scores to save!</span>
+    {/if}
+  </div>
   <h3 style="text-align: center;">My Ranking</h3>
   <div class="ranking-column">
     <RankingInput
@@ -56,6 +71,12 @@
 </Card>
 
 <style>
+  .loading-wrapper {
+    position: absolute;
+  }
+  .loading-wrapper > span {
+    font-size: 0.7em;
+  }
   .ranking-column {
     display: flex;
     flex-direction: column;
