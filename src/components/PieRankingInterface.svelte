@@ -3,6 +3,7 @@
   import { onMount, createEventDispatcher } from 'svelte';
   import PieRankingEditor from './PieRankingEditor.svelte';
   import PieRankingSummary from './PieRankingSummary.svelte';
+  import Card from './generic/Card.svelte';
   const dispatch = createEventDispatcher();
 
   export let readonly = false;
@@ -83,10 +84,13 @@
   {#if initialLoad}
     <div>Loading</div>
   {:else if userRanking && userRanking.pastry && readonly}
-    <h2 style="text-align: center; margin-bottom: 0;">My Ranking</h2>
-    <PieRankingSummary rankingSummary={{ ...userRanking, count: undefined, average: undefined }} />
+    <Card>
+      <h2 style="text-align: center; margin-bottom: 0;">My Ranking</h2>
+      <PieRankingSummary
+        rankingSummary={{ ...userRanking, count: undefined, average: undefined }}
+      />
+    </Card>
   {:else if !readonly}
-    <h2 style="text-align: center; margin-bottom: 0;">My Ranking</h2>
     <PieRankingEditor
       {hotRanking}
       on:change={(e) => {
