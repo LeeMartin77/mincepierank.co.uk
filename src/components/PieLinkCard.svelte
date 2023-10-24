@@ -34,8 +34,11 @@
     <div>
       <h4 style="margin-bottom: 0.25em;">Average: {(pieListRanking?.average || 0).toFixed(2)}/5</h4>
       <PieGraph score={pieListRanking?.average || 0} />
-      <h5 style="margin-top: 0.25em;">{pieListRanking?.count || 0} Votes</h5>
+      {#if pieListRanking?.count !== undefined}
+        <h5 style="margin-top: 0.25em;">{pieListRanking?.count} Votes</h5>
+      {/if}
     </div>
+    <pre />
   </div>
   <div class="category-links">
     {#each pie.labels as label}
