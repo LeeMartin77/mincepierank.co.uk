@@ -36,9 +36,11 @@
       });
   };
 
-  const handlePieChange = (slmpie: string) => {
-    loadingPieRanking = true;
-    ranking = undefined;
+  const handlePieChange = (slmpie: string, setloading = true) => {
+    loadingPieRanking = setloading;
+    if (setloading) {
+      ranking = undefined;
+    }
     fetch(`/api/ranking/summary?year=${data.activeYear}&makerid=${selectedmaker}&pieid=${slmpie}`)
       .then((res) => {
         if (res.status === 200) {
@@ -108,6 +110,9 @@
         year={data.activeYear}
         makerid={selectedmaker}
         pieid={selectedpie}
+        on:newRanking={(newrnking) => {
+          handlePieChange(newrnking.detail.pieid, false);
+        }}
       />
     </div>
   {/if}

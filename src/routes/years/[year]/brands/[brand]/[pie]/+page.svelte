@@ -5,10 +5,28 @@
   import PieRankingInterface from '$components/PieRankingInterface.svelte';
   import PieRankingSummary from '$components/PieRankingSummary.svelte';
   import { formatCurrency } from '$components/utilities/formatCurrency';
+  import { onMount } from 'svelte';
 
   export let data: PageData;
 
   $: rankingSummary = data.ranking;
+  const reloadRanking = () => {
+    fetch(
+      `/api/ranking/summary?year=${data.pie.year}&makerid=${data.pie.makerid}&pieid=${data.pie.id}`
+    )
+      .then((res) => {
+        if (res.status === 200) {
+          return res.json();
+        }
+      })
+      .then((rnking) => {
+        rankingSummary = rnking;
+      });
+  };
+
+  onMount(() => {
+    reloadRanking();
+  });
 </script>
 
 <div class="page-wrapper">
@@ -59,18 +77,8 @@
       year={data.pie.year}
       makerid={data.pie.makerid}
       pieid={data.pie.id}
-      on:newRanking={({ detail }) => {
-        fetch(
-          `/api/ranking/summary?year=${detail.year}&makerid=${detail.makerid}&pieid=${detail.pieid}`
-        )
-          .then((res) => {
-            if (res.status === 200) {
-              return res.json();
-            }
-          })
-          .then((rnking) => {
-            rankingSummary = rnking;
-          });
+      on:newRanking={() => {
+        reloadRanking();
       }}
     />
   </div>
