@@ -20,6 +20,7 @@
 
   let initialLoad = true;
   let submitting = false;
+  let submitted = false;
   let mounted = false;
   let userRanking: MakerPieRanking;
 
@@ -72,6 +73,7 @@
       .then((rnking: MakerPieRanking) => {
         userRanking = rnking;
         hotRanking = rnking;
+        submitted = true;
         dispatch('newRanking', rnking);
       })
       .finally(() => {
@@ -94,6 +96,7 @@
     <PieRankingEditor
       {hotRanking}
       {submitting}
+      {submitted}
       on:change={(e) => {
         handleRankingChange(e.detail);
       }}
