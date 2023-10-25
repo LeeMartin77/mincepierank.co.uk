@@ -78,6 +78,7 @@
     <div class="content">
       <slot />
     </div>
+    <a style="padding-bottom: 6em" href="/about">About</a>
   </div>
 </div>
 
