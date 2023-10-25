@@ -3,11 +3,10 @@
   import { onMount } from 'svelte';
   import type { LayoutData } from './$types';
   import Menu from '$components/Menu.svelte';
-  import LinkButton from '$components/generic/LinkButton.svelte';
   export let data: LayoutData;
 
   let noticeVisible = false;
-  let noticestring = `${data.readonly ? 'READONLY' : ''}:${!!data.notice ? data.notice : ''}`;
+  let noticestring = `${data.readonly ? 'READONLY' : ''}:${data.notice ? data.notice : ''}`;
 
   let cookieNotice = false;
 
