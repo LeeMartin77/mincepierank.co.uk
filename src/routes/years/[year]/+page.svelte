@@ -8,6 +8,10 @@
   export let data: PageData;
 </script>
 
+<svelte:head>
+  <title>{data.year} Pies :: Mince Pie Rank</title>
+</svelte:head>
+
 <LinkButton href={`/years/${data.year}/all-pies`}>View All Pies</LinkButton>
 
 <CategoryLinkList year={data.year} categories={data.categories} />

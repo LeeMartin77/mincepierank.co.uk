@@ -5,4 +5,8 @@
   export let data: PageData;
 </script>
 
+<svelte:head>
+  <title>{data.year} Pies by Category :: Mince Pie Rank</title>
+</svelte:head>
+
 <CategoryLinkList year={data.year} categories={data.categories} />

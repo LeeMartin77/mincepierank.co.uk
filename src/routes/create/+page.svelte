@@ -6,6 +6,10 @@
   //export let data: PageData;
 </script>
 
+<svelte:head>
+  <title>Upload a Pie :: Mince Pie Rank</title>
+</svelte:head>
+
 {#if $page.data.session && $page.data.session.user && $page.data.session.user.email}
   <form method="POST" action="?/upload" enctype="multipart/form-data">
     <div>

@@ -5,6 +5,12 @@
   export let data: PageData;
 </script>
 
+<svelte:head>
+  <title
+    >{data.makerData.name}{data.makerData.name.endsWith('s') ? "'" : "'s"} Pies :: Mince Pie Rank</title
+  >
+</svelte:head>
+
 <h1>{data.makerData.name}</h1>
 
 <FilterablePieList pies={data.pies} pieRankings={data.pieRankings} imgprssr={data.imgprssr} />

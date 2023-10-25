@@ -29,6 +29,13 @@
   });
 </script>
 
+<svelte:head>
+  <title
+    >{data.pie.displayname}{data.maker ? ` from ${data.maker.name}` : ''}{data.ranking
+      ? ` :: ${data.ranking.average.toFixed(1)}/5`
+      : ''} :: Mince Pie Rank</title
+  >
+</svelte:head>
 <div class="page-wrapper">
   <div>
     <h1 style="margin-bottom: 0em;">{data.pie.displayname}</h1>

@@ -1,3 +1,7 @@
+<svelte:head>
+  <title>Privacy :: Mince Pie Rank</title>
+</svelte:head>
+
 <h1>Privacy Policy</h1>
 <p>
   This Privacy Policy outlines how Mince Pie Rank, accessible at <a

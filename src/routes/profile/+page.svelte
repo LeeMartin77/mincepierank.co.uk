@@ -7,6 +7,10 @@
   export let data: PageData;
 </script>
 
+<svelte:head>
+  <title>My Profile :: Mince Pie Rank</title>
+</svelte:head>
+
 <div style="display: flex; flex-direction: column; align-items: center; gap: 1em;">
   {#if $page.data.session && $page.data.session.user}
     <span class="signedInText">

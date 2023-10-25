@@ -5,6 +5,10 @@
   const years = data.years.sort().reverse();
 </script>
 
+<svelte:head>
+  <title>Available Years :: Mince Pie Rank</title>
+</svelte:head>
+
 <h1 style="min-width: 240px;">Years</h1>
 
 <div style="width: 100%; display: flex; flex-direction: column; gap: 2em;">

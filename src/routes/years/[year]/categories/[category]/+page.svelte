@@ -5,6 +5,10 @@
   export let data: PageData;
 </script>
 
+<svelte:head>
+  <title>{data.category[0].toUpperCase()}{data.category.slice(1)} Pies :: Mince Pie Rank</title>
+</svelte:head>
+
 <FilterablePieList
   pies={data.pies}
   pieRankings={data.pieRankings}

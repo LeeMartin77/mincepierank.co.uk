@@ -1,3 +1,7 @@
+<svelte:head>
+  <title>Cookies :: Mince Pie Rank</title>
+</svelte:head>
+
 <h1>Cookie Policy</h1>
 <p>
   This website, Mince Pie Rank, located at <a href="https://mincepierank.co.uk"

@@ -58,6 +58,10 @@
   $: pieindex = pies ? pies.findIndex((x) => x.id === selectedpie) : -1;
 </script>
 
+<svelte:head>
+  <title>Quickrank :: Mince Pie Rank</title>
+</svelte:head>
+
 <div>
   {#if data.customPiesEnabled}
     <div style="margin-bottom: 1em;">

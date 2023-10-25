@@ -2,6 +2,10 @@
   import LinkButton from '$components/generic/LinkButton.svelte';
 </script>
 
+<svelte:head>
+  <title>About :: Mince Pie Rank</title>
+</svelte:head>
+
 <h1>About</h1>
 <h3>What is this?</h3>
 <p>
