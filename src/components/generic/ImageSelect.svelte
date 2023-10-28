@@ -12,7 +12,6 @@
   export let value: string | undefined = undefined;
   export let disabled = false;
   let valueOption: ImageSelectOption | undefined;
-  export let imgprssr: string;
   export let placeholder = 'Select an Item';
 
   let open = false;
@@ -34,11 +33,7 @@
     }}
   >
     {#if valueOption}
-      <img
-        width={'50px'}
-        alt={valueOption.text}
-        src={imgprssr + valueOption.imageLink + '?width=50&filter=gaussian'}
-      />
+      <img width={'50px'} alt={valueOption.text} src={valueOption.imageLink} />
       <b>{valueOption.text}</b>
     {:else}
       <span>{placeholder}</span>
@@ -59,11 +54,7 @@
     <div class="select-list">
       {#each options as option}
         <button on:click={() => handleSelected(option)}>
-          <img
-            width={'50px'}
-            alt={option.text}
-            src={imgprssr + option.imageLink + '?width=50&filter=gaussian'}
-          />
+          <img width={'50px'} alt={option.text} src={option.imageLink} />
           <b>{option.text}</b>
         </button>
       {/each}

@@ -6,6 +6,7 @@
   import PieLinkCard from '$components/PieLinkCard.svelte';
   import LoadingIndicator from '$components/generic/LoadingIndicator.svelte';
   import ImageSelect from '$components/generic/ImageSelect.svelte';
+  import { imgprssrPrefix } from '$lib/imgprssr';
 
   export let data: PageData;
 
@@ -73,10 +74,9 @@
   <div style="display: flex; flex-direction: column; align-items: center;">
     <label for="maker">Brand</label>
     <ImageSelect
-      imgprssr={data.imgprssr}
       placeholder="Select Brand"
       options={data.makers.map((x) => ({
-        imageLink: x.logo,
+        imageLink: imgprssrPrefix(x.logo + '?width=50&filter=gaussian', data.imgprssr),
         text: x.name,
         value: x.id
       }))}
@@ -89,11 +89,10 @@
   <div style="margin-bottom: 1em; display: flex; flex-direction: column; align-items: center;">
     <label for="pie">Pie</label>
     <ImageSelect
-      imgprssr={data.imgprssr}
       placeholder="Select Pie"
       disabled={loadingPies || !selectedmaker || pies.length === 0}
       options={pies.map((x) => ({
-        imageLink: x.image_file,
+        imageLink: imgprssrPrefix(x.image_file + '?width=50&filter=gaussian', data.imgprssr),
         text: x.displayname,
         value: x.id
       }))}
