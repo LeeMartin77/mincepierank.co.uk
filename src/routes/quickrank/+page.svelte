@@ -5,6 +5,7 @@
   import LinkButton from '$components/generic/LinkButton.svelte';
   import PieLinkCard from '$components/PieLinkCard.svelte';
   import LoadingIndicator from '$components/generic/LoadingIndicator.svelte';
+  import ImageSelect from '$components/generic/ImageSelect.svelte';
 
   export let data: PageData;
 
@@ -71,35 +72,36 @@
   {/if}
   <div style="display: flex; flex-direction: column; align-items: center;">
     <label for="maker">Brand</label>
-    <select
-      name="maker"
-      bind:value={selectedmaker}
-      on:change={() => handleMakerChange(selectedmaker)}
-    >
-      <option value="">Select Brand</option>
-      {#each data.makers as maker}
-        <option value={maker.id}>{maker.name}</option>
-      {/each}
-    </select>
+    <ImageSelect
+      imgprssr={data.imgprssr}
+      placeholder="Select Brand"
+      options={data.makers.map((x) => ({
+        imageLink: x.logo,
+        text: x.name,
+        value: x.id
+      }))}
+      on:change={({ detail }) => {
+        selectedmaker = detail;
+        handleMakerChange(detail);
+      }}
+    />
   </div>
   <div style="margin-bottom: 1em; display: flex; flex-direction: column; align-items: center;">
     <label for="pie">Pie</label>
-    <select
+    <ImageSelect
+      imgprssr={data.imgprssr}
+      placeholder="Select Pie"
       disabled={loadingPies || !selectedmaker || pies.length === 0}
-      name="pie"
-      bind:value={selectedpie}
-      on:change={() => {
-        selectedpie = selectedpie;
-        handlePieChange(selectedpie);
+      options={pies.map((x) => ({
+        imageLink: x.image_file,
+        text: x.displayname,
+        value: x.id
+      }))}
+      on:change={({ detail }) => {
+        selectedpie = detail;
+        handlePieChange(detail);
       }}
-    >
-      <option value="">Select Pie</option>
-      {#if pies}
-        {#each pies as pie}
-          <option value={pie.id}>{pie.displayname}</option>
-        {/each}
-      {/if}
-    </select>
+    />
   </div>
   {#if pies && pieindex > -1}
     <div style="position: relative;">
@@ -130,13 +132,4 @@
 </div>
 
 <style>
-  select {
-    background-color: rgba(0, 0, 0, 0.04);
-    box-shadow: 0 0.2em 0.4em rgba(0, 0, 0, 0.1);
-    width: 16em;
-  }
-  select:disabled {
-    background-color: white;
-    box-shadow: none;
-  }
 </style>

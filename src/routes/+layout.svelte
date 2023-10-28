@@ -176,6 +176,7 @@
 
   @media only screen and (max-width: 640px) {
     .content {
+      min-width: 320px;
       max-width: 460px;
     }
   }
