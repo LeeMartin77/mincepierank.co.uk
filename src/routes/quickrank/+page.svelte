@@ -62,7 +62,7 @@
   <title>Quickrank :: Mince Pie Rank</title>
 </svelte:head>
 
-<div>
+<div style="display: flex; flex-direction: column; gap: 2em;">
   {#if data.customPiesEnabled}
     <div style="margin-bottom: 1em;">
       <p>Can't find what you're looking for?</p>

@@ -5,6 +5,7 @@
   import LinkButton from './generic/LinkButton.svelte';
   import PieGraph from './subcomponents/PieGraph.svelte';
   import { ppCategory } from './utilities/formatCategory';
+  import { formatCurrency } from './utilities/formatCurrency';
   import type { PieListRanking } from './utilities/mapPiesAndRankings';
   export let pie: UserPie | MakerPie;
   export let pieListRanking: PieListRanking | undefined = undefined;
@@ -31,11 +32,15 @@
         />
       {/if}
     </div>
-    <div>
-      <h4 style="margin-bottom: 0.25em;">Average: {(pieListRanking?.average || 0).toFixed(2)}/5</h4>
+    <div style="padding-top: 1em;">
       <PieGraph score={pieListRanking?.average || 0} />
       {#if pieListRanking?.count !== undefined}
-        <h5 style="margin-top: 0.25em;">{pieListRanking?.count} Votes</h5>
+        <h5 style="margin-top: 0.25em; margin-bottom: 0.25em;">{pieListRanking?.count} Votes</h5>
+      {/if}
+      {#if pie.pack_price_in_pence !== undefined}
+        <h6 style="margin-top: 0.25em; margin-bottom: 0.25em;">
+          {formatCurrency(pie.pack_price_in_pence)} per Pack
+        </h6>
       {/if}
     </div>
     <pre />
