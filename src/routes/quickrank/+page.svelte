@@ -101,11 +101,15 @@
       {/if}
     </select>
   </div>
-  {#if loadingPieRanking}
-    <LoadingIndicator />
-  {/if}
-  {#if pies && pieindex > -1 && !loadingPieRanking}
-    <PieLinkCard pie={pies[pieindex]} imgprssr={data.imgprssr} pieListRanking={ranking} />
+  {#if pies && pieindex > -1}
+    <div style="position: relative;">
+      <div style="position:absolute; top:20%; right: 25%; z-index: 99;">
+        {#if loadingPieRanking}
+          <LoadingIndicator />
+        {/if}
+      </div>
+      <PieLinkCard pie={pies[pieindex]} imgprssr={data.imgprssr} pieListRanking={ranking} />
+    </div>
   {/if}
   {#if pies && selectedmaker && selectedpie}
     <div>
@@ -115,7 +119,10 @@
         makerid={selectedmaker}
         pieid={selectedpie}
         on:newRanking={(newrnking) => {
-          handlePieChange(newrnking.detail.pieid, false);
+          loadingPieRanking = true;
+          setTimeout(() => {
+            handlePieChange(newrnking.detail.pieid, false);
+          }, 500);
         }}
       />
     </div>

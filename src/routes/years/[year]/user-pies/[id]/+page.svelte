@@ -51,6 +51,8 @@
   year={data.pie.year}
   pieid={data.pie.id}
   on:newRanking={async () => {
-    rankingSummary = await reloadRanking();
+    setTimeout(async () => {
+      rankingSummary = await reloadRanking();
+    }, 500);
   }}
 />

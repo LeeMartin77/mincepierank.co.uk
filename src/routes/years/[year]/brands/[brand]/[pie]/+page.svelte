@@ -85,7 +85,7 @@
       makerid={data.pie.makerid}
       pieid={data.pie.id}
       on:newRanking={() => {
-        reloadRanking();
+        setTimeout(reloadRanking, 500);
       }}
     />
   </div>
