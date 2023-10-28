@@ -22,12 +22,23 @@
 
 {#if !data.readonly}
   <a class="quickrank-link" href="/quickrank">Click to rank your pie!</a>
+  {#if data.latestRanking && data.latestPie}
+    <h3>Latest Ranking</h3>
+    <PieLinkCard
+      pie={data.latestPie}
+      pieListRanking={{ ...data.latestRanking, count: undefined }}
+      when={data.latestRanking.last_updated}
+      imgprssr={data.imgprssr}
+      raised={true}
+    />
+  {/if}
 {/if}
 
 <BrandLinkList makers={data.makers} year={data.activeYear} imgprssr={data.imgprssr} />
 
 <style>
-  h2 {
+  h2,
+  h3 {
     text-align: center;
   }
   .quickrank-link {

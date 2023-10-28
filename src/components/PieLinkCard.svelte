@@ -7,10 +7,12 @@
   import { ppCategory } from './utilities/formatCategory';
   import { formatCurrency } from './utilities/formatCurrency';
   import type { PieListRanking } from './utilities/mapPiesAndRankings';
+  import { formatRelative } from 'date-fns';
   export let pie: UserPie | MakerPie;
   export let pieListRanking: PieListRanking | undefined = undefined;
   export let imgprssr: string;
   export let raised = false;
+  export let when: string | undefined = undefined;
   let pielink: string;
   $: {
     if ('makerid' in pie) {
@@ -33,6 +35,11 @@
       {/if}
     </div>
     <div style="padding-top: 1em;">
+      {#if when != undefined}
+        <h5 style="margin-top: 0.25em; margin-bottom: 0.25em;">
+          {formatRelative(new Date(when), new Date())}
+        </h5>
+      {/if}
       <PieGraph score={pieListRanking?.average || 0} />
       {#if pieListRanking?.count !== undefined}
         <h5 style="margin-top: 0.25em; margin-bottom: 0.25em;">{pieListRanking?.count} Votes</h5>

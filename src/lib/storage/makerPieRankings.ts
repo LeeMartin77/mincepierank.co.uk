@@ -28,9 +28,8 @@ export async function getLatestRanking(
 ): Promise<Result<MakerPieRanking, StorageError>> {
   try {
     const whenresult = await CASSANDRA_CLIENT.execute(
-      'SELECT MAX(last_updated) as last_updated FROM mincepierank.maker_pie_ranking_yearly where year = ?;'[
-        year
-      ],
+      'SELECT MAX(last_updated) as last_updated FROM mincepierank.maker_pie_ranking_yearly where year = ?;',
+      [year],
       { prepare: true }
     );
 
@@ -57,7 +56,8 @@ export async function getLatestRanking(
       { prepare: true }
     );
     return ok(rowToObject(top.first()));
-  } catch {
+  } catch (ex) {
+    console.error(ex);
     return err(StorageError.GenericError);
   }
 }
