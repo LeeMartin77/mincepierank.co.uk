@@ -114,7 +114,6 @@
 
   .select-list {
     position: absolute;
-    display: flex;
     flex-direction: column;
     overflow-y: scroll;
     max-height: 15em;
@@ -130,6 +129,7 @@
     height: 50px;
     background: none;
     border: none;
+    border-bottom: 1px solid black;
     padding: 0.5em 0.5em;
     display: flex;
     flex-direction: row;
@@ -138,6 +138,9 @@
     gap: 1em;
     background-color: #eee;
     cursor: pointer;
+  }
+  .select-list button:last-child {
+    border-bottom: none;
   }
   .select-list button:hover {
     background-color: #ddd;
