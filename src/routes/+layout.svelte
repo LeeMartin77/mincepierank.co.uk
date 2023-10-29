@@ -1,4 +1,5 @@
 <script lang="ts">
+  /* eslint-disable @typescript-eslint/ban-ts-comment */
   import Breadcrumb from '$components/Breadcrumb.svelte';
   import { onMount } from 'svelte';
   import type { LayoutData } from './$types';
