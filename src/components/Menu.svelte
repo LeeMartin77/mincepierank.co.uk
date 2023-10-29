@@ -76,6 +76,12 @@
     border-radius: 2em;
     margin: 1em;
     z-index: 99999999;
+    box-shadow: 0.2em 0.1em 0.5em rgba(0, 0, 0, 0.1);
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    cursor: pointer;
   }
   .menu-container {
     display: flex;
@@ -86,8 +92,11 @@
     max-width: 320px;
     height: 100vh;
     color: #111;
-    background-color: #fff;
-    border-right: 1px solid #111;
+    background: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    border-right: 1px solid rgba(255, 255, 255, 0.3);
     z-index: 99999999999999999;
   }
   .menu {
@@ -99,7 +108,7 @@
   .menu-footer {
     margin-top: auto;
     margin-bottom: 0;
-    border-top: solid 1px black;
+    border-top: 1px solid rgba(255, 255, 255, 0.3);
     display: flex;
     flex-direction: column;
   }
@@ -120,12 +129,14 @@
     font-weight: bold;
     width: 100%;
     color: #111;
-    background-color: #ccc;
+    background-color: rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
     border: none;
   }
 
-  button:hover {
-    background-color: #bbb;
+  button:hover:not(.menu-button) {
+    background-color: rgba(255, 255, 255, 0.8);
     cursor: pointer;
   }
 

@@ -46,6 +46,10 @@
     gap: 1em;
     background-color: white;
     box-shadow: 0em 0.2em 0.2em 0 rgba(0, 0, 0, 0.2);
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
     margin: 1em;
     padding: 1em;
   }

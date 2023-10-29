@@ -42,7 +42,7 @@ export function mapPiesAndRankings(
     if (
       filteredCategoryIds === undefined ||
       filteredCategoryIds.size === 0 ||
-      Array.from(filteredCategoryIds).every((lb) => pie.labels.includes(lb))
+      Array.from(filteredCategoryIds).every((lb) => pie.labels && pie.labels.includes(lb))
     ) {
       unrankedPies.add(uniqId);
     }

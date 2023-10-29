@@ -37,7 +37,7 @@
   >
 </svelte:head>
 <div class="page-wrapper">
-  <div>
+  <div style="display:flex; flex-direction: column; gap: 0.5em;">
     <h1 style="margin-bottom: 0em;">{data.pie.displayname}</h1>
     {#if data.maker}
       <h3>from {data.maker.name}</h3>
@@ -126,7 +126,11 @@
 
   .category-link {
     display: block;
-    box-shadow: 0em 0em 0.2em rgba(0, 0, 0, 0.2);
+    box-shadow: 0em 0em 0.3em rgba(0, 0, 0, 0.1);
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
     font-size: 0.8em;
     border-radius: 2em;
     padding: 0.5em;
