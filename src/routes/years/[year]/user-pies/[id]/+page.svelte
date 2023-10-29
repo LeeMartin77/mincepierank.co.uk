@@ -39,41 +39,45 @@
       alt={data.pie.displayname}
     />
   </div>
-  <div>
-    <h3>Pieformation</h3>
-    <table>
-      <tbody>
-        {#if data.pie.location}
-          <tr>
-            <td><b>Where</b></td>
-            <td>{data.pie.location}</td>
-          </tr>
-        {/if}
-        {#if data.pie.labels}
-          <tr>
-            <td><b>Categories</b></td>
-            <td>{data.pie.labels.join(', ')}</td>
-          </tr>
-        {/if}
-        <tr>
-          <td><b>Pack Count</b></td>
-          <td>{data.pie.pack_count}</td>
-        </tr>
-        {#if data.pie.pack_price_in_pence}
-          <tr>
-            <td><b>Price</b></td>
-            <td>{formatCurrency(data.pie.pack_price_in_pence)}</td>
-          </tr>
-        {/if}
-        {#if data.pie.pack_price_in_pence && data.pie.pack_count}
-          <tr>
-            <td><b>Cost per pie</b></td>
-            <td>{formatCurrency(data.pie.pack_price_in_pence / data.pie.pack_count)}</td>
-          </tr>
-        {/if}
-      </tbody>
-    </table>
-  </div>
+  {#if data.pie.location || data.pie.labels || data.pie.pack_count || data.pie.pack_price_in_pence}
+    <div>
+      <h3>Pieformation</h3>
+      <table>
+        <tbody>
+          {#if data.pie.location}
+            <tr>
+              <td><b>Where</b></td>
+              <td>{data.pie.location}</td>
+            </tr>
+          {/if}
+          {#if data.pie.labels}
+            <tr>
+              <td><b>Categories</b></td>
+              <td>{data.pie.labels.join(', ')}</td>
+            </tr>
+          {/if}
+          {#if data.pie.pack_count}
+            <tr>
+              <td><b>Pack Count</b></td>
+              <td>{data.pie.pack_count}</td>
+            </tr>
+          {/if}
+          {#if data.pie.pack_price_in_pence}
+            <tr>
+              <td><b>Price</b></td>
+              <td>{formatCurrency(data.pie.pack_price_in_pence)}</td>
+            </tr>
+          {/if}
+          {#if data.pie.pack_price_in_pence && data.pie.pack_count}
+            <tr>
+              <td><b>Cost per pie</b></td>
+              <td>{formatCurrency(data.pie.pack_price_in_pence / data.pie.pack_count)}</td>
+            </tr>
+          {/if}
+        </tbody>
+      </table>
+    </div>
+  {/if}
   <div>
     <PieRankingSummary {rankingSummary} />
   </div>

@@ -10,7 +10,7 @@
   $: availableCategoryIds = Array.from(
     new Set(
       pies.reduce<string[]>((acc, curr) => {
-        return [...acc, ...curr.labels.filter((lb) => lb !== fixedCategory)];
+        return [...acc, ...(curr.labels ?? []).filter((lb) => lb !== fixedCategory)];
       }, [])
     )
   );

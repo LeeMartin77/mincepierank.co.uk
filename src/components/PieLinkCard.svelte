@@ -44,7 +44,7 @@
       {#if pieListRanking?.count !== undefined}
         <h5 style="margin-top: 0.25em; margin-bottom: 0.25em;">{pieListRanking?.count} Votes</h5>
       {/if}
-      {#if pie.pack_price_in_pence !== undefined}
+      {#if pie.pack_price_in_pence}
         <h6 style="margin-top: 0.25em; margin-bottom: 0.25em;">
           {formatCurrency(pie.pack_price_in_pence)} per Pack
         </h6>
@@ -53,7 +53,7 @@
     <pre />
   </div>
   <div class="category-links">
-    {#each pie.labels as label}
+    {#each pie.labels ?? [] as label}
       <a class="category-link" href={`/years/${pie.year}/categories/${label}`}
         >{ppCategory(label)}</a
       >

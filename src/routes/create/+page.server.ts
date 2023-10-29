@@ -49,6 +49,9 @@ export const actions = {
 
     pulledData.fresh = data.get('fresh') == 'on';
     pulledData.clean = false;
+    // eslint-disable-next-line no-useless-escape
+    const urlPattern = /(?:https?):\/\/(\w+:?\w*)?(\S+)(:\d+)?(\/|\/([\w#!:.?+=&%!\-\/]))?/;
+    pulledData.web_link = urlPattern.test(pulledData.web_link) ? pulledData.web_link : null;
 
     pulledData.year = config.activeYear;
     pulledData.owner_userid = session.user.email;
