@@ -34,7 +34,7 @@
   <h3>Details</h3>
   <dl>
     <dt>Categories</dt>
-    <dd>{data.pie.labels.map(ppCategory).join(', ')}</dd>
+    <dd>{data.pie.labels ? data.pie.labels.map(ppCategory).join(', ') : 'None'}</dd>
     <dt>Pack Count</dt>
     <dd>{data.pie.pack_count}</dd>
     <dt>Price</dt>

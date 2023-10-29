@@ -8,7 +8,7 @@ import { setUserPie, type UserPie } from '$lib/storage';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const load = async (_event: PageServerLoadEvent) => {
   const config = await getConfig();
-  if (config.readonly === 'true' || config.customPiesEnabled !== 'true') {
+  if (config.readonly === 'true') {
     throw error(404, 'Not Found');
   }
   const activeYear = parseInt(config.activeYear);
@@ -77,7 +77,7 @@ export const actions = {
       pulledData.image_file = imgpath + '/' + image.name;
     }
 
-    pulledData.labels = pulledData.labels.split(',');
+    pulledData.labels = pulledData.labels ? pulledData.labels.split(',') : [];
 
     await setUserPie(pulledData as UserPie);
 
