@@ -35,33 +35,33 @@
 <svelte:window bind:innerWidth={screenWidth} />
 {#if screenWidth > 640 || menuOpen}
   <div class="menu-container" use:clickOutside on:clickOutside={() => (menuOpen = false)}>
-    <a on:click={toggleMenu} href="/">Home</a>
-    <a on:click={toggleMenu} href="/quickrank">Quickrank</a>
-    <a on:click={toggleMenu} href="/years/{activeYear}/all-pies">All Pies</a>
-    <a on:click={toggleMenu} href="/years/{activeYear}/brands">Brands</a>
-    <a on:click={toggleMenu} href="/years/{activeYear}/categories">Categories</a>
-    <a on:click={toggleMenu} href="/profile/rankings/{activeYear}">My Rankings</a>
-    {#if !!$page.data.session?.user?.email && customPiesEnabled}
-      <a on:click={toggleMenu} href="/profile/pies/{activeYear}">My Custom Pies</a>
-    {/if}
-
-    {#if !!$page.data.session?.user?.email}
-      <a on:click={toggleMenu} class="menu-footer" href="/profile"
-        >{#if !!$page.data.session.user.name}
-          Hi {$page.data.session.user.name}
-        {:else}
-          Welcome back!
-        {/if}</a
-      >
-    {:else}
-      <button class="menu-footer" on:click={() => signIn()}>Sign In</button>
-    {/if}
-    {#if screenWidth <= 640}
-      <button
-        style="width:100%; position:relative; margin: 0; border-radius: 0; margin-top: 1em; left: 0;"
-        on:click={toggleMenu}>Close Menu</button
-      >
-    {/if}
+    <div class="menu">
+      <a on:click={toggleMenu} href="/">Home</a>
+      <a on:click={toggleMenu} href="/quickrank">Quickrank</a>
+      <a on:click={toggleMenu} href="/years/{activeYear}/all-pies">All Pies</a>
+      <a on:click={toggleMenu} href="/years/{activeYear}/brands">Brands</a>
+      <a on:click={toggleMenu} href="/years/{activeYear}/categories">Categories</a>
+      <a on:click={toggleMenu} href="/profile/rankings/{activeYear}">My Rankings</a>
+      {#if !!$page.data.session?.user?.email && customPiesEnabled}
+        <a on:click={toggleMenu} href="/profile/pies/{activeYear}">My Custom Pies</a>
+      {/if}
+    </div>
+    <div class="menu-footer">
+      {#if !!$page.data.session?.user?.email}
+        <a on:click={toggleMenu} href="/profile"
+          >{#if !!$page.data.session.user.name}
+            Hi {$page.data.session.user.name}
+          {:else}
+            Welcome back!
+          {/if}</a
+        >
+      {:else}
+        <button on:click={() => signIn()}>Sign In</button>
+      {/if}
+      {#if screenWidth <= 640}
+        <button on:click={toggleMenu}>Close Menu</button>
+      {/if}
+    </div>
   </div>
 {:else}
   <button class="menu-button" on:click={toggleMenu}>Menu</button>
@@ -88,13 +88,20 @@
     color: #111;
     background-color: #fff;
     border-right: 1px solid #111;
-    z-index: 99999999;
+    z-index: 99999999999999999;
+  }
+  .menu {
+    display: flex;
+    flex-direction: column;
     overflow-y: scroll;
   }
 
   .menu-footer {
     margin-top: auto;
-    margin-bottom: 1em;
+    margin-bottom: 0;
+    border-top: solid 1px black;
+    display: flex;
+    flex-direction: column;
   }
 
   a {
