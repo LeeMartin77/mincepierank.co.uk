@@ -64,10 +64,10 @@
   <title>Quickrank :: Mince Pie Rank</title>
 </svelte:head>
 
-<div style="display: flex; flex-direction: column; gap: 2em;">
+<div style="display: flex; flex-direction: column; gap: 0.5em; min-width: 320px;">
   {#if data.customPiesEnabled}
-    <div style="margin-bottom: 1em;">
-      <p>Can't find what you're looking for?</p>
+    <div>
+      <p style="text-align: center;">Can't find what you're looking for?</p>
       <LinkButton href="/create">Create a custom pie!</LinkButton>
     </div>
   {/if}
