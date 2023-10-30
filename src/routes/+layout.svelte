@@ -131,46 +131,46 @@
 </script>
 
 <canvas id="canvas" />
-{#if noticeVisible}
-  <div class="notices">
-    <button
-      on:click={() => {
-        localStorage.setItem(noticekey, noticestring);
-        noticeVisible = false;
-      }}>X</button
-    >
-    <div>
-      {#if data.readonly}
-        <p>Mince Pie Rank is read-only until the next Christmas period</p>
-      {/if}
-      {#if data.notice}
-        <p>{data.notice}</p>
-      {/if}
-    </div>
-  </div>
-{/if}
-{#if cookieNotice}
-  <div class="cookie-notice">
-    <div>
-      <p>We use cookies for authentication and associating mince pie rankings to a user</p>
-      <button
-        on:click={() => {
-          localStorage.setItem(cookiekey, 'accepted');
-          cookieNotice = false;
-        }}>Accept</button
-      >
-      <button
-        on:click={() => {
-          cookieNotice = false;
-        }}>Dismiss</button
-      >
-      <a href="/about/cookies">Read Full Policy</a>
-    </div>
-  </div>
-{/if}
 <div class="page-container">
   <Menu activeYear={data.activeYear} customPiesEnabled={data.customPiesEnabled} />
   <div class="content-container">
+    {#if cookieNotice}
+      <div class="cookie-notice">
+        <div>
+          <p>We use cookies for authentication and associating mince pie rankings to a user</p>
+          <button
+            on:click={() => {
+              localStorage.setItem(cookiekey, 'accepted');
+              cookieNotice = false;
+            }}>Accept</button
+          >
+          <button
+            on:click={() => {
+              cookieNotice = false;
+            }}>Dismiss</button
+          >
+          <a href="/about/cookies">Read Full Policy</a>
+        </div>
+      </div>
+    {/if}
+    {#if noticeVisible}
+      <div class="notices">
+        <button
+          on:click={() => {
+            localStorage.setItem(noticekey, noticestring);
+            noticeVisible = false;
+          }}>X</button
+        >
+        <div>
+          {#if data.readonly}
+            <p>Mince Pie Rank is read-only until the next Christmas period</p>
+          {/if}
+          {#if data.notice}
+            <p>{data.notice}</p>
+          {/if}
+        </div>
+      </div>
+    {/if}
     <Breadcrumb />
     <div class="content">
       <slot />
@@ -198,18 +198,21 @@
   }
   .notices {
     text-align: center;
-    border: 1px dashed grey;
     border-radius: 1em;
     position: fixed;
     width: calc(100vw - 4em);
-    background-color: white;
+    box-shadow: 0.2em 0.1em 0.5em rgba(0, 0, 0, 0.1);
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
     top: 1em;
     left: 1em;
     display: flex;
     padding: 1em;
     align-items: center;
     gap: 1em;
-    z-index: 99999;
+    z-index: 9999999999998;
   }
 
   .notices button {
@@ -222,14 +225,18 @@
 
   .cookie-notice {
     text-align: center;
-    border: 1px dashed grey;
     border-radius: 1em;
     position: fixed;
     width: calc(100vw - 4em);
-    background-color: white;
-    top: 1em;
+    box-shadow: 0.2em 0.1em 0.5em rgba(0, 0, 0, 0.1);
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    bottom: 1em;
     left: 1em;
     display: flex;
+    flex-direction: column;
     padding: 1em;
     align-items: center;
     gap: 1em;
