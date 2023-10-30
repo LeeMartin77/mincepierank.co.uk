@@ -127,6 +127,16 @@
     }
 
     init();
+
+    addEventListener('resize', () => {
+      canvas = document.getElementById('canvas');
+      // @ts-ignore
+      ctx = canvas.getContext('2d');
+      // @ts-ignore
+      canvas.width = window.innerWidth;
+      // @ts-ignore
+      canvas.height = window.innerHeight;
+    });
   });
 </script>
 
