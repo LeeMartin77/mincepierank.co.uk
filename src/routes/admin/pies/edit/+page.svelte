@@ -81,6 +81,7 @@
     <div>
       <label for="makerid">makerid</label>
       <select name="makerid">
+        <option value="">-- Select --</option>
         {#each data.makers as maker}
           <option value={maker.id}>{maker.name}</option>
         {/each}
