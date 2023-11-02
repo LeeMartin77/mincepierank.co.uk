@@ -90,7 +90,7 @@
     top: 0;
     left: 0;
     max-width: 320px;
-    height: 100vh;
+    height: 100dvh;
     color: #111;
     background: rgba(255, 255, 255, 0.2);
     box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
