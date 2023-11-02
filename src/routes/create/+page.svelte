@@ -1,9 +1,10 @@
 <script lang="ts">
   import { signIn } from '@auth/sveltekit/client';
   import { page } from '$app/stores';
-  //import type { PageData } from './$types';
+  import type { PageData } from './$types';
 
-  //export let data: PageData;
+  export let data: PageData;
+  export let form;
 
   let showExtra = false;
 
@@ -26,6 +27,11 @@
   <title>Upload a Pie :: Mince Pie Rank</title>
 </svelte:head>
 
+{#if form?.error}
+  <div>
+    <p>{form.error}</p>
+  </div>
+{/if}
 {#if $page.data.session && $page.data.session.user && $page.data.session.user.email}
   <form method="POST" action="?/upload" enctype="multipart/form-data">
     <input type="hidden" name="fresh" />
@@ -37,9 +43,14 @@
       <label for="maker">Who made it?</label>
       <input name="maker" bind:value={essentialdata.maker} />
     </div>
+    {#if essentialdata.image && essentialdata.image[0].size > data.maxFileSize}
+      <div>
+        <span style="margin-left: auto; margin-right: 0;"> Image is too large! </span>
+      </div>
+    {/if}
     <div>
       <label for="image">Got a picture?</label>
-      <input type="file" name="image" bind:value={essentialdata.image} />
+      <input type="file" name="image" bind:files={essentialdata.image} />
     </div>
     {#if !showExtra}
       <input type="hidden" name="location" bind:value={optionaldata.location} />
@@ -104,8 +115,11 @@
         />
       </div>
     {/if}
-    <button type="submit" disabled={Object.values(essentialdata).some((x) => x === undefined)}
-      >Create!</button
+    <button
+      type="submit"
+      disabled={Object.values(essentialdata).some((x) => x === undefined) ||
+        !essentialdata.image ||
+        essentialdata.image[0].size > data.maxFileSize}>Create!</button
     >
   </form>
 {:else}

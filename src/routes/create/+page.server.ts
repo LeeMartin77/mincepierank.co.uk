@@ -5,6 +5,8 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import { randomUUID } from 'node:crypto';
 import { setUserPie, type UserPie } from '$lib/storage';
 
+const maxFileSize = 1024 * 1024 * 20;
+
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const load = async (_event: PageServerLoadEvent) => {
   const config = await getConfig();
@@ -13,7 +15,8 @@ export const load = async (_event: PageServerLoadEvent) => {
   }
   const activeYear = parseInt(config.activeYear);
   return {
-    activeYear
+    activeYear,
+    maxFileSize
   };
 };
 
@@ -26,6 +29,13 @@ export const actions = {
     const config = await getConfig();
     if (config.readonly === 'true') {
       throw error(402, 'Currently in readonly mode');
+    }
+
+    const length = +(request.headers.get('content-length') ?? '0');
+    if (length > maxFileSize) {
+      return fail(400, {
+        error: 'File too large!'
+      });
     }
 
     const data = await request.formData();
