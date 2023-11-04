@@ -1,5 +1,6 @@
 <svelte:head>
   <title>Cookies :: Mince Pie Rank</title>
+  <meta name="description" content="Mince Pie Rank cookie policy" />
 </svelte:head>
 
 <h1>Cookie Policy</h1>

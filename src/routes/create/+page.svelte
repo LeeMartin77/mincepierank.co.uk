@@ -25,6 +25,7 @@
 
 <svelte:head>
   <title>Upload a Pie :: Mince Pie Rank</title>
+  <meta name="description" content="Create custom pies" />
 </svelte:head>
 
 {#if form?.error}

@@ -10,6 +10,11 @@
 
 <svelte:head>
   <title>{data.year} Pies :: Mince Pie Rank</title>
+  <meta
+    name="description"
+    content={`Mince pie categories and brands we have data for ${data.year}`}
+  />
+  <meta name="keywords" content={`Mince Pies, UK, Ranking, ${data.year}`} />
 </svelte:head>
 
 <LinkButton href={`/years/${data.year}/all-pies`}>View All Pies</LinkButton>

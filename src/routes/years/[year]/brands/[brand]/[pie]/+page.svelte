@@ -35,6 +35,18 @@
       ? ` :: ${data.ranking.average.toFixed(1)}/5`
       : ''} :: Mince Pie Rank</title
   >
+  <meta
+    name="description"
+    content={`${data.pie.displayname}${data.maker ? ` from ${data.maker.name}` : ''}${
+      data.ranking
+        ? ` scored ${data.ranking.average.toFixed(1)}/5 on average in ${data.pie.year}`
+        : ''
+    }`}
+  />
+  <meta
+    name="keywords"
+    content={`Mince Pies, UK, Ranking, ${data.pie.year}, ${data.maker?.name}, ${data.pie.displayname}`}
+  />
 </svelte:head>
 <div class="page-wrapper">
   <div style="display:flex; flex-direction: column; gap: 0.5em;">

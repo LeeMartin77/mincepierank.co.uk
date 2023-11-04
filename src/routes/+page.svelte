@@ -8,6 +8,8 @@
 
 <svelte:head>
   <title>Mince Pie Rank :: Homepage</title>
+  <meta name="description" content="Rank mince pies from major UK brands" />
+  <meta name="keywords" content="Mince Pies, UK, Ranking" />
 </svelte:head>
 
 {#if data.topPie && data.topPieRanking}

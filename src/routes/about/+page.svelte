@@ -4,6 +4,7 @@
 
 <svelte:head>
   <title>About :: Mince Pie Rank</title>
+  <meta name="description" content="All about what Mince Pie Rank is" />
 </svelte:head>
 
 <h1>About</h1>

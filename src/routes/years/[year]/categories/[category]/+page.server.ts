@@ -35,6 +35,7 @@ export const load = (async ({ params }: PageServerLoadEvent) => {
   return {
     pies: pies.value,
     pieRankings,
-    category
+    category,
+    year
   };
 }) satisfies PageServerLoad;

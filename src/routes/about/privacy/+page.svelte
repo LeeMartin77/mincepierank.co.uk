@@ -1,5 +1,6 @@
 <svelte:head>
   <title>Privacy :: Mince Pie Rank</title>
+  <meta name="description" content="Mince Pie Rank's privacy policy" />
 </svelte:head>
 
 <h1>Privacy Policy</h1>

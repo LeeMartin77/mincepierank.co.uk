@@ -62,6 +62,8 @@
 
 <svelte:head>
   <title>Quickrank :: Mince Pie Rank</title>
+  <meta name="description" content="Quickly pick from the brands and pies of the current year" />
+  <meta name="keywords" content="Mince Pies, UK, Ranking" />
 </svelte:head>
 
 <div style="display: flex; flex-direction: column; gap: 0.5em; min-width: 320px;">

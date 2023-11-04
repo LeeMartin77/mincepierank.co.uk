@@ -7,6 +7,8 @@
 
 <svelte:head>
   <title>Available Years :: Mince Pie Rank</title>
+  <meta name="description" content="All the years Mince Pie Rank has data for" />
+  <meta name="keywords" content="Mince Pies, UK, Ranking" />
 </svelte:head>
 
 <h1 style="min-width: 240px;">Years</h1>
