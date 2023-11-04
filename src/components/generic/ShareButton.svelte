@@ -1,10 +1,13 @@
 <script lang="ts">
+  import { onMount } from 'svelte';
+
   export let text: string;
   export let url: string;
   export let title: string | undefined = undefined;
   export let style: string | undefined = undefined;
 
   let showThanks = false;
+  let show = false;
 
   const handleShare = () => {
     navigator
@@ -16,11 +19,20 @@
       .then(() => {
         // thanks for sharing!
         showThanks = true;
+        setTimeout(() => {
+          showThanks = false;
+        }, 4000);
       });
   };
+
+  onMount(() => {
+    show = !!navigator.share;
+  });
 </script>
 
-<button class="share-button" {style} on:click={() => handleShare()}><slot /></button>
+{#if show}
+  <button class="share-button" {style} on:click={() => handleShare()}><slot /></button>
+{/if}
 
 {#if showThanks}
   <div class="thanks-notice">

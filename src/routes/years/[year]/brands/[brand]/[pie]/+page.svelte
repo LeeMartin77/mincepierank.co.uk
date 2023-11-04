@@ -33,7 +33,7 @@
 
   onMount(() => {
     reloadRanking();
-    url = window.location.origin;
+    url = window.location.href;
   });
 </script>
 
