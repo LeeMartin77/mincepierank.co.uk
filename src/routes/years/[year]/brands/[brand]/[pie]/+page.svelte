@@ -6,8 +6,11 @@
   import PieRankingSummary from '$components/PieRankingSummary.svelte';
   import { formatCurrency } from '$components/utilities/formatCurrency';
   import { onMount } from 'svelte';
+  import ShareButton from '$components/generic/ShareButton.svelte';
 
   export let data: PageData;
+
+  let url = '';
 
   $: rankingSummary = data.ranking;
   const reloadRanking = () => {
@@ -24,17 +27,18 @@
       });
   };
 
+  let headerText = `${data.pie.displayname}${data.maker ? ` from ${data.maker.name}` : ''}${
+    data.ranking ? ` :: ${data.ranking.average.toFixed(1)}/5` : ''
+  } :: Mince Pie Rank`;
+
   onMount(() => {
     reloadRanking();
+    url = window.location.origin;
   });
 </script>
 
 <svelte:head>
-  <title
-    >{data.pie.displayname}{data.maker ? ` from ${data.maker.name}` : ''}{data.ranking
-      ? ` :: ${data.ranking.average.toFixed(1)}/5`
-      : ''} :: Mince Pie Rank</title
-  >
+  <title>{headerText}</title>
   <meta
     name="description"
     content={`${data.pie.displayname}${data.maker ? ` from ${data.maker.name}` : ''}${
@@ -85,6 +89,7 @@
         </tr>
       </tbody>
     </table>
+    <ShareButton {url} text={headerText} title={headerText}>Share</ShareButton>
   </div>
 
   <div>
