@@ -27,11 +27,13 @@
   <div class="pie-card-top">
     <div style="width: 30%">
       {#if pie.image_file}
-        <img
-          width="100%"
-          src={`${imgprssrPrefix(pie.image_file, imgprssr)}?width=250&height=250&filter=gaussian`}
-          alt={pie.displayname}
-        />
+        <a href={pielink} aria-label={pie.displayname}>
+          <img
+            width="100%"
+            src={`${imgprssrPrefix(pie.image_file, imgprssr)}?width=250&height=250&filter=gaussian`}
+            alt={pie.displayname}
+          />
+        </a>
       {/if}
     </div>
     <div style="padding-top: 1em;">
