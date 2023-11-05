@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Card from '$components/generic/Card.svelte';
   import { imgprssrPrefix } from '$lib/imgprssr';
   import type { PageData } from './$types';
   import UserPieRankingInterface from '$components/UserPieRankingInterface.svelte';
@@ -25,16 +26,23 @@
   });
 </script>
 
-<div class="page-wrapper">
-  {#if data.isMine}
-    <div>
+{#if data.isMine}
+  <Card>
+    <div class="my-pie-buttons">
+      <form method="GET" action={`/create`}>
+        <input type="hidden" name="id" value={data.pie.id} />
+        <input type="hidden" name="year" value={data.pie.year} />
+        <button>Edit</button>
+      </form>
       <form method="POST" action="?/delete">
         <input type="hidden" name="id" value={data.pie.id} />
         <input type="hidden" name="year" value={data.pie.year} />
         <button>Delete</button>
       </form>
     </div>
-  {/if}
+  </Card>
+{/if}
+<div class="page-wrapper">
   <div>
     <h1 style="margin-bottom: 0em;">{data.pie.displayname}</h1>
     {#if data.pie.maker}
@@ -127,5 +135,26 @@
 
   table tr:last-of-type td {
     border: none;
+  }
+
+  .my-pie-buttons {
+    display: flex;
+    gap: 1em;
+    justify-content: center;
+  }
+
+  .my-pie-buttons button {
+    display: block;
+    width: 10em;
+    box-shadow: 0em 0em 0.3em rgba(0, 0, 0, 0.2);
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 1em;
+    padding: 1em;
+    text-align: center;
+    font-weight: bold;
+    color: #111;
   }
 </style>

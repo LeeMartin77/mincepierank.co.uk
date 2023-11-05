@@ -9,17 +9,18 @@
   let showExtra = false;
 
   const essentialdata: { [key: string]: any | undefined } = {
-    displayname: undefined,
-    maker: undefined,
-    image: undefined
+    displayname: data.existing?.displayname,
+    maker: data.existing?.maker
   };
 
+  var image: any = undefined;
+
   const optionaldata: { [key: string]: any | undefined } = {
-    location: '',
-    labels: '',
-    web_link: '',
-    pack_count: 1,
-    pack_price_in_pence: 0
+    location: data.existing?.location,
+    labels: data.existing?.labels,
+    web_link: data.existing?.web_link,
+    pack_count: data.existing?.pack_count ?? 1,
+    pack_price_in_pence: data.existing?.pack_price_in_pence
   };
 </script>
 
@@ -44,14 +45,14 @@
       <label for="maker">Who made it?</label>
       <input name="maker" bind:value={essentialdata.maker} />
     </div>
-    {#if essentialdata.image && essentialdata.image[0].size > data.maxFileSize}
+    {#if image && image[0].size > data.maxFileSize}
       <div>
         <span style="margin-left: auto; margin-right: 0;"> Image is too large! </span>
       </div>
     {/if}
     <div>
       <label for="image">Got a picture?</label>
-      <input type="file" name="image" bind:files={essentialdata.image} />
+      <input type="file" name="image" bind:files={image} />
     </div>
     {#if !showExtra}
       <input type="hidden" name="location" bind:value={optionaldata.location} />
@@ -105,7 +106,7 @@
       </div>
       <div>
         <label for="pack_count">How many in a pack?</label>
-        <input type="number" name="pack_count" bind:value={optionaldata.pack_count} />
+        <input type="number" name="pack_count" min="1" bind:value={optionaldata.pack_count} />
       </div>
       <div>
         <label for="pack_price_in_pence">How much is a pack in pence?</label>
@@ -119,8 +120,7 @@
     <button
       type="submit"
       disabled={Object.values(essentialdata).some((x) => x === undefined) ||
-        !essentialdata.image ||
-        essentialdata.image[0].size > data.maxFileSize}>Create!</button
+        (!data.existing?.id && (!image || image[0].size > data.maxFileSize))}>Create!</button
     >
   </form>
 {:else}

@@ -3,12 +3,26 @@ import type { PageServerLoadEvent } from './$types';
 import { getConfig } from '$lib/storage/config';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { randomUUID } from 'node:crypto';
-import { setUserPie, type UserPie } from '$lib/storage';
+import { getUserPieByIdWithOwner, setUserPie, type UserPie } from '$lib/storage';
 
 const maxFileSize = 1024 * 1024 * 20;
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export const load = async (_event: PageServerLoadEvent) => {
+export const load = async ({ url, parent }: PageServerLoadEvent) => {
+  const year = parseInt(url.searchParams.get('year') || '0');
+  const id = url.searchParams.get('id');
+  const { session } = await parent();
+
+  const userid = session?.user?.email;
+
+  let existing: UserPie | undefined = undefined;
+
+  if (year && id) {
+    const res = await getUserPieByIdWithOwner(year, id);
+    if (res.isOk() && res.value.owner_userid && res.value.owner_userid === userid) {
+      existing = res.value;
+    }
+  }
+
   const config = await getConfig();
   if (config.readonly === 'true') {
     throw error(404, 'Not Found');
@@ -16,7 +30,8 @@ export const load = async (_event: PageServerLoadEvent) => {
   const activeYear = parseInt(config.activeYear);
   return {
     activeYear,
-    maxFileSize
+    maxFileSize,
+    existing
   };
 };
 
@@ -40,6 +55,8 @@ export const actions = {
 
     const data = await request.formData();
     const textFields = [
+      'id',
+      'year',
       'maker',
       'location',
       'displayname',
@@ -57,15 +74,24 @@ export const actions = {
       { fresh: false, validated: false } as { [key: string]: any }
     );
 
+    const userid = session?.user?.email;
+    if (pulledData.year && pulledData.id) {
+      const res = await getUserPieByIdWithOwner(pulledData.year, pulledData.id);
+      if (res.isErr() || !res.value.owner_userid || res.value.owner_userid !== userid) {
+        throw error(401, 'Pie not found!');
+      }
+    } else {
+      pulledData.year = config.activeYear;
+      pulledData.id = randomUUID();
+    }
+
     pulledData.fresh = data.get('fresh') == 'on';
     pulledData.clean = false;
     // eslint-disable-next-line no-useless-escape
     const urlPattern = /(?:https?):\/\/(\w+:?\w*)?(\S+)(:\d+)?(\/|\/([\w#!:.?+=&%!\-\/]))?/;
     pulledData.web_link = urlPattern.test(pulledData.web_link) ? pulledData.web_link : null;
 
-    pulledData.year = config.activeYear;
     pulledData.owner_userid = session.user.email;
-    pulledData.id = randomUUID();
 
     const image = data.get('image') as any;
 
