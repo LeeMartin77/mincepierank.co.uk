@@ -40,6 +40,44 @@ export async function getUserPiesByUser(
   }
 }
 
+export async function getUserPieByIdWithOwner(
+  year: number,
+  id: string
+): Promise<Result<UserPie, StorageError>> {
+  try {
+    const result = await CASSANDRA_CLIENT.execute(
+      `SELECT * FROM mincepierank.user_pie_yearly WHERE year = ? AND id = ?;`,
+      [year, id],
+      { prepare: true }
+    );
+    if (result.rows.length !== 1) {
+      return err(StorageError.NotFound);
+    }
+    return ok(rowToObject(result.first()) as UserPie);
+  } catch {
+    return err(StorageError.GenericError);
+  }
+}
+
+export async function deleteUserPie(
+  year: number,
+  id: string
+): Promise<Result<boolean, StorageError>> {
+  try {
+    const result = await CASSANDRA_CLIENT.execute(
+      'DELETE FROM mincepierank.user_pie_yearly WHERE year = ? AND id = ?;',
+      [year, id],
+      { prepare: true }
+    );
+    if (result.rows.length !== 1) {
+      return err(StorageError.NotFound);
+    }
+    return ok(true);
+  } catch {
+    return err(StorageError.GenericError);
+  }
+}
+
 export async function getUserPieById(
   year: number,
   id: string

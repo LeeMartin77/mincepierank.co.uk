@@ -26,6 +26,15 @@
 </script>
 
 <div class="page-wrapper">
+  {#if data.isMine}
+    <div>
+      <form method="POST" action="?/delete">
+        <input type="hidden" name="id" value={data.pie.id} />
+        <input type="hidden" name="year" value={data.pie.year} />
+        <button>Delete</button>
+      </form>
+    </div>
+  {/if}
   <div>
     <h1 style="margin-bottom: 0em;">{data.pie.displayname}</h1>
     {#if data.pie.maker}
