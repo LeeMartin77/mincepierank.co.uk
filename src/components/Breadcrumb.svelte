@@ -12,6 +12,12 @@
       if (curr.indexOf('[') !== -1) {
         // is a param
         const paramName = curr.substring(1, curr.length - 1);
+        console.log(paramName);
+        if (
+          params[paramName].match(/^[{]?[0-9a-fA-F]{8}-([0-9a-fA-F]{4}-){3}[0-9a-fA-F]{12}[}]?$/)
+        ) {
+          return acc;
+        }
         acc.push({
           url: last.url + params[paramName] + '/',
           name: ppCategory(params[paramName])
