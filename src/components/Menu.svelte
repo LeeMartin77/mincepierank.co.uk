@@ -102,7 +102,7 @@
   .menu {
     display: flex;
     flex-direction: column;
-    overflow-y: scroll;
+    overflow-y: auto;
   }
 
   .menu-footer {

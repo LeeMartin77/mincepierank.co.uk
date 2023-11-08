@@ -203,7 +203,7 @@
     margin-left: auto;
     margin-right: auto;
     padding: 1em;
-    overflow-y: scroll;
+    overflow-y: auto;
     max-height: calc(100dvh - 2em);
   }
   .notices {
