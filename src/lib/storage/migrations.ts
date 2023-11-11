@@ -125,7 +125,7 @@ const MIGRATIONS = [
 
 const SEEDS: [string, string[][]][] = [];
 
-export const runMigrations = async () => {
+export async function runMigrations() {
   await CASSANDRA_CLIENT.execute(
     `CREATE KEYSPACE IF NOT EXISTS mincepierank WITH REPLICATION = {'class':'SimpleStrategy','replication_factor':1};`
   );
@@ -161,4 +161,4 @@ export const runMigrations = async () => {
         { prepare: true }
       );
   }
-};
+}

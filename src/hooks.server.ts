@@ -1,7 +1,11 @@
+import promclient from 'prom-client';
+import http from 'http';
+
 import { SvelteKitAuth } from '@auth/sveltekit';
 import CredentialsProvider from '@auth/core/providers/credentials';
 import GoogleProvider from '@auth/core/providers/google';
 import { env } from '$env/dynamic/private';
+import { sequence } from '@sveltejs/kit/hooks';
 
 import { runMigrations } from '$lib/storage/migrations';
 
@@ -45,6 +49,43 @@ if (env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET) {
   );
 }
 
-export const handle = SvelteKitAuth({
-  providers: providers
+const promprefix = process.env.PROMETHEUS_PREFIX || 'mpr_';
+
+const promport = parseInt(process.env.PROMETHEUS_PORT || '9091');
+
+promclient.collectDefaultMetrics({
+  prefix: promprefix
 });
+
+const server = http.createServer(async (req, res) => {
+  res.writeHead(200, { 'Content-Type': promclient.register.contentType });
+  res.write(await promclient.register.metrics());
+  res.end();
+});
+
+server.listen(promport, () => {
+  console.log('Prometheus is listening on port ' + promport);
+});
+
+const requestsCounter = new promclient.Counter({
+  name: `${promprefix}requests`,
+  help: 'Counter of page requests',
+  labelNames: ['type', 'method', 'generic_route', 'specific_route']
+});
+
+export const handle = sequence(
+  ({ event, resolve }) => {
+    requestsCounter
+      .labels(
+        event.url.pathname.startsWith('/api/') ? 'api' : 'page',
+        event.request.method,
+        event.route.id ?? 'N/A',
+        event.url.pathname
+      )
+      .inc();
+    return resolve(event);
+  },
+  SvelteKitAuth({
+    providers: providers
+  })
+);
