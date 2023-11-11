@@ -70,7 +70,7 @@ server.listen(promport, () => {
 const requestsCounter = new promclient.Counter({
   name: `${promprefix}requests`,
   help: 'Counter of page requests',
-  labelNames: ['type', 'method', 'generic_route', 'specific_route']
+  labelNames: ['type', 'method', 'generic_route']
 });
 
 export const handle = sequence(
@@ -79,8 +79,7 @@ export const handle = sequence(
       .labels(
         event.url.pathname.startsWith('/api/') ? 'api' : 'page',
         event.request.method,
-        event.route.id ?? 'N/A',
-        event.url.pathname
+        event.route.id ?? 'N/A'
       )
       .inc();
     return resolve(event);
