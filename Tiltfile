@@ -35,7 +35,7 @@ docker_build('ghcr.io/leemartin77/mincepierank.co.uk', '.')
 k8s_resource('cassandra', port_forwards="9145:9042", labels=["services"])
 k8s_resource('mincepierank-imgprssr', port_forwards="3013:3013", labels=["services"])
 
-k8s_resource('mincepierank', port_forwards="4025:3000", labels=["application"],  resource_deps=['cassandra'],
+k8s_resource('mincepierank', port_forwards=["4025:3000", "4026:9091"], labels=["application"],  resource_deps=['cassandra'],
   auto_init=False if local else True,
   trigger_mode=TRIGGER_MODE_MANUAL if run_cypress or local else TRIGGER_MODE_AUTO)
 

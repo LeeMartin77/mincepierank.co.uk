@@ -15,6 +15,10 @@ spec:
         app: mincepierank
       namespace: mincepierank
       name: mincepierank
+      annotations:
+        prometheus.io/scrape: 'true'
+        prometheus.io/path: '/'
+        prometheus.io/port: '9091'
     spec:
       containers:
         - name: mincepierank
@@ -30,6 +34,8 @@ spec:
           ports:
             - name: http
               containerPort: 3000
+            - name: prometheus
+              containerPort: 9091
           volumeMounts:
             - name: images-dir
               mountPath: /imgprssr
