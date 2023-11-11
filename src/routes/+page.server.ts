@@ -13,10 +13,21 @@ import { getConfig } from '$lib/storage/config';
 export const load = async (_event: PageServerLoadEvent) => {
   const config = await getConfig();
   const activeYear = parseInt(config.activeYear);
-  const data = (await getMincePieMakersForYear(activeYear)).unwrapOr([]);
-  const pies = (await getAllMakerPies(activeYear)).unwrapOr([]);
-  const rankingSummaries = (await getAllPieRankingSummaries(activeYear)).unwrapOr([]);
-  const latestRanking = (await getLatestRanking(activeYear)).unwrapOr(undefined);
+
+  const [dataRes, piesRes, rankingSummariesRes, latestRankingRes] = await Promise.all([
+    getMincePieMakersForYear(activeYear),
+    getAllMakerPies(activeYear),
+    getAllPieRankingSummaries(activeYear),
+    getLatestRanking(activeYear)
+  ]);
+
+  const [data, pies, rankingSummaries, latestRanking] = [
+    dataRes.unwrapOr([]),
+    piesRes.unwrapOr([]),
+    rankingSummariesRes.unwrapOr([]),
+    latestRankingRes.unwrapOr(undefined)
+  ];
+
   const { mappedRankings, mappedPies, rankingOrder } = mapPiesAndRankings(pies, rankingSummaries);
   const topPieId = rankingOrder.shift();
   const latestPie = latestRanking
