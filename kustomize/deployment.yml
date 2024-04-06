@@ -5,7 +5,7 @@ metadata:
     app: mincepierank
   name: mincepierank
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       app: mincepierank
@@ -26,8 +26,8 @@ spec:
           imagePullPolicy: IfNotPresent
           resources:
             limits:
-              cpu: 100m
-              memory: 100Mi
+              cpu: 200m
+              memory: 200Mi
             requests:
               cpu: 100m
               memory: 100Mi
