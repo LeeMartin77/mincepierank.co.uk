@@ -40,6 +40,8 @@ spec:
             - name: images-dir
               mountPath: /imgprssr
           env:
+            - name: DATABASE_URL
+              value: postgres://username:password@localhost:5432/mincepierank
             - name: IMGPRSSR_ROOT
               value: 'http://localhost:3013'
       volumes:
