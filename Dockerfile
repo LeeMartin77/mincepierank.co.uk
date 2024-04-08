@@ -1,28 +1,13 @@
-FROM --platform=$BUILDPLATFORM node:18.13.0 as builder
-WORKDIR /app
-
-COPY package.json package-lock.json ./
-RUN npm ci
+FROM --platform=$BUILDPLATFORM docker.io/golang:1.22 as server-builder
+ARG TARGETPLATFORM
+WORKDIR /usr/src/app
 
 COPY . .
-RUN npm run build
+RUN GOOS=linux GOARCH=$(echo $TARGETPLATFORM | sed 's/linux\///') \
+  go build -o dist/main cmd/website/main.go
 
-FROM --platform=$BUILDPLATFORM node:18.13.0 as dep-builder
+FROM docker.io/debian:stable-slim as runner
 WORKDIR /app
-
-COPY package.json package-lock.json ./
-RUN npm ci --omit=dev
-
-FROM node:18.13.0-bullseye-slim AS runner
-WORKDIR /app
-
-ENV NODE_ENV production
-
-RUN mkdir /imgprssr
-
-COPY package.json package-lock.json ./
-
-COPY --from=dep-builder /app/node_modules ./node_modules
-COPY --from=builder /app/build ./build
-
-CMD ["node", "build"]
+COPY --from=server-builder /usr/src/app/dist /app
+EXPOSE 8080
+CMD ["/app/main"]

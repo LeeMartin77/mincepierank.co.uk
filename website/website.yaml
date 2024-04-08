@@ -1,0 +1,39 @@
+openapi: "3.0.0"
+info:
+  version: 1.0.0
+  title: MincePieRank
+servers:
+  - url: https://mincepierank.co.uk/
+paths:
+  /:
+    get:
+      summary: Home Page
+      operationId: homePage
+      tags:
+        - public
+      responses:
+        '200':
+          description: home page
+          content:
+            text/html:
+              schema:
+                type: string
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+components:
+  schemas:
+    Error:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: integer
+          format: int32
+        message:
+          type: string
