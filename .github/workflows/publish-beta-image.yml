@@ -9,7 +9,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  publish-bleed:
+  publish-beta:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -35,13 +35,13 @@ jobs:
           tags: |
             ghcr.io/leemartin77/mincepierank.co.uk:beta-${{ github.sha }}
           context: .
-          platforms: linux/arm/v7,linux/arm64/v8,linux/amd64
+          platforms: linux/arm64/v8,linux/amd64
           push: true
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
   update-version:
-    needs: publish-bleed
+    needs: publish-beta
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
