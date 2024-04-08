@@ -3,11 +3,7 @@ package website
 import (
 	"context"
 	"fmt"
-	"os"
 	"strings"
-
-	"github.com/jackc/pgx/v5"
-	"github.com/rs/zerolog/log"
 
 	generated "github.com/leemartin77/mincepierank.co.uk/internal/website/generated"
 )
@@ -21,22 +17,18 @@ var (
 
 func (wrpr *WebsiteWrapper) HomePage(c context.Context, req generated.HomePageRequestObject) (generated.HomePageResponseObject, error) {
 	// urlExample := "postgres://username:password@localhost:5432/mincepierank"
-	conn, err := pgx.Connect(c, os.Getenv("DATABASE_URL"))
+	str, err := wrpr.storage.TestData(c)
 	if err != nil {
-		log.Error().Err(err).Msg("Unable to connect to database")
-		os.Exit(1)
+		return generated.HomePagedefaultJSONResponse{
+			Body: generated.Error{
+				Code:    500,
+				Message: err.Error(),
+			},
+			StatusCode: 500,
+		}, nil
 	}
-	defer conn.Close(c)
-
-	var data string
-	err = conn.QueryRow(c, "select test_data from test_table where id=$1", 1).Scan(&data)
-	if err != nil {
-		log.Error().Err(err).Msg("QueryRow failed")
-		os.Exit(1)
-	}
-
-	str := fmt.Sprintf("<h1>Hello, World!</h1> <h3>%s</h3>", data)
-	reader := strings.NewReader(str)
+	body := fmt.Sprintf("<h1>Hello, World!</h1> <h3>%s</h3>", *str)
+	reader := strings.NewReader(body)
 
 	return generated.HomePage200TexthtmlResponse{
 		Body:          reader,
