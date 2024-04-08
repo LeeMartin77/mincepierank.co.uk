@@ -2,27 +2,27 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: mincepierank
-  name: mincepierank
+    app: mincepierank-beta
+  name: mincepierank-beta
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
-      app: mincepierank
+      app: mincepierank-beta
   template:
     metadata:
       labels:
-        app: mincepierank
-      namespace: mincepierank
-      name: mincepierank
-      annotations:
-        prometheus.io/scrape: 'true'
-        prometheus.io/path: '/'
-        prometheus.io/port: '9091'
+        app: mincepierank-beta
+      namespace: mincepierank-beta
+      name: mincepierank-beta
+      # annotations:
+      #   prometheus.io/scrape: 'true'
+      #   prometheus.io/path: '/'
+      #   prometheus.io/port: '9091'
     spec:
       containers:
-        - name: mincepierank
-          image: ghcr.io/leemartin77/mincepierank.co.uk:656dfa8e491c028efde507d4ed3f109240711925
+        - name: mincepierank-beta
+          image: ghcr.io/leemartin77/mincepierank.co.uk:beta-sha
           imagePullPolicy: IfNotPresent
           resources:
             limits:
@@ -33,35 +33,15 @@ spec:
               memory: 100Mi
           ports:
             - name: http
-              containerPort: 3000
+              containerPort: 8080
             - name: prometheus
               containerPort: 9091
           volumeMounts:
             - name: images-dir
               mountPath: /imgprssr
           env:
-            - name: AUTHENTICATION
-              value: development
-            - name: AUTH_TRUST_HOST
-              value: 'true'
             - name: IMGPRSSR_ROOT
               value: 'http://localhost:3013'
-            - name: CASSANDRA_CONTACT_POINTS
-              value: cassandra:9042
-            - name: CASSANDRA_USER
-              valueFrom:
-                secretKeyRef:
-                  name: cassandra-creds
-                  key: cassandrauser
-                  optional: false
-            - name: CASSANDRA_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: cassandra-creds
-                  key: cassandrapassword
-                  optional: false
-            - name: AUTH_SECRET
-              value: super-secret-string
       volumes:
         - name: images-dir
           persistentVolumeClaim:
