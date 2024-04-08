@@ -12,6 +12,9 @@ services:
         - action: sync+restart
           path: ./
           target: /usr/src/app
+          ignore:
+            - .github
+            - .git
     environment:
       - DATABASE_URL=postgres://postgres:mysecretpassword@postgres:5432/postgres
     ports:
