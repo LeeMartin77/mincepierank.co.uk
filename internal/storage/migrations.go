@@ -14,6 +14,79 @@ var migrations []string = []string{
 		created TIMESTAMP NOT NULL DEFAULT NOW()
 	);`,
 	`INSERT INTO migration_test_table (test_data) VALUES ('test migration data woo')`,
+	`CREATE TABLE IF NOT EXISTS migration_test_table (
+		id text PRIMARY KEY,
+		name text,
+		logo text,
+		website text
+	);`,
+	`CREATE TABLE IF NOT EXISTS maker_pie_yearly
+  (
+      year int,
+      makerid text,
+      id text,
+      displayname text,
+      fresh boolean,
+      labels text[],
+      image_file text,
+      web_link text,
+      pack_count int,
+      pack_price_in_pence int,
+      PRIMARY KEY (year, makerId, id)
+  );`,
+	`CREATE TABLE IF NOT EXISTS maker_pie_ranking_yearly
+  (
+      year int,
+      makerid text,
+      pieid text,
+      userid text,
+      pastry int,
+      filling int,
+      topping int,
+      looks int,
+      value int,
+      notes text,
+      last_updated timestamp,
+      PRIMARY KEY (year, makerid, pieid, userid)
+  );`,
+	`CREATE TABLE IF NOT EXISTS config (
+	key text PRIMARY KEY,
+	value text
+  )`,
+	`CREATE TABLE IF NOT EXISTS admins (
+	id text PRIMARY KEY
+  )`,
+	`CREATE TABLE IF NOT EXISTS user_pie_yearly
+  (
+      year int,
+      id text,
+      owner_userid text,
+      maker text,
+      location text,
+      displayname text,
+      fresh boolean,
+      labels text[],
+      image_file text,
+      web_link text,
+      pack_count int,
+      pack_price_in_pence int,
+      clean boolean,
+      PRIMARY KEY (year, id, owner_userid)
+  );`,
+	`CREATE TABLE IF NOT EXISTS user_pie_ranking_yearly
+  (
+      year int,
+      pieid text,
+      userid text,
+      pastry int,
+      filling int,
+      topping int,
+      looks int,
+      value int,
+      notes text,
+      last_updated timestamp,
+      PRIMARY KEY (year, pieid, userid)
+  );`,
 }
 
 var migrationLogTable string = `
