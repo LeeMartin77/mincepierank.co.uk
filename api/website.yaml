@@ -20,8 +20,247 @@ paths:
                 type: string
         default:
           $ref: "#/components/responses/UnexpectedError"
+
+  /about:
+    get:
+      operationId: aboutPage
+      tags:
+        - public
+      responses:
+        '200':
+          description: home page
+          content:
+            text/html:
+              schema:
+                type: string
+        default:
+          $ref: "#/components/responses/UnexpectedError"
+  /about/cookies:
+    get:
+      operationId: cookiePage
+      tags:
+        - public
+      responses:
+        '200':
+          description: cookie page
+          content:
+            text/html:
+              schema:
+                type: string
+        default:
+          $ref: "#/components/responses/UnexpectedError"
+  /about/privacy:
+    get:
+      operationId: privacyPage
+      tags:
+        - public
+      responses:
+        '200':
+          description: privacy page
+          content:
+            text/html:
+              schema:
+                type: string
+        default:
+          $ref: "#/components/responses/UnexpectedError"
+  /years:
+    get:
+      operationId: yearsPage
+      tags:
+        - public
+      responses:
+        '200':
+          description: years page
+          content:
+            text/html:
+              schema:
+                type: string
+        default:
+          $ref: "#/components/responses/UnexpectedError"
+  /years/{year}:
+    parameters:
+      - $ref: "#/components/parameters/Year"
+    get:
+      operationId: yearPage
+      tags:
+        - public
+      responses:
+        '200':
+          description: year page
+          content:
+            text/html:
+              schema:
+                type: string
+        '404':
+          $ref: "#/components/responses/NotFound"
+        default:
+          $ref: "#/components/responses/UnexpectedError"
+  /years/{year}/all-pies:
+    parameters:
+      - $ref: "#/components/parameters/Year"
+      - $ref: "#/components/parameters/Page"
+      - $ref: "#/components/parameters/Limit"
+    get:
+      operationId: yearAllPies
+      tags:
+        - public
+      responses:
+        '200':
+          description: year all pies
+          content:
+            text/html:
+              schema:
+                type: string
+        '404':
+          $ref: "#/components/responses/NotFound"
+        default:
+          $ref: "#/components/responses/UnexpectedError"
+  /years/{year}/categories:
+    parameters:
+      - $ref: "#/components/parameters/Year"
+      - $ref: "#/components/parameters/Page"
+      - $ref: "#/components/parameters/Limit"
+    get:
+      operationId: yearAllCategories
+      tags:
+        - public
+      responses:
+        '200':
+          description: year all categories
+          content:
+            text/html:
+              schema:
+                type: string
+        '404':
+          $ref: "#/components/responses/NotFound"
+        default:
+          $ref: "#/components/responses/UnexpectedError"
+  /years/{year}/categories/{category}:
+    parameters:
+      - $ref: "#/components/parameters/Year"
+      - name: category
+        in: path
+        required: true
+        schema:
+          type: string
+      - $ref: "#/components/parameters/Page"
+      - $ref: "#/components/parameters/Limit"
+    get:
+      operationId: yearCategoryPies
+      tags:
+        - public
+      responses:
+        '200':
+          description: year all categories
+          content:
+            text/html:
+              schema:
+                type: string
+        '404':
+          $ref: "#/components/responses/NotFound"
+        default:
+          $ref: "#/components/responses/UnexpectedError"
+  /years/{year}/brands:
+    parameters:
+      - $ref: "#/components/parameters/Year"
+      - $ref: "#/components/parameters/Page"
+      - $ref: "#/components/parameters/Limit"
+    get:
+      operationId: yearAllBrands
+      tags:
+        - public
+      responses:
+        '200':
+          description: year all brands
+          content:
+            text/html:
+              schema:
+                type: string
+        '404':
+          $ref: "#/components/responses/NotFound"
+        default:
+          $ref: "#/components/responses/UnexpectedError"
+  /years/{year}/brands/{brand}:
+    parameters:
+      - $ref: "#/components/parameters/Year"
+      - $ref: "#/components/parameters/Brand"
+      - $ref: "#/components/parameters/Page"
+      - $ref: "#/components/parameters/Limit"
+    get:
+      operationId: yearBrandPies
+      tags:
+        - public
+      responses:
+        '200':
+          description: year all brands
+          content:
+            text/html:
+              schema:
+                type: string
+        '404':
+          $ref: "#/components/responses/NotFound"
+        default:
+          $ref: "#/components/responses/UnexpectedError"
+  /years/{year}/brands/{brand}/{pie}:
+    parameters:
+      - $ref: "#/components/parameters/Year"
+      - $ref: "#/components/parameters/Brand"
+      - name: pie
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      operationId: yearBrandPie
+      tags:
+        - public
+      responses:
+        '200':
+          description: year all brands
+          content:
+            text/html:
+              schema:
+                type: string
+        '404':
+          $ref: "#/components/responses/NotFound"
+        default:
+          $ref: "#/components/responses/UnexpectedError"
 components:
+  parameters:
+    Year:
+      name: year
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int32
+    Brand:
+      name: brand
+      in: path
+      required: true
+      schema:
+        type: string
+    Page:
+      name: page
+      in: query
+      required: false
+      schema:
+        type: integer
+        format: int32
+    Limit:
+      name: limit
+      in: query
+      required: false
+      schema:
+        type: integer
+        format: int32
   responses:
+    NotFound:
+      description: not found
+      content:
+        text/html:
+          schema:
+            type: string
     UnexpectedError:
       description: unexpected error
       content:

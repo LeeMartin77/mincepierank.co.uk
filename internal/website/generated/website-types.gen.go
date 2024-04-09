@@ -9,5 +9,47 @@ type Error struct {
 	Message string `json:"message"`
 }
 
+// Brand defines model for Brand.
+type Brand = string
+
+// Limit defines model for Limit.
+type Limit = int32
+
+// Page defines model for Page.
+type Page = int32
+
+// Year defines model for Year.
+type Year = int32
+
 // UnexpectedError defines model for UnexpectedError.
 type UnexpectedError = Error
+
+// YearAllPiesParams defines parameters for YearAllPies.
+type YearAllPiesParams struct {
+	Page  *Page  `form:"page,omitempty" json:"page,omitempty"`
+	Limit *Limit `form:"limit,omitempty" json:"limit,omitempty"`
+}
+
+// YearAllBrandsParams defines parameters for YearAllBrands.
+type YearAllBrandsParams struct {
+	Page  *Page  `form:"page,omitempty" json:"page,omitempty"`
+	Limit *Limit `form:"limit,omitempty" json:"limit,omitempty"`
+}
+
+// YearBrandPiesParams defines parameters for YearBrandPies.
+type YearBrandPiesParams struct {
+	Page  *Page  `form:"page,omitempty" json:"page,omitempty"`
+	Limit *Limit `form:"limit,omitempty" json:"limit,omitempty"`
+}
+
+// YearAllCategoriesParams defines parameters for YearAllCategories.
+type YearAllCategoriesParams struct {
+	Page  *Page  `form:"page,omitempty" json:"page,omitempty"`
+	Limit *Limit `form:"limit,omitempty" json:"limit,omitempty"`
+}
+
+// YearCategoryPiesParams defines parameters for YearCategoryPies.
+type YearCategoryPiesParams struct {
+	Page  *Page  `form:"page,omitempty" json:"page,omitempty"`
+	Limit *Limit `form:"limit,omitempty" json:"limit,omitempty"`
+}

@@ -19,6 +19,7 @@ import (
 	"strings"
 
 	"github.com/getkin/kin-openapi/openapi3"
+	"github.com/oapi-codegen/runtime"
 	strictnethttp "github.com/oapi-codegen/runtime/strictmiddleware/nethttp"
 )
 
@@ -27,6 +28,39 @@ type ServerInterface interface {
 	// Home Page
 	// (GET /)
 	HomePage(w http.ResponseWriter, r *http.Request)
+
+	// (GET /about)
+	AboutPage(w http.ResponseWriter, r *http.Request)
+
+	// (GET /about/cookies)
+	CookiePage(w http.ResponseWriter, r *http.Request)
+
+	// (GET /about/privacy)
+	PrivacyPage(w http.ResponseWriter, r *http.Request)
+
+	// (GET /years)
+	YearsPage(w http.ResponseWriter, r *http.Request)
+
+	// (GET /years/{year})
+	YearPage(w http.ResponseWriter, r *http.Request, year Year)
+
+	// (GET /years/{year}/all-pies)
+	YearAllPies(w http.ResponseWriter, r *http.Request, year Year, params YearAllPiesParams)
+
+	// (GET /years/{year}/brands)
+	YearAllBrands(w http.ResponseWriter, r *http.Request, year Year, params YearAllBrandsParams)
+
+	// (GET /years/{year}/brands/{brand})
+	YearBrandPies(w http.ResponseWriter, r *http.Request, year Year, brand Brand, params YearBrandPiesParams)
+
+	// (GET /years/{year}/brands/{brand}/{pie})
+	YearBrandPie(w http.ResponseWriter, r *http.Request, year Year, brand Brand, pie string)
+
+	// (GET /years/{year}/categories)
+	YearAllCategories(w http.ResponseWriter, r *http.Request, year Year, params YearAllCategoriesParams)
+
+	// (GET /years/{year}/categories/{category})
+	YearCategoryPies(w http.ResponseWriter, r *http.Request, year Year, category string, params YearCategoryPiesParams)
 }
 
 // ServerInterfaceWrapper converts contexts to parameters.
@@ -44,6 +78,379 @@ func (siw *ServerInterfaceWrapper) HomePage(w http.ResponseWriter, r *http.Reque
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.HomePage(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r.WithContext(ctx))
+}
+
+// AboutPage operation middleware
+func (siw *ServerInterfaceWrapper) AboutPage(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.AboutPage(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r.WithContext(ctx))
+}
+
+// CookiePage operation middleware
+func (siw *ServerInterfaceWrapper) CookiePage(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.CookiePage(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r.WithContext(ctx))
+}
+
+// PrivacyPage operation middleware
+func (siw *ServerInterfaceWrapper) PrivacyPage(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.PrivacyPage(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r.WithContext(ctx))
+}
+
+// YearsPage operation middleware
+func (siw *ServerInterfaceWrapper) YearsPage(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.YearsPage(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r.WithContext(ctx))
+}
+
+// YearPage operation middleware
+func (siw *ServerInterfaceWrapper) YearPage(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var err error
+
+	// ------------- Path parameter "year" -------------
+	var year Year
+
+	err = runtime.BindStyledParameterWithOptions("simple", "year", r.PathValue("year"), &year, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "year", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.YearPage(w, r, year)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r.WithContext(ctx))
+}
+
+// YearAllPies operation middleware
+func (siw *ServerInterfaceWrapper) YearAllPies(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var err error
+
+	// ------------- Path parameter "year" -------------
+	var year Year
+
+	err = runtime.BindStyledParameterWithOptions("simple", "year", r.PathValue("year"), &year, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "year", Err: err})
+		return
+	}
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params YearAllPiesParams
+
+	// ------------- Optional query parameter "page" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "page", r.URL.Query(), &params.Page)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "page", Err: err})
+		return
+	}
+
+	// ------------- Optional query parameter "limit" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "limit", r.URL.Query(), &params.Limit)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "limit", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.YearAllPies(w, r, year, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r.WithContext(ctx))
+}
+
+// YearAllBrands operation middleware
+func (siw *ServerInterfaceWrapper) YearAllBrands(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var err error
+
+	// ------------- Path parameter "year" -------------
+	var year Year
+
+	err = runtime.BindStyledParameterWithOptions("simple", "year", r.PathValue("year"), &year, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "year", Err: err})
+		return
+	}
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params YearAllBrandsParams
+
+	// ------------- Optional query parameter "page" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "page", r.URL.Query(), &params.Page)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "page", Err: err})
+		return
+	}
+
+	// ------------- Optional query parameter "limit" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "limit", r.URL.Query(), &params.Limit)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "limit", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.YearAllBrands(w, r, year, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r.WithContext(ctx))
+}
+
+// YearBrandPies operation middleware
+func (siw *ServerInterfaceWrapper) YearBrandPies(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var err error
+
+	// ------------- Path parameter "year" -------------
+	var year Year
+
+	err = runtime.BindStyledParameterWithOptions("simple", "year", r.PathValue("year"), &year, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "year", Err: err})
+		return
+	}
+
+	// ------------- Path parameter "brand" -------------
+	var brand Brand
+
+	err = runtime.BindStyledParameterWithOptions("simple", "brand", r.PathValue("brand"), &brand, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "brand", Err: err})
+		return
+	}
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params YearBrandPiesParams
+
+	// ------------- Optional query parameter "page" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "page", r.URL.Query(), &params.Page)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "page", Err: err})
+		return
+	}
+
+	// ------------- Optional query parameter "limit" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "limit", r.URL.Query(), &params.Limit)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "limit", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.YearBrandPies(w, r, year, brand, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r.WithContext(ctx))
+}
+
+// YearBrandPie operation middleware
+func (siw *ServerInterfaceWrapper) YearBrandPie(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var err error
+
+	// ------------- Path parameter "year" -------------
+	var year Year
+
+	err = runtime.BindStyledParameterWithOptions("simple", "year", r.PathValue("year"), &year, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "year", Err: err})
+		return
+	}
+
+	// ------------- Path parameter "brand" -------------
+	var brand Brand
+
+	err = runtime.BindStyledParameterWithOptions("simple", "brand", r.PathValue("brand"), &brand, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "brand", Err: err})
+		return
+	}
+
+	// ------------- Path parameter "pie" -------------
+	var pie string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "pie", r.PathValue("pie"), &pie, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "pie", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.YearBrandPie(w, r, year, brand, pie)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r.WithContext(ctx))
+}
+
+// YearAllCategories operation middleware
+func (siw *ServerInterfaceWrapper) YearAllCategories(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var err error
+
+	// ------------- Path parameter "year" -------------
+	var year Year
+
+	err = runtime.BindStyledParameterWithOptions("simple", "year", r.PathValue("year"), &year, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "year", Err: err})
+		return
+	}
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params YearAllCategoriesParams
+
+	// ------------- Optional query parameter "page" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "page", r.URL.Query(), &params.Page)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "page", Err: err})
+		return
+	}
+
+	// ------------- Optional query parameter "limit" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "limit", r.URL.Query(), &params.Limit)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "limit", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.YearAllCategories(w, r, year, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r.WithContext(ctx))
+}
+
+// YearCategoryPies operation middleware
+func (siw *ServerInterfaceWrapper) YearCategoryPies(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var err error
+
+	// ------------- Path parameter "year" -------------
+	var year Year
+
+	err = runtime.BindStyledParameterWithOptions("simple", "year", r.PathValue("year"), &year, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "year", Err: err})
+		return
+	}
+
+	// ------------- Path parameter "category" -------------
+	var category string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "category", r.PathValue("category"), &category, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "category", Err: err})
+		return
+	}
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params YearCategoryPiesParams
+
+	// ------------- Optional query parameter "page" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "page", r.URL.Query(), &params.Page)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "page", Err: err})
+		return
+	}
+
+	// ------------- Optional query parameter "limit" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "limit", r.URL.Query(), &params.Limit)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "limit", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.YearCategoryPies(w, r, year, category, params)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -168,8 +575,25 @@ func HandlerWithOptions(si ServerInterface, options StdHTTPServerOptions) http.H
 	}
 
 	m.HandleFunc("GET "+options.BaseURL+"/", wrapper.HomePage)
+	m.HandleFunc("GET "+options.BaseURL+"/about", wrapper.AboutPage)
+	m.HandleFunc("GET "+options.BaseURL+"/about/cookies", wrapper.CookiePage)
+	m.HandleFunc("GET "+options.BaseURL+"/about/privacy", wrapper.PrivacyPage)
+	m.HandleFunc("GET "+options.BaseURL+"/years", wrapper.YearsPage)
+	m.HandleFunc("GET "+options.BaseURL+"/years/{year}", wrapper.YearPage)
+	m.HandleFunc("GET "+options.BaseURL+"/years/{year}/all-pies", wrapper.YearAllPies)
+	m.HandleFunc("GET "+options.BaseURL+"/years/{year}/brands", wrapper.YearAllBrands)
+	m.HandleFunc("GET "+options.BaseURL+"/years/{year}/brands/{brand}", wrapper.YearBrandPies)
+	m.HandleFunc("GET "+options.BaseURL+"/years/{year}/brands/{brand}/{pie}", wrapper.YearBrandPie)
+	m.HandleFunc("GET "+options.BaseURL+"/years/{year}/categories", wrapper.YearAllCategories)
+	m.HandleFunc("GET "+options.BaseURL+"/years/{year}/categories/{category}", wrapper.YearCategoryPies)
 
 	return m
+}
+
+type NotFoundTexthtmlResponse struct {
+	Body io.Reader
+
+	ContentLength int64
 }
 
 type UnexpectedErrorJSONResponse Error
@@ -212,11 +636,590 @@ func (response HomePagedefaultJSONResponse) VisitHomePageResponse(w http.Respons
 	return json.NewEncoder(w).Encode(response.Body)
 }
 
+type AboutPageRequestObject struct {
+}
+
+type AboutPageResponseObject interface {
+	VisitAboutPageResponse(w http.ResponseWriter) error
+}
+
+type AboutPage200TexthtmlResponse struct {
+	Body          io.Reader
+	ContentLength int64
+}
+
+func (response AboutPage200TexthtmlResponse) VisitAboutPageResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "text/html")
+	if response.ContentLength != 0 {
+		w.Header().Set("Content-Length", fmt.Sprint(response.ContentLength))
+	}
+	w.WriteHeader(200)
+
+	if closer, ok := response.Body.(io.ReadCloser); ok {
+		defer closer.Close()
+	}
+	_, err := io.Copy(w, response.Body)
+	return err
+}
+
+type AboutPagedefaultJSONResponse struct {
+	Body       Error
+	StatusCode int
+}
+
+func (response AboutPagedefaultJSONResponse) VisitAboutPageResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(response.StatusCode)
+
+	return json.NewEncoder(w).Encode(response.Body)
+}
+
+type CookiePageRequestObject struct {
+}
+
+type CookiePageResponseObject interface {
+	VisitCookiePageResponse(w http.ResponseWriter) error
+}
+
+type CookiePage200TexthtmlResponse struct {
+	Body          io.Reader
+	ContentLength int64
+}
+
+func (response CookiePage200TexthtmlResponse) VisitCookiePageResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "text/html")
+	if response.ContentLength != 0 {
+		w.Header().Set("Content-Length", fmt.Sprint(response.ContentLength))
+	}
+	w.WriteHeader(200)
+
+	if closer, ok := response.Body.(io.ReadCloser); ok {
+		defer closer.Close()
+	}
+	_, err := io.Copy(w, response.Body)
+	return err
+}
+
+type CookiePagedefaultJSONResponse struct {
+	Body       Error
+	StatusCode int
+}
+
+func (response CookiePagedefaultJSONResponse) VisitCookiePageResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(response.StatusCode)
+
+	return json.NewEncoder(w).Encode(response.Body)
+}
+
+type PrivacyPageRequestObject struct {
+}
+
+type PrivacyPageResponseObject interface {
+	VisitPrivacyPageResponse(w http.ResponseWriter) error
+}
+
+type PrivacyPage200TexthtmlResponse struct {
+	Body          io.Reader
+	ContentLength int64
+}
+
+func (response PrivacyPage200TexthtmlResponse) VisitPrivacyPageResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "text/html")
+	if response.ContentLength != 0 {
+		w.Header().Set("Content-Length", fmt.Sprint(response.ContentLength))
+	}
+	w.WriteHeader(200)
+
+	if closer, ok := response.Body.(io.ReadCloser); ok {
+		defer closer.Close()
+	}
+	_, err := io.Copy(w, response.Body)
+	return err
+}
+
+type PrivacyPagedefaultJSONResponse struct {
+	Body       Error
+	StatusCode int
+}
+
+func (response PrivacyPagedefaultJSONResponse) VisitPrivacyPageResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(response.StatusCode)
+
+	return json.NewEncoder(w).Encode(response.Body)
+}
+
+type YearsPageRequestObject struct {
+}
+
+type YearsPageResponseObject interface {
+	VisitYearsPageResponse(w http.ResponseWriter) error
+}
+
+type YearsPage200TexthtmlResponse struct {
+	Body          io.Reader
+	ContentLength int64
+}
+
+func (response YearsPage200TexthtmlResponse) VisitYearsPageResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "text/html")
+	if response.ContentLength != 0 {
+		w.Header().Set("Content-Length", fmt.Sprint(response.ContentLength))
+	}
+	w.WriteHeader(200)
+
+	if closer, ok := response.Body.(io.ReadCloser); ok {
+		defer closer.Close()
+	}
+	_, err := io.Copy(w, response.Body)
+	return err
+}
+
+type YearsPagedefaultJSONResponse struct {
+	Body       Error
+	StatusCode int
+}
+
+func (response YearsPagedefaultJSONResponse) VisitYearsPageResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(response.StatusCode)
+
+	return json.NewEncoder(w).Encode(response.Body)
+}
+
+type YearPageRequestObject struct {
+	Year Year `json:"year"`
+}
+
+type YearPageResponseObject interface {
+	VisitYearPageResponse(w http.ResponseWriter) error
+}
+
+type YearPage200TexthtmlResponse struct {
+	Body          io.Reader
+	ContentLength int64
+}
+
+func (response YearPage200TexthtmlResponse) VisitYearPageResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "text/html")
+	if response.ContentLength != 0 {
+		w.Header().Set("Content-Length", fmt.Sprint(response.ContentLength))
+	}
+	w.WriteHeader(200)
+
+	if closer, ok := response.Body.(io.ReadCloser); ok {
+		defer closer.Close()
+	}
+	_, err := io.Copy(w, response.Body)
+	return err
+}
+
+type YearPage404TexthtmlResponse struct{ NotFoundTexthtmlResponse }
+
+func (response YearPage404TexthtmlResponse) VisitYearPageResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "text/html")
+	if response.ContentLength != 0 {
+		w.Header().Set("Content-Length", fmt.Sprint(response.ContentLength))
+	}
+	w.WriteHeader(404)
+
+	if closer, ok := response.Body.(io.ReadCloser); ok {
+		defer closer.Close()
+	}
+	_, err := io.Copy(w, response.Body)
+	return err
+}
+
+type YearPagedefaultJSONResponse struct {
+	Body       Error
+	StatusCode int
+}
+
+func (response YearPagedefaultJSONResponse) VisitYearPageResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(response.StatusCode)
+
+	return json.NewEncoder(w).Encode(response.Body)
+}
+
+type YearAllPiesRequestObject struct {
+	Year   Year `json:"year"`
+	Params YearAllPiesParams
+}
+
+type YearAllPiesResponseObject interface {
+	VisitYearAllPiesResponse(w http.ResponseWriter) error
+}
+
+type YearAllPies200TexthtmlResponse struct {
+	Body          io.Reader
+	ContentLength int64
+}
+
+func (response YearAllPies200TexthtmlResponse) VisitYearAllPiesResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "text/html")
+	if response.ContentLength != 0 {
+		w.Header().Set("Content-Length", fmt.Sprint(response.ContentLength))
+	}
+	w.WriteHeader(200)
+
+	if closer, ok := response.Body.(io.ReadCloser); ok {
+		defer closer.Close()
+	}
+	_, err := io.Copy(w, response.Body)
+	return err
+}
+
+type YearAllPies404TexthtmlResponse struct{ NotFoundTexthtmlResponse }
+
+func (response YearAllPies404TexthtmlResponse) VisitYearAllPiesResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "text/html")
+	if response.ContentLength != 0 {
+		w.Header().Set("Content-Length", fmt.Sprint(response.ContentLength))
+	}
+	w.WriteHeader(404)
+
+	if closer, ok := response.Body.(io.ReadCloser); ok {
+		defer closer.Close()
+	}
+	_, err := io.Copy(w, response.Body)
+	return err
+}
+
+type YearAllPiesdefaultJSONResponse struct {
+	Body       Error
+	StatusCode int
+}
+
+func (response YearAllPiesdefaultJSONResponse) VisitYearAllPiesResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(response.StatusCode)
+
+	return json.NewEncoder(w).Encode(response.Body)
+}
+
+type YearAllBrandsRequestObject struct {
+	Year   Year `json:"year"`
+	Params YearAllBrandsParams
+}
+
+type YearAllBrandsResponseObject interface {
+	VisitYearAllBrandsResponse(w http.ResponseWriter) error
+}
+
+type YearAllBrands200TexthtmlResponse struct {
+	Body          io.Reader
+	ContentLength int64
+}
+
+func (response YearAllBrands200TexthtmlResponse) VisitYearAllBrandsResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "text/html")
+	if response.ContentLength != 0 {
+		w.Header().Set("Content-Length", fmt.Sprint(response.ContentLength))
+	}
+	w.WriteHeader(200)
+
+	if closer, ok := response.Body.(io.ReadCloser); ok {
+		defer closer.Close()
+	}
+	_, err := io.Copy(w, response.Body)
+	return err
+}
+
+type YearAllBrands404TexthtmlResponse struct{ NotFoundTexthtmlResponse }
+
+func (response YearAllBrands404TexthtmlResponse) VisitYearAllBrandsResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "text/html")
+	if response.ContentLength != 0 {
+		w.Header().Set("Content-Length", fmt.Sprint(response.ContentLength))
+	}
+	w.WriteHeader(404)
+
+	if closer, ok := response.Body.(io.ReadCloser); ok {
+		defer closer.Close()
+	}
+	_, err := io.Copy(w, response.Body)
+	return err
+}
+
+type YearAllBrandsdefaultJSONResponse struct {
+	Body       Error
+	StatusCode int
+}
+
+func (response YearAllBrandsdefaultJSONResponse) VisitYearAllBrandsResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(response.StatusCode)
+
+	return json.NewEncoder(w).Encode(response.Body)
+}
+
+type YearBrandPiesRequestObject struct {
+	Year   Year  `json:"year"`
+	Brand  Brand `json:"brand"`
+	Params YearBrandPiesParams
+}
+
+type YearBrandPiesResponseObject interface {
+	VisitYearBrandPiesResponse(w http.ResponseWriter) error
+}
+
+type YearBrandPies200TexthtmlResponse struct {
+	Body          io.Reader
+	ContentLength int64
+}
+
+func (response YearBrandPies200TexthtmlResponse) VisitYearBrandPiesResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "text/html")
+	if response.ContentLength != 0 {
+		w.Header().Set("Content-Length", fmt.Sprint(response.ContentLength))
+	}
+	w.WriteHeader(200)
+
+	if closer, ok := response.Body.(io.ReadCloser); ok {
+		defer closer.Close()
+	}
+	_, err := io.Copy(w, response.Body)
+	return err
+}
+
+type YearBrandPies404TexthtmlResponse struct{ NotFoundTexthtmlResponse }
+
+func (response YearBrandPies404TexthtmlResponse) VisitYearBrandPiesResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "text/html")
+	if response.ContentLength != 0 {
+		w.Header().Set("Content-Length", fmt.Sprint(response.ContentLength))
+	}
+	w.WriteHeader(404)
+
+	if closer, ok := response.Body.(io.ReadCloser); ok {
+		defer closer.Close()
+	}
+	_, err := io.Copy(w, response.Body)
+	return err
+}
+
+type YearBrandPiesdefaultJSONResponse struct {
+	Body       Error
+	StatusCode int
+}
+
+func (response YearBrandPiesdefaultJSONResponse) VisitYearBrandPiesResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(response.StatusCode)
+
+	return json.NewEncoder(w).Encode(response.Body)
+}
+
+type YearBrandPieRequestObject struct {
+	Year  Year   `json:"year"`
+	Brand Brand  `json:"brand"`
+	Pie   string `json:"pie"`
+}
+
+type YearBrandPieResponseObject interface {
+	VisitYearBrandPieResponse(w http.ResponseWriter) error
+}
+
+type YearBrandPie200TexthtmlResponse struct {
+	Body          io.Reader
+	ContentLength int64
+}
+
+func (response YearBrandPie200TexthtmlResponse) VisitYearBrandPieResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "text/html")
+	if response.ContentLength != 0 {
+		w.Header().Set("Content-Length", fmt.Sprint(response.ContentLength))
+	}
+	w.WriteHeader(200)
+
+	if closer, ok := response.Body.(io.ReadCloser); ok {
+		defer closer.Close()
+	}
+	_, err := io.Copy(w, response.Body)
+	return err
+}
+
+type YearBrandPie404TexthtmlResponse struct{ NotFoundTexthtmlResponse }
+
+func (response YearBrandPie404TexthtmlResponse) VisitYearBrandPieResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "text/html")
+	if response.ContentLength != 0 {
+		w.Header().Set("Content-Length", fmt.Sprint(response.ContentLength))
+	}
+	w.WriteHeader(404)
+
+	if closer, ok := response.Body.(io.ReadCloser); ok {
+		defer closer.Close()
+	}
+	_, err := io.Copy(w, response.Body)
+	return err
+}
+
+type YearBrandPiedefaultJSONResponse struct {
+	Body       Error
+	StatusCode int
+}
+
+func (response YearBrandPiedefaultJSONResponse) VisitYearBrandPieResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(response.StatusCode)
+
+	return json.NewEncoder(w).Encode(response.Body)
+}
+
+type YearAllCategoriesRequestObject struct {
+	Year   Year `json:"year"`
+	Params YearAllCategoriesParams
+}
+
+type YearAllCategoriesResponseObject interface {
+	VisitYearAllCategoriesResponse(w http.ResponseWriter) error
+}
+
+type YearAllCategories200TexthtmlResponse struct {
+	Body          io.Reader
+	ContentLength int64
+}
+
+func (response YearAllCategories200TexthtmlResponse) VisitYearAllCategoriesResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "text/html")
+	if response.ContentLength != 0 {
+		w.Header().Set("Content-Length", fmt.Sprint(response.ContentLength))
+	}
+	w.WriteHeader(200)
+
+	if closer, ok := response.Body.(io.ReadCloser); ok {
+		defer closer.Close()
+	}
+	_, err := io.Copy(w, response.Body)
+	return err
+}
+
+type YearAllCategories404TexthtmlResponse struct{ NotFoundTexthtmlResponse }
+
+func (response YearAllCategories404TexthtmlResponse) VisitYearAllCategoriesResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "text/html")
+	if response.ContentLength != 0 {
+		w.Header().Set("Content-Length", fmt.Sprint(response.ContentLength))
+	}
+	w.WriteHeader(404)
+
+	if closer, ok := response.Body.(io.ReadCloser); ok {
+		defer closer.Close()
+	}
+	_, err := io.Copy(w, response.Body)
+	return err
+}
+
+type YearAllCategoriesdefaultJSONResponse struct {
+	Body       Error
+	StatusCode int
+}
+
+func (response YearAllCategoriesdefaultJSONResponse) VisitYearAllCategoriesResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(response.StatusCode)
+
+	return json.NewEncoder(w).Encode(response.Body)
+}
+
+type YearCategoryPiesRequestObject struct {
+	Year     Year   `json:"year"`
+	Category string `json:"category"`
+	Params   YearCategoryPiesParams
+}
+
+type YearCategoryPiesResponseObject interface {
+	VisitYearCategoryPiesResponse(w http.ResponseWriter) error
+}
+
+type YearCategoryPies200TexthtmlResponse struct {
+	Body          io.Reader
+	ContentLength int64
+}
+
+func (response YearCategoryPies200TexthtmlResponse) VisitYearCategoryPiesResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "text/html")
+	if response.ContentLength != 0 {
+		w.Header().Set("Content-Length", fmt.Sprint(response.ContentLength))
+	}
+	w.WriteHeader(200)
+
+	if closer, ok := response.Body.(io.ReadCloser); ok {
+		defer closer.Close()
+	}
+	_, err := io.Copy(w, response.Body)
+	return err
+}
+
+type YearCategoryPies404TexthtmlResponse struct{ NotFoundTexthtmlResponse }
+
+func (response YearCategoryPies404TexthtmlResponse) VisitYearCategoryPiesResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "text/html")
+	if response.ContentLength != 0 {
+		w.Header().Set("Content-Length", fmt.Sprint(response.ContentLength))
+	}
+	w.WriteHeader(404)
+
+	if closer, ok := response.Body.(io.ReadCloser); ok {
+		defer closer.Close()
+	}
+	_, err := io.Copy(w, response.Body)
+	return err
+}
+
+type YearCategoryPiesdefaultJSONResponse struct {
+	Body       Error
+	StatusCode int
+}
+
+func (response YearCategoryPiesdefaultJSONResponse) VisitYearCategoryPiesResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(response.StatusCode)
+
+	return json.NewEncoder(w).Encode(response.Body)
+}
+
 // StrictServerInterface represents all server handlers.
 type StrictServerInterface interface {
 	// Home Page
 	// (GET /)
 	HomePage(ctx context.Context, request HomePageRequestObject) (HomePageResponseObject, error)
+
+	// (GET /about)
+	AboutPage(ctx context.Context, request AboutPageRequestObject) (AboutPageResponseObject, error)
+
+	// (GET /about/cookies)
+	CookiePage(ctx context.Context, request CookiePageRequestObject) (CookiePageResponseObject, error)
+
+	// (GET /about/privacy)
+	PrivacyPage(ctx context.Context, request PrivacyPageRequestObject) (PrivacyPageResponseObject, error)
+
+	// (GET /years)
+	YearsPage(ctx context.Context, request YearsPageRequestObject) (YearsPageResponseObject, error)
+
+	// (GET /years/{year})
+	YearPage(ctx context.Context, request YearPageRequestObject) (YearPageResponseObject, error)
+
+	// (GET /years/{year}/all-pies)
+	YearAllPies(ctx context.Context, request YearAllPiesRequestObject) (YearAllPiesResponseObject, error)
+
+	// (GET /years/{year}/brands)
+	YearAllBrands(ctx context.Context, request YearAllBrandsRequestObject) (YearAllBrandsResponseObject, error)
+
+	// (GET /years/{year}/brands/{brand})
+	YearBrandPies(ctx context.Context, request YearBrandPiesRequestObject) (YearBrandPiesResponseObject, error)
+
+	// (GET /years/{year}/brands/{brand}/{pie})
+	YearBrandPie(ctx context.Context, request YearBrandPieRequestObject) (YearBrandPieResponseObject, error)
+
+	// (GET /years/{year}/categories)
+	YearAllCategories(ctx context.Context, request YearAllCategoriesRequestObject) (YearAllCategoriesResponseObject, error)
+
+	// (GET /years/{year}/categories/{category})
+	YearCategoryPies(ctx context.Context, request YearCategoryPiesRequestObject) (YearCategoryPiesResponseObject, error)
 }
 
 type StrictHandlerFunc = strictnethttp.StrictHTTPHandlerFunc
@@ -272,16 +1275,309 @@ func (sh *strictHandler) HomePage(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// AboutPage operation middleware
+func (sh *strictHandler) AboutPage(w http.ResponseWriter, r *http.Request) {
+	var request AboutPageRequestObject
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.AboutPage(ctx, request.(AboutPageRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "AboutPage")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(AboutPageResponseObject); ok {
+		if err := validResponse.VisitAboutPageResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// CookiePage operation middleware
+func (sh *strictHandler) CookiePage(w http.ResponseWriter, r *http.Request) {
+	var request CookiePageRequestObject
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.CookiePage(ctx, request.(CookiePageRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "CookiePage")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(CookiePageResponseObject); ok {
+		if err := validResponse.VisitCookiePageResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// PrivacyPage operation middleware
+func (sh *strictHandler) PrivacyPage(w http.ResponseWriter, r *http.Request) {
+	var request PrivacyPageRequestObject
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.PrivacyPage(ctx, request.(PrivacyPageRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "PrivacyPage")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(PrivacyPageResponseObject); ok {
+		if err := validResponse.VisitPrivacyPageResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// YearsPage operation middleware
+func (sh *strictHandler) YearsPage(w http.ResponseWriter, r *http.Request) {
+	var request YearsPageRequestObject
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.YearsPage(ctx, request.(YearsPageRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "YearsPage")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(YearsPageResponseObject); ok {
+		if err := validResponse.VisitYearsPageResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// YearPage operation middleware
+func (sh *strictHandler) YearPage(w http.ResponseWriter, r *http.Request, year Year) {
+	var request YearPageRequestObject
+
+	request.Year = year
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.YearPage(ctx, request.(YearPageRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "YearPage")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(YearPageResponseObject); ok {
+		if err := validResponse.VisitYearPageResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// YearAllPies operation middleware
+func (sh *strictHandler) YearAllPies(w http.ResponseWriter, r *http.Request, year Year, params YearAllPiesParams) {
+	var request YearAllPiesRequestObject
+
+	request.Year = year
+	request.Params = params
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.YearAllPies(ctx, request.(YearAllPiesRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "YearAllPies")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(YearAllPiesResponseObject); ok {
+		if err := validResponse.VisitYearAllPiesResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// YearAllBrands operation middleware
+func (sh *strictHandler) YearAllBrands(w http.ResponseWriter, r *http.Request, year Year, params YearAllBrandsParams) {
+	var request YearAllBrandsRequestObject
+
+	request.Year = year
+	request.Params = params
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.YearAllBrands(ctx, request.(YearAllBrandsRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "YearAllBrands")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(YearAllBrandsResponseObject); ok {
+		if err := validResponse.VisitYearAllBrandsResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// YearBrandPies operation middleware
+func (sh *strictHandler) YearBrandPies(w http.ResponseWriter, r *http.Request, year Year, brand Brand, params YearBrandPiesParams) {
+	var request YearBrandPiesRequestObject
+
+	request.Year = year
+	request.Brand = brand
+	request.Params = params
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.YearBrandPies(ctx, request.(YearBrandPiesRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "YearBrandPies")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(YearBrandPiesResponseObject); ok {
+		if err := validResponse.VisitYearBrandPiesResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// YearBrandPie operation middleware
+func (sh *strictHandler) YearBrandPie(w http.ResponseWriter, r *http.Request, year Year, brand Brand, pie string) {
+	var request YearBrandPieRequestObject
+
+	request.Year = year
+	request.Brand = brand
+	request.Pie = pie
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.YearBrandPie(ctx, request.(YearBrandPieRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "YearBrandPie")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(YearBrandPieResponseObject); ok {
+		if err := validResponse.VisitYearBrandPieResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// YearAllCategories operation middleware
+func (sh *strictHandler) YearAllCategories(w http.ResponseWriter, r *http.Request, year Year, params YearAllCategoriesParams) {
+	var request YearAllCategoriesRequestObject
+
+	request.Year = year
+	request.Params = params
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.YearAllCategories(ctx, request.(YearAllCategoriesRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "YearAllCategories")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(YearAllCategoriesResponseObject); ok {
+		if err := validResponse.VisitYearAllCategoriesResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// YearCategoryPies operation middleware
+func (sh *strictHandler) YearCategoryPies(w http.ResponseWriter, r *http.Request, year Year, category string, params YearCategoryPiesParams) {
+	var request YearCategoryPiesRequestObject
+
+	request.Year = year
+	request.Category = category
+	request.Params = params
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.YearCategoryPies(ctx, request.(YearCategoryPiesRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "YearCategoryPies")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(YearCategoryPiesResponseObject); ok {
+		if err := validResponse.VisitYearCategoryPiesResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"H4sIAAAAAAAC/3SSwW7bMAyGXyXgdjSirL3pPmA7DCgG7FTkoMqMo8YSOYoeWgR+94Gy4SIZdrElkvj5",
-	"8aeuECkzFSxawV9BsDKViu3yq+AbY1Tsv4qQWChSUSxqx8A8phg0UXGvlYrFajxjDnb6LHgCD5/ch75b",
-	"stUtavM8d9BjjZLYRMDDtDXc4VrTrZoNaMNgIUbRtHBG6tH+J5IcFDykoo8P0IG+My5XHFBg7iBjrWFo",
-	"1WuyqqQytE6Cv6ck2IN/XjQ/6o+bGL28YtSFPpUTNamko+V+pBLxKeHPUC7QwR+Uugz2ZX/YH6w/MZbA",
-	"CTw8tlAHHPTcpnD2GbB5a9M1Z7/34OEbZXwyiu52Pw+Hw91OFN/UnTWPt8u4H/Uf48+UccfWoqVOYRr1",
-	"f1vcENz9+2jbmnIO8r5S71ZsDUM1V3l6GVOEY0OoKOYQ+OcrTDIahipX71w2HzmhhHLZR9pPFwfzcf4b",
-	"AAD///+zCqetAgAA",
+	"H4sIAAAAAAAC/+xYTW/bOBD9K8bsHrWmN8lJtyRo0QJtIRTooQhyoOmxzVgiGXIURDD03wuSspQPy3YA",
+	"K0AKX2IrM3yc996QIr0GoQujFSpykK7BcMsLJLTh6cpyNfNfpIIUDKclJKB4gZDCNMQSsHhfSoszSMmW",
+	"mIATSyy4H0SV8YmOrFQLqOsEvslCUot3X6KtOsA8BJ8CzLUtOEEKUtH5GSQbRKkIF2gDZMYX2IdofOyt",
+	"gL+R2x7KlQ/tYrwfv/bDndHKYVD4h6bPuowiC60IVdCH8JHYkorcP/QrWicwQyesNCS1r1dpGs0DXp3A",
+	"L4WPBgXh7JO12r6YghuTS8H9QHbn/OinM/1rcQ4p/MO69mAx6lhE2zJ72U44wiZno04g25ZhrDZoSUYN",
+	"hJ7hQeolUKBzjeGvu6vz5SZidvm3LZie3qGgWL1Ucx2gJOU+9l0qgZnEn1ytIIEHtC4S+388GU/8/Nqg",
+	"4kZCCufhX0nokMCC+T8LDNp6dkHZrzNI4YsuMIut+Mz7s8nkSLYvdYGj0O0hNOdlTn0utiWwl/0R3CqL",
+	"gtuqqXrUlE184byqppzmUsCtz2R8qkvqJX3pox+FdT8/JrReNX26led1iA9LNNYwOFVj5QMXVS/VLMaH",
+	"5doUMSBZv4v3++m3fzcsxVDA0ATZ2n/UO3kOT7NleTG52M+wfRkeXZbk2cHmZjtml8LCIaC+fakm43n+",
+	"n9m1HfiBl3me+ZxhleV5PgqlfFR1k715WWyevXnxWLnFrnBG3WvWVcwa3q6mnJNhewxj6/C5e/MKrr3T",
+	"OvvrjYsXvfd3mK2NxMN8Ptl8TJu33G5No/Gh1/nX3gpOuND2gPfjdZc5vK1Pyjptvb0Ls1OJrZvv1e6V",
+	"2ZhYZScbD7dxy8LbqP22H9OO3xH++o/2YcOotLm/ZBMZlzJWSCXQSLRcrcZCj8sV82P+BAAA///WEyOJ",
+	"QBQAAA==",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file
