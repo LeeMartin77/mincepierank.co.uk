@@ -172,6 +172,8 @@ func HandlerWithOptions(si ServerInterface, options StdHTTPServerOptions) http.H
 	return m
 }
 
+type UnexpectedErrorJSONResponse Error
+
 type HomePageRequestObject struct {
 }
 
@@ -273,12 +275,13 @@ func (sh *strictHandler) HomePage(w http.ResponseWriter, r *http.Request) {
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"H4sIAAAAAAAC/2yRQavbMAzHv0rRdgxx9t7N98F2GDx2LT24jpK4jW1NVkZLyXcfcsI6Ri+xY0l/6af/",
-	"A3yOlBMmKWAfUPyE0dXrV+bMeiHOhCwB67PPPeo5ZI5OwEJI8v4GDcidcPvFERnWBiKW4saavQeLcEgj",
-	"rGsDjL+WwNiDPW6az/zTX7F8vqAXWLUgpCFXqSCzxn6E5PEj4E+XrtDAb+QScgILX9qu7bR/JkyOAlh4",
-	"r08NkJOpUhj9jCh6KJ2TkNP3Hix8yxE/dAodsVBOZeN+67oNPwmmWid4EzNJnJ+Le4W6NtBj8RxItvmm",
-	"HPFA2qKGBrfM8p+0I5qDr0OZS9Gqfzt8ZhzAwifz9M7sxpnNtRddl4Q3Qi/YH3DPaaAsMTq+79iHnVvc",
-	"WNQWWs5z8HCqagVZVwz2+ICFZ+UQoWKNiWoEBWSXrq3P7XI1sJ7WPwEAAP//ny8EqFsCAAA=",
+	"H4sIAAAAAAAC/3SSwW7bMAyGXyXgdjSirL3pPmA7DCgG7FTkoMqMo8YSOYoeWgR+94Gy4SIZdrElkvj5",
+	"8aeuECkzFSxawV9BsDKViu3yq+AbY1Tsv4qQWChSUSxqx8A8phg0UXGvlYrFajxjDnb6LHgCD5/ch75b",
+	"stUtavM8d9BjjZLYRMDDtDXc4VrTrZoNaMNgIUbRtHBG6tH+J5IcFDykoo8P0IG+My5XHFBg7iBjrWFo",
+	"1WuyqqQytE6Cv6ck2IN/XjQ/6o+bGL28YtSFPpUTNamko+V+pBLxKeHPUC7QwR+Uugz2ZX/YH6w/MZbA",
+	"CTw8tlAHHPTcpnD2GbB5a9M1Z7/34OEbZXwyiu52Pw+Hw91OFN/UnTWPt8u4H/Uf48+UccfWoqVOYRr1",
+	"f1vcENz9+2jbmnIO8r5S71ZsDUM1V3l6GVOEY0OoKOYQ+OcrTDIahipX71w2HzmhhHLZR9pPFwfzcf4b",
+	"AAD///+zCqetAgAA",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file

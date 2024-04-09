@@ -19,13 +19,16 @@ paths:
               schema:
                 type: string
         default:
-          description: unexpected error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
+          $ref: "#/components/responses/UnexpectedError"
 components:
-  schemas:
+  responses:
+    UnexpectedError:
+      description: unexpected error
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+  schemas:    
     Error:
       type: object
       required:
