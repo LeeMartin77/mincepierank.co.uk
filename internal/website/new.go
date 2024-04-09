@@ -33,6 +33,61 @@ type WebsiteWrapper struct {
 	storage storage.Operations
 }
 
+// AboutPage implements generated.StrictServerInterface.
+func (wrpr *WebsiteWrapper) AboutPage(ctx context.Context, request generated.AboutPageRequestObject) (generated.AboutPageResponseObject, error) {
+	panic("unimplemented")
+}
+
+// CookiePage implements generated.StrictServerInterface.
+func (wrpr *WebsiteWrapper) CookiePage(ctx context.Context, request generated.CookiePageRequestObject) (generated.CookiePageResponseObject, error) {
+	panic("unimplemented")
+}
+
+// PrivacyPage implements generated.StrictServerInterface.
+func (wrpr *WebsiteWrapper) PrivacyPage(ctx context.Context, request generated.PrivacyPageRequestObject) (generated.PrivacyPageResponseObject, error) {
+	panic("unimplemented")
+}
+
+// YearAllBrands implements generated.StrictServerInterface.
+func (wrpr *WebsiteWrapper) YearAllBrands(ctx context.Context, request generated.YearAllBrandsRequestObject) (generated.YearAllBrandsResponseObject, error) {
+	panic("unimplemented")
+}
+
+// YearAllCategories implements generated.StrictServerInterface.
+func (wrpr *WebsiteWrapper) YearAllCategories(ctx context.Context, request generated.YearAllCategoriesRequestObject) (generated.YearAllCategoriesResponseObject, error) {
+	panic("unimplemented")
+}
+
+// YearAllPies implements generated.StrictServerInterface.
+func (wrpr *WebsiteWrapper) YearAllPies(ctx context.Context, request generated.YearAllPiesRequestObject) (generated.YearAllPiesResponseObject, error) {
+	panic("unimplemented")
+}
+
+// YearBrandPie implements generated.StrictServerInterface.
+func (wrpr *WebsiteWrapper) YearBrandPie(ctx context.Context, request generated.YearBrandPieRequestObject) (generated.YearBrandPieResponseObject, error) {
+	panic("unimplemented")
+}
+
+// YearBrandPies implements generated.StrictServerInterface.
+func (wrpr *WebsiteWrapper) YearBrandPies(ctx context.Context, request generated.YearBrandPiesRequestObject) (generated.YearBrandPiesResponseObject, error) {
+	panic("unimplemented")
+}
+
+// YearCategoryPies implements generated.StrictServerInterface.
+func (wrpr *WebsiteWrapper) YearCategoryPies(ctx context.Context, request generated.YearCategoryPiesRequestObject) (generated.YearCategoryPiesResponseObject, error) {
+	panic("unimplemented")
+}
+
+// YearPage implements generated.StrictServerInterface.
+func (wrpr *WebsiteWrapper) YearPage(ctx context.Context, request generated.YearPageRequestObject) (generated.YearPageResponseObject, error) {
+	panic("unimplemented")
+}
+
+// YearsPage implements generated.StrictServerInterface.
+func (wrpr *WebsiteWrapper) YearsPage(ctx context.Context, request generated.YearsPageRequestObject) (generated.YearsPageResponseObject, error) {
+	panic("unimplemented")
+}
+
 func NewWebsiteWrapper(storage storage.Operations) generated.StrictServerInterface {
 	return &WebsiteWrapper{
 		storage: storage,
