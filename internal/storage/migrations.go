@@ -87,6 +87,12 @@ var migrations []string = []string{
       last_updated timestamp,
       PRIMARY KEY (year, pieid, userid)
   );`,
+	`CREATE TABLE IF NOT EXISTS maker (
+		id text PRIMARY KEY,
+		name text,
+		logo text,
+		website text
+	)`,
 }
 
 var migrationLogTable string = `
