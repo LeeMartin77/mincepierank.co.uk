@@ -93,6 +93,7 @@ var migrations []string = []string{
 		logo text,
 		website text
 	)`,
+	`ALTER TABLE maker_pie_yearly ADD validated boolean;`,
 }
 
 var migrationLogTable string = `
