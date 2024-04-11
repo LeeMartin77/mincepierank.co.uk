@@ -1,21 +1,5 @@
 package types
 
-// `CREATE TABLE IF NOT EXISTS maker_pie_yearly
-// (
-// 	year int,
-// 	makerid text,
-// 	id text,
-// 	displayname text,
-// 	fresh boolean,
-// 	labels text[],
-// 	image_file text,
-// 	web_link text,
-// 	pack_count int,
-// 	pack_price_in_pence int,
-// 	PRIMARY KEY (year, makerId, id)
-// );`,
-
-// maker_pie_yearly
 type MakerPieYearly struct {
 	Year             int32    `json:"year" col:"year"`
 	MakerId          string   `json:"makerid" col:"makerid"`
