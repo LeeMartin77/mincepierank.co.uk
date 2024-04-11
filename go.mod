@@ -4,6 +4,7 @@ go 1.22.0
 
 require (
 	github.com/apapsch/go-jsonmerge/v2 v2.0.0 // indirect
+	github.com/dave/jennifer v1.7.0 // indirect
 	github.com/deepmap/oapi-codegen/v2 v2.1.1-0.20240304154729-dd082985a9b6 // indirect
 	github.com/getkin/kin-openapi v0.122.0 // indirect
 	github.com/go-openapi/jsonpointer v0.19.6 // indirect
