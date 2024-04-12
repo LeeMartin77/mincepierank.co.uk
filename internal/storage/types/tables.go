@@ -1,9 +1,9 @@
 package types
 
 type MakerPieYearly struct {
-	Year             int32    `json:"year" col:"year"`
-	MakerId          string   `json:"makerid" col:"makerid"`
-	Id               string   `json:"id" col:"id"`
+	Year             int32    `json:"year" col:"year,primary"`
+	MakerId          string   `json:"makerid" col:"makerid,primary"`
+	Id               string   `json:"id" col:"id,primary"`
 	DisplayName      string   `json:"displayname,omitempty" col:"displayname"`
 	Fresh            bool     `json:"fresh,omitempty" col:"fresh"`
 	Labels           []string `json:"labels,omitempty" col:"labels"`
