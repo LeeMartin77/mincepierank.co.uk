@@ -69,3 +69,17 @@ func MakerPieYearlyRead(ctx context.Context, pg *pgxpool.Pool, Year int32, Maker
 	}
 	return &r, nil
 }
+
+// Deletes 'MakerPieYearly' in table 'maker_pie_yearly' based on id columns - no error if not found
+func MakerPieYearlyRead(ctx context.Context, pg *pgxpool.Pool, Year int32, MakerId string, Id string) error {
+	identifiers := []interface{}{}
+	identifiers = append(identifiers, Year)
+	identifiers = append(identifiers, MakerId)
+	identifiers = append(identifiers, Id)
+	sql := "DELETE FROM maker_pie_yearly WHERE year = $1, makerid = $2, id = $3"
+	_, err := pg.Exec(ctx, sql, identifiers...)
+	if err != nil {
+		return err
+	}
+	return nil
+}

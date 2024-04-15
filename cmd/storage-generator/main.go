@@ -56,6 +56,7 @@ func main() {
 	generateCreate(f, tableName, sourceTypeName, structType, sourceTypePackage)
 	generateUpdate(f, tableName, sourceTypeName, structType, sourceTypePackage)
 	generateRead(f, tableName, sourceTypeName, structType, sourceTypePackage)
+	generateDelete(f, tableName, sourceTypeName, structType)
 
 	err = f.Save(targetFilename)
 	if err != nil {
@@ -201,21 +202,6 @@ func generateUpdate(f *jen.File, tableName string, sourceTypeName string, struct
 	).Params(jen.Op("*").Qual(sourceTypePackage, sourceTypeName), jen.Error()).Block(cblck...)
 }
 
-// func (pgsg PostgresQCStorage) GetDataset(id uuid.UUID) (*DatasetMetadata, error) {
-// 	r := DatasetMetadata{}
-// 	sqlStr := "SELECT id, owner_id, owner_type, name, keys FROM dataset_metadata WHERE id = $1;"
-// 	res := pgsg.Db.QueryRow(context.TODO(), sqlStr, id)
-// 	err := res.Scan(&r.Id, &r.OwnerId, &r.OwnerType, &r.Name, &r.Keys)
-// 	if err == pgx.ErrNoRows {
-// 		return nil, nil
-// 	}
-// 	if err != nil {
-// 		fmt.Fprintf(os.Stderr, "ErrGetDataset: %v", err)
-// 		return nil, err
-// 	}
-// 	return &r, nil
-// }
-
 func generateRead(f *jen.File, tableName string, sourceTypeName string, structType *types.Struct, sourceTypePackage string) {
 	//goPackage := os.Getenv("GOPACKAGE")
 
@@ -290,4 +276,58 @@ func generateRead(f *jen.File, tableName string, sourceTypeName string, structTy
 	f.Func().Id(sourceTypeName+"Read").Params(
 		inputs...,
 	).Params(jen.Op("*").Qual(sourceTypePackage, sourceTypeName), jen.Error()).Block(cblck...)
+}
+
+func generateDelete(f *jen.File, tableName string, sourceTypeName string, structType *types.Struct) {
+	f.ImportName("github.com/jackc/pgx/v5/pgxpool", "pgxpool")
+	identifiers := []jen.Code{}
+	cblck := []jen.Code{jen.Id("identifiers").Op(":=").Op("[]").Interface().Op("{}")}
+	deleteStr := fmt.Sprintf("DELETE FROM %s WHERE ", tableName)
+	for i := 0; i < structType.NumFields(); i++ {
+		field := structType.Field(i)
+		rawTagValue := structType.Tag(i)
+		matches := structColPattern.FindStringSubmatch(rawTagValue)
+		if matches == nil {
+			continue
+		}
+		raw := strings.Split(matches[1], ",")
+		col := raw[0]
+		isId := false
+		if len(raw) > 1 && raw[1] == "primary" {
+			isId = true
+		}
+		if isId {
+			identifiers = append(identifiers, jen.Id(field.Name()).Qual("", field.Type().String()))
+			if i > 0 {
+				deleteStr += ", "
+			}
+			deleteStr += fmt.Sprintf("%s = $%d", col, i+1)
+			cblck = append(cblck, jen.Id("identifiers").Op("=").Op("append(").Id("identifiers").Op(",").Id(field.Name()).Op(")"))
+		}
+
+	}
+
+	cblck = append(cblck, jen.Id("sql").Op(":=").Op(fmt.Sprintf("\"%s\"", deleteStr)))
+
+	cblck = append(cblck, jen.Id("_").Op(",").Id("err").Op(":=").Id("pg").Dot("Exec").Params(
+		jen.Id("ctx"), jen.Id("sql"), jen.Id("identifiers").Op("..."),
+	))
+
+	cblck = append(cblck, jen.If(jen.Id("err").Op("!=").Nil()).Block(
+		jen.Return(jen.Id("err")),
+	))
+
+	cblck = append(cblck, jen.Return(jen.Nil()))
+
+	inputs := []jen.Code{jen.Id("ctx").Qual("context", "Context"), jen.Id("pg").Op("*").Qual(
+		"github.com/jackc/pgx/v5/pgxpool",
+		"Pool",
+	)}
+
+	inputs = append(inputs, identifiers...)
+
+	f.Commentf("Deletes '%s' in table '%s' based on id columns - no error if not found", sourceTypeName, tableName)
+	f.Func().Id(sourceTypeName + "Read").Params(
+		inputs...,
+	).Params(jen.Error()).Block(cblck...)
 }
