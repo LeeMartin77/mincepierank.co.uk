@@ -5,13 +5,16 @@ const Mapper = cassandra.mapping.Mapper;
 
 const { Client } = pg;
 const connectionString =
-  process.env.POSTGRESS_CONNECTION_STRING ?? "postgresql://postgres:mysecretpassword@localhost:5432/postgres";
+  process.env.POSTGRESS_CONNECTION_STRING ??
+  "postgresql://postgres:mysecretpassword@localhost:5432/postgres";
 const cassClient = new CassClient({
-  contactPoints: process.env.CASSANDRA_HOST ? process.env.CASSANDRA_HOST.split(";") :  ["localhost:9143"],
-  localDataCenter: process.env.CASSANDRA_LOCALDATACENTER ?? 'datacenter1',
+  contactPoints: process.env.CASSANDRA_HOST
+    ? process.env.CASSANDRA_HOST.split(";")
+    : ["localhost:9143"],
+  localDataCenter: process.env.CASSANDRA_LOCALDATACENTER ?? "datacenter1",
   credentials: {
-    username: process.env.CASSANDRA_USER ?? 'cassandra',
-    password: process.env.CASSANDRA_PASSWORD ?? 'cassandra'
+    username: process.env.CASSANDRA_USER ?? "cassandra",
+    password: process.env.CASSANDRA_PASSWORD ?? "cassandra",
   },
   keyspace: "mincepierank",
 });
@@ -39,7 +42,7 @@ async function main() {
     for (let item of items) {
       const query = {
         text: `INSERT INTO ${table} (${Object.keys(item).join(
-          ", "
+          ", ",
         )}) VALUES (${Object.keys(item)
           .map((x, i) => `$${i + 1}`)
           .join(", ")}) ON CONFLICT DO NOTHING`,
