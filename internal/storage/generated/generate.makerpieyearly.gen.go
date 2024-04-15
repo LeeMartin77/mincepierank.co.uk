@@ -43,7 +43,7 @@ func MakerPieYearlyUpdate(ctx context.Context, pg *pgxpool.Pool, u types.MakerPi
 	parameters = append(parameters, u.WebLink)
 	parameters = append(parameters, u.PackCount)
 	parameters = append(parameters, u.PackPriceInPence)
-	sql := "UPDATE maker_pie_yearly SET displayname=$4,fresh=$5,labels=$6,image_file=$7,web_link=$8,pack_count=$9,pack_price_in_pence=$10 WHERE year=$1,makerid=$2,id=$3"
+	sql := "UPDATE maker_pie_yearly SET displayname=$4,fresh=$5,labels=$6,image_file=$7,web_link=$8,pack_count=$9,pack_price_in_pence=$10 WHERE year=$1 AND makerid=$2 AND id=$3"
 	_, err := pg.Exec(ctx, sql, parameters...)
 	if err != nil {
 		return nil, err
@@ -58,7 +58,7 @@ func MakerPieYearlyRead(ctx context.Context, pg *pgxpool.Pool, Year int32, Maker
 	identifiers = append(identifiers, Year)
 	identifiers = append(identifiers, MakerId)
 	identifiers = append(identifiers, Id)
-	sql := "SELECT year, makerid, id, displayname, fresh, labels, image_file, web_link, pack_count, pack_price_in_pence FROM maker_pie_yearly  WHERE year = $1, makerid = $2, id = $3"
+	sql := "SELECT year, makerid, id, displayname, fresh, labels, image_file, web_link, pack_count, pack_price_in_pence FROM maker_pie_yearly  WHERE year = $1 AND makerid = $2 AND id = $3"
 	res := pg.QueryRow(ctx, sql, identifiers...)
 	err := res.Scan(&r.Year, &r.MakerId, &r.Id, &r.DisplayName, &r.Fresh, &r.Labels, &r.ImageFile, &r.WebLink, &r.PackCount, &r.PackPriceInPence)
 	if err == pgx.ErrNoRows {
@@ -76,7 +76,7 @@ func MakerPieYearlyDelete(ctx context.Context, pg *pgxpool.Pool, Year int32, Mak
 	identifiers = append(identifiers, Year)
 	identifiers = append(identifiers, MakerId)
 	identifiers = append(identifiers, Id)
-	sql := "DELETE FROM maker_pie_yearly WHERE year = $1, makerid = $2, id = $3"
+	sql := "DELETE FROM maker_pie_yearly WHERE year = $1 AND makerid = $2 AND id = $3"
 	_, err := pg.Exec(ctx, sql, identifiers...)
 	if err != nil {
 		return err

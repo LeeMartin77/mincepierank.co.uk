@@ -40,3 +40,7 @@ func NewOperations(connectionString string) (Operations, error) {
 		db: pool,
 	}, nil
 }
+
+func (o *OperationWrapper) GetDatabase() *pgxpool.Pool {
+	return o.db
+}

@@ -179,7 +179,7 @@ func generateUpdate(f *jen.File, tableName string, sourceTypeName string, struct
 	cblck = append(cblck, jen.Id("sql").Op(":=").Op(fmt.Sprintf("\"%s%s%s\"",
 		fmt.Sprintf(`UPDATE %s `, tableName),
 		"SET "+strings.Join(sets, ","),
-		" WHERE "+strings.Join(conditions, ","),
+		" WHERE "+strings.Join(conditions, " AND "),
 	)))
 
 	cblck = append(cblck, jen.Id("_").Op(",").Id("err").Op(":=").Id("pg").Dot("Exec").Params(
@@ -231,7 +231,7 @@ func generateRead(f *jen.File, tableName string, sourceTypeName string, structTy
 		if isId {
 			identifiers = append(identifiers, jen.Id(field.Name()).Qual("", field.Type().String()))
 			if paramCount > 1 {
-				whereStr += ", "
+				whereStr += " AND "
 			}
 			whereStr += fmt.Sprintf("%s = $%d", col, paramCount)
 			cblck = append(cblck, jen.Id("identifiers").Op("=").Op("append(").Id("identifiers").Op(",").Id(field.Name()).Op(")"))
@@ -299,7 +299,7 @@ func generateDelete(f *jen.File, tableName string, sourceTypeName string, struct
 		if isId {
 			identifiers = append(identifiers, jen.Id(field.Name()).Qual("", field.Type().String()))
 			if i > 0 {
-				deleteStr += ", "
+				deleteStr += " AND "
 			}
 			deleteStr += fmt.Sprintf("%s = $%d", col, i+1)
 			cblck = append(cblck, jen.Id("identifiers").Op("=").Op("append(").Id("identifiers").Op(",").Id(field.Name()).Op(")"))
