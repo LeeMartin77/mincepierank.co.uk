@@ -22,7 +22,7 @@ func MakerPieYearlyCreate(ctx context.Context, pg *pgxpool.Pool, c types.MakerPi
 		c.PackCount,
 		c.PackPriceInPence,
 	}
-	sql := "INSERT INTO maker_pie_yearly (year,makerid,id,displayname,fresh,labels,image_file,web_link,pack_count,pack_price_in_pence) VALUES (?,?,?,?,?,?,?,?,?,?) ON CONFLICT DO NOTHING"
+	sql := "INSERT INTO maker_pie_yearly (year,makerid,id,displayname,fresh,labels,image_file,web_link,pack_count,pack_price_in_pence) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) ON CONFLICT DO NOTHING"
 	_, err := pg.Exec(ctx, sql, args...)
 	if err != nil {
 		return nil, err

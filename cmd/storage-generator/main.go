@@ -120,7 +120,7 @@ func generateCreate(f *jen.File, tableName string, sourceTypeName string, struct
 		raw := strings.Split(matches[1], ",")
 		col := raw[0]
 		valuecols += col
-		questionmarks += "?"
+		questionmarks += fmt.Sprintf("$%d", i+1)
 		cblck = append(cblck, jen.Id("c").Dot(field.Name()).Op(","))
 	}
 
