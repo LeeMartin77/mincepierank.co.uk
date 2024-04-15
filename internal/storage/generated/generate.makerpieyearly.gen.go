@@ -32,21 +32,19 @@ func MakerPieYearlyCreate(ctx context.Context, pg *pgxpool.Pool, c types.MakerPi
 
 // Update 'MakerPieYearly' in table 'maker_pie_yearly' based on id columns
 func MakerPieYearlyUpdate(ctx context.Context, pg *pgxpool.Pool, u types.MakerPieYearly) (*types.MakerPieYearly, error) {
-	sets := []interface{}{}
-	identifiers := []interface{}{}
-	identifiers = append(identifiers, u.Year)
-	identifiers = append(identifiers, u.MakerId)
-	identifiers = append(identifiers, u.Id)
-	sets = append(sets, u.DisplayName)
-	sets = append(sets, u.Fresh)
-	sets = append(sets, u.Labels)
-	sets = append(sets, u.ImageFile)
-	sets = append(sets, u.WebLink)
-	sets = append(sets, u.PackCount)
-	sets = append(sets, u.PackPriceInPence)
-	sql := "UPDATE maker_pie_yearly SET displayname=?,fresh=?,labels=?,image_file=?,web_link=?,pack_count=?,pack_price_in_pence=? WHERE year=?,makerid=?,id=?"
-	args := append(sets, identifiers...)
-	_, err := pg.Exec(ctx, sql, args...)
+	parameters := []interface{}{}
+	parameters = append(parameters, u.Year)
+	parameters = append(parameters, u.MakerId)
+	parameters = append(parameters, u.Id)
+	parameters = append(parameters, u.DisplayName)
+	parameters = append(parameters, u.Fresh)
+	parameters = append(parameters, u.Labels)
+	parameters = append(parameters, u.ImageFile)
+	parameters = append(parameters, u.WebLink)
+	parameters = append(parameters, u.PackCount)
+	parameters = append(parameters, u.PackPriceInPence)
+	sql := "UPDATE maker_pie_yearly SET displayname=$4,fresh=$5,labels=$6,image_file=$7,web_link=$8,pack_count=$9,pack_price_in_pence=$10 WHERE year=$1,makerid=$2,id=$3"
+	_, err := pg.Exec(ctx, sql, parameters...)
 	if err != nil {
 		return nil, err
 	}

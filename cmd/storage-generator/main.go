@@ -150,8 +150,7 @@ func generateCreate(f *jen.File, tableName string, sourceTypeName string, struct
 func generateUpdate(f *jen.File, tableName string, sourceTypeName string, structType *types.Struct, sourceTypePackage string) {
 	//goPackage := os.Getenv("GOPACKAGE")
 	cblck := []jen.Code{}
-	cblck = append(cblck, jen.Id("sets").Op(":=").Op("[]").Interface().Op("{}"))
-	cblck = append(cblck, jen.Id("identifiers").Op(":=").Op("[]").Interface().Op("{}"))
+	cblck = append(cblck, jen.Id("parameters").Op(":=").Op("[]").Interface().Op("{}"))
 	sets := []string{}
 	conditions := []string{}
 	for i := 0; i < structType.NumFields(); i++ {
@@ -169,12 +168,11 @@ func generateUpdate(f *jen.File, tableName string, sourceTypeName string, struct
 			isId = true
 		}
 		if isId {
-			conditions = append(conditions, col+"=?")
-			cblck = append(cblck, jen.Id("identifiers").Op("=").Op("append(").Id("identifiers").Op(",").Id("u").Dot(field.Name()).Op(")"))
+			conditions = append(conditions, col+fmt.Sprintf("=$%d", i+1))
 		} else {
-			sets = append(sets, col+"=?")
-			cblck = append(cblck, jen.Id("sets").Op("=").Op("append(").Id("sets").Op(",").Id("u").Dot(field.Name()).Op(")"))
+			sets = append(sets, col+fmt.Sprintf("=$%d", i+1))
 		}
+		cblck = append(cblck, jen.Id("parameters").Op("=").Op("append(").Id("parameters").Op(",").Id("u").Dot(field.Name()).Op(")"))
 	}
 
 	cblck = append(cblck, jen.Id("sql").Op(":=").Op(fmt.Sprintf("\"%s%s%s\"",
@@ -183,9 +181,8 @@ func generateUpdate(f *jen.File, tableName string, sourceTypeName string, struct
 		" WHERE "+strings.Join(conditions, ","),
 	)))
 
-	cblck = append(cblck, jen.Id("args").Op(":=").Op("append(").Id("sets").Op(",").Id("identifiers").Op("...").Op(")"))
 	cblck = append(cblck, jen.Id("_").Op(",").Id("err").Op(":=").Id("pg").Dot("Exec").Params(
-		jen.Id("ctx"), jen.Id("sql"), jen.Id("args").Op("..."),
+		jen.Id("ctx"), jen.Id("sql"), jen.Id("parameters").Op("..."),
 	))
 	cblck = append(cblck, jen.If(jen.Id("err").Op("!=").Nil()).Block(
 		jen.Return(jen.Nil(), jen.Id("err")),
