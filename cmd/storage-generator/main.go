@@ -54,6 +54,7 @@ func main() {
 
 	targetFilename := "../generated/" + baseFilename + "." + strings.ToLower(sourceTypeName) + ".gen.go"
 	generateCreate(f, tableName, sourceTypeName, structType, sourceTypePackage)
+	generateUpdate(f, tableName, sourceTypeName, structType, sourceTypePackage)
 
 	err = f.Save(targetFilename)
 	if err != nil {
@@ -145,5 +146,66 @@ func generateCreate(f *jen.File, tableName string, sourceTypeName string, struct
 			"Pool",
 		),
 		jen.Id("c").Qual(sourceTypePackage, sourceTypeName),
+	).Params(jen.Op("*").Qual(sourceTypePackage, sourceTypeName), jen.Error()).Block(cblck...)
+}
+
+func generateUpdate(f *jen.File, tableName string, sourceTypeName string, structType *types.Struct, sourceTypePackage string) {
+	//goPackage := os.Getenv("GOPACKAGE")
+
+	// 6. Build the target file name
+
+	cblck := []jen.Code{}
+	cblck = append(cblck, jen.Id("sets").Op(":=").Op("[]").Interface().Op("{}"))
+	cblck = append(cblck, jen.Id("identifiers").Op(":=").Op("[]").Interface().Op("{}"))
+	sets := []string{}
+	conditions := []string{}
+	for i := 0; i < structType.NumFields(); i++ {
+		field := structType.Field(i)
+		rawTagValue := structType.Tag(i)
+
+		matches := structColPattern.FindStringSubmatch(rawTagValue)
+		if matches == nil {
+			continue
+		}
+		raw := strings.Split(matches[1], ",")
+		fmt.Println(raw)
+		col := raw[0]
+		isId := false
+		if len(raw) > 1 && raw[1] == "primary" {
+			isId = true
+		}
+		if isId {
+			conditions = append(conditions, col+"=?")
+			cblck = append(cblck, jen.Id("identifiers").Op("=").Op("append(").Id("identifiers").Op(",").Id("u").Dot(field.Name()).Op(")"))
+		} else {
+			sets = append(sets, col+"=?")
+			cblck = append(cblck, jen.Id("sets").Op("=").Op("append(").Id("sets").Op(",").Id("u").Dot(field.Name()).Op(")"))
+		}
+	}
+
+	cblck = append(cblck, jen.Id("sql").Op(":=").Op(fmt.Sprintf("\"%s%s%s\"",
+		fmt.Sprintf(`UPDATE %s `, tableName),
+		"SET "+strings.Join(sets, ","),
+		" WHERE "+strings.Join(conditions, ","),
+	)))
+
+	cblck = append(cblck, jen.Id("args").Op(":=").Op("append(").Id("sets").Op(",").Id("identifiers").Op("...").Op(")"))
+	cblck = append(cblck, jen.Id("_").Op(",").Id("err").Op(":=").Id("pg").Dot("Exec").Params(
+		jen.Id("ctx"), jen.Id("sql"), jen.Id("args").Op("..."),
+	))
+	cblck = append(cblck, jen.If(jen.Id("err").Op("!=").Nil()).Block(
+		jen.Return(jen.Nil(), jen.Id("err")),
+	))
+	cblck = append(cblck, jen.Return(jen.Op("&").Id("u"), jen.Nil()))
+	f.ImportName("github.com/jackc/pgx/v5/pgxpool", "pgxpool")
+
+	f.Commentf("Update '%s' in table '%s' based on id columns", sourceTypeName, tableName)
+	f.Func().Id(sourceTypeName+"Update").Params(
+		jen.Id("ctx").Qual("context", "Context"),
+		jen.Id("pg").Op("*").Qual(
+			"github.com/jackc/pgx/v5/pgxpool",
+			"Pool",
+		),
+		jen.Id("u").Qual(sourceTypePackage, sourceTypeName),
 	).Params(jen.Op("*").Qual(sourceTypePackage, sourceTypeName), jen.Error()).Block(cblck...)
 }
