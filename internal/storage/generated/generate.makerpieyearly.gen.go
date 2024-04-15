@@ -71,7 +71,7 @@ func MakerPieYearlyRead(ctx context.Context, pg *pgxpool.Pool, Year int32, Maker
 }
 
 // Deletes 'MakerPieYearly' in table 'maker_pie_yearly' based on id columns - no error if not found
-func MakerPieYearlyRead(ctx context.Context, pg *pgxpool.Pool, Year int32, MakerId string, Id string) error {
+func MakerPieYearlyDelete(ctx context.Context, pg *pgxpool.Pool, Year int32, MakerId string, Id string) error {
 	identifiers := []interface{}{}
 	identifiers = append(identifiers, Year)
 	identifiers = append(identifiers, MakerId)

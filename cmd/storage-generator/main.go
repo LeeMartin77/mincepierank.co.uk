@@ -327,7 +327,7 @@ func generateDelete(f *jen.File, tableName string, sourceTypeName string, struct
 	inputs = append(inputs, identifiers...)
 
 	f.Commentf("Deletes '%s' in table '%s' based on id columns - no error if not found", sourceTypeName, tableName)
-	f.Func().Id(sourceTypeName + "Read").Params(
+	f.Func().Id(sourceTypeName + "Delete").Params(
 		inputs...,
 	).Params(jen.Error()).Block(cblck...)
 }
