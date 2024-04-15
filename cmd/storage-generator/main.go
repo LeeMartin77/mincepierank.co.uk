@@ -55,6 +55,7 @@ func main() {
 	targetFilename := "../generated/" + baseFilename + "." + strings.ToLower(sourceTypeName) + ".gen.go"
 	generateCreate(f, tableName, sourceTypeName, structType, sourceTypePackage)
 	generateUpdate(f, tableName, sourceTypeName, structType, sourceTypePackage)
+	generateRead(f, tableName, sourceTypeName, structType, sourceTypePackage)
 
 	err = f.Save(targetFilename)
 	if err != nil {
@@ -96,9 +97,6 @@ var structColPattern = regexp.MustCompile(`col:"([^"]+)"`)
 
 func generateCreate(f *jen.File, tableName string, sourceTypeName string, structType *types.Struct, sourceTypePackage string) {
 	//goPackage := os.Getenv("GOPACKAGE")
-
-	// 6. Build the target file name
-
 	cblck := []jen.Code{}
 	cblck = append(cblck, jen.Id("args").Op(":=").Op("[]").Interface().Op("{"))
 	sqlstr := fmt.Sprintf(`INSERT INTO %s (`, tableName)
@@ -151,9 +149,6 @@ func generateCreate(f *jen.File, tableName string, sourceTypeName string, struct
 
 func generateUpdate(f *jen.File, tableName string, sourceTypeName string, structType *types.Struct, sourceTypePackage string) {
 	//goPackage := os.Getenv("GOPACKAGE")
-
-	// 6. Build the target file name
-
 	cblck := []jen.Code{}
 	cblck = append(cblck, jen.Id("sets").Op(":=").Op("[]").Interface().Op("{}"))
 	cblck = append(cblck, jen.Id("identifiers").Op(":=").Op("[]").Interface().Op("{}"))
@@ -168,7 +163,6 @@ func generateUpdate(f *jen.File, tableName string, sourceTypeName string, struct
 			continue
 		}
 		raw := strings.Split(matches[1], ",")
-		fmt.Println(raw)
 		col := raw[0]
 		isId := false
 		if len(raw) > 1 && raw[1] == "primary" {
@@ -207,5 +201,96 @@ func generateUpdate(f *jen.File, tableName string, sourceTypeName string, struct
 			"Pool",
 		),
 		jen.Id("u").Qual(sourceTypePackage, sourceTypeName),
+	).Params(jen.Op("*").Qual(sourceTypePackage, sourceTypeName), jen.Error()).Block(cblck...)
+}
+
+// func (pgsg PostgresQCStorage) GetDataset(id uuid.UUID) (*DatasetMetadata, error) {
+// 	r := DatasetMetadata{}
+// 	sqlStr := "SELECT id, owner_id, owner_type, name, keys FROM dataset_metadata WHERE id = $1;"
+// 	res := pgsg.Db.QueryRow(context.TODO(), sqlStr, id)
+// 	err := res.Scan(&r.Id, &r.OwnerId, &r.OwnerType, &r.Name, &r.Keys)
+// 	if err == pgx.ErrNoRows {
+// 		return nil, nil
+// 	}
+// 	if err != nil {
+// 		fmt.Fprintf(os.Stderr, "ErrGetDataset: %v", err)
+// 		return nil, err
+// 	}
+// 	return &r, nil
+// }
+
+func generateRead(f *jen.File, tableName string, sourceTypeName string, structType *types.Struct, sourceTypePackage string) {
+	//goPackage := os.Getenv("GOPACKAGE")
+
+	f.ImportName("github.com/jackc/pgx/v5/pgxpool", "pgxpool")
+	f.ImportAlias("github.com/jackc/pgx/v5", "pgx")
+	identifiers := []jen.Code{}
+	cblck := []jen.Code{jen.Id("r").Op(":=").Qual(sourceTypePackage, sourceTypeName).Op("{}")}
+	cblck = append(cblck, jen.Id("identifiers").Op(":=").Op("[]").Interface().Op("{}"))
+	selectStr := "SELECT "
+	whereStr := " WHERE "
+	paramCount := 1
+	scanParams := []jen.Code{}
+	for i := 0; i < structType.NumFields(); i++ {
+		field := structType.Field(i)
+		rawTagValue := structType.Tag(i)
+		//sqlStr := "SELECT id, owner_id, owner_type, name, keys FROM dataset_metadata WHERE id = $1"
+		matches := structColPattern.FindStringSubmatch(rawTagValue)
+		if matches == nil {
+			continue
+		}
+		raw := strings.Split(matches[1], ",")
+		col := raw[0]
+		isId := false
+		if len(raw) > 1 && raw[1] == "primary" {
+			isId = true
+		}
+		if isId {
+			identifiers = append(identifiers, jen.Id(field.Name()).Qual("", field.Type().String()))
+			if paramCount > 1 {
+				whereStr += ", "
+			}
+			whereStr += fmt.Sprintf("%s = $%d", col, paramCount)
+			cblck = append(cblck, jen.Id("identifiers").Op("=").Op("append(").Id("identifiers").Op(",").Id(field.Name()).Op(")"))
+			paramCount += 1
+		}
+		if i > 0 {
+			selectStr += ", "
+		}
+		// 	err := res.Scan(&r.Id, &r.OwnerId, &r.OwnerType, &r.Name, &r.Keys)
+
+		scanParams = append(scanParams, jen.Op("&").Id("r").Dot(field.Name()))
+		selectStr += col
+
+	}
+
+	cblck = append(cblck, jen.Id("sql").Op(":=").Op(fmt.Sprintf("\"%s FROM %s %s\"", selectStr, tableName, whereStr)))
+
+	cblck = append(cblck, jen.Id("res").Op(":=").Id("pg").Dot("QueryRow").Params(
+		jen.Id("ctx"), jen.Id("sql"), jen.Id("identifiers").Op("..."),
+	))
+
+	cblck = append(cblck, jen.Id("err").Op(":=").Id("res").Dot("Scan").Params(scanParams...))
+
+	cblck = append(cblck, jen.If(jen.Id("err").Op("==").Qual("github.com/jackc/pgx/v5", "ErrNoRows")).Block(
+		jen.Return(jen.Nil(), jen.Nil()),
+	))
+
+	cblck = append(cblck, jen.If(jen.Id("err").Op("!=").Nil()).Block(
+		jen.Return(jen.Nil(), jen.Id("err")),
+	))
+
+	cblck = append(cblck, jen.Return(jen.Op("&").Id("r"), jen.Nil()))
+
+	inputs := []jen.Code{jen.Id("ctx").Qual("context", "Context"), jen.Id("pg").Op("*").Qual(
+		"github.com/jackc/pgx/v5/pgxpool",
+		"Pool",
+	)}
+
+	inputs = append(inputs, identifiers...)
+
+	f.Commentf("Read '%s' in table '%s' based on id columns - nil but no error if not found", sourceTypeName, tableName)
+	f.Func().Id(sourceTypeName+"Read").Params(
+		inputs...,
 	).Params(jen.Op("*").Qual(sourceTypePackage, sourceTypeName), jen.Error()).Block(cblck...)
 }

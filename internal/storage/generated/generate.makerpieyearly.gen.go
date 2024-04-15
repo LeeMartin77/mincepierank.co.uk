@@ -3,6 +3,7 @@ package generated
 
 import (
 	"context"
+	pgx "github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	types "github.com/leemartin77/mincepierank.co.uk/internal/storage/types"
 )
@@ -50,4 +51,23 @@ func MakerPieYearlyUpdate(ctx context.Context, pg *pgxpool.Pool, u types.MakerPi
 		return nil, err
 	}
 	return &u, nil
+}
+
+// Read 'MakerPieYearly' in table 'maker_pie_yearly' based on id columns - nil but no error if not found
+func MakerPieYearlyRead(ctx context.Context, pg *pgxpool.Pool, Year int32, MakerId string, Id string) (*types.MakerPieYearly, error) {
+	r := types.MakerPieYearly{}
+	identifiers := []interface{}{}
+	identifiers = append(identifiers, Year)
+	identifiers = append(identifiers, MakerId)
+	identifiers = append(identifiers, Id)
+	sql := "SELECT year, makerid, id, displayname, fresh, labels, image_file, web_link, pack_count, pack_price_in_pence FROM maker_pie_yearly  WHERE year = $1, makerid = $2, id = $3"
+	res := pg.QueryRow(ctx, sql, identifiers...)
+	err := res.Scan(&r.Year, &r.MakerId, &r.Id, &r.DisplayName, &r.Fresh, &r.Labels, &r.ImageFile, &r.WebLink, &r.PackCount, &r.PackPriceInPence)
+	if err == pgx.ErrNoRows {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+	return &r, nil
 }
