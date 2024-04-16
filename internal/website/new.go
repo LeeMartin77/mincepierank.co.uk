@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/leemartin77/mincepierank.co.uk/internal/storage"
+	"github.com/leemartin77/mincepierank.co.uk/internal/templater"
 	generated "github.com/leemartin77/mincepierank.co.uk/internal/website/generated"
 )
 
@@ -30,7 +31,8 @@ func NewWebsite(out io.Writer) (*Website, error) {
 }
 
 type WebsiteWrapper struct {
-	storage storage.Operations
+	storage       storage.Operations
+	htmlTemplater templater.Templater
 }
 
 // AboutPage implements generated.StrictServerInterface.
@@ -89,7 +91,10 @@ func (wrpr *WebsiteWrapper) YearsPage(ctx context.Context, request generated.Yea
 }
 
 func NewWebsiteWrapper(storage storage.Operations) generated.StrictServerInterface {
+
+	tmpltr := templater.NewHtmlTemplater()
 	return &WebsiteWrapper{
-		storage: storage,
+		storage:       storage,
+		htmlTemplater: tmpltr,
 	}
 }

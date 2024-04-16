@@ -3,7 +3,6 @@ package website
 import (
 	"context"
 	"fmt"
-	"strings"
 
 	generated "github.com/leemartin77/mincepierank.co.uk/internal/website/generated"
 )
@@ -27,11 +26,22 @@ func (wrpr *WebsiteWrapper) HomePage(c context.Context, req generated.HomePageRe
 			StatusCode: 500,
 		}, nil
 	}
-	body := fmt.Sprintf("<h1>Hello, World!</h1> <h3>%s</h3>", *str)
-	reader := strings.NewReader(body)
 
+	vals := map[string]interface{}{
+		"Head": map[string]interface{}{
+			"Title": "Index Page",
+		},
+		"PageData": map[string]interface{}{
+			"TestData": *str,
+		},
+		"Foot": map[string]interface{}{},
+	}
+
+	rdr, err := wrpr.htmlTemplater.GenerateTemplate("page:index", vals)
+	if err != nil {
+		return nil, err
+	}
 	return generated.HomePage200TexthtmlResponse{
-		Body:          reader,
-		ContentLength: reader.Size(),
+		Body: rdr,
 	}, nil
 }
