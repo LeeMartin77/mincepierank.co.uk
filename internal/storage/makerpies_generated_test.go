@@ -5,13 +5,14 @@ import (
 	"testing"
 	"time"
 
-	"github.com/leemartin77/mincepierank.co.uk/internal/storage"
-	"github.com/leemartin77/mincepierank.co.uk/internal/storage/generated"
-	"github.com/leemartin77/mincepierank.co.uk/internal/storage/types"
 	"github.com/stretchr/testify/assert"
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/modules/postgres"
 	"github.com/testcontainers/testcontainers-go/wait"
+
+	"github.com/leemartin77/mincepierank.co.uk/internal/storage"
+	"github.com/leemartin77/mincepierank.co.uk/internal/storage/generated"
+	"github.com/leemartin77/mincepierank.co.uk/internal/storage/types"
 )
 
 func TestGeneratedFunctions(t *testing.T) {

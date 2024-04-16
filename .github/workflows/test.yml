@@ -4,91 +4,16 @@ on:
   workflow_call:
   workflow_dispatch:
   pull_request:
-    branches: ['main']
+    branches: ["main"]
 
 jobs:
-  lint:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          node-version-file: '.nvmrc'
-
-      - name: Cache NPM packages
-        id: cache-packages
-        uses: actions/cache@v3
-        with:
-          key: npm-cache-${{ hashFiles('package-lock.json') }}
-          path: node_modules
-
-      - name: Restore dependencies
-        if: steps.cache-packages.outputs.cache-hit != 'true'
-        run: npm ci
-
-      - name: lint
-        run: npm run lint
-
   test:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
         with:
-          node-version-file: '.nvmrc'
-
-      - name: Cache NPM packages
-        id: cache-packages
-        uses: actions/cache@v3
-        with:
-          key: npm-cache-${{ hashFiles('package-lock.json') }}
-          path: node_modules
-
-      - name: Restore dependencies
-        if: steps.cache-packages.outputs.cache-hit != 'true'
-        run: npm ci
+          go-version: "^1.22"
 
       - name: Test
-        run: npm run test:unit
-  # This works, but is slow - so revisit this when it's "really" necessary
-  # build-and-test-with-tilt:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v3
-  #     - uses: actions/setup-node@v3
-  #       with:
-  #         node-version-file: '.nvmrc'
-
-  #     - name: Cache NPM packages
-  #       id: cache-packages
-  #       uses: actions/cache@v3
-  #       with:
-  #         key: npm-cache-${{ hashFiles('package-lock.json') }}
-  #         path: node_modules
-
-  #     - name: Restore dependencies
-  #       if: steps.cache-packages.outputs.cache-hit != 'true'
-  #       run: npm ci
-
-  #     - name: Install Cypress
-  #       run: npx cypress install
-
-  #     - name: Install Kind
-  #       uses: helm/kind-action@v1.4.0
-  #       with:
-  #         install_only: true
-
-  #     - name: Setup cluster with registry
-  #       run: curl -fsSL https://raw.githubusercontent.com/tilt-dev/kind-local/master/kind-with-registry.sh | bash
-  #     - name: Install tilt
-  #       run: curl -fsSL https://raw.githubusercontent.com/tilt-dev/tilt/master/scripts/install.sh | bash
-  #     - name: Run Tilt CI w/ cypress
-  #       run: tilt ci -- --run-cypress
-  #     - uses: actions/upload-artifact@v3
-  #       if: always()
-  #       name: Upload test results
-  #       with:
-  #         name: cypress-test-results
-  #         path: |
-  #           cypress/screenshots
-  #           cypress/videos
+        run: go test -v ./...
