@@ -10,6 +10,7 @@ import (
 	"strings"
 	"syscall"
 
+	"github.com/gabriel-vasile/mimetype"
 	"github.com/gin-gonic/gin"
 	generated "github.com/leemartin77/mincepierank.co.uk/internal/website/generated"
 
@@ -29,7 +30,13 @@ func handleStatic(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Error reading file", http.StatusInternalServerError)
 		return
 	}
+	mtype, err := mimetype.DetectReader(file)
+	if err != nil {
+		http.Error(w, "Error reading file", http.StatusInternalServerError)
+		return
+	}
 	http.ServeContent(w, r, fileInfo.Name(), fileInfo.ModTime(), file)
+	w.Header().Set("content-type", mtype.String())
 }
 
 func handleFavicon(w http.ResponseWriter, r *http.Request) {
