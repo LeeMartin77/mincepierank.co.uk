@@ -27,6 +27,16 @@ type HtmlTemplaterWrapper struct {
 	Templates *template.Template
 }
 
+func (wrp *HtmlTemplaterWrapper) GeneratePage(template string, data PageData) (io.Reader, error) {
+	var buf bytes.Buffer
+	err := wrp.Templates.ExecuteTemplate(&buf, "page:"+template, data)
+	fmt.Println("Got here")
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+	}
+	return &buf, nil
+}
+
 func (wrp *HtmlTemplaterWrapper) GenerateTemplate(template string, data interface{}) (io.Reader, error) {
 	var buf bytes.Buffer
 	err := wrp.Templates.ExecuteTemplate(&buf, template, data)
