@@ -46,6 +46,36 @@ dt {
     margin-top: 1em;
 }
 
+/* specific classes */
+
+/* pie link card */
+.pie-card-top {
+    display: flex;
+    gap: 2em;
+    justify-content: center;
+}
+.category-links {
+    display: flex;
+    justify-content: center;
+    gap: 0.5em;
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+}
+
+.category-link {
+    display: block;
+    box-shadow: 0em 0em 0.2em rgba(0, 0, 0, 0.2);
+    font-size: 0.8em;
+    border-radius: 2em;
+    padding: 0.5em;
+    text-decoration: none;
+    text-align: center;
+    color: initial;
+}
+.category-link:visited {
+    color: initial;
+}
+
 /* Utility classes */
 
 div.card {

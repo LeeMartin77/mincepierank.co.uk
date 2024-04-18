@@ -1,0 +1,36 @@
+{{define "fragment:components:pielinkcard"}}
+<div class="card raised">
+  <div class="pie-card-top">
+    <div style="width: 30%">
+        <a href="{{.PieLink}}" aria-label="{{.Pie.DisplayName}}">
+          <img
+            width="100%"
+            src="{{.ImgprssrPrefix}}{{.Pie.ImageFile}}?width=250&height=250&filter=gaussian"
+            alt="{{.Pie.DisplayName}}"
+          />
+        </a>
+    </div>
+    <div style="padding-top: 1em;">
+        {{ if .HasDate }}
+            <h5 style="margin-top: 0.25em; margin-bottom: 0.25em;">
+             TODO: Date on piecarddata
+            </h5>
+        {{ end }}
+      <div>avg: {{ .Pie.Average }}</div>
+    <h5 style="margin-top: 0.25em; margin-bottom: 0.25em;">{{.Pie.Count}} Votes</h5>
+      {{ if .Pie.PackPriceInPence }}
+        <h6 style="margin-top: 0.25em; margin-bottom: 0.25em;">
+          {{ .Pie.PackPriceInPence }} per Pack
+        </h6>
+      {{ end }}
+    </div>
+  </div>
+  <div class="category-links">
+   {{range .Pie.Labels}}
+    <a class="category-link" href="/years/{{$.Pie.Year}}/categories/{{.}}">{{.}}</a>
+   {{end}}
+  </div>
+
+  <a class="link-button" href="{{.PieLink}}">{{.Pie.DisplayName}}</a>
+</div>
+{{end}}

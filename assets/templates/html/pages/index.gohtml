@@ -1,13 +1,9 @@
 {{define "page:index"}}
 {{template "fragment:global:head" .Head}}
 
-<h3>{{.PageData.ActiveYear}}</h3>
-
 <h2>Current Top Pie</h2>
-<div class="card raised">
-    {{.PageData.TopPie.DisplayName}}
-</div>
 
+{{template "fragment:components:pielinkcard" .PageData.TopPie}}
 
 {{template "fragment:global:foot" .Foot}}
 {{end}}

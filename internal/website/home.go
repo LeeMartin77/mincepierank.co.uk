@@ -2,13 +2,18 @@ package website
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/leemartin77/mincepierank.co.uk/internal/templater"
 	generated "github.com/leemartin77/mincepierank.co.uk/internal/website/generated"
 )
 
-//go:generate go run github.com/deepmap/oapi-codegen/v2/cmd/oapi-codegen --config=../../tools/server.cfg.yaml ../../api/website.yaml
-//go:generate go run github.com/deepmap/oapi-codegen/v2/cmd/oapi-codegen --config=../../tools/types.cfg.yaml ../../api/website.yaml
+type PieCardData struct {
+	ImgprssrPrefix string
+	HasDate        bool
+	PieLink        string
+	Pie            interface{}
+}
 
 func (wrpr *WebsiteWrapper) HomePage(c context.Context, req generated.HomePageRequestObject) (generated.HomePageResponseObject, error) {
 	// urlExample := "postgres://username:password@localhost:5432/mincepierank"
@@ -33,13 +38,19 @@ func (wrpr *WebsiteWrapper) HomePage(c context.Context, req generated.HomePageRe
 			StatusCode: 500,
 		}, nil
 	}
+	fmt.Println(topPie.Labels)
 	vals := templater.PageData{
 		Head: templater.PageDataHead{
 			Title: "Home Page",
 		},
 		PageData: map[string]interface{}{
 			"ActiveYear": *ay,
-			"TopPie":     *topPie,
+			"TopPie": PieCardData{
+				Pie:            *topPie,
+				ImgprssrPrefix: "https://static.mincepierank.co.uk",
+				HasDate:        false,
+				PieLink:        fmt.Sprintf("/years/%d/brands/%s/%s", topPie.Year, topPie.MakerId, topPie.Id),
+			},
 		},
 	}
 
