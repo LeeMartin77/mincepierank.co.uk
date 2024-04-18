@@ -17,6 +17,10 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+var (
+	ErrShutdown error = fmt.Errorf("error shutting down server")
+)
+
 func handleStatic(w http.ResponseWriter, r *http.Request) {
 	pth := filepath.Join("assets", "static", strings.TrimPrefix(r.URL.Path, "/static"))
 	file, err := os.Open(pth)

@@ -45,3 +45,38 @@ dt {
     font-weight: bold;
     margin-top: 1em;
 }
+
+/* Utility classes */
+
+div.card {
+    padding: 1em;
+    border-radius: 1em;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0.2em 0.1em 0.5em rgba(0, 0, 0, 0.1);
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+div.raised {
+    box-shadow: 0.3em 0.2em 0.6em rgba(0, 0, 0, 0.2);
+}
+
+a.link-button {
+    display: block;
+    box-shadow: 0em 0em 0.3em rgba(0, 0, 0, 0.2);
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 1em;
+    padding: 1em;
+    text-align: center;
+    font-weight: bold;
+    color: #111;
+}
+a.link-button:visited {
+    color: #111;
+}

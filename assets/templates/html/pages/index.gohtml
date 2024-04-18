@@ -1,7 +1,13 @@
 {{define "page:index"}}
 {{template "fragment:global:head" .Head}}
 
-<h1>Hello, World!</h1> <h3>{{.PageData.TestData}}</h3>
+<h3>{{.PageData.ActiveYear}}</h3>
+
+<h2>Current Top Pie</h2>
+<div class="card raised">
+    {{.PageData.TopPie.DisplayName}}
+</div>
+
 
 {{template "fragment:global:foot" .Foot}}
 {{end}}
