@@ -343,3 +343,19 @@ canvas {
         width: 100%;
     }
 }
+
+.brand-list {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 1em;
+}
+.brand-link-container {
+    max-width: 320px;
+}
+.brand-link-image {
+    display: flex;
+    height: 250px;
+    align-items: center;
+}

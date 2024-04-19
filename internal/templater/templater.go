@@ -3,6 +3,8 @@ package templater
 import (
 	"io"
 	"strings"
+
+	"github.com/leemartin77/mincepierank.co.uk/internal/storage/types"
 )
 
 type PageDataHead struct {
@@ -56,4 +58,17 @@ func BreadcrumbsFromUrl(url string) []BreadcrumbLink {
 		retval = append(retval, BreadcrumbLink{URL: compoundUrl, Label: prt})
 	}
 	return retval
+}
+
+type PieCardData struct {
+	ImgprssrPrefix string
+	HasDate        bool
+	PieLink        string
+	Pie            interface{}
+}
+
+type MakerCardData struct {
+	ImgprssrPrefix string
+	Year           int64
+	Maker          types.Maker
 }

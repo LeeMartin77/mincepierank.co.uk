@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/leemartin77/mincepierank.co.uk/internal/storage/types"
 )
 
 type Operations interface {
@@ -15,4 +16,5 @@ type Operations interface {
 	GetActiveYear(c context.Context) (*int64, error)
 
 	GetTopMakerPie(c context.Context, activeYear int64) (*MakerPieYearlyWithRankings, error)
+	GetMakersForYear(c context.Context, activeYear int64) (*[]types.Maker, error)
 }
