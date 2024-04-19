@@ -1,6 +1,9 @@
 package templater
 
-import "io"
+import (
+	"io"
+	"strings"
+)
 
 type PageDataHead struct {
 	Title            string
@@ -9,6 +12,13 @@ type PageDataHead struct {
 	ReadOnly         bool
 	HasNotice        bool
 	Notice           string
+	ShowBreadcrumb   bool
+	Breadcrumbs      []BreadcrumbLink
+}
+
+type BreadcrumbLink struct {
+	Label string
+	URL   string
 }
 
 type PageDataFoot struct {
@@ -25,4 +35,17 @@ type Templater interface {
 	GenerateTemplate(template string, data interface{}) (io.Reader, error)
 	// will prepend "page:" when finding template
 	GeneratePage(page string, data PageData) (io.Reader, error)
+}
+
+func BreadcrumbsFromUrl(url string) []BreadcrumbLink {
+	retval := []BreadcrumbLink{}
+	compoundUrl := ""
+	for _, prt := range strings.Split(url, "/") {
+		if prt == "" {
+			continue
+		}
+		compoundUrl += "/" + prt
+		retval = append(retval, BreadcrumbLink{URL: compoundUrl, Label: prt})
+	}
+	return retval
 }

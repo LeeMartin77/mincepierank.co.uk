@@ -50,6 +50,8 @@
         </div>
       </div>
     {{ end }}
-    <!--<breadcrumb></breadcrumb>-->
+    {{ if .ShowBreadcrumb }}
+        {{template "fragment:components:breadcrumb" .Breadcrumbs }}
+    {{ end }}
     <div class="content">
 {{end}}
