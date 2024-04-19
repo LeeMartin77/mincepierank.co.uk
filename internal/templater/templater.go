@@ -3,7 +3,12 @@ package templater
 import "io"
 
 type PageDataHead struct {
-	Title string
+	Title            string
+	ShowCookieNotice bool
+	ShowNotice       bool
+	ReadOnly         bool
+	HasNotice        bool
+	Notice           string
 }
 
 type PageDataFoot struct {

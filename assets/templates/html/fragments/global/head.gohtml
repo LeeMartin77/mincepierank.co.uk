@@ -4,10 +4,52 @@
 <head>
   <meta charset="UTF-8" />
   <link href="/static/styles.css" rel="stylesheet"/>
-  <script src="/static/scripts.js" type="application/javascript"></script>
   <script src="/static/htmx@1.9.11.min.js" type="application/javascript"></script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{{.Title}} :: Mince Pie Rank</title>
 </head>
 <body hx-boost="true">
+<canvas id="canvas"></canvas>
+<div class="page-container">
+  <!--<menu activeYear={data.activeYear} customPiesEnabled={data.customPiesEnabled} ></menu>-->
+  <div class="content-container">
+    {{ if .ShowCookieNotice }}
+      <div id="cookie-notice" class="cookie-notice">
+        <div>
+          <p>We use cookies for authentication and associating mince pie rankings to a user</p>
+          <button
+            on:click={() => {
+              localStorage.setItem(cookiekey, 'accepted');
+              cookieNotice = false;
+            }}>Accept</button
+          >
+          <button
+            on:click={() => {
+              cookieNotice = false;
+            }}>Dismiss</button
+          >
+          <a href="/about/cookies">Read Full Policy</a>
+        </div>
+      </div>
+    {{ end }}
+    {{ if .ShowNotice }}
+      <div class="notices">
+        <button
+          on:click={() => {
+            localStorage.setItem(noticekey, noticestring);
+            noticeVisible = false;
+          }}>X</button
+        >
+        <div>
+          {{ if .ReadOnly }}
+            <p>Mince Pie Rank is read-only until the next Christmas period</p>
+          {{ end }}
+          {{ if .HasNotice }}
+            <p>{{ .Notice }}</p>
+          {{ end }}
+        </div>
+      </div>
+    {{ end }}
+    <!--<breadcrumb></breadcrumb>-->
+    <div class="content">
 {{end}}
