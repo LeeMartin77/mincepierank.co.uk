@@ -264,3 +264,82 @@ canvas {
 .breadcrumb-container > a:visited {
     color: #111;
 }
+
+.menu-button {
+    position: fixed;
+    bottom: 1em;
+    left: calc(50% - 5em);
+    width: 8em;
+    border-radius: 2em;
+    margin: 1em;
+    z-index: 99999999;
+    box-shadow: 0.2em 0.1em 0.5em rgba(0, 0, 0, 0.1);
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    cursor: pointer;
+}
+.menu-container {
+    display: flex;
+    flex-direction: column;
+    align-items: left;
+    top: 0;
+    left: 0;
+    max-width: 320px;
+    height: 100dvh;
+    color: #111;
+    background: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    border-right: 1px solid rgba(255, 255, 255, 0.3);
+    z-index: 99999999999999999;
+}
+.menu {
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+}
+
+.menu-footer {
+    margin-top: auto;
+    margin-bottom: 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.3);
+    display: flex;
+    flex-direction: column;
+}
+
+.menu-container a {
+    padding: 1em;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.menu-container a:hover {
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.menu-container button {
+    padding: 1em;
+    text-decoration: none;
+    font-weight: bold;
+    width: 100%;
+    color: #111;
+    background-color: rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    border: none;
+}
+
+.menu-container button:hover:not(.menu-button) {
+    background-color: rgba(255, 255, 255, 0.8);
+    cursor: pointer;
+}
+
+@media only screen and (max-width: 640px) {
+    .menu-container {
+        position: fixed;
+        width: 100%;
+    }
+}

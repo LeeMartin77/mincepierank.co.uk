@@ -1,0 +1,38 @@
+{{define "fragment:components:menu"}}
+    <script>
+        let menuOpen = false;
+
+        function toggleMenu() {
+            console.log("friend")
+            if (menuOpen) {
+                document.getElementById("menu-container").style.display = "none"
+                menuOpen = false
+            } else {
+                document.getElementById("menu-container").style.display = "block"
+                menuOpen = true
+            }
+        }
+    </script>
+  <div class="menu-container" id="menu-container" style="display: none;">
+    <div class="menu">
+      <a href="/">Home</a>
+      <a href="/quickrank">Quickrank</a>
+      <a href="/years/{{.ActiveYear}}/all-pies">All Pies</a>
+      <a href="/years/{{.ActiveYear}}/brands">Brands</a>
+      <a href="/years/{{.ActiveYear}}/categories">Categories</a>
+      <a href="/profile/rankings/{{.ActiveYear}}">My Rankings</a>
+      {{ if .LoggedIn }}
+        <a href="/profile/pies/{{.ActiveYear}}">My Custom Pies</a>
+      {{ end }}
+    </div>
+    <div class="menu-footer">
+      {{ if .LoggedIn }}
+        <a href="/profile">Welcome back!</a>
+      {{ else }}
+        <a href="/login">Sign In</a>
+      {{ end }}
+        <button hx-on:click="toggleMenu()" >Close Menu</button>
+    </div>
+  </div>
+  <button class="menu-button" hx-on:click="toggleMenu()">Menu</button>
+{{end}}

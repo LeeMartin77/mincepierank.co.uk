@@ -7,11 +7,13 @@
   <script src="/static/htmx@1.9.11.min.js" type="application/javascript"></script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{{.Title}} :: Mince Pie Rank</title>
+  <meta name="description" content="{{.Description}}" />
+  <meta name="keywords" content="{{.Keywords}}" />
 </head>
 <body hx-boost="true">
 <canvas id="canvas"></canvas>
 <div class="page-container">
-  <!--<menu activeYear={data.activeYear} customPiesEnabled={data.customPiesEnabled} ></menu>-->
+  {{template "fragment:components:menu" .MenuSettings }}
   <div class="content-container">
     {{ if .ShowCookieNotice }}
       <div id="cookie-notice" class="cookie-notice">

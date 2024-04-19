@@ -7,13 +7,21 @@ import (
 
 type PageDataHead struct {
 	Title            string
+	Description      string
+	Keywords         string
 	ShowCookieNotice bool
 	ShowNotice       bool
 	ReadOnly         bool
 	HasNotice        bool
 	Notice           string
 	ShowBreadcrumb   bool
+	MenuSettings     MenuSettings
 	Breadcrumbs      []BreadcrumbLink
+}
+
+type MenuSettings struct {
+	ActiveYear int64
+	LoggedIn   bool
 }
 
 type BreadcrumbLink struct {

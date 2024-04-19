@@ -38,10 +38,12 @@ func (wrpr *WebsiteWrapper) HomePage(c context.Context, req generated.HomePageRe
 			StatusCode: 500,
 		}, nil
 	}
-	fmt.Println(topPie.Labels)
 	vals := templater.PageData{
 		Head: templater.PageDataHead{
 			Title: "Home Page",
+			MenuSettings: templater.MenuSettings{
+				ActiveYear: *ay,
+			},
 		},
 		PageData: map[string]interface{}{
 			"ActiveYear": *ay,
