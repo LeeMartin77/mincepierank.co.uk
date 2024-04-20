@@ -46,7 +46,7 @@ func (wrpr *WebsiteWrapper) HomePage(c context.Context, req generated.HomePageRe
 	}
 
 	pieCategoryLinks := []templater.Link{}
-	for _, ct := range *&topPie.Labels {
+	for _, ct := range topPie.Labels {
 		pieCategoryLinks = append(pieCategoryLinks, templater.Link{URL: fmt.Sprintf("/years/%d/categories/%s", topPie.Year, url.QueryEscape(ct)), Label: ct})
 	}
 	vals := templater.PageData{

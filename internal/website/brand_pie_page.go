@@ -50,8 +50,8 @@ func (wrpr *WebsiteWrapper) YearBrandPie(ctx context.Context, request generated.
 
 	vals := templater.PageData{
 		Head: templater.PageDataHead{
-			Title:       fmt.Sprintf("%s from %s :: %d/5", pie.DisplayName, maker.Name, rankingSummary.Average),
-			Description: fmt.Sprintf("%s from %s :: scored  %d/5 on average in %d", pie.DisplayName, maker.Name, rankingSummary.Average, pie.Year),
+			Title:       fmt.Sprintf("%s from %s :: %.2f/5", pie.DisplayName, maker.Name, rankingSummary.Average),
+			Description: fmt.Sprintf("%s from %s :: scored  %.2f/5 on average in %d", pie.DisplayName, maker.Name, rankingSummary.Average, pie.Year),
 			Keywords:    fmt.Sprintf("Mince Pies, UK, Ranking, %d, %s, %s", pie.Year, maker.Name, pie.DisplayName),
 			MenuSettings: templater.MenuSettings{
 				ActiveYear: *ay,

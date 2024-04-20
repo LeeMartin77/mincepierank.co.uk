@@ -20,24 +20,25 @@ type MakerPieYearlyWithRankings struct {
 	PackCount        int32    `json:"pack_count"`
 	PackPriceInPence int32    `json:"pack_price_in_pence" `
 
-	Pastry  int8 `json:"pastry"`
-	Filling int8 `json:"filling"`
-	Topping int8 `json:"topping"`
-	Looks   int8 `json:"looks"`
-	Value   int8 `json:"value"`
-	Average int8 `json:"average"`
+	Pastry  float64 `json:"pastry"`
+	Filling float64 `json:"filling"`
+	Topping float64 `json:"topping"`
+	Looks   float64 `json:"looks"`
+	Value   float64 `json:"value"`
+
+	Average float64 `json:"average"`
 
 	Count int64 `json:"count"`
 }
 
 type RankingSummary struct {
-	Pastry  int8 `json:"pastry"`
-	Filling int8 `json:"filling"`
-	Topping int8 `json:"topping"`
-	Looks   int8 `json:"looks"`
-	Value   int8 `json:"value"`
+	Pastry  float64 `json:"pastry"`
+	Filling float64 `json:"filling"`
+	Topping float64 `json:"topping"`
+	Looks   float64 `json:"looks"`
+	Value   float64 `json:"value"`
 
-	Average int8 `json:"average"`
+	Average float64 `json:"average"`
 
 	Count int64 `json:"count"`
 }
@@ -50,17 +51,17 @@ func (o *OperationWrapper) GetTopMakerPie(c context.Context, activeYear int64) (
 	  		year,
 	  		makerid,
 	  		pieid,
-	  			SUM(pastry)/COUNT(1) as pastry,
-	       	SUM(filling)/COUNT(1)as filling,
-	        SUM(topping)/COUNT(1) as topping,
-	        SUM(looks)/COUNT(1) as looks,
-	        SUM(value)/COUNT(1) as value,
+	  			SUM(pastry::float )/COUNT(1) as pastry,
+	       	SUM(filling::float )/COUNT(1)as filling,
+	        SUM(topping::float )/COUNT(1) as topping,
+	        SUM(looks::float )/COUNT(1) as looks,
+	        SUM(value::float )/COUNT(1) as value,
 	  		(
-	        SUM(pastry)/COUNT(1) +
-	       	SUM(filling)/COUNT(1) +
-	        SUM(topping)/COUNT(1) +
-	        SUM(looks)/COUNT(1) +
-	        SUM(value)/COUNT(1)
+	        SUM(pastry::float )/COUNT(1) +
+	       	SUM(filling::float )/COUNT(1) +
+	        SUM(topping::float )/COUNT(1) +
+	        SUM(looks::float )/COUNT(1) +
+	        SUM(value::float )/COUNT(1)
 	      )/5 as avg,
 	  		COUNT(1) as count
 	    FROM maker_pie_ranking_yearly

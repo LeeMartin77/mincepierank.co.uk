@@ -38,17 +38,17 @@ func (o *OperationWrapper) GetMakerPieYearlyRankingSummary(c context.Context, ye
 	r := RankingSummary{}
 	sql := `
 	 SELECT
-			SUM(pastry)/COUNT(1) as pastry,
-	    	SUM(filling)/COUNT(1)as filling,
-	     SUM(topping)/COUNT(1) as topping,
-	     SUM(looks)/COUNT(1) as looks,
-	     SUM(value)/COUNT(1) as value,
+			SUM(pastry::float )/COUNT(1) as pastry,
+	    	SUM(filling::float )/COUNT(1)as filling,
+	     SUM(topping::float )/COUNT(1) as topping,
+	     SUM(looks::float )/COUNT(1) as looks,
+	     SUM(value::float )/COUNT(1) as value,
 		(
-	     SUM(pastry)/COUNT(1) +
-	    	SUM(filling)/COUNT(1) +
-	     SUM(topping)/COUNT(1) +
-	     SUM(looks)/COUNT(1) +
-	     SUM(value)/COUNT(1)
+	     SUM(pastry::float )/COUNT(1) +
+	    	SUM(filling::float )/COUNT(1) +
+	     SUM(topping::float )/COUNT(1) +
+	     SUM(looks::float )/COUNT(1) +
+	     SUM(value::float )/COUNT(1)
 	   )/5 as avg,
 		COUNT(1) as count
 	 FROM maker_pie_ranking_yearly
