@@ -1,0 +1,9 @@
+{{define "page:year"}}
+{{template "fragment:global:head" .Head}}
+
+<h2>{{.PageData.Year}} Top Pie</h2>
+
+{{template "fragment:components:pielinkcard" .PageData.TopPie}}
+{{template "fragment:components:brandlist" .PageData.MakerCards}}
+{{template "fragment:global:foot" .Foot}}
+{{end}}

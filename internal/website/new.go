@@ -65,16 +65,6 @@ func (wrpr *WebsiteWrapper) YearCategoryPies(ctx context.Context, request genera
 	panic("unimplemented")
 }
 
-// YearPage implements generated.StrictServerInterface.
-func (wrpr *WebsiteWrapper) YearPage(ctx context.Context, request generated.YearPageRequestObject) (generated.YearPageResponseObject, error) {
-	panic("unimplemented")
-}
-
-// YearsPage implements generated.StrictServerInterface.
-func (wrpr *WebsiteWrapper) YearsPage(ctx context.Context, request generated.YearsPageRequestObject) (generated.YearsPageResponseObject, error) {
-	panic("unimplemented")
-}
-
 func NewWebsiteWrapper(storage storage.Operations) generated.StrictServerInterface {
 
 	tmpltr := templater.NewHtmlTemplater()

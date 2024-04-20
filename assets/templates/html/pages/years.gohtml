@@ -1,0 +1,14 @@
+{{define "page:years"}}
+{{template "fragment:global:head" .Head}}
+
+
+<h1 style="min-width: 240px;">Years</h1>
+
+<div style="width: 100%; display: flex; flex-direction: column; gap: 2em;">
+  {{ range .PageData.Years }}
+    <a class="link-button" href="/years/{{.}}" style="width: calc(100% - 2em); display: block;">{{.}}</a>
+  {{ end }}
+</div>
+
+{{template "fragment:global:foot" .Foot}}
+{{end}}

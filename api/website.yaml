@@ -12,7 +12,7 @@ paths:
       tags:
         - public
       responses:
-        '200':
+        "200":
           description: home page
           content:
             text/html:
@@ -27,7 +27,7 @@ paths:
       tags:
         - public
       responses:
-        '200':
+        "200":
           description: home page
           content:
             text/html:
@@ -41,7 +41,7 @@ paths:
       tags:
         - public
       responses:
-        '200':
+        "200":
           description: cookie page
           content:
             text/html:
@@ -55,7 +55,7 @@ paths:
       tags:
         - public
       responses:
-        '200':
+        "200":
           description: privacy page
           content:
             text/html:
@@ -69,7 +69,7 @@ paths:
       tags:
         - public
       responses:
-        '200':
+        "200":
           description: years page
           content:
             text/html:
@@ -85,13 +85,13 @@ paths:
       tags:
         - public
       responses:
-        '200':
+        "200":
           description: year page
           content:
             text/html:
               schema:
                 type: string
-        '404':
+        "404":
           $ref: "#/components/responses/NotFound"
         default:
           $ref: "#/components/responses/UnexpectedError"
@@ -105,13 +105,13 @@ paths:
       tags:
         - public
       responses:
-        '200':
+        "200":
           description: year all pies
           content:
             text/html:
               schema:
                 type: string
-        '404':
+        "404":
           $ref: "#/components/responses/NotFound"
         default:
           $ref: "#/components/responses/UnexpectedError"
@@ -125,13 +125,13 @@ paths:
       tags:
         - public
       responses:
-        '200':
+        "200":
           description: year all categories
           content:
             text/html:
               schema:
                 type: string
-        '404':
+        "404":
           $ref: "#/components/responses/NotFound"
         default:
           $ref: "#/components/responses/UnexpectedError"
@@ -150,13 +150,13 @@ paths:
       tags:
         - public
       responses:
-        '200':
+        "200":
           description: year all categories
           content:
             text/html:
               schema:
                 type: string
-        '404':
+        "404":
           $ref: "#/components/responses/NotFound"
         default:
           $ref: "#/components/responses/UnexpectedError"
@@ -170,13 +170,13 @@ paths:
       tags:
         - public
       responses:
-        '200':
+        "200":
           description: year all brands
           content:
             text/html:
               schema:
                 type: string
-        '404':
+        "404":
           $ref: "#/components/responses/NotFound"
         default:
           $ref: "#/components/responses/UnexpectedError"
@@ -191,13 +191,13 @@ paths:
       tags:
         - public
       responses:
-        '200':
+        "200":
           description: year all brands
           content:
             text/html:
               schema:
                 type: string
-        '404':
+        "404":
           $ref: "#/components/responses/NotFound"
         default:
           $ref: "#/components/responses/UnexpectedError"
@@ -215,13 +215,13 @@ paths:
       tags:
         - public
       responses:
-        '200':
+        "200":
           description: year all brands
           content:
             text/html:
               schema:
                 type: string
-        '404':
+        "404":
           $ref: "#/components/responses/NotFound"
         default:
           $ref: "#/components/responses/UnexpectedError"
@@ -233,7 +233,7 @@ components:
       required: true
       schema:
         type: integer
-        format: int32
+        format: int64
     Brand:
       name: brand
       in: path
@@ -246,14 +246,14 @@ components:
       required: false
       schema:
         type: integer
-        format: int32
+        format: int64
     Limit:
       name: limit
       in: query
       required: false
       schema:
         type: integer
-        format: int32
+        format: int64
   responses:
     NotFound:
       description: not found
@@ -267,7 +267,7 @@ components:
         application/json:
           schema:
             $ref: "#/components/schemas/Error"
-  schemas:    
+  schemas:
     Error:
       type: object
       required:

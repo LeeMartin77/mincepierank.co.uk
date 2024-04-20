@@ -13,13 +13,13 @@ type Error struct {
 type Brand = string
 
 // Limit defines model for Limit.
-type Limit = int32
+type Limit = int64
 
 // Page defines model for Page.
-type Page = int32
+type Page = int64
 
 // Year defines model for Year.
-type Year = int32
+type Year = int64
 
 // UnexpectedError defines model for UnexpectedError.
 type UnexpectedError = Error

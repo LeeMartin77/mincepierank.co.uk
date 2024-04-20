@@ -53,7 +53,6 @@ func (wrpr *WebsiteWrapper) HomePage(c context.Context, req generated.HomePageRe
 			},
 		},
 		PageData: map[string]interface{}{
-			"ActiveYear": *ay,
 			"TopPie": templater.PieCardData{
 				Pie:            *topPie,
 				ImgprssrPrefix: imgprssrPrefix,
