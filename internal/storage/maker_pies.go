@@ -30,6 +30,18 @@ type MakerPieYearlyWithRankings struct {
 	Count int64 `json:"count"`
 }
 
+type RankingSummary struct {
+	Pastry  int8 `json:"pastry"`
+	Filling int8 `json:"filling"`
+	Topping int8 `json:"topping"`
+	Looks   int8 `json:"looks"`
+	Value   int8 `json:"value"`
+
+	Average int8 `json:"average"`
+
+	Count int64 `json:"count"`
+}
+
 func (o *OperationWrapper) GetTopMakerPie(c context.Context, activeYear int64) (*MakerPieYearlyWithRankings, error) {
 	r := MakerPieYearlyWithRankings{}
 	sql := `

@@ -48,7 +48,7 @@ type Templater interface {
 }
 
 func BreadcrumbsFromUrl(url string) []Link {
-	retval := []Link{}
+	retval := []Link{{URL: "/", Label: "Home"}}
 	compoundUrl := ""
 	for _, prt := range strings.Split(url, "/") {
 		if prt == "" {

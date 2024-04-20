@@ -50,11 +50,6 @@ func (wrpr *WebsiteWrapper) YearAllPies(ctx context.Context, request generated.Y
 	panic("unimplemented")
 }
 
-// YearBrandPie implements generated.StrictServerInterface.
-func (wrpr *WebsiteWrapper) YearBrandPie(ctx context.Context, request generated.YearBrandPieRequestObject) (generated.YearBrandPieResponseObject, error) {
-	panic("unimplemented")
-}
-
 // YearBrandPies implements generated.StrictServerInterface.
 func (wrpr *WebsiteWrapper) YearBrandPies(ctx context.Context, request generated.YearBrandPiesRequestObject) (generated.YearBrandPiesResponseObject, error) {
 	panic("unimplemented")

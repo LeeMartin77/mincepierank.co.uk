@@ -1,0 +1,47 @@
+{{define "page:singlepie"}}
+{{template "fragment:global:head" .Head}}
+{{template "fragment:components:breadcrumb" .PageData.Breadcrumb}}
+<div class="pie-page-wrapper">
+  <div style="display:flex; flex-direction: column; gap: 0.5em;">
+    <h1 style="margin-bottom: 0em;">{{.PageData.Pie.DisplayName}}</h1>
+    {{ if .PageData.HasMaker }}
+      <h3>from {{.PageData.Maker.Name}}</h3>
+    {{ end }}
+    <a href="{{.PageData.Pie.WebLink}}">Link to Website</a>
+    <img
+      src="{{.PageData.ImgprssrPrefix}}{{.PageData.Pie.ImageFile}}?filter=gaussian&width=250"
+      alt="{{.PageData.Pie.DisplayName}}"
+    />
+  </div>
+  <div>
+    <div class="category-links">
+
+        {{range .PageData.CategoryLinks}}
+            <a class="category-link" href="{{.URL}}">{{.Label}}</a>
+        {{end}}
+    </div>
+    <h3>Pieformation</h3>
+    <table>
+      <tbody>
+        <tr>
+          <td><b>Pack Count</b></td>
+          <td>{{.PageData.Pie.PackCount}}</td>
+        </tr>
+        <tr>
+          <td><b>Price</b></td>
+          <td>{{.PageData.Pie.PackPriceInPence}}</td>
+        </tr>
+      </tbody>
+    </table>
+    <!-- ShareButton -->
+  </div>
+
+  <div>
+    <!-- PieRankingSummary -->
+  </div>
+  <div>
+    <!-- PieRankingInterface -->
+  </div>
+</div>
+{{template "fragment:global:foot" .Foot}}
+{{end}}

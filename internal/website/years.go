@@ -65,6 +65,7 @@ func (wrpr *WebsiteWrapper) YearPage(c context.Context, request generated.YearPa
 			},
 			"MakerCards": mrks,
 			"Categories": categoryLinks,
+			"Breadcrumb": templater.BreadcrumbsFromUrl(fmt.Sprintf("/years/%d", request.Year)),
 		},
 	}
 
@@ -93,7 +94,8 @@ func (wrpr *WebsiteWrapper) YearsPage(c context.Context, request generated.Years
 			},
 		},
 		PageData: map[string]interface{}{
-			"Years": []int64{2023, 2022},
+			"Years":      []int64{2023, 2022},
+			"Breadcrumb": templater.BreadcrumbsFromUrl("/years"),
 		},
 	}
 
