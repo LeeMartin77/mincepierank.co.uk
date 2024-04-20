@@ -35,21 +35,6 @@ type WebsiteWrapper struct {
 	htmlTemplater templater.Templater
 }
 
-// YearAllPies implements generated.StrictServerInterface.
-func (wrpr *WebsiteWrapper) YearAllPies(ctx context.Context, request generated.YearAllPiesRequestObject) (generated.YearAllPiesResponseObject, error) {
-	panic("unimplemented")
-}
-
-// YearBrandPies implements generated.StrictServerInterface.
-func (wrpr *WebsiteWrapper) YearBrandPies(ctx context.Context, request generated.YearBrandPiesRequestObject) (generated.YearBrandPiesResponseObject, error) {
-	panic("unimplemented")
-}
-
-// YearCategoryPies implements generated.StrictServerInterface.
-func (wrpr *WebsiteWrapper) YearCategoryPies(ctx context.Context, request generated.YearCategoryPiesRequestObject) (generated.YearCategoryPiesResponseObject, error) {
-	panic("unimplemented")
-}
-
 func NewWebsiteWrapper(storage storage.Operations) generated.StrictServerInterface {
 
 	tmpltr := templater.NewHtmlTemplater()

@@ -43,6 +43,104 @@ type RankingSummary struct {
 	Count int64 `json:"count"`
 }
 
+func (o *OperationWrapper) GetFilterableMakerPies(c context.Context, year int64, pageSize int64, zeroIdxPage int64) (*[]MakerPieYearlyWithRankings, error) {
+	r := []MakerPieYearlyWithRankings{}
+	sql := `
+	WITH pie_rankings AS (
+	    SELECT
+	  		year,
+	  		makerid,
+	  		pieid,
+	  		SUM(pastry::float )/COUNT(1) as pastry,
+	       	SUM(filling::float )/COUNT(1)as filling,
+	        SUM(topping::float )/COUNT(1) as topping,
+	        SUM(looks::float )/COUNT(1) as looks,
+	        SUM(value::float )/COUNT(1) as value,
+	  		(
+		        SUM(pastry::float )/COUNT(1) +
+		       	SUM(filling::float )/COUNT(1) +
+		        SUM(topping::float )/COUNT(1) +
+		        SUM(looks::float )/COUNT(1) +
+		        SUM(value::float )/COUNT(1)
+	        )/5 as avg,
+	  		COUNT(1) as count
+	    FROM maker_pie_ranking_yearly
+	  	WHERE year = $1
+	    GROUP BY year, makerid, pieid
+	)
+	SELECT
+		mpy.year,
+		mpy.makerid,
+		mpy.id,
+		mpy.displayname,
+		mpy.fresh,
+		mpy.labels,
+		mpy.image_file,
+		mpy.web_link,
+		mpy.pack_count,
+		mpy.pack_price_in_pence,
+	    COALESCE(tp.pastry, 0::float),
+	    COALESCE(tp.filling, 0::float),
+	    COALESCE(tp.topping, 0::float),
+	    COALESCE(tp.looks, 0::float),
+	    COALESCE(tp.value, 0::float),
+	    COALESCE(tp.avg, 0::float),
+	    COALESCE(tp.count, 0)
+		FROM maker_pie_yearly mpy
+		LEFT JOIN pie_rankings tp ON
+	  	tp.year = mpy.year AND
+	  	tp.makerid = mpy.makerid AND
+	    tp.pieid = mpy.id
+		WHERE mpy.year = $1
+		ORDER BY tp.avg DESC NULLS LAST
+		LIMIT $2
+		OFFSET $3
+	`
+	rows, err := o.db.Query(c, sql, year, pageSize, zeroIdxPage*pageSize)
+	if err == pgx.ErrNoRows {
+		return &r, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		sigl := MakerPieYearlyWithRankings{}
+
+		err := rows.Scan(
+			&sigl.Year,
+			&sigl.MakerId,
+			&sigl.Id,
+			&sigl.DisplayName,
+			&sigl.Fresh,
+			&sigl.Labels,
+			&sigl.ImageFile,
+			&sigl.WebLink,
+			&sigl.PackCount,
+			&sigl.PackPriceInPence,
+
+			&sigl.Pastry,
+			&sigl.Filling,
+			&sigl.Topping,
+			&sigl.Looks,
+			&sigl.Value,
+			&sigl.Average,
+			&sigl.Count,
+		)
+		if err != nil {
+			log.Error().Err(err).Msg("Scan failed in get categories for year")
+			continue
+		}
+		r = append(r, sigl)
+	}
+
+	if err := rows.Err(); err != nil {
+		log.Error().Err(err).Msg("Error during categories for year iteration")
+	}
+	return &r, nil
+}
+
 func (o *OperationWrapper) GetTopMakerPie(c context.Context, activeYear int64) (*MakerPieYearlyWithRankings, error) {
 	r := MakerPieYearlyWithRankings{}
 	sql := `

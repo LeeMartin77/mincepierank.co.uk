@@ -1,0 +1,10 @@
+{{define "fragment:components:filterlinks"}}
+<div class="category-links">
+  {{ range .ActiveFilters }}
+    <a class="category-link" href="{{ .URL }}"}>ACTIVE: {{ .Label }}</a>
+  {{ end }}
+  {{ range .AvailableFilters }}
+    <a class="category-link" href="{{ .URL }}"}>{{ .Label }}</a>
+  {{ end }}
+</div>
+{{end}}

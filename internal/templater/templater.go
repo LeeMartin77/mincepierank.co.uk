@@ -65,6 +65,7 @@ type PieCardData struct {
 	HasDate        bool
 	PieLink        string
 	CategoryLinks  []Link
+	IsGold         bool
 	Pie            interface{}
 }
 

@@ -18,6 +18,8 @@ type Operations interface {
 	GetActiveYear(c context.Context) (*int64, error)
 
 	GetTopMakerPie(c context.Context, activeYear int64) (*MakerPieYearlyWithRankings, error)
+	GetFilterableMakerPies(c context.Context, year int64, pageSize int64, zeroIdxPage int64) (*[]MakerPieYearlyWithRankings, error)
+
 	GetMakersForYear(c context.Context, activeYear int64) (*[]types.Maker, error)
 	GetMakerPieCategoriesForYear(c context.Context, year int64) (*[]string, error)
 
