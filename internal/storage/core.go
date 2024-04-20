@@ -9,6 +9,11 @@ import (
 	"github.com/leemartin77/mincepierank.co.uk/internal/storage/types"
 )
 
+type PieFilters struct {
+	BrandIds   []string
+	Categories []string
+}
+
 type Operations interface {
 	Shutdown()
 	TestData(c context.Context) (*string, error)
@@ -18,7 +23,7 @@ type Operations interface {
 	GetActiveYear(c context.Context) (*int64, error)
 
 	GetTopMakerPie(c context.Context, activeYear int64) (*MakerPieYearlyWithRankings, error)
-	GetFilterableMakerPies(c context.Context, year int64, pageSize int64, zeroIdxPage int64) (*[]MakerPieYearlyWithRankings, error)
+	GetFilterableMakerPies(c context.Context, year int64, pageSize int64, zeroIdxPage int64, filters PieFilters) (*[]MakerPieYearlyWithRankings, error)
 
 	GetMakersForYear(c context.Context, activeYear int64) (*[]types.Maker, error)
 	GetMakerPieCategoriesForYear(c context.Context, year int64) (*[]string, error)

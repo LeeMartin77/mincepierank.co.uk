@@ -2,6 +2,7 @@ package storage
 
 import (
 	"context"
+	"strings"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/rs/zerolog/log"
@@ -43,7 +44,7 @@ type RankingSummary struct {
 	Count int64 `json:"count"`
 }
 
-func (o *OperationWrapper) GetFilterableMakerPies(c context.Context, year int64, pageSize int64, zeroIdxPage int64) (*[]MakerPieYearlyWithRankings, error) {
+func (o *OperationWrapper) GetFilterableMakerPies(c context.Context, year int64, pageSize int64, zeroIdxPage int64, filters PieFilters) (*[]MakerPieYearlyWithRankings, error) {
 	r := []MakerPieYearlyWithRankings{}
 	sql := `
 	WITH pie_rankings AS (
@@ -92,11 +93,13 @@ func (o *OperationWrapper) GetFilterableMakerPies(c context.Context, year int64,
 	  	tp.makerid = mpy.makerid AND
 	    tp.pieid = mpy.id
 		WHERE mpy.year = $1
+		AND ($4 = '' OR mpy.makerid=ANY(string_to_array($4, ',')))
+		AND ($5 = '' OR mpy.labels @> string_to_array($5, ','))
 		ORDER BY tp.avg DESC NULLS LAST
 		LIMIT $2
 		OFFSET $3
 	`
-	rows, err := o.db.Query(c, sql, year, pageSize, zeroIdxPage*pageSize)
+	rows, err := o.db.Query(c, sql, year, pageSize, zeroIdxPage*pageSize, strings.Join(filters.BrandIds, ","), strings.Join(filters.Categories, ","))
 	if err == pgx.ErrNoRows {
 		return &r, nil
 	}
