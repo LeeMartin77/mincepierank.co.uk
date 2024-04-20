@@ -35,16 +35,6 @@ type WebsiteWrapper struct {
 	htmlTemplater templater.Templater
 }
 
-// YearAllBrands implements generated.StrictServerInterface.
-func (wrpr *WebsiteWrapper) YearAllBrands(ctx context.Context, request generated.YearAllBrandsRequestObject) (generated.YearAllBrandsResponseObject, error) {
-	panic("unimplemented")
-}
-
-// YearAllCategories implements generated.StrictServerInterface.
-func (wrpr *WebsiteWrapper) YearAllCategories(ctx context.Context, request generated.YearAllCategoriesRequestObject) (generated.YearAllCategoriesResponseObject, error) {
-	panic("unimplemented")
-}
-
 // YearAllPies implements generated.StrictServerInterface.
 func (wrpr *WebsiteWrapper) YearAllPies(ctx context.Context, request generated.YearAllPiesRequestObject) (generated.YearAllPiesResponseObject, error) {
 	panic("unimplemented")

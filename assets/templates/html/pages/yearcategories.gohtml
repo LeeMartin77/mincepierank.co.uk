@@ -1,0 +1,9 @@
+{{define "page:yearcategories"}}
+{{template "fragment:global:head" .Head}}
+{{template "fragment:components:breadcrumb" .PageData.Breadcrumb}}
+
+<h2>{{.PageData.Year}} Categories</h2>
+
+{{template "fragment:components:categorylist" .PageData.Categories}}
+{{template "fragment:global:foot" .Foot}}
+{{end}}

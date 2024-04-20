@@ -1,0 +1,9 @@
+{{define "page:yearbrands"}}
+{{template "fragment:global:head" .Head}}
+{{template "fragment:components:breadcrumb" .PageData.Breadcrumb}}
+
+<h2>{{.PageData.Year}} Brands</h2>
+
+{{template "fragment:components:brandlist" .PageData.MakerCards}}
+{{template "fragment:global:foot" .Foot}}
+{{end}}
