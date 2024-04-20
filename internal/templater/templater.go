@@ -18,7 +18,7 @@ type PageDataHead struct {
 	Notice           string
 	ShowBreadcrumb   bool
 	MenuSettings     MenuSettings
-	Breadcrumbs      []BreadcrumbLink
+	Breadcrumbs      []Link
 }
 
 type MenuSettings struct {
@@ -26,7 +26,7 @@ type MenuSettings struct {
 	LoggedIn   bool
 }
 
-type BreadcrumbLink struct {
+type Link struct {
 	Label string
 	URL   string
 }
@@ -47,15 +47,15 @@ type Templater interface {
 	GeneratePage(page string, data PageData) (io.Reader, error)
 }
 
-func BreadcrumbsFromUrl(url string) []BreadcrumbLink {
-	retval := []BreadcrumbLink{}
+func BreadcrumbsFromUrl(url string) []Link {
+	retval := []Link{}
 	compoundUrl := ""
 	for _, prt := range strings.Split(url, "/") {
 		if prt == "" {
 			continue
 		}
 		compoundUrl += "/" + prt
-		retval = append(retval, BreadcrumbLink{URL: compoundUrl, Label: prt})
+		retval = append(retval, Link{URL: compoundUrl, Label: prt})
 	}
 	return retval
 }

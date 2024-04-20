@@ -1,0 +1,8 @@
+{{define "fragment:components:categorylist"}}
+<h2 style="text-align: center">Categories</h2>
+<div class="category-links">
+  {{ range . }}
+    <a class="category-link" href="{{ .URL }}"}>{{ .Label }}</a>
+  {{ end }}
+</div>
+{{end}}

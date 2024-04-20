@@ -3,6 +3,7 @@ package website
 import (
 	"context"
 	"fmt"
+	"net/url"
 
 	"github.com/leemartin77/mincepierank.co.uk/internal/templater"
 	generated "github.com/leemartin77/mincepierank.co.uk/internal/website/generated"
@@ -22,6 +23,15 @@ func (wrpr *WebsiteWrapper) YearPage(c context.Context, request generated.YearPa
 	makers, err := wrpr.storage.GetMakersForYear(c, request.Year)
 	if err != nil {
 		return nil, err
+	}
+
+	cats, err := wrpr.storage.GetMakerPieCategoriesForYear(c, request.Year)
+	if err != nil {
+		return nil, err
+	}
+	categoryLinks := []templater.Link{}
+	for _, ct := range *cats {
+		categoryLinks = append(categoryLinks, templater.Link{URL: fmt.Sprintf("/years/%d/categories/%s", request.Year, url.QueryEscape(ct)), Label: ct})
 	}
 	mrks := []templater.MakerCardData{}
 	for _, mkr := range *makers {
@@ -49,6 +59,7 @@ func (wrpr *WebsiteWrapper) YearPage(c context.Context, request generated.YearPa
 				PieLink:        fmt.Sprintf("/years/%d/brands/%s/%s", topPie.Year, topPie.MakerId, topPie.Id),
 			},
 			"MakerCards": mrks,
+			"Categories": categoryLinks,
 		},
 	}
 

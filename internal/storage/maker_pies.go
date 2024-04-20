@@ -4,8 +4,8 @@ import (
 	"context"
 
 	"github.com/jackc/pgx/v5"
+	"github.com/rs/zerolog/log"
 )
-
 
 type MakerPieYearlyWithRankings struct {
 	Year    int32  `json:"year"`
@@ -29,7 +29,6 @@ type MakerPieYearlyWithRankings struct {
 
 	Count int64 `json:"count"`
 }
-
 
 func (o *OperationWrapper) GetTopMakerPie(c context.Context, activeYear int64) (*MakerPieYearlyWithRankings, error) {
 	r := MakerPieYearlyWithRankings{}
@@ -111,6 +110,38 @@ func (o *OperationWrapper) GetTopMakerPie(c context.Context, activeYear int64) (
 	}
 	if err != nil {
 		return nil, err
+	}
+	return &r, nil
+}
+
+func (o *OperationWrapper) GetMakerPieCategoriesForYear(c context.Context, year int64) (*[]string, error) {
+
+	r := []string{}
+	sql := `
+	SELECT distinct unnest(labels)
+	FROM maker_pie_yearly
+	where year = $1
+	`
+	rows, err := o.db.Query(c, sql, year)
+	if err == pgx.ErrNoRows {
+		return &r, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var ctg string
+		if err := rows.Scan(&ctg); err != nil {
+			log.Error().Err(err).Msg("Scan failed in get categories for year")
+			continue
+		}
+		r = append(r, ctg)
+	}
+
+	if err := rows.Err(); err != nil {
+		log.Error().Err(err).Msg("Error during categories for year iteration")
 	}
 	return &r, nil
 }
