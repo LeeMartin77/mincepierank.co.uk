@@ -26,8 +26,8 @@
     </div>
   </div>
   <div class="category-links">
-   {{range .Pie.Labels}}
-    <a class="category-link" href="/years/{{$.Pie.Year}}/categories/{{.}}">{{.}}</a>
+   {{range .CategoryLinks}}
+    <a class="category-link" href="{{.URL}}">{{.Label}}</a>
    {{end}}
   </div>
 

@@ -33,6 +33,10 @@ func (wrpr *WebsiteWrapper) YearPage(c context.Context, request generated.YearPa
 	for _, ct := range *cats {
 		categoryLinks = append(categoryLinks, templater.Link{URL: fmt.Sprintf("/years/%d/categories/%s", request.Year, url.QueryEscape(ct)), Label: ct})
 	}
+	pieCategoryLinks := []templater.Link{}
+	for _, ct := range *&topPie.Labels {
+		pieCategoryLinks = append(pieCategoryLinks, templater.Link{URL: fmt.Sprintf("/years/%d/categories/%s", request.Year, url.QueryEscape(ct)), Label: ct})
+	}
 	mrks := []templater.MakerCardData{}
 	for _, mkr := range *makers {
 		mrks = append(mrks, templater.MakerCardData{
@@ -55,6 +59,7 @@ func (wrpr *WebsiteWrapper) YearPage(c context.Context, request generated.YearPa
 			"TopPie": templater.PieCardData{
 				Pie:            *topPie,
 				ImgprssrPrefix: imgprssrPrefix,
+				CategoryLinks:  pieCategoryLinks,
 				HasDate:        false,
 				PieLink:        fmt.Sprintf("/years/%d/brands/%s/%s", topPie.Year, topPie.MakerId, topPie.Id),
 			},

@@ -3,6 +3,7 @@ package website
 import (
 	"context"
 	"fmt"
+	"net/url"
 
 	"github.com/leemartin77/mincepierank.co.uk/internal/templater"
 	generated "github.com/leemartin77/mincepierank.co.uk/internal/website/generated"
@@ -43,6 +44,11 @@ func (wrpr *WebsiteWrapper) HomePage(c context.Context, req generated.HomePageRe
 			Maker:          mkr,
 		})
 	}
+
+	pieCategoryLinks := []templater.Link{}
+	for _, ct := range *&topPie.Labels {
+		pieCategoryLinks = append(pieCategoryLinks, templater.Link{URL: fmt.Sprintf("/years/%d/categories/%s", topPie.Year, url.QueryEscape(ct)), Label: ct})
+	}
 	vals := templater.PageData{
 		Head: templater.PageDataHead{
 			Title:       "Home Page",
@@ -55,6 +61,7 @@ func (wrpr *WebsiteWrapper) HomePage(c context.Context, req generated.HomePageRe
 		PageData: map[string]interface{}{
 			"TopPie": templater.PieCardData{
 				Pie:            *topPie,
+				CategoryLinks:  pieCategoryLinks,
 				ImgprssrPrefix: imgprssrPrefix,
 				HasDate:        false,
 				PieLink:        fmt.Sprintf("/years/%d/brands/%s/%s", topPie.Year, topPie.MakerId, topPie.Id),

@@ -64,6 +64,7 @@ type PieCardData struct {
 	ImgprssrPrefix string
 	HasDate        bool
 	PieLink        string
+	CategoryLinks  []Link
 	Pie            interface{}
 }
 
