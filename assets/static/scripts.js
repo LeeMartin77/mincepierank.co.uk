@@ -106,3 +106,5 @@ addEventListener("resize", () => {
   // @ts-ignore
   canvas.height = window.innerHeight;
 });
+
+menuOpen = false;

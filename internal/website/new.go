@@ -35,21 +35,6 @@ type WebsiteWrapper struct {
 	htmlTemplater templater.Templater
 }
 
-// AboutPage implements generated.StrictServerInterface.
-func (wrpr *WebsiteWrapper) AboutPage(ctx context.Context, request generated.AboutPageRequestObject) (generated.AboutPageResponseObject, error) {
-	panic("unimplemented")
-}
-
-// CookiePage implements generated.StrictServerInterface.
-func (wrpr *WebsiteWrapper) CookiePage(ctx context.Context, request generated.CookiePageRequestObject) (generated.CookiePageResponseObject, error) {
-	panic("unimplemented")
-}
-
-// PrivacyPage implements generated.StrictServerInterface.
-func (wrpr *WebsiteWrapper) PrivacyPage(ctx context.Context, request generated.PrivacyPageRequestObject) (generated.PrivacyPageResponseObject, error) {
-	panic("unimplemented")
-}
-
 // YearAllBrands implements generated.StrictServerInterface.
 func (wrpr *WebsiteWrapper) YearAllBrands(ctx context.Context, request generated.YearAllBrandsRequestObject) (generated.YearAllBrandsResponseObject, error) {
 	panic("unimplemented")

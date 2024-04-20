@@ -1,9 +1,9 @@
 {{define "fragment:components:menu"}}
     <script>
-        let menuOpen = false;
-
+        if (typeof menuOpen !== 'undefined' && menuOpen) {
+            document.getElementById("menu-container").style.display = "block"
+        }
         function toggleMenu() {
-            console.log("friend")
             if (menuOpen) {
                 document.getElementById("menu-container").style.display = "none"
                 menuOpen = false

@@ -1,0 +1,32 @@
+{{define "page:static:about"}}
+{{template "fragment:global:head" .Head}}
+<h1>About</h1>
+<h3>What is this?</h3>
+<p>
+  This started as a fun project between me and my partner - where we wanted to rank the mince pies
+  we ate over christmas. What was interesting was the second we mentioned the idea to other people,
+  they were interested too.
+</p>
+<h3>Cookie and Privacy Policy Summary</h3>
+<p>
+  We use a simple authentication cookie once a user is logged in, and only store a user identifier
+  (usually an email) so that users know what pies they have ranked. We store no other user data than
+  this, and I&apos;ve got no intention of storing more.
+</p>
+<p>
+  <a class="link-button" href="/about/cookies">Full Cookie Policy</a>
+</p>
+<p>
+  <a class="link-button" href="/about/privacy">Full Privacy Policy</a>
+</p>
+<p>
+  <a class="link-button" href="https://github.com/LeeMartin77/mincepierank.co.uk">
+    Source code is publicly available on Github.
+  </a>
+</p>
+<h4>Issues? Questions?</h4>
+<p>
+  <a class="link-button" href="mailto:piemaster@mincepierank.co.uk">piemaster@mincepierank.co.uk</a>
+</p>
+{{template "fragment:global:foot" .Foot}}
+{{end}}

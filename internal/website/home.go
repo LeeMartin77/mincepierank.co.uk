@@ -8,7 +8,7 @@ import (
 	generated "github.com/leemartin77/mincepierank.co.uk/internal/website/generated"
 )
 
-func returnUnexpectedError(err error) (generated.HomePageResponseObject, error) {
+func returnHomepageUnexpectedError(err error) (generated.HomePageResponseObject, error) {
 	return generated.HomePagedefaultJSONResponse{
 		Body: generated.Error{
 			Code:    500,
@@ -21,20 +21,19 @@ func returnUnexpectedError(err error) (generated.HomePageResponseObject, error) 
 var imgprssrPrefix = "https://static.mincepierank.co.uk"
 
 func (wrpr *WebsiteWrapper) HomePage(c context.Context, req generated.HomePageRequestObject) (generated.HomePageResponseObject, error) {
-	// urlExample := "postgres://username:password@localhost:5432/mincepierank"
 	ay, err := wrpr.storage.GetActiveYear(c)
 	if err != nil {
-		return returnUnexpectedError(err)
+		return returnHomepageUnexpectedError(err)
 	}
 
 	topPie, err := wrpr.storage.GetTopMakerPie(c, *ay)
 	if err != nil {
-		return returnUnexpectedError(err)
+		return returnHomepageUnexpectedError(err)
 	}
 
 	makers, err := wrpr.storage.GetMakersForYear(c, *ay)
 	if err != nil {
-		return returnUnexpectedError(err)
+		return returnHomepageUnexpectedError(err)
 	}
 	mrks := []templater.MakerCardData{}
 	for _, mkr := range *makers {
@@ -46,7 +45,9 @@ func (wrpr *WebsiteWrapper) HomePage(c context.Context, req generated.HomePageRe
 	}
 	vals := templater.PageData{
 		Head: templater.PageDataHead{
-			Title: "Home Page",
+			Title:       "Home Page",
+			Description: "Rank mince pies from major UK brands",
+			Keywords:    "Mince Pies, UK, Ranking",
 			MenuSettings: templater.MenuSettings{
 				ActiveYear: *ay,
 			},
