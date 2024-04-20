@@ -3,6 +3,7 @@ package storage
 import (
 	"context"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/leemartin77/mincepierank.co.uk/internal/storage/generated"
 	"github.com/leemartin77/mincepierank.co.uk/internal/storage/types"
@@ -22,7 +23,7 @@ type Operations interface {
 
 	GetMaker(ctx context.Context, Id string) (*types.Maker, error)
 	GetMakerPieYearly(ctx context.Context, year int32, makerid string, id string) (*types.MakerPieYearly, error)
-	GetMakerPieYearlyRankingSummary(c context.Context) (*RankingSummary, error)
+	GetMakerPieYearlyRankingSummary(c context.Context, year int32, makerid string, id string) (*RankingSummary, error)
 }
 
 func (o *OperationWrapper) GetMaker(ctx context.Context, Id string) (*types.Maker, error) {
@@ -33,6 +34,42 @@ func (o *OperationWrapper) GetMakerPieYearly(ctx context.Context, year int32, ma
 	return generated.MakerPieYearlyRead(ctx, o.db, year, makerid, id)
 }
 
-func (o *OperationWrapper) GetMakerPieYearlyRankingSummary(c context.Context) (*RankingSummary, error) {
-	return &RankingSummary{}, nil
+func (o *OperationWrapper) GetMakerPieYearlyRankingSummary(c context.Context, year int32, makerid string, id string) (*RankingSummary, error) {
+	r := RankingSummary{}
+	sql := `
+	 SELECT
+			SUM(pastry)/COUNT(1) as pastry,
+	    	SUM(filling)/COUNT(1)as filling,
+	     SUM(topping)/COUNT(1) as topping,
+	     SUM(looks)/COUNT(1) as looks,
+	     SUM(value)/COUNT(1) as value,
+		(
+	     SUM(pastry)/COUNT(1) +
+	    	SUM(filling)/COUNT(1) +
+	     SUM(topping)/COUNT(1) +
+	     SUM(looks)/COUNT(1) +
+	     SUM(value)/COUNT(1)
+	   )/5 as avg,
+		COUNT(1) as count
+	 FROM maker_pie_ranking_yearly
+		WHERE year = $1 AND makerid = $2 AND pieid = $3
+	 GROUP BY year, makerid, pieid
+	`
+	res := o.db.QueryRow(c, sql, year, makerid, id)
+	err := res.Scan(
+		&r.Pastry,
+		&r.Filling,
+		&r.Topping,
+		&r.Looks,
+		&r.Value,
+		&r.Average,
+		&r.Count,
+	)
+	if err == pgx.ErrNoRows {
+		return &r, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+	return &r, nil
 }

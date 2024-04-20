@@ -38,6 +38,11 @@ func (wrpr *WebsiteWrapper) YearBrandPie(ctx context.Context, request generated.
 		return returnPiePageUnexpectedError(err)
 	}
 
+	rankingSummary, err := wrpr.storage.GetMakerPieYearlyRankingSummary(ctx, int32(request.Year), request.Brand, request.Pie)
+	if err != nil {
+		return returnPiePageUnexpectedError(err)
+	}
+
 	pieCategoryLinks := []templater.Link{}
 	for _, ct := range pie.Labels {
 		pieCategoryLinks = append(pieCategoryLinks, templater.Link{URL: fmt.Sprintf("/years/%d/categories/%s", pie.Year, url.QueryEscape(ct)), Label: ct})
@@ -45,8 +50,8 @@ func (wrpr *WebsiteWrapper) YearBrandPie(ctx context.Context, request generated.
 
 	vals := templater.PageData{
 		Head: templater.PageDataHead{
-			Title:       fmt.Sprintf("%s from %s :: %d/5", pie.DisplayName, maker.Name, 0),
-			Description: fmt.Sprintf("%s from %s :: scored  %d/5 on average in %d", pie.DisplayName, maker.Name, 0, pie.Year),
+			Title:       fmt.Sprintf("%s from %s :: %d/5", pie.DisplayName, maker.Name, rankingSummary.Average),
+			Description: fmt.Sprintf("%s from %s :: scored  %d/5 on average in %d", pie.DisplayName, maker.Name, rankingSummary.Average, pie.Year),
 			Keywords:    fmt.Sprintf("Mince Pies, UK, Ranking, %d, %s, %s", pie.Year, maker.Name, pie.DisplayName),
 			MenuSettings: templater.MenuSettings{
 				ActiveYear: *ay,
@@ -57,6 +62,7 @@ func (wrpr *WebsiteWrapper) YearBrandPie(ctx context.Context, request generated.
 			"ImgprssrPrefix": imgprssrPrefix,
 			"HasMaker":       true,
 			"Pie":            pie,
+			"RankingSummary": rankingSummary,
 			"Maker":          maker,
 			"Breadcrumb":     templater.BreadcrumbsFromUrl(fmt.Sprintf("/years/%d/brands/%s/%s", pie.Year, pie.MakerId, pie.Id)),
 		},
