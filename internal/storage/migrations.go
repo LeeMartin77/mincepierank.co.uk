@@ -105,6 +105,20 @@ var migrations []string = []string{
 		category_id uuid,
 		PRIMARY KEY (maker_pie_oid, category_id)
 	)`,
+	`WITH all_categories as (
+	  SELECT DISTINCT(unnest(mpy.labels)) as category
+	  FROM maker_pie_yearly mpy
+	), slugged_categories as (
+			SELECT REPLACE(category, ' ', '-') slug
+	  FROM all_categories
+	), distinct_slugs as (
+	  SELECT DISTINCT slug
+	  FROM slugged_categories
+	)
+	INSERT INTO categories
+	select gen_random_uuid() as id, slug,
+			INITCAP(REPLACE(slug, '-', ' ')) as label
+	from distinct_slugs`,
 }
 
 var migrationLogTable string = `
