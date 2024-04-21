@@ -119,6 +119,19 @@ var migrations []string = []string{
 	select gen_random_uuid() as id, slug,
 			INITCAP(REPLACE(slug, '-', ' ')) as label
 	from distinct_slugs`,
+	`with all_categories as (
+	  SELECT DISTINCT(unnest(mpy.labels)) as category, mpy.oid
+	  FROM maker_pie_yearly mpy
+	), clean_categories as (
+			SELECT REPLACE(category, ' ', '-') as slug, oid
+	  FROM all_categories
+	)
+	INSERT INTO maker_pie_categories
+	select mpy.oid as maker_pie_oid,
+			c.id as category_id
+	FROM maker_pie_yearly mpy
+	inner join clean_categories cc on cc.oid = mpy.oid
+	inner join categories c on c.slug=cc.slug`,
 }
 
 var migrationLogTable string = `
