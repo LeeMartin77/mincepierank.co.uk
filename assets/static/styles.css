@@ -433,3 +433,14 @@ button.menu-button {
 .pie-page-wrapper > table tr:last-of-type td {
     border: none;
 }
+
+.pie-list {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    width: 100%;
+    gap: 1em;
+}
+.pie-link-card-container {
+    max-width: 320px;
+}
