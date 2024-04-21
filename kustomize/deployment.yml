@@ -2,26 +2,26 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: mincepierank
-  name: mincepierank
+    app: mincepierank-legacy
+  name: mincepierank-legacy
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: mincepierank
+      app: mincepierank-legacy
   template:
     metadata:
       labels:
-        app: mincepierank
-      namespace: mincepierank
-      name: mincepierank
+        app: mincepierank-legacy
+      namespace: mincepierank-legacy
+      name: mincepierank-legacy
       annotations:
         prometheus.io/scrape: 'true'
         prometheus.io/path: '/'
         prometheus.io/port: '9091'
     spec:
       containers:
-        - name: mincepierank
+        - name: mincepierank-legacy
           image: ghcr.io/leemartin77/mincepierank.co.uk:656dfa8e491c028efde507d4ed3f109240711925
           imagePullPolicy: IfNotPresent
           resources:
