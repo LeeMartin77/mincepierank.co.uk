@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: mincepierank-beta
+  name: mincepierank
 spec:
   ports:
     - name: http
@@ -9,5 +9,5 @@ spec:
       protocol: TCP
       targetPort: 8080
   selector:
-    app: mincepierank-beta
+    app: mincepierank
   type: ClusterIP

@@ -2,26 +2,26 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: mincepierank-beta
-  name: mincepierank-beta
+    app: mincepierank
+  name: mincepierank
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: mincepierank-beta
+      app: mincepierank
   template:
     metadata:
       labels:
-        app: mincepierank-beta
-      namespace: mincepierank-beta
-      name: mincepierank-beta
+        app: mincepierank
+      namespace: mincepierank
+      name: mincepierank
       # annotations:
       #   prometheus.io/scrape: 'true'
       #   prometheus.io/path: '/'
       #   prometheus.io/port: '9091'
     spec:
       containers:
-        - name: mincepierank-beta
+        - name: mincepierank
           image: ghcr.io/leemartin77/mincepierank.co.uk:beta-6cc303d9c39cac0c84cd00795a6527790bd8a1ea
           imagePullPolicy: IfNotPresent
           resources:
@@ -43,7 +43,7 @@ spec:
             - name: DATABASE_URL
               value: postgres://username:password@localhost:5432/mincepierank
             - name: IMGPRSSR_ROOT
-              value: 'http://localhost:3013'
+              value: "http://localhost:3013"
       volumes:
         - name: images-dir
           persistentVolumeClaim:
