@@ -1,6 +1,10 @@
 package types
 
-import "time"
+import (
+	"time"
+
+	"github.com/google/uuid"
+)
 
 type Maker struct {
 	Id string `json:"id" col:"id,primary"`
@@ -8,6 +12,12 @@ type Maker struct {
 	Name    string `json:"name,omitempty" col:"name"`
 	Logo    string `json:"logo,omitempty" col:"logo"`
 	Website string `json:"website,omitempty" col:"website"`
+}
+
+type Category struct {
+	Id    uuid.UUID `json:"id" col:"id,primary"`
+	Slug  string    `json:"slug" col:"slug"`
+	Label string    `json:"label" col:"label"`
 }
 
 type MakerPieYearly struct {

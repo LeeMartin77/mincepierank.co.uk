@@ -94,6 +94,11 @@ var migrations []string = []string{
 		website text
 	)`,
 	`ALTER TABLE maker_pie_yearly ADD validated boolean;`,
+	`CREATE TABLE IF NOT EXISTS categories (
+		id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+		slug text,
+		label text
+	)`,
 }
 
 var migrationLogTable string = `
