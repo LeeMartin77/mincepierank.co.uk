@@ -74,3 +74,8 @@ type MakerCardData struct {
 	Year           int64
 	Maker          types.Maker
 }
+
+type FilterLinks struct {
+	ActiveFilters    []Link
+	AvailableFilters []Link
+}

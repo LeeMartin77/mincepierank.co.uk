@@ -4,11 +4,53 @@ import (
 	"context"
 	"fmt"
 	"net/url"
+	"slices"
 
 	"github.com/leemartin77/mincepierank.co.uk/internal/storage"
 	"github.com/leemartin77/mincepierank.co.uk/internal/templater"
 	generated "github.com/leemartin77/mincepierank.co.uk/internal/website/generated"
 )
+
+func getFilterLinks(wrpr *WebsiteWrapper, c context.Context, year int64, activeFilters []string, rootPath string) (*templater.FilterLinks, error) {
+	cats, err := wrpr.storage.GetMakerPieCategoriesForYear(c, year)
+	if err != nil {
+		return nil, err
+	}
+	flinks := templater.FilterLinks{
+		ActiveFilters:    []templater.Link{},
+		AvailableFilters: []templater.Link{},
+	}
+	rootUrl, err := url.Parse(rootPath)
+	if err != nil {
+		return nil, err
+	}
+	activeQueries := rootUrl.Query()
+	for _, ct := range activeFilters {
+		activeQueries.Add("categories", ct)
+	}
+	for _, ct := range *cats {
+		if slices.Contains(activeFilters, ct) {
+			this := rootUrl.Query()
+			for _, af := range activeFilters {
+				if af == url.QueryEscape(ct) {
+					continue
+				}
+				this.Add("categories", url.QueryEscape(af))
+			}
+			flinks.ActiveFilters = append(flinks.ActiveFilters, templater.Link{URL: rootUrl.String() + "?" + this.Encode(), Label: ct})
+		} else {
+			qry := rootUrl.Query()
+			for k, aq := range activeQueries {
+				for _, vl := range aq {
+					qry.Add(k, vl)
+				}
+			}
+			qry.Add("categories", url.QueryEscape(ct))
+			flinks.AvailableFilters = append(flinks.AvailableFilters, templater.Link{URL: rootUrl.String() + "?" + qry.Encode(), Label: ct})
+		}
+	}
+	return &flinks, err
+}
 
 // YearAllPies implements generated.StrictServerInterface.
 func (wrpr *WebsiteWrapper) YearAllPies(c context.Context, request generated.YearAllPiesRequestObject) (generated.YearAllPiesResponseObject, error) {
@@ -19,7 +61,6 @@ func (wrpr *WebsiteWrapper) YearAllPies(c context.Context, request generated.Yea
 
 	limit := int64(20)
 	pageZeroIdx := int64(0)
-
 	if request.Params.Limit != nil && *request.Params.Limit > 0 && *request.Params.Limit < 101 {
 		limit = *request.Params.Limit
 	}
@@ -27,7 +68,23 @@ func (wrpr *WebsiteWrapper) YearAllPies(c context.Context, request generated.Yea
 		pageZeroIdx = *request.Params.Page - 1
 	}
 
-	pies, err := wrpr.storage.GetFilterableMakerPies(c, request.Year, limit, pageZeroIdx, storage.PieFilters{})
+	catFilters := []string{}
+	unescapedCatFilters := []string{}
+	if request.Params.Categories != nil {
+		catFilters = *request.Params.Categories
+		for _, cf := range catFilters {
+			unescapedCatFilters = append(unescapedCatFilters, url.QueryEscape(cf))
+		}
+	}
+
+	flinks, err := getFilterLinks(wrpr, c, request.Year, catFilters, fmt.Sprintf("/years/%d/all-pies", request.Year))
+	if err != nil {
+		return nil, err
+	}
+
+	pies, err := wrpr.storage.GetFilterableMakerPies(c, request.Year, limit, pageZeroIdx, storage.PieFilters{
+		Categories: unescapedCatFilters,
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -60,13 +117,10 @@ func (wrpr *WebsiteWrapper) YearAllPies(c context.Context, request generated.Yea
 			},
 		},
 		PageData: map[string]interface{}{
-			"Heading":    fmt.Sprintf("All pies for %d", request.Year),
-			"Breadcrumb": templater.BreadcrumbsFromUrl(fmt.Sprintf("/years/%d/all-pies", request.Year)),
-			"PieCards":   pieCards,
-			"FilterLinks": map[string]interface{}{
-				"ActiveFilters":    []templater.Link{},
-				"AvailableFilters": []templater.Link{},
-			},
+			"Heading":     fmt.Sprintf("All pies for %d", request.Year),
+			"Breadcrumb":  templater.BreadcrumbsFromUrl(fmt.Sprintf("/years/%d/all-pies", request.Year)),
+			"PieCards":    pieCards,
+			"FilterLinks": *flinks,
 		},
 	}
 

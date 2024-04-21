@@ -47,7 +47,7 @@ type ServerInterface interface {
 	YearAllPies(c *gin.Context, year Year, params YearAllPiesParams)
 
 	// (GET /years/{year}/brands)
-	YearAllBrands(c *gin.Context, year Year, params YearAllBrandsParams)
+	YearAllBrands(c *gin.Context, year Year)
 
 	// (GET /years/{year}/brands/{brand})
 	YearBrandPies(c *gin.Context, year Year, brand Brand, params YearBrandPiesParams)
@@ -56,7 +56,7 @@ type ServerInterface interface {
 	YearBrandPie(c *gin.Context, year Year, brand Brand, pie string)
 
 	// (GET /years/{year}/categories)
-	YearAllCategories(c *gin.Context, year Year, params YearAllCategoriesParams)
+	YearAllCategories(c *gin.Context, year Year)
 
 	// (GET /years/{year}/categories/{category})
 	YearCategoryPies(c *gin.Context, year Year, category string, params YearCategoryPiesParams)
@@ -193,6 +193,14 @@ func (siw *ServerInterfaceWrapper) YearAllPies(c *gin.Context) {
 		return
 	}
 
+	// ------------- Optional query parameter "categories" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "categories", c.Request.URL.Query(), &params.Categories)
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter categories: %w", err), http.StatusBadRequest)
+		return
+	}
+
 	for _, middleware := range siw.HandlerMiddlewares {
 		middleware(c)
 		if c.IsAborted() {
@@ -217,25 +225,6 @@ func (siw *ServerInterfaceWrapper) YearAllBrands(c *gin.Context) {
 		return
 	}
 
-	// Parameter object where we will unmarshal all parameters from the context
-	var params YearAllBrandsParams
-
-	// ------------- Optional query parameter "page" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "page", c.Request.URL.Query(), &params.Page)
-	if err != nil {
-		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter page: %w", err), http.StatusBadRequest)
-		return
-	}
-
-	// ------------- Optional query parameter "limit" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "limit", c.Request.URL.Query(), &params.Limit)
-	if err != nil {
-		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter limit: %w", err), http.StatusBadRequest)
-		return
-	}
-
 	for _, middleware := range siw.HandlerMiddlewares {
 		middleware(c)
 		if c.IsAborted() {
@@ -243,7 +232,7 @@ func (siw *ServerInterfaceWrapper) YearAllBrands(c *gin.Context) {
 		}
 	}
 
-	siw.Handler.YearAllBrands(c, year, params)
+	siw.Handler.YearAllBrands(c, year)
 }
 
 // YearBrandPies operation middleware
@@ -285,6 +274,14 @@ func (siw *ServerInterfaceWrapper) YearBrandPies(c *gin.Context) {
 	err = runtime.BindQueryParameter("form", true, false, "limit", c.Request.URL.Query(), &params.Limit)
 	if err != nil {
 		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter limit: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	// ------------- Optional query parameter "categories" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "categories", c.Request.URL.Query(), &params.Categories)
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter categories: %w", err), http.StatusBadRequest)
 		return
 	}
 
@@ -354,25 +351,6 @@ func (siw *ServerInterfaceWrapper) YearAllCategories(c *gin.Context) {
 		return
 	}
 
-	// Parameter object where we will unmarshal all parameters from the context
-	var params YearAllCategoriesParams
-
-	// ------------- Optional query parameter "page" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "page", c.Request.URL.Query(), &params.Page)
-	if err != nil {
-		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter page: %w", err), http.StatusBadRequest)
-		return
-	}
-
-	// ------------- Optional query parameter "limit" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "limit", c.Request.URL.Query(), &params.Limit)
-	if err != nil {
-		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter limit: %w", err), http.StatusBadRequest)
-		return
-	}
-
 	for _, middleware := range siw.HandlerMiddlewares {
 		middleware(c)
 		if c.IsAborted() {
@@ -380,7 +358,7 @@ func (siw *ServerInterfaceWrapper) YearAllCategories(c *gin.Context) {
 		}
 	}
 
-	siw.Handler.YearAllCategories(c, year, params)
+	siw.Handler.YearAllCategories(c, year)
 }
 
 // YearCategoryPies operation middleware
@@ -422,6 +400,14 @@ func (siw *ServerInterfaceWrapper) YearCategoryPies(c *gin.Context) {
 	err = runtime.BindQueryParameter("form", true, false, "limit", c.Request.URL.Query(), &params.Limit)
 	if err != nil {
 		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter limit: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	// ------------- Optional query parameter "categories" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "categories", c.Request.URL.Query(), &params.Categories)
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter categories: %w", err), http.StatusBadRequest)
 		return
 	}
 
@@ -786,8 +772,7 @@ func (response YearAllPiesdefaultJSONResponse) VisitYearAllPiesResponse(w http.R
 }
 
 type YearAllBrandsRequestObject struct {
-	Year   Year `json:"year"`
-	Params YearAllBrandsParams
+	Year Year `json:"year"`
 }
 
 type YearAllBrandsResponseObject interface {
@@ -956,8 +941,7 @@ func (response YearBrandPiedefaultJSONResponse) VisitYearBrandPieResponse(w http
 }
 
 type YearAllCategoriesRequestObject struct {
-	Year   Year `json:"year"`
-	Params YearAllCategoriesParams
+	Year Year `json:"year"`
 }
 
 type YearAllCategoriesResponseObject interface {
@@ -1301,11 +1285,10 @@ func (sh *strictHandler) YearAllPies(ctx *gin.Context, year Year, params YearAll
 }
 
 // YearAllBrands operation middleware
-func (sh *strictHandler) YearAllBrands(ctx *gin.Context, year Year, params YearAllBrandsParams) {
+func (sh *strictHandler) YearAllBrands(ctx *gin.Context, year Year) {
 	var request YearAllBrandsRequestObject
 
 	request.Year = year
-	request.Params = params
 
 	handler := func(ctx *gin.Context, request interface{}) (interface{}, error) {
 		return sh.ssi.YearAllBrands(ctx, request.(YearAllBrandsRequestObject))
@@ -1387,11 +1370,10 @@ func (sh *strictHandler) YearBrandPie(ctx *gin.Context, year Year, brand Brand, 
 }
 
 // YearAllCategories operation middleware
-func (sh *strictHandler) YearAllCategories(ctx *gin.Context, year Year, params YearAllCategoriesParams) {
+func (sh *strictHandler) YearAllCategories(ctx *gin.Context, year Year) {
 	var request YearAllCategoriesRequestObject
 
 	request.Year = year
-	request.Params = params
 
 	handler := func(ctx *gin.Context, request interface{}) (interface{}, error) {
 		return sh.ssi.YearAllCategories(ctx, request.(YearAllCategoriesRequestObject))
@@ -1446,19 +1428,20 @@ func (sh *strictHandler) YearCategoryPies(ctx *gin.Context, year Year, category 
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"H4sIAAAAAAAC/+xYX2/aPhT9Kuj+fo8Zpn+0h7y11aZN2iY0aQ9T1QdjLuCS2K59UxWhfPfJdkhamgCT",
-	"SKVOvBTSe318zznXjs0ahM6NVqjIQboGwy3PkdCGp2vL1dR/kQpSMJwWkIDiOUIKkxBLwOJDIS1OISVb",
-	"YAJOLDDnfhCtjE90ZKWaQ1km8E3mkmq8hwLtqgHMQvA5wBRnvMgI0vNRAjNtc06QglT08RKSDbxUhHO0",
-	"AX/M59gFb3ysFf3sMPDfyG2HFisf2iXFfvzSD3dGK4dB+h+aPusiqi+0IlRBOMInYgvKM//QLXWZwBSd",
-	"sNKQ1L5epWkwC3hlAr8UPhkUhNNP1mq7NQU3JpOC+4Hs3vnRz2f63+IMUviPNX3DYtSxiNYye1FPOMAq",
-	"Z6NOIFuXYaw2aElGDYSe4rZ6F+ct6iWQo3OV+a/brvHlNmI2+Xc1mJ7co6BYvVQzHaAkZT72XSqBY4k/",
-	"uVpCAo9oXSR2NhwNR35+bVBxIyGFi/CvJHRIYMH8nzkGbT27oOzXKaTwRec4jm35wvvz0ehIti90joPQ",
-	"+SFUNXy7i3UJbLs/gltFnnO7qqoeVGUTnzuvqikmmRRw5zMZn+iCOklf+eh7Yd3Njwmtl1WftvK8CfF+",
-	"icYaeqdqrHzkYtVJdRzj/XKtiuiRrN/Fu/3027/rl2IooG+CbO0/yp08+6dZs7wcXe5nWL8Mjy5L8uLE",
-	"c9uO2aSwcAgo77bVZDzLPphd24EfeJVlY5/Tr7I8ywahlPeqbrI3bxybZ29ePG+22BUOr3vNuo5Z/dtV",
-	"lXMybI9hbB0+d29ewbU3Wmf/vHHxBvj2DrO1kXiYzyebj2lzy+3WVBofes9/7a3ghHNtD3g/3jSZ/dv6",
-	"rKzT1tu5MBuV2Lr6vtq9MisTV+OTjYfb2LLwNmr/3a9sx+8If/1H+7hhVNjMX7KJjEsZy6USaCRarpZD",
-	"oYfFkvkxfwIAAP//aNNCRlkUAAA=",
+	"H4sIAAAAAAAC/+xYSW/bOhD+K8a8d9QznQXvoFsSNGiBtjAK9FAEOdD02GYsLiFHQQTD/70gKcuOIy8F",
+	"oiIJcoktz3A430KG4gKEUdZo1OQhX4DljiskdPHp0nE9Dl+khhwspxlkoLlCyGEUYxk4vC+lwzHk5ErM",
+	"wIsZKh4GUWVDoicn9RSWywyuOOHUOIn+WhaELmSN0QsnLUkT5lhn9Mj0JjGrZ8Oj0ZClPu5LdNW6EdEM",
+	"gc3ZJaHyLW1kqx+4c7yKbX2VSlIDc6t8EYOblcc44WVBkJ8OMpgYpzhBDlLT/+fQVJeacIou1h/yKe4q",
+	"b0OstfrJccV/IXc7JKpCaJ9Ch+svw3BvjfYYyfxu6NqUyRTCaEIdiSN8JDYjVYSH3Q5YZltya0O9Say3",
+	"zOCnxkeLgnD8yTnjtqbg1hZS8DCQ3fkwenOmfx1OIId/2NrOLEU9S9VaZi+bCXtY56zYiWCbNqwzFh3J",
+	"xIEwY9xm7+y0hb0MFHpfi/98Nax1uUk11/m3TTEzukNBqXupJyaWklSE2DepBQ4l/uB6Dhk8oPMJ2El/",
+	"0B+E+Y1Fza2EHM7iT1l0SETBwp8pRm4DusjslzHk8NkoHCZbPtH+dDB4IdlnRmEvOj+GasO3q9i0wLb9",
+	"EdUqleKuqrvu1W0Tn/rAqi1HhRRwGzIZH5mSdoK+CNG3gno3PiaMmdc+bcV5FePdAk09dA7VOvnARbUT",
+	"6jDFu8VaN9Eh2LCL79YzbP++W4ixga4BskX4WO7F2T3MBuX54Pwwwuaf4YvTkj05iN2011ynsHgIWN5u",
+	"s8l4Ufxn920HYeBFUQzT6alLZnlRxIPcm2U3O5g3TOY5mJfOm0ckPjsvt0gcz+EHBb5MWd1LXLfzfpZQ",
+	"AsQW8XP//hRJ/ktL6Y3zfNj76d3zda+6lSvYwko8zhsf1nhJa7S89Nqa42NvJZ5ru3GhcGBXvdq8euha",
+	"1o223s/uugbFFvX3av9Cqjmvhh+sH7+gWtbJiu0/u8J7HbtxePFH97BioXRFeL0msj5nTEkt0Ep0XM/7",
+	"wvTLOQtjfgcAAP//VlZOXeoUAAA=",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file

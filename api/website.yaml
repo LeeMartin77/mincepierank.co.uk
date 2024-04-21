@@ -100,6 +100,7 @@ paths:
       - $ref: "#/components/parameters/Year"
       - $ref: "#/components/parameters/Page"
       - $ref: "#/components/parameters/Limit"
+      - $ref: "#/components/parameters/CategoriesFilter"
     get:
       operationId: yearAllPies
       tags:
@@ -118,8 +119,6 @@ paths:
   /years/{year}/categories:
     parameters:
       - $ref: "#/components/parameters/Year"
-      - $ref: "#/components/parameters/Page"
-      - $ref: "#/components/parameters/Limit"
     get:
       operationId: yearAllCategories
       tags:
@@ -145,6 +144,7 @@ paths:
           type: string
       - $ref: "#/components/parameters/Page"
       - $ref: "#/components/parameters/Limit"
+      - $ref: "#/components/parameters/CategoriesFilter"
     get:
       operationId: yearCategoryPies
       tags:
@@ -163,8 +163,6 @@ paths:
   /years/{year}/brands:
     parameters:
       - $ref: "#/components/parameters/Year"
-      - $ref: "#/components/parameters/Page"
-      - $ref: "#/components/parameters/Limit"
     get:
       operationId: yearAllBrands
       tags:
@@ -186,6 +184,7 @@ paths:
       - $ref: "#/components/parameters/Brand"
       - $ref: "#/components/parameters/Page"
       - $ref: "#/components/parameters/Limit"
+      - $ref: "#/components/parameters/CategoriesFilter"
     get:
       operationId: yearBrandPies
       tags:
@@ -256,6 +255,15 @@ components:
         default: 20
         type: integer
         format: int64
+    CategoriesFilter:
+      name: categories
+      description: Categories to filter pies on
+      in: query
+      required: false
+      schema:
+        type: array
+        items:
+          type: string
   responses:
     NotFound:
       description: not found
