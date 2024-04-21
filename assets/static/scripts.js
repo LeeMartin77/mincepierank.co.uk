@@ -1,7 +1,3 @@
-function helloFriend() {
-  console.log("hello");
-}
-
 // snow is a modified version of https://stackoverflow.com/a/13983965
 (function () {
   var requestAnimationFrame =

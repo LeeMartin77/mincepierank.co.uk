@@ -29,7 +29,7 @@ func getFilterLinks(wrpr *WebsiteWrapper, c context.Context, year int64, activeF
 		activeQueries.Add("categories", ct)
 	}
 	for _, ct := range *cats {
-		if slices.Contains(activeFilters, ct) {
+		if slices.Contains(activeFilters, url.QueryEscape(ct)) {
 			this := rootUrl.Query()
 			for _, af := range activeFilters {
 				if af == url.QueryEscape(ct) {
@@ -73,7 +73,11 @@ func (wrpr *WebsiteWrapper) YearAllPies(c context.Context, request generated.Yea
 	if request.Params.Categories != nil {
 		catFilters = *request.Params.Categories
 		for _, cf := range catFilters {
-			unescapedCatFilters = append(unescapedCatFilters, url.QueryEscape(cf))
+			ue, err := url.QueryUnescape(cf)
+			if err != nil {
+				continue
+			}
+			unescapedCatFilters = append(unescapedCatFilters, ue)
 		}
 	}
 
@@ -157,8 +161,27 @@ func (wrpr *WebsiteWrapper) YearBrandPies(c context.Context, request generated.Y
 		pageZeroIdx = *request.Params.Page - 1
 	}
 
+	catFilters := []string{}
+	unescapedCatFilters := []string{}
+	if request.Params.Categories != nil {
+		catFilters = *request.Params.Categories
+		for _, cf := range catFilters {
+			ue, err := url.QueryUnescape(cf)
+			if err != nil {
+				continue
+			}
+			unescapedCatFilters = append(unescapedCatFilters, ue)
+		}
+	}
+
+	flinks, err := getFilterLinks(wrpr, c, request.Year, catFilters, fmt.Sprintf("/years/%d/brands/%s", request.Year, request.Brand))
+	if err != nil {
+		return nil, err
+	}
+
 	pies, err := wrpr.storage.GetFilterableMakerPies(c, request.Year, limit, pageZeroIdx, storage.PieFilters{
-		BrandIds: []string{request.Brand},
+		BrandIds:   []string{request.Brand},
+		Categories: unescapedCatFilters,
 	})
 	if err != nil {
 		return nil, err
@@ -192,13 +215,10 @@ func (wrpr *WebsiteWrapper) YearBrandPies(c context.Context, request generated.Y
 			},
 		},
 		PageData: map[string]interface{}{
-			"Heading":    fmt.Sprintf("%s pies for %d", maker.Name, request.Year),
-			"Breadcrumb": templater.BreadcrumbsFromUrl(fmt.Sprintf("/years/%d/brands/%s", request.Year, request.Brand)),
-			"PieCards":   pieCards,
-			"FilterLinks": map[string]interface{}{
-				"ActiveFilters":    []templater.Link{},
-				"AvailableFilters": []templater.Link{},
-			},
+			"Heading":     fmt.Sprintf("%s pies for %d", maker.Name, request.Year),
+			"Breadcrumb":  templater.BreadcrumbsFromUrl(fmt.Sprintf("/years/%d/brands/%s", request.Year, request.Brand)),
+			"PieCards":    pieCards,
+			"FilterLinks": *flinks,
 		},
 	}
 
@@ -232,8 +252,27 @@ func (wrpr *WebsiteWrapper) YearCategoryPies(c context.Context, request generate
 		pageZeroIdx = *request.Params.Page - 1
 	}
 
+	catFilters := []string{}
+	unescapedCatFilters := []string{}
+	if request.Params.Categories != nil {
+		catFilters = *request.Params.Categories
+		for _, cf := range catFilters {
+			ue, err := url.QueryUnescape(cf)
+			if err != nil {
+				continue
+			}
+			unescapedCatFilters = append(unescapedCatFilters, ue)
+		}
+	}
+
+	flinks, err := getFilterLinks(wrpr, c, request.Year, catFilters, fmt.Sprintf("/years/%d/categories/%s", request.Year, url.QueryEscape(request.Category)))
+	if err != nil {
+		return nil, err
+	}
+
+	unescapedCatFilters = append(unescapedCatFilters, cat)
 	pies, err := wrpr.storage.GetFilterableMakerPies(c, request.Year, limit, pageZeroIdx, storage.PieFilters{
-		Categories: []string{cat},
+		Categories: unescapedCatFilters,
 	})
 	if err != nil {
 		return nil, err
@@ -267,13 +306,10 @@ func (wrpr *WebsiteWrapper) YearCategoryPies(c context.Context, request generate
 			},
 		},
 		PageData: map[string]interface{}{
-			"Heading":    fmt.Sprintf("%s pies for %d", cat, request.Year),
-			"Breadcrumb": templater.BreadcrumbsFromUrl(fmt.Sprintf("/years/%d/categories/%s", request.Year, request.Category)),
-			"PieCards":   pieCards,
-			"FilterLinks": map[string]interface{}{
-				"ActiveFilters":    []templater.Link{},
-				"AvailableFilters": []templater.Link{},
-			},
+			"Heading":     fmt.Sprintf("%s pies for %d", cat, request.Year),
+			"Breadcrumb":  templater.BreadcrumbsFromUrl(fmt.Sprintf("/years/%d/categories/%s", request.Year, request.Category)),
+			"PieCards":    pieCards,
+			"FilterLinks": *flinks,
 		},
 	}
 
