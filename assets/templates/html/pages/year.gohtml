@@ -2,10 +2,13 @@
 {{template "fragment:global:head" .Head}}
 {{template "fragment:components:breadcrumb" .PageData.Breadcrumb}}
 
-<h2>{{.PageData.Year}} Top Pie</h2>
+<h2 style="text-align: center">{{.PageData.Year}} Top Pie</h2>
 
 {{template "fragment:components:pielinkcard" .PageData.TopPie}}
-{{template "fragment:components:brandlist" .PageData.MakerCards}}
+
+<a style="margin-top: 2em; margin-bottom: 2em;" class="link-button" href="/years/{{.PageData.Year}}/all-pies">View All Pies</a>
+
 {{template "fragment:components:categorylist" .PageData.Categories}}
+{{template "fragment:components:brandlist" .PageData.MakerCards}}
 {{template "fragment:global:foot" .Foot}}
 {{end}}
