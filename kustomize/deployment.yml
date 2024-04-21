@@ -2,26 +2,26 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: mincepierank-legacy
-  name: mincepierank-legacy
+    app: mincepierank-sveltekit
+  name: mincepierank-sveltekit
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: mincepierank-legacy
+      app: mincepierank-sveltekit
   template:
     metadata:
       labels:
-        app: mincepierank-legacy
-      namespace: mincepierank-legacy
-      name: mincepierank-legacy
+        app: mincepierank-sveltekit
+      namespace: mincepierank-sveltekit
+      name: mincepierank-sveltekit
       annotations:
         prometheus.io/scrape: 'true'
         prometheus.io/path: '/'
         prometheus.io/port: '9091'
     spec:
       containers:
-        - name: mincepierank-legacy
+        - name: mincepierank-sveltekit
           image: ghcr.io/leemartin77/mincepierank.co.uk:656dfa8e491c028efde507d4ed3f109240711925
           imagePullPolicy: IfNotPresent
           resources:
