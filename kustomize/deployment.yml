@@ -15,10 +15,10 @@ spec:
         app: mincepierank-sveltekit
       namespace: mincepierank-sveltekit
       name: mincepierank-sveltekit
-      annotations:
-        prometheus.io/scrape: 'true'
-        prometheus.io/path: '/'
-        prometheus.io/port: '9091'
+      # annotations:
+      #   prometheus.io/scrape: 'true'
+      #   prometheus.io/path: '/'
+      #   prometheus.io/port: '9091'
     spec:
       containers:
         - name: mincepierank-sveltekit
