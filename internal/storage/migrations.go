@@ -99,6 +99,12 @@ var migrations []string = []string{
 		slug text,
 		label text
 	)`,
+	`ALTER TABLE maker_pie_yearly ADD oid uuid DEFAULT gen_random_uuid();`,
+	`CREATE TABLE IF NOT EXISTS maker_pie_categories (
+		maker_pie_oid uuid,
+		category_id uuid,
+		PRIMARY KEY (maker_pie_oid, category_id)
+	)`,
 }
 
 var migrationLogTable string = `
