@@ -295,6 +295,8 @@ canvas {
     -webkit-backdrop-filter: blur(5px);
     border-right: 1px solid rgba(255, 255, 255, 0.3);
     z-index: 99999999999999999;
+    position: fixed;
+    width: 100%;
 }
 .menu {
     display: flex;
@@ -330,6 +332,28 @@ canvas {
     backdrop-filter: blur(5px);
     -webkit-backdrop-filter: blur(5px);
     border: none;
+}
+
+button.menu-button {
+    padding: 1em;
+    text-decoration: none;
+    font-weight: bold;
+    color: #111;
+    background-color: rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    border: none;
+}
+
+.mini-category-link {
+    display: block;
+    box-shadow: 0 0 0.2em #0003;
+    font-size: 0.8em;
+    border-radius: 2em;
+    padding: 0.6em;
+    text-decoration: none;
+    text-align: center;
+    color: initial;
 }
 
 .menu-container button:hover:not(.menu-button) {
