@@ -1,14 +1,8 @@
-name: Publish Bleed Container
+name: Publish Main Container
 
 on:
   push:
-    branches: ['main']
-    paths-ignore:
-      - '.development/**'
-      - '.husky/**'
-      - 'kustomize/**'
-      - '.vscode/**'
-      - 'cypress/**'
+    branches: ["main"]
 
 concurrency:
   group: publish-from-main
@@ -22,7 +16,7 @@ jobs:
     needs: test-code
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
@@ -41,10 +35,10 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           tags: |
-            ghcr.io/leemartin77/mincepierank.co.uk:bleed
+            ghcr.io/leemartin77/mincepierank.co.uk:latest
             ghcr.io/leemartin77/mincepierank.co.uk:${{ github.sha }}
           context: .
-          platforms: linux/arm/v7,linux/arm64/v8,linux/amd64
+          platforms: linux/arm64/v8,linux/amd64
           push: true
           cache-from: type=gha
           cache-to: type=gha,mode=max
@@ -53,7 +47,7 @@ jobs:
     needs: publish-bleed
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           token: ${{ github.token }}
       - name: Set new version
