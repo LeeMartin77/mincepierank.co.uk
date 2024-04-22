@@ -4,6 +4,9 @@
 <h2 style="text-align:center">Current Top Pie</h2>
 
 {{template "fragment:components:pielinkcard" .PageData.TopPie}}
+
+<a style="margin-top: 2em; margin-bottom: 2em;" class="link-button" href="/years/{{.Head.MenuSettings.ActiveYear}}/all-pies">View All Pies</a>
+
 {{template "fragment:components:brandlist" .PageData.MakerCards}}
 {{template "fragment:global:foot" .Foot}}
 {{end}}
