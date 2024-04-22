@@ -11,8 +11,12 @@ import (
 	generated "github.com/leemartin77/mincepierank.co.uk/internal/website/generated"
 )
 
-func getFilterLinks(wrpr *WebsiteWrapper, c context.Context, year int64, activeFilters []string, rootPath string) (*templater.FilterLinks, error) {
-	cats, err := wrpr.storage.GetMakerPieCategoriesForYear(c, year)
+func getFilterLinks(wrpr *WebsiteWrapper, c context.Context, year int64, activeFilters []string, rootPath string, omitSlug *string, brandSlug *string) (*templater.FilterLinks, error) {
+	reqslgs := activeFilters
+	if omitSlug != nil {
+		reqslgs = append(reqslgs, *omitSlug)
+	}
+	cats, err := wrpr.storage.GetMakerPieCategoriesForYear(c, year, reqslgs, brandSlug)
 	if err != nil {
 		return nil, err
 	}
@@ -29,6 +33,9 @@ func getFilterLinks(wrpr *WebsiteWrapper, c context.Context, year int64, activeF
 		activeQueries.Add("categories", ct)
 	}
 	for _, ct := range *cats {
+		if omitSlug != nil && ct.Slug == *omitSlug {
+			continue
+		}
 		if slices.Contains(activeFilters, ct.Slug) {
 			this := rootUrl.Query()
 			for _, af := range activeFilters {
@@ -81,7 +88,7 @@ func (wrpr *WebsiteWrapper) YearAllPies(c context.Context, request generated.Yea
 		}
 	}
 
-	flinks, err := getFilterLinks(wrpr, c, request.Year, catFilters, fmt.Sprintf("/years/%d/all-pies", request.Year))
+	flinks, err := getFilterLinks(wrpr, c, request.Year, catFilters, fmt.Sprintf("/years/%d/all-pies", request.Year), nil, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -174,7 +181,7 @@ func (wrpr *WebsiteWrapper) YearBrandPies(c context.Context, request generated.Y
 		}
 	}
 
-	flinks, err := getFilterLinks(wrpr, c, request.Year, catFilters, fmt.Sprintf("/years/%d/brands/%s", request.Year, request.Brand))
+	flinks, err := getFilterLinks(wrpr, c, request.Year, catFilters, fmt.Sprintf("/years/%d/brands/%s", request.Year, request.Brand), nil, &request.Brand)
 	if err != nil {
 		return nil, err
 	}
@@ -253,26 +260,18 @@ func (wrpr *WebsiteWrapper) YearCategoryPies(c context.Context, request generate
 	}
 
 	catFilters := []string{}
-	unescapedCatFilters := []string{}
 	if request.Params.Categories != nil {
 		catFilters = *request.Params.Categories
-		for _, cf := range catFilters {
-			ue, err := url.QueryUnescape(cf)
-			if err != nil {
-				continue
-			}
-			unescapedCatFilters = append(unescapedCatFilters, ue)
-		}
 	}
 
-	flinks, err := getFilterLinks(wrpr, c, request.Year, catFilters, fmt.Sprintf("/years/%d/categories/%s", request.Year, url.QueryEscape(request.Category)))
+	flinks, err := getFilterLinks(wrpr, c, request.Year, catFilters, fmt.Sprintf("/years/%d/categories/%s", request.Year, url.QueryEscape(request.Category)), &cat, nil)
 	if err != nil {
 		return nil, err
 	}
 
-	unescapedCatFilters = append(unescapedCatFilters, cat)
+	catFilters = append(catFilters, cat)
 	pies, err := wrpr.storage.GetFilterableMakerPies(c, request.Year, limit, pageZeroIdx, storage.PieFilters{
-		CategorySlugs: unescapedCatFilters,
+		CategorySlugs: catFilters,
 	})
 	if err != nil {
 		return nil, err

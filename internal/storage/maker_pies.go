@@ -234,8 +234,11 @@ func (o *OperationWrapper) GetTopMakerPie(c context.Context, activeYear int64) (
 	return &r, nil
 }
 
-func (o *OperationWrapper) GetMakerPieCategoriesForYear(c context.Context, year int64) (*[]types.Category, error) {
-
+func (o *OperationWrapper) GetMakerPieCategoriesForYear(c context.Context, year int64, requiredSlugs []string, requiredBrand *string) (*[]types.Category, error) {
+	brndprm := ""
+	if requiredBrand != nil {
+		brndprm = *requiredBrand
+	}
 	r := []types.Category{}
 	sql := `
 	SELECT distinct c.id, c.slug, c.label
@@ -245,8 +248,13 @@ func (o *OperationWrapper) GetMakerPieCategoriesForYear(c context.Context, year 
 	inner join maker_pie_yearly mpy on
 		mpc.maker_pie_oid = mpy.oid and
 		mpy.year = $1
+	INNER JOIN maker_pie_yearly_categories cts ON
+		cts.oid = mpy.oid
+	WHERE
+		($2 = '' OR mpy.makerid=$2)
+		AND ($3 = '' OR cts.category_slugs @> string_to_array($3, ','))
 	`
-	rows, err := o.db.Query(c, sql, year)
+	rows, err := o.db.Query(c, sql, year, brndprm, strings.Join(requiredSlugs, ","))
 	if err == pgx.ErrNoRows {
 		return &r, nil
 	}

@@ -24,7 +24,7 @@ func (wrpr *WebsiteWrapper) YearPage(c context.Context, request generated.YearPa
 		return nil, err
 	}
 
-	cats, err := wrpr.storage.GetMakerPieCategoriesForYear(c, request.Year)
+	cats, err := wrpr.storage.GetMakerPieCategoriesForYear(c, request.Year, []string{}, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -130,7 +130,7 @@ func (wrpr *WebsiteWrapper) YearAllCategories(c context.Context, request generat
 		return nil, err
 	}
 
-	cats, err := wrpr.storage.GetMakerPieCategoriesForYear(c, request.Year)
+	cats, err := wrpr.storage.GetMakerPieCategoriesForYear(c, request.Year, []string{}, nil)
 	if err != nil {
 		return nil, err
 	}

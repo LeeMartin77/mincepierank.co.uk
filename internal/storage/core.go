@@ -27,7 +27,7 @@ type Operations interface {
 	GetFilterableMakerPies(c context.Context, year int64, pageSize int64, zeroIdxPage int64, filters PieFilters) (*[]MakerPieYearlyWithRankings, error)
 
 	GetMakersForYear(c context.Context, activeYear int64) (*[]types.Maker, error)
-	GetMakerPieCategoriesForYear(c context.Context, year int64) (*[]types.Category, error)
+	GetMakerPieCategoriesForYear(c context.Context, year int64, requiredSlugs []string, requiredBrand *string) (*[]types.Category, error)
 
 	GetMaker(ctx context.Context, Id string) (*types.Maker, error)
 	GetMakerPieYearly(ctx context.Context, year int32, makerid string, id string) (*types.MakerPieYearly, error)
