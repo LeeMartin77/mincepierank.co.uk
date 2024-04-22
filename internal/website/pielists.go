@@ -29,15 +29,15 @@ func getFilterLinks(wrpr *WebsiteWrapper, c context.Context, year int64, activeF
 		activeQueries.Add("categories", ct)
 	}
 	for _, ct := range *cats {
-		if slices.Contains(activeFilters, url.QueryEscape(ct)) {
+		if slices.Contains(activeFilters, ct.Slug) {
 			this := rootUrl.Query()
 			for _, af := range activeFilters {
-				if af == url.QueryEscape(ct) {
+				if af == ct.Slug {
 					continue
 				}
-				this.Add("categories", url.QueryEscape(af))
+				this.Add("categories", af)
 			}
-			flinks.ActiveFilters = append(flinks.ActiveFilters, templater.Link{URL: rootUrl.String() + "?" + this.Encode(), Label: ct})
+			flinks.ActiveFilters = append(flinks.ActiveFilters, templater.Link{URL: rootUrl.String() + "?" + this.Encode(), Label: ct.Label})
 		} else {
 			qry := rootUrl.Query()
 			for k, aq := range activeQueries {
@@ -45,8 +45,8 @@ func getFilterLinks(wrpr *WebsiteWrapper, c context.Context, year int64, activeF
 					qry.Add(k, vl)
 				}
 			}
-			qry.Add("categories", url.QueryEscape(ct))
-			flinks.AvailableFilters = append(flinks.AvailableFilters, templater.Link{URL: rootUrl.String() + "?" + qry.Encode(), Label: ct})
+			qry.Add("categories", ct.Slug)
+			flinks.AvailableFilters = append(flinks.AvailableFilters, templater.Link{URL: rootUrl.String() + "?" + qry.Encode(), Label: ct.Label})
 		}
 	}
 	return &flinks, err
@@ -87,7 +87,7 @@ func (wrpr *WebsiteWrapper) YearAllPies(c context.Context, request generated.Yea
 	}
 
 	pies, err := wrpr.storage.GetFilterableMakerPies(c, request.Year, limit, pageZeroIdx, storage.PieFilters{
-		Categories: unescapedCatFilters,
+		CategorySlugs: unescapedCatFilters,
 	})
 	if err != nil {
 		return nil, err
@@ -98,8 +98,8 @@ func (wrpr *WebsiteWrapper) YearAllPies(c context.Context, request generated.Yea
 	for i, pie := range *pies {
 
 		pieCategoryLinks := []templater.Link{}
-		for _, ct := range pie.Labels {
-			pieCategoryLinks = append(pieCategoryLinks, templater.Link{URL: fmt.Sprintf("/years/%d/categories/%s", pie.Year, url.QueryEscape(ct)), Label: ct})
+		for _, ct := range pie.Categories {
+			pieCategoryLinks = append(pieCategoryLinks, templater.Link{URL: fmt.Sprintf("/years/%d/categories/%s", pie.Year, ct.Slug), Label: ct.Label})
 		}
 		pieCards = append(pieCards, templater.PieCardData{
 			Pie:            pie,
@@ -180,8 +180,8 @@ func (wrpr *WebsiteWrapper) YearBrandPies(c context.Context, request generated.Y
 	}
 
 	pies, err := wrpr.storage.GetFilterableMakerPies(c, request.Year, limit, pageZeroIdx, storage.PieFilters{
-		BrandIds:   []string{request.Brand},
-		Categories: unescapedCatFilters,
+		BrandIds:      []string{request.Brand},
+		CategorySlugs: unescapedCatFilters,
 	})
 	if err != nil {
 		return nil, err
@@ -192,8 +192,8 @@ func (wrpr *WebsiteWrapper) YearBrandPies(c context.Context, request generated.Y
 	for i, pie := range *pies {
 
 		pieCategoryLinks := []templater.Link{}
-		for _, ct := range pie.Labels {
-			pieCategoryLinks = append(pieCategoryLinks, templater.Link{URL: fmt.Sprintf("/years/%d/categories/%s", pie.Year, url.QueryEscape(ct)), Label: ct})
+		for _, ct := range pie.Categories {
+			pieCategoryLinks = append(pieCategoryLinks, templater.Link{URL: fmt.Sprintf("/years/%d/categories/%s", pie.Year, ct.Slug), Label: ct.Label})
 		}
 		pieCards = append(pieCards, templater.PieCardData{
 			Pie:            pie,
@@ -272,7 +272,7 @@ func (wrpr *WebsiteWrapper) YearCategoryPies(c context.Context, request generate
 
 	unescapedCatFilters = append(unescapedCatFilters, cat)
 	pies, err := wrpr.storage.GetFilterableMakerPies(c, request.Year, limit, pageZeroIdx, storage.PieFilters{
-		Categories: unescapedCatFilters,
+		CategorySlugs: unescapedCatFilters,
 	})
 	if err != nil {
 		return nil, err
@@ -283,8 +283,8 @@ func (wrpr *WebsiteWrapper) YearCategoryPies(c context.Context, request generate
 	for i, pie := range *pies {
 
 		pieCategoryLinks := []templater.Link{}
-		for _, ct := range pie.Labels {
-			pieCategoryLinks = append(pieCategoryLinks, templater.Link{URL: fmt.Sprintf("/years/%d/categories/%s", pie.Year, url.QueryEscape(ct)), Label: ct})
+		for _, ct := range pie.Categories {
+			pieCategoryLinks = append(pieCategoryLinks, templater.Link{URL: fmt.Sprintf("/years/%d/categories/%s", pie.Year, ct.Slug), Label: ct.Label})
 		}
 		pieCards = append(pieCards, templater.PieCardData{
 			Pie:            pie,

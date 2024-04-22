@@ -4,7 +4,9 @@ import (
 	"context"
 	"strings"
 
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
+	"github.com/leemartin77/mincepierank.co.uk/internal/storage/types"
 	"github.com/rs/zerolog/log"
 )
 
@@ -13,13 +15,13 @@ type MakerPieYearlyWithRankings struct {
 	MakerId string `json:"makerid"`
 	Id      string `json:"id"`
 
-	DisplayName      string   `json:"displayname"`
-	Fresh            bool     `json:"fresh"`
-	Labels           []string `json:"labels"`
-	ImageFile        string   `json:"image_file"`
-	WebLink          string   `json:"web_link"`
-	PackCount        int32    `json:"pack_count"`
-	PackPriceInPence int32    `json:"pack_price_in_pence" `
+	DisplayName      string           `json:"displayname"`
+	Fresh            bool             `json:"fresh"`
+	Categories       types.Categories `json:"categories"`
+	ImageFile        string           `json:"image_file"`
+	WebLink          string           `json:"web_link"`
+	PackCount        int32            `json:"pack_count"`
+	PackPriceInPence int32            `json:"pack_price_in_pence" `
 
 	Pastry  float64 `json:"pastry"`
 	Filling float64 `json:"filling"`
@@ -75,7 +77,7 @@ func (o *OperationWrapper) GetFilterableMakerPies(c context.Context, year int64,
 		mpy.id,
 		mpy.displayname,
 		mpy.fresh,
-		mpy.labels,
+		cts.categories,
 		mpy.image_file,
 		mpy.web_link,
 		mpy.pack_count,
@@ -92,14 +94,16 @@ func (o *OperationWrapper) GetFilterableMakerPies(c context.Context, year int64,
 	  	tp.year = mpy.year AND
 	  	tp.makerid = mpy.makerid AND
 	    tp.pieid = mpy.id
+		INNER JOIN maker_pie_yearly_categories cts ON
+		cts.oid = mpy.oid
 		WHERE mpy.year = $1
 		AND ($4 = '' OR mpy.makerid=ANY(string_to_array($4, ',')))
-		AND ($5 = '' OR mpy.labels @> string_to_array($5, ','))
+		AND ($5 = '' OR cts.category_slugs @> string_to_array($5, ','))
 		ORDER BY tp.avg DESC NULLS LAST
 		LIMIT $2
 		OFFSET $3
 	`
-	rows, err := o.db.Query(c, sql, year, pageSize, zeroIdxPage*pageSize, strings.Join(filters.BrandIds, ","), strings.Join(filters.Categories, ","))
+	rows, err := o.db.Query(c, sql, year, pageSize, zeroIdxPage*pageSize, strings.Join(filters.BrandIds, ","), strings.Join(filters.CategorySlugs, ","))
 	if err == pgx.ErrNoRows {
 		return &r, nil
 	}
@@ -117,7 +121,7 @@ func (o *OperationWrapper) GetFilterableMakerPies(c context.Context, year int64,
 			&sigl.Id,
 			&sigl.DisplayName,
 			&sigl.Fresh,
-			&sigl.Labels,
+			&sigl.Categories,
 			&sigl.ImageFile,
 			&sigl.WebLink,
 			&sigl.PackCount,
@@ -180,7 +184,7 @@ func (o *OperationWrapper) GetTopMakerPie(c context.Context, activeYear int64) (
 		mpy.id,
 		mpy.displayname,
 		mpy.fresh,
-		mpy.labels,
+		cts.categories,
 		mpy.image_file,
 		mpy.web_link,
 		mpy.pack_count,
@@ -197,6 +201,8 @@ func (o *OperationWrapper) GetTopMakerPie(c context.Context, activeYear int64) (
 	  	tp.year = mpy.year AND
 	  	tp.makerid = mpy.makerid AND
 	    tp.pieid = mpy.id
+		INNER JOIN maker_pie_yearly_categories cts ON
+		cts.oid = mpy.oid
 	`
 	res := o.db.QueryRow(c, sql, activeYear)
 	err := res.Scan(
@@ -205,7 +211,7 @@ func (o *OperationWrapper) GetTopMakerPie(c context.Context, activeYear int64) (
 		&r.Id,
 		&r.DisplayName,
 		&r.Fresh,
-		&r.Labels,
+		&r.Categories,
 		&r.ImageFile,
 		&r.WebLink,
 		&r.PackCount,
@@ -228,13 +234,17 @@ func (o *OperationWrapper) GetTopMakerPie(c context.Context, activeYear int64) (
 	return &r, nil
 }
 
-func (o *OperationWrapper) GetMakerPieCategoriesForYear(c context.Context, year int64) (*[]string, error) {
+func (o *OperationWrapper) GetMakerPieCategoriesForYear(c context.Context, year int64) (*[]types.Category, error) {
 
-	r := []string{}
+	r := []types.Category{}
 	sql := `
-	SELECT distinct unnest(labels)
-	FROM maker_pie_yearly
-	where year = $1
+	SELECT distinct c.id, c.slug, c.label
+	FROM categories c
+	inner join maker_pie_categories mpc on
+		mpc.category_id = c.id
+	inner join maker_pie_yearly mpy on
+		mpc.maker_pie_oid = mpy.oid and
+		mpy.year = $1
 	`
 	rows, err := o.db.Query(c, sql, year)
 	if err == pgx.ErrNoRows {
@@ -246,8 +256,40 @@ func (o *OperationWrapper) GetMakerPieCategoriesForYear(c context.Context, year 
 	defer rows.Close()
 
 	for rows.Next() {
-		var ctg string
-		if err := rows.Scan(&ctg); err != nil {
+		var ctg types.Category
+		if err := rows.Scan(&ctg.Id, &ctg.Slug, &ctg.Label); err != nil {
+			log.Error().Err(err).Msg("Scan failed in get categories for year")
+			continue
+		}
+		r = append(r, ctg)
+	}
+
+	if err := rows.Err(); err != nil {
+		log.Error().Err(err).Msg("Error during categories for year iteration")
+	}
+	return &r, nil
+}
+func (o *OperationWrapper) GetMakerPieCategoriesForMakerPieOid(ctx context.Context, oid uuid.UUID) (*[]types.Category, error) {
+	r := []types.Category{}
+	sql := `
+	SELECT c.id, c.slug, c.label
+	FROM categories c
+	inner join maker_pie_categories mpc on
+		mpc.category_id = c.id
+	WHERE
+		mpc.maker_pie_oid = $1
+	`
+	rows, err := o.db.Query(ctx, sql, oid)
+	if err == pgx.ErrNoRows {
+		return &r, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var ctg types.Category
+		if err := rows.Scan(&ctg.Id, &ctg.Slug, &ctg.Label); err != nil {
 			log.Error().Err(err).Msg("Scan failed in get categories for year")
 			continue
 		}

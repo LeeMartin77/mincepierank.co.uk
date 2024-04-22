@@ -3,7 +3,6 @@ package website
 import (
 	"context"
 	"fmt"
-	"net/url"
 
 	"github.com/leemartin77/mincepierank.co.uk/internal/templater"
 	generated "github.com/leemartin77/mincepierank.co.uk/internal/website/generated"
@@ -31,11 +30,11 @@ func (wrpr *WebsiteWrapper) YearPage(c context.Context, request generated.YearPa
 	}
 	categoryLinks := []templater.Link{}
 	for _, ct := range *cats {
-		categoryLinks = append(categoryLinks, templater.Link{URL: fmt.Sprintf("/years/%d/categories/%s", request.Year, url.QueryEscape(ct)), Label: ct})
+		categoryLinks = append(categoryLinks, templater.Link{URL: fmt.Sprintf("/years/%d/categories/%s", request.Year, ct.Slug), Label: ct.Label})
 	}
 	pieCategoryLinks := []templater.Link{}
-	for _, ct := range *&topPie.Labels {
-		pieCategoryLinks = append(pieCategoryLinks, templater.Link{URL: fmt.Sprintf("/years/%d/categories/%s", request.Year, url.QueryEscape(ct)), Label: ct})
+	for _, ct := range *&topPie.Categories {
+		pieCategoryLinks = append(pieCategoryLinks, templater.Link{URL: fmt.Sprintf("/years/%d/categories/%s", request.Year, ct.Slug), Label: ct.Label})
 	}
 	mrks := []templater.MakerCardData{}
 	for _, mkr := range *makers {
@@ -137,7 +136,7 @@ func (wrpr *WebsiteWrapper) YearAllCategories(c context.Context, request generat
 	}
 	categoryLinks := []templater.Link{}
 	for _, ct := range *cats {
-		categoryLinks = append(categoryLinks, templater.Link{URL: fmt.Sprintf("/years/%d/categories/%s", request.Year, url.QueryEscape(ct)), Label: ct})
+		categoryLinks = append(categoryLinks, templater.Link{URL: fmt.Sprintf("/years/%d/categories/%s", request.Year, ct.Slug), Label: ct.Label})
 	}
 	vals := templater.PageData{
 		Head: templater.PageDataHead{

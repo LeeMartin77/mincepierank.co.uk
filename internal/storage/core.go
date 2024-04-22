@@ -3,6 +3,7 @@ package storage
 import (
 	"context"
 
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/leemartin77/mincepierank.co.uk/internal/storage/generated"
@@ -10,8 +11,8 @@ import (
 )
 
 type PieFilters struct {
-	BrandIds   []string
-	Categories []string
+	BrandIds      []string
+	CategorySlugs []string
 }
 
 type Operations interface {
@@ -26,10 +27,11 @@ type Operations interface {
 	GetFilterableMakerPies(c context.Context, year int64, pageSize int64, zeroIdxPage int64, filters PieFilters) (*[]MakerPieYearlyWithRankings, error)
 
 	GetMakersForYear(c context.Context, activeYear int64) (*[]types.Maker, error)
-	GetMakerPieCategoriesForYear(c context.Context, year int64) (*[]string, error)
+	GetMakerPieCategoriesForYear(c context.Context, year int64) (*[]types.Category, error)
 
 	GetMaker(ctx context.Context, Id string) (*types.Maker, error)
 	GetMakerPieYearly(ctx context.Context, year int32, makerid string, id string) (*types.MakerPieYearly, error)
+	GetMakerPieCategoriesForMakerPieOid(ctx context.Context, oid uuid.UUID) (*[]types.Category, error)
 	GetMakerPieYearlyRankingSummary(c context.Context, year int32, makerid string, id string) (*RankingSummary, error)
 }
 

@@ -16,13 +16,13 @@ func MakerPieYearlyCreate(ctx context.Context, pg *pgxpool.Pool, c types.MakerPi
 		c.Id,
 		c.DisplayName,
 		c.Fresh,
-		c.Labels,
 		c.ImageFile,
 		c.WebLink,
 		c.PackCount,
 		c.PackPriceInPence,
+		c.OId,
 	}
-	sql := "INSERT INTO maker_pie_yearly (year,makerid,id,displayname,fresh,labels,image_file,web_link,pack_count,pack_price_in_pence) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) ON CONFLICT DO NOTHING"
+	sql := "INSERT INTO maker_pie_yearly (year,makerid,id,displayname,fresh,image_file,web_link,pack_count,pack_price_in_pence,oid) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) ON CONFLICT DO NOTHING"
 	_, err := pg.Exec(ctx, sql, args...)
 	if err != nil {
 		return nil, err
@@ -38,12 +38,12 @@ func MakerPieYearlyUpdate(ctx context.Context, pg *pgxpool.Pool, u types.MakerPi
 	parameters = append(parameters, u.Id)
 	parameters = append(parameters, u.DisplayName)
 	parameters = append(parameters, u.Fresh)
-	parameters = append(parameters, u.Labels)
 	parameters = append(parameters, u.ImageFile)
 	parameters = append(parameters, u.WebLink)
 	parameters = append(parameters, u.PackCount)
 	parameters = append(parameters, u.PackPriceInPence)
-	sql := "UPDATE maker_pie_yearly SET displayname=$4,fresh=$5,labels=$6,image_file=$7,web_link=$8,pack_count=$9,pack_price_in_pence=$10 WHERE year=$1 AND makerid=$2 AND id=$3"
+	parameters = append(parameters, u.OId)
+	sql := "UPDATE maker_pie_yearly SET displayname=$4,fresh=$5,image_file=$6,web_link=$7,pack_count=$8,pack_price_in_pence=$9,oid=$10 WHERE year=$1 AND makerid=$2 AND id=$3"
 	_, err := pg.Exec(ctx, sql, parameters...)
 	if err != nil {
 		return nil, err
@@ -58,9 +58,9 @@ func MakerPieYearlyRead(ctx context.Context, pg *pgxpool.Pool, Year int32, Maker
 	identifiers = append(identifiers, Year)
 	identifiers = append(identifiers, MakerId)
 	identifiers = append(identifiers, Id)
-	sql := "SELECT year, makerid, id, displayname, fresh, labels, image_file, web_link, pack_count, pack_price_in_pence FROM maker_pie_yearly  WHERE year = $1 AND makerid = $2 AND id = $3"
+	sql := "SELECT year, makerid, id, displayname, fresh, image_file, web_link, pack_count, pack_price_in_pence, oid FROM maker_pie_yearly  WHERE year = $1 AND makerid = $2 AND id = $3"
 	res := pg.QueryRow(ctx, sql, identifiers...)
-	err := res.Scan(&r.Year, &r.MakerId, &r.Id, &r.DisplayName, &r.Fresh, &r.Labels, &r.ImageFile, &r.WebLink, &r.PackCount, &r.PackPriceInPence)
+	err := res.Scan(&r.Year, &r.MakerId, &r.Id, &r.DisplayName, &r.Fresh, &r.ImageFile, &r.WebLink, &r.PackCount, &r.PackPriceInPence, &r.OId)
 	if err == pgx.ErrNoRows {
 		return nil, nil
 	}

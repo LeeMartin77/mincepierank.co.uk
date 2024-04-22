@@ -3,7 +3,6 @@ package website
 import (
 	"context"
 	"fmt"
-	"net/url"
 
 	"github.com/leemartin77/mincepierank.co.uk/internal/templater"
 	generated "github.com/leemartin77/mincepierank.co.uk/internal/website/generated"
@@ -43,9 +42,14 @@ func (wrpr *WebsiteWrapper) YearBrandPie(ctx context.Context, request generated.
 		return returnPiePageUnexpectedError(err)
 	}
 
+	cats, err := wrpr.storage.GetMakerPieCategoriesForMakerPieOid(ctx, pie.OId)
+	if err != nil {
+		return returnPiePageUnexpectedError(err)
+	}
+
 	pieCategoryLinks := []templater.Link{}
-	for _, ct := range pie.Labels {
-		pieCategoryLinks = append(pieCategoryLinks, templater.Link{URL: fmt.Sprintf("/years/%d/categories/%s", pie.Year, url.QueryEscape(ct)), Label: ct})
+	for _, ct := range *cats {
+		pieCategoryLinks = append(pieCategoryLinks, templater.Link{URL: fmt.Sprintf("/years/%d/categories/%s", pie.Year, ct.Slug), Label: ct.Label})
 	}
 
 	vals := templater.PageData{

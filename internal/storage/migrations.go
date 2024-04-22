@@ -132,6 +132,17 @@ var migrations []string = []string{
 	FROM maker_pie_yearly mpy
 	inner join clean_categories cc on cc.oid = mpy.oid
 	inner join categories c on c.slug=cc.slug`,
+	`
+	CREATE VIEW maker_pie_yearly_categories AS
+		  SELECT
+		    mpy.oid as oid,
+		    jsonb_agg(jsonb_build_object('id', c.id, 'slug', c.slug, 'label', c.label)) as categories,
+			ARRAY_AGG(c.slug) as category_slugs
+		  from maker_pie_yearly mpy
+		  inner join maker_pie_categories mpc on mpc.maker_pie_oid = mpy.oid
+		  inner join categories c on mpc.category_id = c.id
+		  group by mpy.oid;
+	`,
 }
 
 var migrationLogTable string = `
