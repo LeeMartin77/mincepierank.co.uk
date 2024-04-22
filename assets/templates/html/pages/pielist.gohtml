@@ -6,13 +6,24 @@
 
 {{template "fragment:components:filterlinks" .PageData.FilterLinks}}
 
-<div class="pie-list">
+<div class="pie-list" id="pie-list">
     {{ range .PageData.PieCards }}
         <div class="pie-link-card-container">
             {{template "fragment:components:pielinkcard" .}}
         </div>
     {{ end }}
+
+    {{ if .PageData.ShouldLoadNextPage }}
+        <button class="nice-button" style="width: 100%; text-align: center;"
+        hx-trigger="click"
+        hx-get="{{.PageData.URL}}?page={{.PageData.NextPage}}&{{.PageData.Query}}"
+        hx-swap="outerHTML"
+        hx-select="#pie-list > div, #pie-list > button">
+        Load More
+        </button>
+    {{ end}}
 </div>
+
 
 {{template "fragment:global:foot" .Foot}}
 {{end}}

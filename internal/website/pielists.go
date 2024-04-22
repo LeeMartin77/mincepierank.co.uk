@@ -11,14 +11,14 @@ import (
 	generated "github.com/leemartin77/mincepierank.co.uk/internal/website/generated"
 )
 
-func getFilterLinks(wrpr *WebsiteWrapper, c context.Context, year int64, activeFilters []string, rootPath string, omitSlug *string, brandSlug *string) (*templater.FilterLinks, error) {
+func getFilterLinks(wrpr *WebsiteWrapper, c context.Context, year int64, activeFilters []string, rootPath string, omitSlug *string, brandSlug *string) (*templater.FilterLinks, *url.Values, error) {
 	reqslgs := activeFilters
 	if omitSlug != nil {
 		reqslgs = append(reqslgs, *omitSlug)
 	}
 	cats, err := wrpr.storage.GetMakerPieCategoriesForYear(c, year, reqslgs, brandSlug)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	flinks := templater.FilterLinks{
 		ActiveFilters:    []templater.Link{},
@@ -26,7 +26,7 @@ func getFilterLinks(wrpr *WebsiteWrapper, c context.Context, year int64, activeF
 	}
 	rootUrl, err := url.Parse(rootPath)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	activeQueries := rootUrl.Query()
 	for _, ct := range activeFilters {
@@ -56,7 +56,7 @@ func getFilterLinks(wrpr *WebsiteWrapper, c context.Context, year int64, activeF
 			flinks.AvailableFilters = append(flinks.AvailableFilters, templater.Link{URL: rootUrl.String() + "?" + qry.Encode(), Label: ct.Label})
 		}
 	}
-	return &flinks, err
+	return &flinks, &activeQueries, err
 }
 
 // YearAllPies implements generated.StrictServerInterface.
@@ -76,25 +76,17 @@ func (wrpr *WebsiteWrapper) YearAllPies(c context.Context, request generated.Yea
 	}
 
 	catFilters := []string{}
-	unescapedCatFilters := []string{}
 	if request.Params.Categories != nil {
 		catFilters = *request.Params.Categories
-		for _, cf := range catFilters {
-			ue, err := url.QueryUnescape(cf)
-			if err != nil {
-				continue
-			}
-			unescapedCatFilters = append(unescapedCatFilters, ue)
-		}
 	}
 
-	flinks, err := getFilterLinks(wrpr, c, request.Year, catFilters, fmt.Sprintf("/years/%d/all-pies", request.Year), nil, nil)
+	flinks, activequery, err := getFilterLinks(wrpr, c, request.Year, catFilters, fmt.Sprintf("/years/%d/all-pies", request.Year), nil, nil)
 	if err != nil {
 		return nil, err
 	}
 
 	pies, err := wrpr.storage.GetFilterableMakerPies(c, request.Year, limit, pageZeroIdx, storage.PieFilters{
-		CategorySlugs: unescapedCatFilters,
+		CategorySlugs: catFilters,
 	})
 	if err != nil {
 		return nil, err
@@ -128,10 +120,14 @@ func (wrpr *WebsiteWrapper) YearAllPies(c context.Context, request generated.Yea
 			},
 		},
 		PageData: map[string]interface{}{
-			"Heading":     fmt.Sprintf("All pies for %d", request.Year),
-			"Breadcrumb":  templater.BreadcrumbsFromUrl(fmt.Sprintf("/years/%d/all-pies", request.Year)),
-			"PieCards":    pieCards,
-			"FilterLinks": *flinks,
+			"Heading":            fmt.Sprintf("All pies for %d", request.Year),
+			"Breadcrumb":         templater.BreadcrumbsFromUrl(fmt.Sprintf("/years/%d/all-pies", request.Year)),
+			"PieCards":           pieCards,
+			"FilterLinks":        *flinks,
+			"NextPage":           pageZeroIdx + 2,
+			"ShouldLoadNextPage": len(pieCards) == int(limit),
+			"URL":                fmt.Sprintf("/years/%d/all-pies", request.Year),
+			"Query":              activequery.Encode(),
 		},
 	}
 
@@ -181,7 +177,7 @@ func (wrpr *WebsiteWrapper) YearBrandPies(c context.Context, request generated.Y
 		}
 	}
 
-	flinks, err := getFilterLinks(wrpr, c, request.Year, catFilters, fmt.Sprintf("/years/%d/brands/%s", request.Year, request.Brand), nil, &request.Brand)
+	flinks, activequery, err := getFilterLinks(wrpr, c, request.Year, catFilters, fmt.Sprintf("/years/%d/brands/%s", request.Year, request.Brand), nil, &request.Brand)
 	if err != nil {
 		return nil, err
 	}
@@ -222,10 +218,14 @@ func (wrpr *WebsiteWrapper) YearBrandPies(c context.Context, request generated.Y
 			},
 		},
 		PageData: map[string]interface{}{
-			"Heading":     fmt.Sprintf("%s pies for %d", maker.Name, request.Year),
-			"Breadcrumb":  templater.BreadcrumbsFromUrl(fmt.Sprintf("/years/%d/brands/%s", request.Year, request.Brand)),
-			"PieCards":    pieCards,
-			"FilterLinks": *flinks,
+			"Heading":            fmt.Sprintf("%s pies for %d", maker.Name, request.Year),
+			"Breadcrumb":         templater.BreadcrumbsFromUrl(fmt.Sprintf("/years/%d/brands/%s", request.Year, request.Brand)),
+			"PieCards":           pieCards,
+			"FilterLinks":        *flinks,
+			"NextPage":           pageZeroIdx + 2,
+			"ShouldLoadNextPage": len(pieCards) == int(limit),
+			"URL":                fmt.Sprintf("/years/%d/brands/%s", request.Year, request.Brand),
+			"Query":              activequery.Encode(),
 		},
 	}
 
@@ -264,7 +264,7 @@ func (wrpr *WebsiteWrapper) YearCategoryPies(c context.Context, request generate
 		catFilters = *request.Params.Categories
 	}
 
-	flinks, err := getFilterLinks(wrpr, c, request.Year, catFilters, fmt.Sprintf("/years/%d/categories/%s", request.Year, url.QueryEscape(request.Category)), &cat, nil)
+	flinks, activequery, err := getFilterLinks(wrpr, c, request.Year, catFilters, fmt.Sprintf("/years/%d/categories/%s", request.Year, url.QueryEscape(request.Category)), &cat, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -305,10 +305,14 @@ func (wrpr *WebsiteWrapper) YearCategoryPies(c context.Context, request generate
 			},
 		},
 		PageData: map[string]interface{}{
-			"Heading":     fmt.Sprintf("%s pies for %d", cat, request.Year),
-			"Breadcrumb":  templater.BreadcrumbsFromUrl(fmt.Sprintf("/years/%d/categories/%s", request.Year, request.Category)),
-			"PieCards":    pieCards,
-			"FilterLinks": *flinks,
+			"Heading":            fmt.Sprintf("%s pies for %d", cat, request.Year),
+			"Breadcrumb":         templater.BreadcrumbsFromUrl(fmt.Sprintf("/years/%d/categories/%s", request.Year, request.Category)),
+			"PieCards":           pieCards,
+			"FilterLinks":        *flinks,
+			"NextPage":           pageZeroIdx + 2,
+			"ShouldLoadNextPage": len(pieCards) == int(limit),
+			"URL":                fmt.Sprintf("/years/%d/categories/%s", request.Year, request.Category),
+			"Query":              activequery.Encode(),
 		},
 	}
 

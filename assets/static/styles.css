@@ -345,6 +345,18 @@ button.menu-button {
     border: none;
 }
 
+button.nice-button {
+    padding: 1em;
+    text-decoration: none;
+    font-weight: bold;
+    color: #111;
+    background-color: rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    border: none;
+    cursor: pointer;
+}
+
 .mini-category-link {
     display: block;
     box-shadow: 0 0 0.2em #0003;
