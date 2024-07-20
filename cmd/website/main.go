@@ -1,16 +1,22 @@
 package main
 
 import (
+	"context"
 	"errors"
-	"os"
 
 	"github.com/leemartin77/mincepierank.co.uk/internal/website"
 	"github.com/rs/zerolog/log"
+	"github.com/sethvargo/go-envconfig"
 )
 
 func main() {
 
-	site, err := website.NewWebsite(os.Stdout)
+	var config website.WebsiteConfiguration
+	if err := envconfig.Process(context.Background(), &config); err != nil {
+		log.Fatal().Err(err).Msg("An error was encountered parsing environment variables")
+	}
+
+	site, err := website.NewWebsite(config)
 
 	if err != nil {
 		log.Fatal().Err(err).Msg("api failed to initialise")

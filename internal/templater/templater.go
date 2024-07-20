@@ -23,7 +23,7 @@ type PageDataHead struct {
 
 type MenuSettings struct {
 	ActiveYear int64
-	LoggedIn   bool
+	SignedIn   bool
 }
 
 type Link struct {

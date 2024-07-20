@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/gin-gonic/gin"
 	"github.com/leemartin77/mincepierank.co.uk/internal/templater"
 	generated "github.com/leemartin77/mincepierank.co.uk/internal/website/generated"
 )
@@ -51,6 +52,7 @@ func (wrpr *WebsiteWrapper) YearPage(c context.Context, request generated.YearPa
 			Keywords:    fmt.Sprintf("Mince Pies, UK, Ranking, %d", request.Year),
 			MenuSettings: templater.MenuSettings{
 				ActiveYear: *ay,
+				SignedIn:   c.(*gin.Context).Keys["signedin"].(bool),
 			},
 		},
 		PageData: map[string]interface{}{
@@ -105,6 +107,7 @@ func (wrpr *WebsiteWrapper) YearAllBrands(c context.Context, request generated.Y
 			Keywords:    fmt.Sprintf("Mince Pies, UK, Ranking, %d", request.Year),
 			MenuSettings: templater.MenuSettings{
 				ActiveYear: *ay,
+				SignedIn:   c.(*gin.Context).Keys["signedin"].(bool),
 			},
 		},
 		PageData: map[string]interface{}{
@@ -145,6 +148,7 @@ func (wrpr *WebsiteWrapper) YearAllCategories(c context.Context, request generat
 			Keywords:    fmt.Sprintf("Mince Pies, UK, Ranking, %d", request.Year),
 			MenuSettings: templater.MenuSettings{
 				ActiveYear: *ay,
+				SignedIn:   c.(*gin.Context).Keys["signedin"].(bool),
 			},
 		},
 		PageData: map[string]interface{}{
@@ -176,6 +180,7 @@ func (wrpr *WebsiteWrapper) YearsPage(c context.Context, request generated.Years
 			Keywords:    "Mince Pies, UK, Ranking",
 			MenuSettings: templater.MenuSettings{
 				ActiveYear: *ay,
+				SignedIn:   c.(*gin.Context).Keys["signedin"].(bool),
 			},
 		},
 		PageData: map[string]interface{}{

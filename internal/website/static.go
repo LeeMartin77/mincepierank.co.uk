@@ -3,6 +3,7 @@ package website
 import (
 	"context"
 
+	"github.com/gin-gonic/gin"
 	"github.com/leemartin77/mincepierank.co.uk/internal/templater"
 	generated "github.com/leemartin77/mincepierank.co.uk/internal/website/generated"
 )
@@ -20,6 +21,7 @@ func (wrpr *WebsiteWrapper) AboutPage(c context.Context, request generated.About
 			Description: "All about what Mince Pie Rank is",
 			MenuSettings: templater.MenuSettings{
 				ActiveYear: *ay,
+				SignedIn:   c.(*gin.Context).Keys["signedin"].(bool),
 			},
 		},
 	}
@@ -46,6 +48,7 @@ func (wrpr *WebsiteWrapper) CookiePage(c context.Context, request generated.Cook
 			Description: "Mince Pie Rank cookie policy",
 			MenuSettings: templater.MenuSettings{
 				ActiveYear: *ay,
+				SignedIn:   c.(*gin.Context).Keys["signedin"].(bool),
 			},
 		},
 	}
@@ -72,6 +75,7 @@ func (wrpr *WebsiteWrapper) PrivacyPage(c context.Context, request generated.Pri
 			Description: "Mince Pie Rank's privacy policy",
 			MenuSettings: templater.MenuSettings{
 				ActiveYear: *ay,
+				SignedIn:   c.(*gin.Context).Keys["signedin"].(bool),
 			},
 		},
 	}

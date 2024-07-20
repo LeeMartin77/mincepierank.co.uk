@@ -22,15 +22,15 @@
       <a href="/years/{{.ActiveYear}}/categories" hx-on:click="toggleMenu()">Categories</a>
 
       <!-- <a href="/profile/rankings/{{.ActiveYear}}">My Rankings</a> -->
-      {{ if .LoggedIn }}
-        <a href="/profile/pies/{{.ActiveYear}}">My Custom Pies</a>
+      {{ if .SignedIn }}
+        <!--<a href="/profile/pies/{{.ActiveYear}}">My Custom Pies</a>-->
       {{ end }}
     </div>
     <div class="menu-footer">
-      {{ if .LoggedIn }}
-        <!--<a href="/profile">Welcome back!</a>-->
+      {{ if .SignedIn }}
+        <a hx-boost="false" href="/auth/signout">Log Out</a>
       {{ else }}
-        <!--<a href="/login">Sign In</a>-->
+        <a hx-boost="false" href="/auth/signin">Sign In</a>
       {{ end }}
         <button hx-on:click="toggleMenu()" >Close Menu</button>
     </div>

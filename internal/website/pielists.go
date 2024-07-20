@@ -6,6 +6,7 @@ import (
 	"net/url"
 	"slices"
 
+	"github.com/gin-gonic/gin"
 	"github.com/leemartin77/mincepierank.co.uk/internal/storage"
 	"github.com/leemartin77/mincepierank.co.uk/internal/templater"
 	generated "github.com/leemartin77/mincepierank.co.uk/internal/website/generated"
@@ -117,6 +118,7 @@ func (wrpr *WebsiteWrapper) YearAllPies(c context.Context, request generated.Yea
 			Keywords:    fmt.Sprintf("Mince pies, UK, ranking, %d", request.Year),
 			MenuSettings: templater.MenuSettings{
 				ActiveYear: *ay,
+				SignedIn:   c.(*gin.Context).Keys["signedin"].(bool),
 			},
 		},
 		PageData: map[string]interface{}{
@@ -215,6 +217,7 @@ func (wrpr *WebsiteWrapper) YearBrandPies(c context.Context, request generated.Y
 			Keywords:    fmt.Sprintf("Mince pies, UK, ranking, %d", request.Year),
 			MenuSettings: templater.MenuSettings{
 				ActiveYear: *ay,
+				SignedIn:   c.(*gin.Context).Keys["signedin"].(bool),
 			},
 		},
 		PageData: map[string]interface{}{
@@ -302,6 +305,7 @@ func (wrpr *WebsiteWrapper) YearCategoryPies(c context.Context, request generate
 			Keywords:    fmt.Sprintf("Mince pies, UK, ranking, %d", request.Year),
 			MenuSettings: templater.MenuSettings{
 				ActiveYear: *ay,
+				SignedIn:   c.(*gin.Context).Keys["signedin"].(bool),
 			},
 		},
 		PageData: map[string]interface{}{

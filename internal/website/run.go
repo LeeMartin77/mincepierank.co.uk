@@ -73,6 +73,20 @@ func (api Website) Run() error {
 		handleFavicon(c.Writer, c.Request)
 	})
 
+	r.Use(api.auth.UserIdMiddleware())
+
+	r.GET("/auth/signin", func(c *gin.Context) {
+		api.auth.HandleSignin(c, c.Writer, c.Request)
+	})
+
+	r.GET("/auth/signout", func(c *gin.Context) {
+		api.auth.HandleSignout(c)
+	})
+
+	r.GET("/auth/callback", func(c *gin.Context) {
+		api.auth.HandleOAuth2Callback(c)
+	})
+
 	foodHandler := generated.NewStrictHandler(api.serverInterface, nil)
 	generated.RegisterHandlers(r, foodHandler)
 

@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   website:
@@ -17,11 +17,23 @@ services:
             - .git
     environment:
       - DATABASE_URL=postgres://postgres:mysecretpassword@postgres:5432/postgres
+      - REDIS_URL=redis://redis:6379
+      - MINCEPIERANK_DOMAIN=localhost
+      - MINCEPIERANK_SECURE_DOMAIN=false
+      - AUTH_CLIENT_ID=${AUTH_CLIENT_ID}
+      - AUTH_CLIENT_SECRET=${AUTH_CLIENT_SECRET}
+      - AUTH_REDIRECT_URL=${AUTH_REDIRECT_URL}
+      - AUTH_PROVIDER_URL=${AUTH_PROVIDER_URL}
+      - JWT_SIGNING_KEY=all-your-base-belong
     ports:
-      - '8080:8080'
+      - "8080:8080"
   postgres:
     image: postgres:13.13
     ports:
-      - '5432:5432'
+      - "5432:5432"
     environment:
       - POSTGRES_PASSWORD=mysecretpassword
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"

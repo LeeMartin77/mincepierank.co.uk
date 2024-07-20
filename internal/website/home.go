@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/gin-gonic/gin"
 	"github.com/leemartin77/mincepierank.co.uk/internal/templater"
 	generated "github.com/leemartin77/mincepierank.co.uk/internal/website/generated"
 )
@@ -55,6 +56,7 @@ func (wrpr *WebsiteWrapper) HomePage(c context.Context, req generated.HomePageRe
 			Keywords:    "Mince Pies, UK, Ranking",
 			MenuSettings: templater.MenuSettings{
 				ActiveYear: *ay,
+				SignedIn:   c.(*gin.Context).Keys["signedin"].(bool),
 			},
 		},
 		PageData: map[string]interface{}{
