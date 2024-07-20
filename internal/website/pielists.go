@@ -142,6 +142,87 @@ func (wrpr *WebsiteWrapper) YearAllPies(c context.Context, request generated.Yea
 	}, nil
 }
 
+func (wrpr *WebsiteWrapper) YearPersonalRanking(c context.Context, request generated.YearPersonalRankingRequestObject) (generated.YearPersonalRankingResponseObject, error) {
+	ay, err := wrpr.storage.GetActiveYear(c)
+	if err != nil {
+		return nil, err
+	}
+
+	limit := int64(20)
+	pageZeroIdx := int64(0)
+	if request.Params.Limit != nil && *request.Params.Limit > 0 && *request.Params.Limit < 101 {
+		limit = *request.Params.Limit
+	}
+	if request.Params.Page != nil && *request.Params.Page > 0 {
+		pageZeroIdx = *request.Params.Page - 1
+	}
+
+	catFilters := []string{}
+	if request.Params.Categories != nil {
+		catFilters = *request.Params.Categories
+	}
+
+	flinks, activequery, err := getFilterLinks(wrpr, c, request.Year, catFilters, fmt.Sprintf("/years/%d/all-pies", request.Year), nil, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	pies, err := wrpr.storage.GetFilterableMakerPiesForUser(c, request.Year, c.(*gin.Context).Keys["userid"].(string), limit, pageZeroIdx, storage.PieFilters{
+		CategorySlugs: catFilters,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	pieCards := []templater.PieCardData{}
+
+	for i, pie := range *pies {
+
+		pieCategoryLinks := []templater.Link{}
+		for _, ct := range pie.Categories {
+			pieCategoryLinks = append(pieCategoryLinks, templater.Link{URL: fmt.Sprintf("/years/%d/categories/%s", pie.Year, ct.Slug), Label: ct.Label})
+		}
+		pieCards = append(pieCards, templater.PieCardData{
+			Pie:            pie,
+			CategoryLinks:  pieCategoryLinks,
+			ImgprssrPrefix: imgprssrPrefix,
+			HasDate:        false,
+			IsGold:         i == 0 && pie.Count > 0,
+			PieLink:        fmt.Sprintf("/years/%d/brands/%s/%s", pie.Year, pie.MakerId, pie.Id),
+		})
+	}
+
+	vals := templater.PageData{
+		Head: templater.PageDataHead{
+			Title:       fmt.Sprintf("Your rankings for %d", request.Year),
+			Description: fmt.Sprintf("Your rankings for %d", request.Year),
+			Keywords:    fmt.Sprintf("Mince pies, UK, ranking, %d", request.Year),
+			MenuSettings: templater.MenuSettings{
+				ActiveYear: *ay,
+				SignedIn:   c.(*gin.Context).Keys["signedin"].(bool),
+			},
+		},
+		PageData: map[string]interface{}{
+			"Heading":            fmt.Sprintf("Your rankings for %d", request.Year),
+			"Breadcrumb":         []templater.Link{},
+			"PieCards":           pieCards,
+			"FilterLinks":        *flinks,
+			"NextPage":           pageZeroIdx + 2,
+			"ShouldLoadNextPage": len(pieCards) == int(limit),
+			"URL":                fmt.Sprintf("/profile/rankings/%d", request.Year),
+			"Query":              activequery.Encode(),
+		},
+	}
+
+	rdr, err := wrpr.htmlTemplater.GeneratePage("pielist", vals)
+	if err != nil {
+		return nil, err
+	}
+	return generated.YearPersonalRanking200TexthtmlResponse{
+		Body: rdr,
+	}, nil
+}
+
 // YearBrandPies implements generated.StrictServerInterface.
 func (wrpr *WebsiteWrapper) YearBrandPies(c context.Context, request generated.YearBrandPiesRequestObject) (generated.YearBrandPiesResponseObject, error) {
 	ay, err := wrpr.storage.GetActiveYear(c)

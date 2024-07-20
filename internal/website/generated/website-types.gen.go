@@ -27,6 +27,15 @@ type Year = int64
 // UnexpectedError defines model for UnexpectedError.
 type UnexpectedError = Error
 
+// YearPersonalRankingParams defines parameters for YearPersonalRanking.
+type YearPersonalRankingParams struct {
+	Page  *Page  `form:"page,omitempty" json:"page,omitempty"`
+	Limit *Limit `form:"limit,omitempty" json:"limit,omitempty"`
+
+	// Categories Categories to filter pies on
+	Categories *CategoriesFilter `form:"categories,omitempty" json:"categories,omitempty"`
+}
+
 // YearAllPiesParams defines parameters for YearAllPies.
 type YearAllPiesParams struct {
 	Page  *Page  `form:"page,omitempty" json:"page,omitempty"`

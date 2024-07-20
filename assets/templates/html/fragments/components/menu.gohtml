@@ -21,7 +21,7 @@
       <a href="/years/{{.ActiveYear}}/brands" hx-on:click="toggleMenu()">Brands</a>
       <a href="/years/{{.ActiveYear}}/categories" hx-on:click="toggleMenu()">Categories</a>
 
-      <!-- <a href="/profile/rankings/{{.ActiveYear}}">My Rankings</a> -->
+      <a href="/profile/rankings/{{.ActiveYear}}">My Rankings</a>
       {{ if .SignedIn }}
         <!--<a href="/profile/pies/{{.ActiveYear}}">My Custom Pies</a>-->
       {{ end }}

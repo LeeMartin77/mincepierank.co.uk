@@ -148,6 +148,98 @@ func (o *OperationWrapper) GetFilterableMakerPies(c context.Context, year int64,
 	return &r, nil
 }
 
+func (o *OperationWrapper) GetFilterableMakerPiesForUser(c context.Context, year int64, userid string, pageSize int64, zeroIdxPage int64, filters PieFilters) (*[]MakerPieYearlyWithRankings, error) {
+	r := []MakerPieYearlyWithRankings{}
+	sql := `
+	SELECT
+		mpy.year,
+		mpy.makerid,
+		mpy.id,
+		mpy.displayname,
+		mpy.fresh,
+		cts.categories,
+		mpy.image_file,
+		mpy.web_link,
+		mpy.pack_count,
+		mpy.pack_price_in_pence,
+	    tp.pastry,
+	    tp.filling,
+	    tp.topping,
+	    tp.looks,
+	    tp.value,
+		(
+	        tp.pastry +
+	       	tp.filling +
+	        tp.topping +
+	        tp.looks +
+	        tp.value
+        )/5 as avg
+		FROM maker_pie_yearly mpy
+		INNER JOIN maker_pie_ranking_yearly tp ON
+		  	tp.year = mpy.year AND
+		  	tp.makerid = mpy.makerid AND
+		    tp.pieid = mpy.id AND
+			tp.userid = $2
+		INNER JOIN maker_pie_yearly_categories cts ON
+		cts.oid = mpy.oid
+		WHERE mpy.year = $1
+		AND ($5 = '' OR mpy.makerid=ANY(string_to_array($5, ',')))
+		AND ($6 = '' OR cts.category_slugs @> string_to_array($6, ','))
+		ORDER BY (
+	        tp.pastry +
+	       	tp.filling +
+	        tp.topping +
+	        tp.looks +
+	        tp.value
+        ) DESC NULLS LAST
+		LIMIT $3
+		OFFSET $4
+	`
+	rows, err := o.db.Query(c, sql, year, userid, pageSize, zeroIdxPage*pageSize, strings.Join(filters.BrandIds, ","), strings.Join(filters.CategorySlugs, ","))
+	if err == pgx.ErrNoRows {
+		return &r, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		sigl := MakerPieYearlyWithRankings{}
+
+		err := rows.Scan(
+			&sigl.Year,
+			&sigl.MakerId,
+			&sigl.Id,
+			&sigl.DisplayName,
+			&sigl.Fresh,
+			&sigl.Categories,
+			&sigl.ImageFile,
+			&sigl.WebLink,
+			&sigl.PackCount,
+			&sigl.PackPriceInPence,
+
+			&sigl.Pastry,
+			&sigl.Filling,
+			&sigl.Topping,
+			&sigl.Looks,
+			&sigl.Value,
+			&sigl.Average,
+		)
+		if err != nil {
+			log.Error().Err(err).Msg("Scan failed in getting ranked pies for user")
+			continue
+		}
+		sigl.Count = 1
+		r = append(r, sigl)
+	}
+
+	if err := rows.Err(); err != nil {
+		log.Error().Err(err).Msg("Error during categories for year iteration")
+	}
+	return &r, nil
+}
+
 func (o *OperationWrapper) GetTopMakerPie(c context.Context, activeYear int64) (*MakerPieYearlyWithRankings, error) {
 	r := MakerPieYearlyWithRankings{}
 	sql := `

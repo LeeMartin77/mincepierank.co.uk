@@ -37,6 +37,9 @@ type ServerInterface interface {
 	// (GET /about/privacy)
 	PrivacyPage(c *gin.Context)
 
+	// (GET /profile/rankings/{year})
+	YearPersonalRanking(c *gin.Context, year Year, params YearPersonalRankingParams)
+
 	// (GET /years)
 	YearsPage(c *gin.Context)
 
@@ -121,6 +124,57 @@ func (siw *ServerInterfaceWrapper) PrivacyPage(c *gin.Context) {
 	}
 
 	siw.Handler.PrivacyPage(c)
+}
+
+// YearPersonalRanking operation middleware
+func (siw *ServerInterfaceWrapper) YearPersonalRanking(c *gin.Context) {
+
+	var err error
+
+	// ------------- Path parameter "year" -------------
+	var year Year
+
+	err = runtime.BindStyledParameterWithOptions("simple", "year", c.Param("year"), &year, runtime.BindStyledParameterOptions{Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter year: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params YearPersonalRankingParams
+
+	// ------------- Optional query parameter "page" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "page", c.Request.URL.Query(), &params.Page)
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter page: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	// ------------- Optional query parameter "limit" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "limit", c.Request.URL.Query(), &params.Limit)
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter limit: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	// ------------- Optional query parameter "categories" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "categories", c.Request.URL.Query(), &params.Categories)
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter categories: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.YearPersonalRanking(c, year, params)
 }
 
 // YearsPage operation middleware
@@ -452,6 +506,7 @@ func RegisterHandlersWithOptions(router gin.IRouter, si ServerInterface, options
 	router.GET(options.BaseURL+"/about", wrapper.AboutPage)
 	router.GET(options.BaseURL+"/about/cookies", wrapper.CookiePage)
 	router.GET(options.BaseURL+"/about/privacy", wrapper.PrivacyPage)
+	router.GET(options.BaseURL+"/profile/rankings/:year", wrapper.YearPersonalRanking)
 	router.GET(options.BaseURL+"/years", wrapper.YearsPage)
 	router.GET(options.BaseURL+"/years/:year", wrapper.YearPage)
 	router.GET(options.BaseURL+"/years/:year/all-pies", wrapper.YearAllPies)
@@ -616,6 +671,62 @@ type PrivacyPagedefaultJSONResponse struct {
 }
 
 func (response PrivacyPagedefaultJSONResponse) VisitPrivacyPageResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(response.StatusCode)
+
+	return json.NewEncoder(w).Encode(response.Body)
+}
+
+type YearPersonalRankingRequestObject struct {
+	Year   Year `json:"year"`
+	Params YearPersonalRankingParams
+}
+
+type YearPersonalRankingResponseObject interface {
+	VisitYearPersonalRankingResponse(w http.ResponseWriter) error
+}
+
+type YearPersonalRanking200TexthtmlResponse struct {
+	Body          io.Reader
+	ContentLength int64
+}
+
+func (response YearPersonalRanking200TexthtmlResponse) VisitYearPersonalRankingResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "text/html")
+	if response.ContentLength != 0 {
+		w.Header().Set("Content-Length", fmt.Sprint(response.ContentLength))
+	}
+	w.WriteHeader(200)
+
+	if closer, ok := response.Body.(io.ReadCloser); ok {
+		defer closer.Close()
+	}
+	_, err := io.Copy(w, response.Body)
+	return err
+}
+
+type YearPersonalRanking404TexthtmlResponse struct{ NotFoundTexthtmlResponse }
+
+func (response YearPersonalRanking404TexthtmlResponse) VisitYearPersonalRankingResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "text/html")
+	if response.ContentLength != 0 {
+		w.Header().Set("Content-Length", fmt.Sprint(response.ContentLength))
+	}
+	w.WriteHeader(404)
+
+	if closer, ok := response.Body.(io.ReadCloser); ok {
+		defer closer.Close()
+	}
+	_, err := io.Copy(w, response.Body)
+	return err
+}
+
+type YearPersonalRankingdefaultJSONResponse struct {
+	Body       Error
+	StatusCode int
+}
+
+func (response YearPersonalRankingdefaultJSONResponse) VisitYearPersonalRankingResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(response.StatusCode)
 
@@ -1067,6 +1178,9 @@ type StrictServerInterface interface {
 	// (GET /about/privacy)
 	PrivacyPage(ctx context.Context, request PrivacyPageRequestObject) (PrivacyPageResponseObject, error)
 
+	// (GET /profile/rankings/{year})
+	YearPersonalRanking(ctx context.Context, request YearPersonalRankingRequestObject) (YearPersonalRankingResponseObject, error)
+
 	// (GET /years)
 	YearsPage(ctx context.Context, request YearsPageRequestObject) (YearsPageResponseObject, error)
 
@@ -1197,6 +1311,34 @@ func (sh *strictHandler) PrivacyPage(ctx *gin.Context) {
 		ctx.Status(http.StatusInternalServerError)
 	} else if validResponse, ok := response.(PrivacyPageResponseObject); ok {
 		if err := validResponse.VisitPrivacyPageResponse(ctx.Writer); err != nil {
+			ctx.Error(err)
+		}
+	} else if response != nil {
+		ctx.Error(fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// YearPersonalRanking operation middleware
+func (sh *strictHandler) YearPersonalRanking(ctx *gin.Context, year Year, params YearPersonalRankingParams) {
+	var request YearPersonalRankingRequestObject
+
+	request.Year = year
+	request.Params = params
+
+	handler := func(ctx *gin.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.YearPersonalRanking(ctx, request.(YearPersonalRankingRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "YearPersonalRanking")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		ctx.Error(err)
+		ctx.Status(http.StatusInternalServerError)
+	} else if validResponse, ok := response.(YearPersonalRankingResponseObject); ok {
+		if err := validResponse.VisitYearPersonalRankingResponse(ctx.Writer); err != nil {
 			ctx.Error(err)
 		}
 	} else if response != nil {
@@ -1428,20 +1570,21 @@ func (sh *strictHandler) YearCategoryPies(ctx *gin.Context, year Year, category 
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"H4sIAAAAAAAC/+xYSW/bOhD+K8a8d9QznQXvoFsSNGiBtjAK9FAEOdD02GYsLiFHQQTD/70gKcuOIy8F",
-	"oiIJcoktz3A430KG4gKEUdZo1OQhX4DljiskdPHp0nE9Dl+khhwspxlkoLlCyGEUYxk4vC+lwzHk5ErM",
-	"wIsZKh4GUWVDoicn9RSWywyuOOHUOIn+WhaELmSN0QsnLUkT5lhn9Mj0JjGrZ8Oj0ZClPu5LdNW6EdEM",
-	"gc3ZJaHyLW1kqx+4c7yKbX2VSlIDc6t8EYOblcc44WVBkJ8OMpgYpzhBDlLT/+fQVJeacIou1h/yKe4q",
-	"b0OstfrJccV/IXc7JKpCaJ9Ch+svw3BvjfYYyfxu6NqUyRTCaEIdiSN8JDYjVYSH3Q5YZltya0O9Say3",
-	"zOCnxkeLgnD8yTnjtqbg1hZS8DCQ3fkwenOmfx1OIId/2NrOLEU9S9VaZi+bCXtY56zYiWCbNqwzFh3J",
-	"xIEwY9xm7+y0hb0MFHpfi/98Nax1uUk11/m3TTEzukNBqXupJyaWklSE2DepBQ4l/uB6Dhk8oPMJ2El/",
-	"0B+E+Y1Fza2EHM7iT1l0SETBwp8pRm4DusjslzHk8NkoHCZbPtH+dDB4IdlnRmEvOj+GasO3q9i0wLb9",
-	"EdUqleKuqrvu1W0Tn/rAqi1HhRRwGzIZH5mSdoK+CNG3gno3PiaMmdc+bcV5FePdAk09dA7VOvnARbUT",
-	"6jDFu8VaN9Eh2LCL79YzbP++W4ixga4BskX4WO7F2T3MBuX54Pwwwuaf4YvTkj05iN2011ynsHgIWN5u",
-	"s8l4Ufxn920HYeBFUQzT6alLZnlRxIPcm2U3O5g3TOY5mJfOm0ckPjsvt0gcz+EHBb5MWd1LXLfzfpZQ",
-	"AsQW8XP//hRJ/ktL6Y3zfNj76d3zda+6lSvYwko8zhsf1nhJa7S89Nqa42NvJZ5ru3GhcGBXvdq8euha",
-	"1o223s/uugbFFvX3av9Cqjmvhh+sH7+gWtbJiu0/u8J7HbtxePFH97BioXRFeL0msj5nTEkt0Ep0XM/7",
-	"wvTLOQtjfgcAAP//VlZOXeoUAAA=",
+	"H4sIAAAAAAAC/+xYSW/rNhD+K8K0QC+q6SzoQbckaNACbSEEyKEIfKClsc2YIhmSMiIY+u8FSUl2HHnp",
+	"Q/ReEuSSWJ7hcL6FFM01ZLJQUqCwBpI1KKppgRa1f7rWVOTuAxOQgKJ2ATEIWiAkMPWxGDQ+lUxjDonV",
+	"JcZgsgUW1A2ylXKJxmom5lDXMdxQi3OpGZpbxi1ql5WjyTRTlkk3xyYjsjKa+axIuUcpIA59PJWoq00j",
+	"WTcEtmdnFgvT00bcfkG1ppVv6y9WMNvB3CnPfXC7co4zWnILyfk4hpnUBbWQABP2t0voqjNhcY7a10/p",
+	"HPeVVy7WW/3stOL/ItV7JKpc6JBCx+vXbrhRUhj0ZP4j7a0sgykyKSwKT5zFZ0sWtuDuYb8D6nhHbiFt",
+	"NPP16hjuBT4rzCzmv2st9c4UVCnOMuoGkkfjRm/P9LPGGSTwE9nYmYSoIaFaz+xlN2GETU7LjgfbtaG0",
+	"VKgtCxxkMsdd9i7Oe9iLoUBjGvFfr4aNLg+h5iZ/0hWT00fMbOieiZn0pZjlLvY3ExmmDO+oWEIMK9Qm",
+	"ADsbjUdjN79UKKhikMCF/yr2DvEoiPszR8+tQ+eZ/TOHBP6QBabBli+0Px+P30j2hSww8s73ocbw/Sp2",
+	"LZBdf3i1yqKgumq6jpq2LZ0bx6oqp5xlMHGZhE5lafeCvnLRj4J6Pz6SSblsfNqL88bHhwUaehgcqtJs",
+	"RbNqL9Q0xIfF2jQxIFil5YxxJJqKJRNzQ9ZuX6/3wnYvhBS1kYLyuzBmOPj3BvUvJmIiZyuWl5RHbZuO",
+	"jMvx5XEiulfKm7HXgIdJHb840Dz0V92kEP8yreOjeWlQ+2heOFmckPjqZFS75olT2hxU2gxrb9/AgOb2",
+	"9U9y9OAwO5Q/yLUtLd/m2ckum4Ry/qs69CpwA684T8PJeUhmKef+EP9h2X1nO0Irsf8NdlTg65A1vMRN",
+	"O59nCQVAZO3/H96fPMnfaSl9cJ6Pez/cO7zvVde6gqwVw9O88WWNt7RGz4WHajg+9UbqtbZbl0lHdtWb",
+	"7WunoWXdauvz7K4bUGTdfK4OL6SG8yr9Yv30BdWzTlq2/9/17fvYjesYDOpVy0KpOSSwsFaZhJCCiQwV",
+	"Q/cjdJTJUbkkbsx/AQAA//93pElf5hYAAA==",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file
