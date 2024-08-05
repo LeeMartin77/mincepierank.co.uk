@@ -36,6 +36,9 @@ type ServerInterface interface {
 
 	// (GET /about/privacy)
 	PrivacyPage(c *gin.Context)
+	// Map Page
+	// (GET /map)
+	MapPage(c *gin.Context)
 
 	// (GET /profile/rankings/{year})
 	YearPersonalRanking(c *gin.Context, year Year, params YearPersonalRankingParams)
@@ -124,6 +127,19 @@ func (siw *ServerInterfaceWrapper) PrivacyPage(c *gin.Context) {
 	}
 
 	siw.Handler.PrivacyPage(c)
+}
+
+// MapPage operation middleware
+func (siw *ServerInterfaceWrapper) MapPage(c *gin.Context) {
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.MapPage(c)
 }
 
 // YearPersonalRanking operation middleware
@@ -506,6 +522,7 @@ func RegisterHandlersWithOptions(router gin.IRouter, si ServerInterface, options
 	router.GET(options.BaseURL+"/about", wrapper.AboutPage)
 	router.GET(options.BaseURL+"/about/cookies", wrapper.CookiePage)
 	router.GET(options.BaseURL+"/about/privacy", wrapper.PrivacyPage)
+	router.GET(options.BaseURL+"/map", wrapper.MapPage)
 	router.GET(options.BaseURL+"/profile/rankings/:year", wrapper.YearPersonalRanking)
 	router.GET(options.BaseURL+"/years", wrapper.YearsPage)
 	router.GET(options.BaseURL+"/years/:year", wrapper.YearPage)
@@ -671,6 +688,44 @@ type PrivacyPagedefaultJSONResponse struct {
 }
 
 func (response PrivacyPagedefaultJSONResponse) VisitPrivacyPageResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(response.StatusCode)
+
+	return json.NewEncoder(w).Encode(response.Body)
+}
+
+type MapPageRequestObject struct {
+}
+
+type MapPageResponseObject interface {
+	VisitMapPageResponse(w http.ResponseWriter) error
+}
+
+type MapPage200TexthtmlResponse struct {
+	Body          io.Reader
+	ContentLength int64
+}
+
+func (response MapPage200TexthtmlResponse) VisitMapPageResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "text/html")
+	if response.ContentLength != 0 {
+		w.Header().Set("Content-Length", fmt.Sprint(response.ContentLength))
+	}
+	w.WriteHeader(200)
+
+	if closer, ok := response.Body.(io.ReadCloser); ok {
+		defer closer.Close()
+	}
+	_, err := io.Copy(w, response.Body)
+	return err
+}
+
+type MapPagedefaultJSONResponse struct {
+	Body       Error
+	StatusCode int
+}
+
+func (response MapPagedefaultJSONResponse) VisitMapPageResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(response.StatusCode)
 
@@ -1177,6 +1232,9 @@ type StrictServerInterface interface {
 
 	// (GET /about/privacy)
 	PrivacyPage(ctx context.Context, request PrivacyPageRequestObject) (PrivacyPageResponseObject, error)
+	// Map Page
+	// (GET /map)
+	MapPage(ctx context.Context, request MapPageRequestObject) (MapPageResponseObject, error)
 
 	// (GET /profile/rankings/{year})
 	YearPersonalRanking(ctx context.Context, request YearPersonalRankingRequestObject) (YearPersonalRankingResponseObject, error)
@@ -1311,6 +1369,31 @@ func (sh *strictHandler) PrivacyPage(ctx *gin.Context) {
 		ctx.Status(http.StatusInternalServerError)
 	} else if validResponse, ok := response.(PrivacyPageResponseObject); ok {
 		if err := validResponse.VisitPrivacyPageResponse(ctx.Writer); err != nil {
+			ctx.Error(err)
+		}
+	} else if response != nil {
+		ctx.Error(fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// MapPage operation middleware
+func (sh *strictHandler) MapPage(ctx *gin.Context) {
+	var request MapPageRequestObject
+
+	handler := func(ctx *gin.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.MapPage(ctx, request.(MapPageRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "MapPage")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		ctx.Error(err)
+		ctx.Status(http.StatusInternalServerError)
+	} else if validResponse, ok := response.(MapPageResponseObject); ok {
+		if err := validResponse.VisitMapPageResponse(ctx.Writer); err != nil {
 			ctx.Error(err)
 		}
 	} else if response != nil {
@@ -1570,21 +1653,21 @@ func (sh *strictHandler) YearCategoryPies(ctx *gin.Context, year Year, category 
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"H4sIAAAAAAAC/+xYSW/rNhD+K8K0QC+q6SzoQbckaNACbSEEyKEIfKClsc2YIhmSMiIY+u8FSUl2HHnp",
-	"Q/ReEuSSWJ7hcL6FFM01ZLJQUqCwBpI1KKppgRa1f7rWVOTuAxOQgKJ2ATEIWiAkMPWxGDQ+lUxjDonV",
-	"JcZgsgUW1A2ylXKJxmom5lDXMdxQi3OpGZpbxi1ql5WjyTRTlkk3xyYjsjKa+axIuUcpIA59PJWoq00j",
-	"WTcEtmdnFgvT00bcfkG1ppVv6y9WMNvB3CnPfXC7co4zWnILyfk4hpnUBbWQABP2t0voqjNhcY7a10/p",
-	"HPeVVy7WW/3stOL/ItV7JKpc6JBCx+vXbrhRUhj0ZP4j7a0sgykyKSwKT5zFZ0sWtuDuYb8D6nhHbiFt",
-	"NPP16hjuBT4rzCzmv2st9c4UVCnOMuoGkkfjRm/P9LPGGSTwE9nYmYSoIaFaz+xlN2GETU7LjgfbtaG0",
-	"VKgtCxxkMsdd9i7Oe9iLoUBjGvFfr4aNLg+h5iZ/0hWT00fMbOieiZn0pZjlLvY3ExmmDO+oWEIMK9Qm",
-	"ADsbjUdjN79UKKhikMCF/yr2DvEoiPszR8+tQ+eZ/TOHBP6QBabBli+0Px+P30j2hSww8s73ocbw/Sp2",
-	"LZBdf3i1yqKgumq6jpq2LZ0bx6oqp5xlMHGZhE5lafeCvnLRj4J6Pz6SSblsfNqL88bHhwUaehgcqtJs",
-	"RbNqL9Q0xIfF2jQxIFil5YxxJJqKJRNzQ9ZuX6/3wnYvhBS1kYLyuzBmOPj3BvUvJmIiZyuWl5RHbZuO",
-	"jMvx5XEiulfKm7HXgIdJHb840Dz0V92kEP8yreOjeWlQ+2heOFmckPjqZFS75olT2hxU2gxrb9/AgOb2",
-	"9U9y9OAwO5Q/yLUtLd/m2ckum4Ry/qs69CpwA684T8PJeUhmKef+EP9h2X1nO0Irsf8NdlTg65A1vMRN",
-	"O59nCQVAZO3/H96fPMnfaSl9cJ6Pez/cO7zvVde6gqwVw9O88WWNt7RGz4WHajg+9UbqtbZbl0lHdtWb",
-	"7WunoWXdauvz7K4bUGTdfK4OL6SG8yr9Yv30BdWzTlq2/9/17fvYjesYDOpVy0KpOSSwsFaZhJCCiQwV",
-	"Q/cjdJTJUbkkbsx/AQAA//93pElf5hYAAA==",
+	"H4sIAAAAAAAC/+xYwW7jNhD9FWFaoBfV9GaDHnTbDbpogaYQFsihCHygpbHNmCIZkjIiGPr3gqQkO45k",
+	"u0XUxkEuiaUZDue9eUOR3EImCyUFCmsg2YKimhZoUfunr5qK3P1gAhJQ1K4gBkELhATm3haDxseSacwh",
+	"sbrEGEy2woK6QbZSztFYzcQS6jqGG2pxKTVD841xi9p55WgyzZRl0s2x84isjBbeK1LuUQqIQx6PJepq",
+	"l0jWDYH92ZnFwvSkEbcvqNa08mn9wQpmO5gH4bk37kfOcUFLbiG5msawkLqgFhJgwv5yDV10JiwuUfv4",
+	"KV3iUHjlbL3RP50X/C+keqBElTMdq9Dp+LUbbpQUBj2Zf0r7TZZBFJkUFoUnzuKTJStbcPcwrIA6Pii3",
+	"kDZa+Hh1DHcCnxRmFvNftZb6YAqqFGcZdQPJg3Gj92f6UeMCEviB7ORMgtWQEK1n9rKbMMLGp2XHg+3S",
+	"UFoq1JYFDjKZ4yF7n6962IuhQGOa4r/shl1d7kPMnf+sCybnD5jZkD0TC+lDMcud7ZaJDFOG36lYQwwb",
+	"1CYA+zSZTqZufqlQUMUggc/+VewV4lEQ92eJnluHzjP7ew4J/CYLTIMsn9X+ajp9pbKvZIGRV743NYLv",
+	"r2KXAjnUh69WWRRUV03WUZO2pUvjWFXlnLMMZs6T0Lks7SDoL856KaiH8ZFMynWj016cN94+LtCQw+hQ",
+	"lWYbmlWDUNNgHxdrk8SIYAuqBiHeUnV5nXpL1dFGVVouGEeiqVgzsTRk6z5k9SAJ7guYojZSUP49jBmP",
+	"kDuD+icTMZGzDctLyqM2TcfQ9fT6NDvdN/TV5NKAh1kdP9vB3fdH3bkQv3uo45N+aZDASb+wlTrD8cVW",
+	"sHbJE1dpc7TSZlzB+wRG7GYf/yxFjw6zQ/k/qbal5d9pdnbIJqGc/6yOffvcwC+cp+GoMCazlHN/arlY",
+	"dt/YitCW2B86Txb4a/Aav8RNOu+nhQIgsvX/j69PnuT/qJUunOfT2g8XLW+761pVkK1ieJ42PqTxmtLo",
+	"ueFRDcfnXsG9rO3e7dmJVfVm/55t7LLupfV+VtcdKLJtflfHG6nhvEo/WD+/oXr6pGX7n91Xv43V2J2d",
+	"UW9aFkrN3bncWmUSQgomMlQM3SF0kslJuSZuzN8BAAD//3Od/RTXFwAA",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file

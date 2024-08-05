@@ -1,0 +1,36 @@
+{{define "page:map"}}
+{{template "fragment:global:head" .Head}}
+<canvas id="map-canvas"/>
+<script>
+const {DeckGL, ScatterplotLayer} = deck;
+
+new DeckGL({
+  canvas: "map-canvas",
+  mapStyle: 'https://basemaps.cartocdn.com/gl/positron-nolabels-gl-style/style.json',
+  initialViewState: {
+    longitude: -122.45,
+    latitude: 37.8,
+    zoom: 15
+  },
+  controller: true,
+  layers: [
+    new ScatterplotLayer({
+      data: [
+        {position: [-122.45, 37.8], color: [255, 0, 0], radius: 100}
+      ],
+      getPosition: d => d.position,
+      getFillColor: d => d.color,
+      getRadius: d => d.radius
+    })
+  ]
+});
+</script>
+<style>
+  body {
+    width: 100vw;
+    height: 100vh;
+    margin: 0;
+  }
+</style>
+{{template "fragment:global:foot" .Foot}}
+{{end}}
