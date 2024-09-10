@@ -22,7 +22,7 @@ spec:
     spec:
       containers:
         - name: mincepierank
-          image: ghcr.io/leemartin77/mincepierank.co.uk:baaca366c58bac5b726b28fff8396816384271ee
+          image: ghcr.io/leemartin77/mincepierank.co.uk:4666a4f33a8e452813d1d951b316976e0ebed1b0
           imagePullPolicy: IfNotPresent
           resources:
             limits:
