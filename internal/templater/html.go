@@ -3,11 +3,11 @@ package templater
 import (
 	"bytes"
 	"fmt"
+	"html/template"
 	"io"
 	"os"
 	"path/filepath"
 	"strings"
-	"text/template"
 )
 
 func NewHtmlTemplater() Templater {
@@ -43,6 +43,10 @@ func (wrp *HtmlTemplaterWrapper) GenerateTemplate(template string, data interfac
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 	}
 	return &buf, nil
+}
+
+func (wrp *HtmlTemplaterWrapper) GetTemplater() *template.Template {
+	return wrp.Templates
 }
 
 func getFilesInDirAndChildren(dir string) []string {

@@ -11,8 +11,11 @@ import (
 
 type Website struct {
 	auth            AuthHandler
-	serverInterface generated.StrictServerInterface
+	serverInterface generated.ServerInterface
+	htmlTemplater   templater.Templater
 }
+
+var imgprssrPrefix = "https://static.mincepierank.co.uk"
 
 func NewWebsite(cfg WebsiteConfiguration) (*Website, error) {
 
@@ -38,22 +41,21 @@ func NewWebsite(cfg WebsiteConfiguration) (*Website, error) {
 	}
 	fsi := NewWebsiteWrapper(ops)
 
+	tmpltr := templater.NewHtmlTemplater()
 	return &Website{
+
 		auth:            ac,
+		htmlTemplater:   tmpltr,
 		serverInterface: fsi,
 	}, nil
 }
 
 type WebsiteWrapper struct {
-	storage       storage.Operations
-	htmlTemplater templater.Templater
+	storage storage.Operations
 }
 
-func NewWebsiteWrapper(storage storage.Operations) generated.StrictServerInterface {
-
-	tmpltr := templater.NewHtmlTemplater()
+func NewWebsiteWrapper(storage storage.Operations) generated.ServerInterface {
 	return &WebsiteWrapper{
-		storage:       storage,
-		htmlTemplater: tmpltr,
+		storage: storage,
 	}
 }

@@ -87,8 +87,9 @@ func (api Website) Run() error {
 		api.auth.HandleOAuth2Callback(c)
 	})
 
-	foodHandler := generated.NewStrictHandler(api.serverInterface, nil)
-	generated.RegisterHandlers(r, foodHandler)
+	r.SetHTMLTemplate(api.htmlTemplater.GetTemplater())
+
+	generated.RegisterHandlers(r, api.serverInterface)
 
 	// Run the server
 	srv := &http.Server{

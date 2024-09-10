@@ -1,18 +1,18 @@
 package website
 
 import (
-	"context"
-
 	"github.com/gin-gonic/gin"
 	"github.com/leemartin77/mincepierank.co.uk/internal/templater"
-	generated "github.com/leemartin77/mincepierank.co.uk/internal/website/generated"
+	"github.com/rs/zerolog/log"
 )
 
 // AboutPage implements generated.StrictServerInterface.
-func (wrpr *WebsiteWrapper) AboutPage(c context.Context, request generated.AboutPageRequestObject) (generated.AboutPageResponseObject, error) {
+func (wrpr *WebsiteWrapper) AboutPage(c *gin.Context) {
 	ay, err := wrpr.storage.GetActiveYear(c)
 	if err != nil {
-		return nil, err
+		log.Error().Err(err).Msg("Error getting active year")
+		c.AbortWithStatus(500)
+		return
 	}
 
 	vals := templater.PageData{
@@ -21,25 +21,21 @@ func (wrpr *WebsiteWrapper) AboutPage(c context.Context, request generated.About
 			Description: "All about what Mince Pie Rank is",
 			MenuSettings: templater.MenuSettings{
 				ActiveYear: *ay,
-				SignedIn:   c.(*gin.Context).Keys["signedin"].(bool),
+				SignedIn:   c.Keys["signedin"].(bool),
 			},
 		},
 	}
 
-	rdr, err := wrpr.htmlTemplater.GeneratePage("static:about", vals)
-	if err != nil {
-		return nil, err
-	}
-	return generated.AboutPage200TexthtmlResponse{
-		Body: rdr,
-	}, nil
+	c.HTML(200, "page:static:about", vals)
 }
 
 // CookiePage implements generated.StrictServerInterface.
-func (wrpr *WebsiteWrapper) CookiePage(c context.Context, request generated.CookiePageRequestObject) (generated.CookiePageResponseObject, error) {
+func (wrpr *WebsiteWrapper) CookiePage(c *gin.Context) {
 	ay, err := wrpr.storage.GetActiveYear(c)
 	if err != nil {
-		return nil, err
+		log.Error().Err(err).Msg("Error getting active year")
+		c.AbortWithStatus(500)
+		return
 	}
 
 	vals := templater.PageData{
@@ -48,25 +44,21 @@ func (wrpr *WebsiteWrapper) CookiePage(c context.Context, request generated.Cook
 			Description: "Mince Pie Rank cookie policy",
 			MenuSettings: templater.MenuSettings{
 				ActiveYear: *ay,
-				SignedIn:   c.(*gin.Context).Keys["signedin"].(bool),
+				SignedIn:   c.Keys["signedin"].(bool),
 			},
 		},
 	}
 
-	rdr, err := wrpr.htmlTemplater.GeneratePage("static:cookies", vals)
-	if err != nil {
-		return nil, err
-	}
-	return generated.CookiePage200TexthtmlResponse{
-		Body: rdr,
-	}, nil
+	c.HTML(200, "page:static:cookies", vals)
 }
 
 // PrivacyPage implements generated.StrictServerInterface.
-func (wrpr *WebsiteWrapper) PrivacyPage(c context.Context, request generated.PrivacyPageRequestObject) (generated.PrivacyPageResponseObject, error) {
+func (wrpr *WebsiteWrapper) PrivacyPage(c *gin.Context) {
 	ay, err := wrpr.storage.GetActiveYear(c)
 	if err != nil {
-		return nil, err
+		log.Error().Err(err).Msg("Error getting active year")
+		c.AbortWithStatus(500)
+		return
 	}
 
 	vals := templater.PageData{
@@ -75,16 +67,10 @@ func (wrpr *WebsiteWrapper) PrivacyPage(c context.Context, request generated.Pri
 			Description: "Mince Pie Rank's privacy policy",
 			MenuSettings: templater.MenuSettings{
 				ActiveYear: *ay,
-				SignedIn:   c.(*gin.Context).Keys["signedin"].(bool),
+				SignedIn:   c.Keys["signedin"].(bool),
 			},
 		},
 	}
 
-	rdr, err := wrpr.htmlTemplater.GeneratePage("static:privacy", vals)
-	if err != nil {
-		return nil, err
-	}
-	return generated.PrivacyPage200TexthtmlResponse{
-		Body: rdr,
-	}, nil
+	c.HTML(200, "page:static:privacy", vals)
 }

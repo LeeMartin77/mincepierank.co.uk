@@ -1,62 +1,69 @@
 package website
 
 import (
-	"context"
 	"fmt"
 
 	"github.com/gin-gonic/gin"
 	"github.com/leemartin77/mincepierank.co.uk/internal/templater"
-	generated "github.com/leemartin77/mincepierank.co.uk/internal/website/generated"
+	"github.com/rs/zerolog/log"
 )
 
 // YearPage implements generated.StrictServerInterface.
-func (wrpr *WebsiteWrapper) YearPage(c context.Context, request generated.YearPageRequestObject) (generated.YearPageResponseObject, error) {
+func (wrpr *WebsiteWrapper) YearPage(c *gin.Context, year int64) {
 	ay, err := wrpr.storage.GetActiveYear(c)
 	if err != nil {
-		return nil, err
+		log.Error().Err(err).Msg("Error getting active year")
+		c.AbortWithStatus(500)
+		return
 	}
-	topPie, err := wrpr.storage.GetTopMakerPie(c, request.Year)
+	topPie, err := wrpr.storage.GetTopMakerPie(c, year)
 	if err != nil {
-		return nil, err
+		log.Error().Err(err).Msg("Error getting top maker pie")
+		c.AbortWithStatus(500)
+		return
 	}
 
-	makers, err := wrpr.storage.GetMakersForYear(c, request.Year)
+	makers, err := wrpr.storage.GetMakersForYear(c, year)
 	if err != nil {
-		return nil, err
+		log.Error().Err(err).Msg("Error getting makers")
+		c.AbortWithStatus(500)
+		return
 	}
 
-	cats, err := wrpr.storage.GetMakerPieCategoriesForYear(c, request.Year, []string{}, nil)
+	cats, err := wrpr.storage.GetMakerPieCategoriesForYear(c, year, []string{}, nil)
 	if err != nil {
-		return nil, err
+		log.Error().Err(err).Msg("Error getting pie categories")
+		c.AbortWithStatus(500)
+		return
 	}
 	categoryLinks := []templater.Link{}
 	for _, ct := range *cats {
-		categoryLinks = append(categoryLinks, templater.Link{URL: fmt.Sprintf("/years/%d/categories/%s", request.Year, ct.Slug), Label: ct.Label})
+		categoryLinks = append(categoryLinks, templater.Link{URL: fmt.Sprintf("/years/%d/categories/%s", year, ct.Slug), Label: ct.Label})
 	}
 	pieCategoryLinks := []templater.Link{}
-	for _, ct := range *&topPie.Categories {
-		pieCategoryLinks = append(pieCategoryLinks, templater.Link{URL: fmt.Sprintf("/years/%d/categories/%s", request.Year, ct.Slug), Label: ct.Label})
+	for _, ct := range topPie.Categories {
+		pieCategoryLinks = append(pieCategoryLinks, templater.Link{URL: fmt.Sprintf("/years/%d/categories/%s", year, ct.Slug), Label: ct.Label})
 	}
 	mrks := []templater.MakerCardData{}
 	for _, mkr := range *makers {
 		mrks = append(mrks, templater.MakerCardData{
 			ImgprssrPrefix: imgprssrPrefix,
-			Year:           request.Year,
+			Year:           year,
 			Maker:          mkr,
 		})
 	}
 	vals := templater.PageData{
 		Head: templater.PageDataHead{
-			Title:       fmt.Sprintf("%d Pies", request.Year),
-			Description: fmt.Sprintf("Mince pie categories and brands we have data for %d", request.Year),
-			Keywords:    fmt.Sprintf("Mince Pies, UK, Ranking, %d", request.Year),
+			Title:       fmt.Sprintf("%d Pies", year),
+			Description: fmt.Sprintf("Mince pie categories and brands we have data for %d", year),
+			Keywords:    fmt.Sprintf("Mince Pies, UK, Ranking, %d", year),
 			MenuSettings: templater.MenuSettings{
 				ActiveYear: *ay,
-				SignedIn:   c.(*gin.Context).Keys["signedin"].(bool),
+				SignedIn:   c.Keys["signedin"].(bool),
 			},
 		},
 		PageData: map[string]interface{}{
-			"Year": request.Year,
+			"Year": year,
 			"TopPie": templater.PieCardData{
 				Pie:            *topPie,
 				ImgprssrPrefix: imgprssrPrefix,
@@ -66,112 +73,104 @@ func (wrpr *WebsiteWrapper) YearPage(c context.Context, request generated.YearPa
 			},
 			"MakerCards": mrks,
 			"Categories": categoryLinks,
-			"Breadcrumb": templater.BreadcrumbsFromUrl(fmt.Sprintf("/years/%d", request.Year)),
+			"Breadcrumb": templater.BreadcrumbsFromUrl(fmt.Sprintf("/years/%d", year)),
 		},
 	}
 
-	rdr, err := wrpr.htmlTemplater.GeneratePage("year", vals)
-	if err != nil {
-		return nil, err
-	}
-	return generated.YearPage200TexthtmlResponse{
-		Body: rdr,
-	}, nil
+	c.HTML(200, "page:year", vals)
 }
 
 // YearAllBrands implements generated.StrictServerInterface.
-func (wrpr *WebsiteWrapper) YearAllBrands(c context.Context, request generated.YearAllBrandsRequestObject) (generated.YearAllBrandsResponseObject, error) {
+func (wrpr *WebsiteWrapper) YearAllBrands(c *gin.Context, year int64) {
 	ay, err := wrpr.storage.GetActiveYear(c)
 	if err != nil {
-		return nil, err
+		log.Error().Err(err).Msg("Error getting active year")
+		c.AbortWithStatus(500)
+		return
 	}
 
-	makers, err := wrpr.storage.GetMakersForYear(c, request.Year)
+	makers, err := wrpr.storage.GetMakersForYear(c, year)
 	if err != nil {
-		return nil, err
+		log.Error().Err(err).Msg("Error getting makers")
+		c.AbortWithStatus(500)
+		return
 	}
 
 	mrks := []templater.MakerCardData{}
 	for _, mkr := range *makers {
 		mrks = append(mrks, templater.MakerCardData{
 			ImgprssrPrefix: imgprssrPrefix,
-			Year:           request.Year,
+			Year:           year,
 			Maker:          mkr,
 		})
 	}
 
 	vals := templater.PageData{
 		Head: templater.PageDataHead{
-			Title:       fmt.Sprintf("%d Brands", request.Year),
-			Description: fmt.Sprintf("All brands we loaded data for in %d", request.Year),
-			Keywords:    fmt.Sprintf("Mince Pies, UK, Ranking, %d", request.Year),
+			Title:       fmt.Sprintf("%d Brands", year),
+			Description: fmt.Sprintf("All brands we loaded data for in %d", year),
+			Keywords:    fmt.Sprintf("Mince Pies, UK, Ranking, %d", year),
 			MenuSettings: templater.MenuSettings{
 				ActiveYear: *ay,
-				SignedIn:   c.(*gin.Context).Keys["signedin"].(bool),
+				SignedIn:   c.Keys["signedin"].(bool),
 			},
 		},
 		PageData: map[string]interface{}{
-			"Year":       request.Year,
+			"Year":       year,
 			"MakerCards": mrks,
-			"Breadcrumb": templater.BreadcrumbsFromUrl(fmt.Sprintf("/years/%d/brands", request.Year)),
+			"Breadcrumb": templater.BreadcrumbsFromUrl(fmt.Sprintf("/years/%d/brands", year)),
 		},
 	}
 
-	rdr, err := wrpr.htmlTemplater.GeneratePage("yearbrands", vals)
-	if err != nil {
-		return nil, err
-	}
-	return generated.YearAllBrands200TexthtmlResponse{
-		Body: rdr,
-	}, nil
+	c.HTML(200, "page:yearbrands", vals)
 }
 
 // YearAllCategories implements generated.StrictServerInterface.
-func (wrpr *WebsiteWrapper) YearAllCategories(c context.Context, request generated.YearAllCategoriesRequestObject) (generated.YearAllCategoriesResponseObject, error) {
+func (wrpr *WebsiteWrapper) YearAllCategories(c *gin.Context, year int64) {
 	ay, err := wrpr.storage.GetActiveYear(c)
 	if err != nil {
-		return nil, err
+		log.Error().Err(err).Msg("Error getting active year")
+		c.AbortWithStatus(500)
+		return
 	}
 
-	cats, err := wrpr.storage.GetMakerPieCategoriesForYear(c, request.Year, []string{}, nil)
+	cats, err := wrpr.storage.GetMakerPieCategoriesForYear(c, year, []string{}, nil)
 	if err != nil {
-		return nil, err
+		log.Error().Err(err).Msg("Error getting GetMakerPieCategoriesForYear")
+		c.AbortWithStatus(500)
+		return
 	}
 	categoryLinks := []templater.Link{}
 	for _, ct := range *cats {
-		categoryLinks = append(categoryLinks, templater.Link{URL: fmt.Sprintf("/years/%d/categories/%s", request.Year, ct.Slug), Label: ct.Label})
+		categoryLinks = append(categoryLinks, templater.Link{URL: fmt.Sprintf("/years/%d/categories/%s", year, ct.Slug), Label: ct.Label})
 	}
 	vals := templater.PageData{
 		Head: templater.PageDataHead{
-			Title:       fmt.Sprintf("%d Categories", request.Year),
-			Description: fmt.Sprintf("All categories we loaded data for in %d", request.Year),
-			Keywords:    fmt.Sprintf("Mince Pies, UK, Ranking, %d", request.Year),
+			Title:       fmt.Sprintf("%d Categories", year),
+			Description: fmt.Sprintf("All categories we loaded data for in %d", year),
+			Keywords:    fmt.Sprintf("Mince Pies, UK, Ranking, %d", year),
 			MenuSettings: templater.MenuSettings{
 				ActiveYear: *ay,
-				SignedIn:   c.(*gin.Context).Keys["signedin"].(bool),
+				SignedIn:   c.Keys["signedin"].(bool),
 			},
 		},
 		PageData: map[string]interface{}{
-			"Year":       request.Year,
+			"Year":       year,
 			"Categories": categoryLinks,
-			"Breadcrumb": templater.BreadcrumbsFromUrl(fmt.Sprintf("/years/%d/categories", request.Year)),
+			"Breadcrumb": templater.BreadcrumbsFromUrl(fmt.Sprintf("/years/%d/categories", year)),
 		},
 	}
 
-	rdr, err := wrpr.htmlTemplater.GeneratePage("yearcategories", vals)
-	if err != nil {
-		return nil, err
-	}
-	return generated.YearAllCategories200TexthtmlResponse{
-		Body: rdr,
-	}, nil
+	c.HTML(200, "page:yearcategories", vals)
 }
 
 // YearsPage implements generated.StrictServerInterface.
-func (wrpr *WebsiteWrapper) YearsPage(c context.Context, request generated.YearsPageRequestObject) (generated.YearsPageResponseObject, error) {
+func (wrpr *WebsiteWrapper) YearsPage(c *gin.Context) {
 	ay, err := wrpr.storage.GetActiveYear(c)
 	if err != nil {
-		return nil, err
+		log.Error().Err(err).Msg("Error getting active year")
+		c.AbortWithStatus(500)
+		return
 	}
 	vals := templater.PageData{
 		Head: templater.PageDataHead{
@@ -180,7 +179,7 @@ func (wrpr *WebsiteWrapper) YearsPage(c context.Context, request generated.Years
 			Keywords:    "Mince Pies, UK, Ranking",
 			MenuSettings: templater.MenuSettings{
 				ActiveYear: *ay,
-				SignedIn:   c.(*gin.Context).Keys["signedin"].(bool),
+				SignedIn:   c.Keys["signedin"].(bool),
 			},
 		},
 		PageData: map[string]interface{}{
@@ -189,11 +188,5 @@ func (wrpr *WebsiteWrapper) YearsPage(c context.Context, request generated.Years
 		},
 	}
 
-	rdr, err := wrpr.htmlTemplater.GeneratePage("years", vals)
-	if err != nil {
-		return nil, err
-	}
-	return generated.YearsPage200TexthtmlResponse{
-		Body: rdr,
-	}, nil
+	c.HTML(200, "page:years", vals)
 }

@@ -1,40 +1,34 @@
 package website
 
 import (
-	"context"
 	"fmt"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/leemartin77/mincepierank.co.uk/internal/templater"
-	generated "github.com/leemartin77/mincepierank.co.uk/internal/website/generated"
+	"github.com/rs/zerolog/log"
 )
 
-func returnHomepageUnexpectedError(err error) (generated.HomePageResponseObject, error) {
-	return generated.HomePagedefaultJSONResponse{
-		Body: generated.Error{
-			Code:    500,
-			Message: err.Error(),
-		},
-		StatusCode: 500,
-	}, nil
-}
-
-var imgprssrPrefix = "https://static.mincepierank.co.uk"
-
-func (wrpr *WebsiteWrapper) HomePage(c context.Context, req generated.HomePageRequestObject) (generated.HomePageResponseObject, error) {
+func (wrpr *WebsiteWrapper) HomePage(c *gin.Context) {
 	ay, err := wrpr.storage.GetActiveYear(c)
 	if err != nil {
-		return returnHomepageUnexpectedError(err)
+		log.Error().Err(err).Msg("Error getting active year")
+		c.AbortWithStatus(500)
+		return
 	}
 
 	topPie, err := wrpr.storage.GetTopMakerPie(c, *ay)
 	if err != nil {
-		return returnHomepageUnexpectedError(err)
+		log.Error().Err(err).Msg("Error getting top maker pie")
+		c.AbortWithStatus(500)
+		return
 	}
 
 	makers, err := wrpr.storage.GetMakersForYear(c, *ay)
 	if err != nil {
-		return returnHomepageUnexpectedError(err)
+		log.Error().Err(err).Msg("Error getting year makers")
+		c.AbortWithStatus(500)
+		return
 	}
 	mrks := []templater.MakerCardData{}
 	for _, mkr := range *makers {
@@ -56,7 +50,7 @@ func (wrpr *WebsiteWrapper) HomePage(c context.Context, req generated.HomePageRe
 			Keywords:    "Mince Pies, UK, Ranking",
 			MenuSettings: templater.MenuSettings{
 				ActiveYear: *ay,
-				SignedIn:   c.(*gin.Context).Keys["signedin"].(bool),
+				SignedIn:   c.Keys["signedin"].(bool),
 			},
 		},
 		PageData: map[string]interface{}{
@@ -71,11 +65,5 @@ func (wrpr *WebsiteWrapper) HomePage(c context.Context, req generated.HomePageRe
 		},
 	}
 
-	rdr, err := wrpr.htmlTemplater.GeneratePage("index", vals)
-	if err != nil {
-		return nil, err
-	}
-	return generated.HomePage200TexthtmlResponse{
-		Body: rdr,
-	}, nil
+	c.HTML(http.StatusOK, "page:index", vals)
 }

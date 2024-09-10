@@ -1,6 +1,7 @@
 package templater
 
 import (
+	"html/template"
 	"io"
 	"strings"
 
@@ -45,6 +46,7 @@ type Templater interface {
 	GenerateTemplate(template string, data interface{}) (io.Reader, error)
 	// will prepend "page:" when finding template
 	GeneratePage(page string, data PageData) (io.Reader, error)
+	GetTemplater() *template.Template
 }
 
 func BreadcrumbsFromUrl(url string) []Link {

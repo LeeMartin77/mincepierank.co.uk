@@ -20,22 +20,6 @@ paths:
                 type: string
         default:
           $ref: "#/components/responses/UnexpectedError"
-  /map:
-    get:
-      summary: Map Page
-      operationId: mapPage
-      tags:
-        - public
-      responses:
-        "200":
-          description: home page
-          content:
-            text/html:
-              schema:
-                type: string
-        default:
-          $ref: "#/components/responses/UnexpectedError"
-
   /about:
     get:
       operationId: aboutPage

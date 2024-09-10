@@ -142,18 +142,20 @@ func (ac *AuthConfig) UserIdMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		jwtStr, err := c.Cookie(ac.CookieKey)
 
-		decodedToken, err := jwt.Parse(jwtStr, func(token *jwt.Token) (interface{}, error) {
-			return []byte(ac.Config.JwtSigningKey), nil
-		})
-		if err == nil && decodedToken != nil && decodedToken.Valid {
-			// userid from token
-			email := decodedToken.Claims.(jwt.MapClaims)["email"]
-			if email != nil && email != "" {
-				c.Keys = map[string]any{}
-				c.Keys["userid"] = email
-				c.Keys["signedin"] = true
-				c.Next()
-				return
+		if err == nil {
+			decodedToken, err := jwt.Parse(jwtStr, func(token *jwt.Token) (interface{}, error) {
+				return []byte(ac.Config.JwtSigningKey), nil
+			})
+			if err == nil && decodedToken != nil && decodedToken.Valid {
+				// userid from token
+				email := decodedToken.Claims.(jwt.MapClaims)["email"]
+				if email != nil && email != "" {
+					c.Keys = map[string]any{}
+					c.Keys["userid"] = email
+					c.Keys["signedin"] = true
+					c.Next()
+					return
+				}
 			}
 		}
 

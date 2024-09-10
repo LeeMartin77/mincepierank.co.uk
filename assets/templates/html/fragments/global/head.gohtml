@@ -19,43 +19,7 @@
 <div class="page-container">
   {{template "fragment:components:menu" .MenuSettings }}
   <div class="content-container">
-    {{ if .ShowCookieNotice }}
-      <div id="cookie-notice" class="cookie-notice">
-        <div>
-          <p>We use cookies for authentication and associating mince pie rankings to a user</p>
-          <button
-            on:click={() => {
-              localStorage.setItem(cookiekey, 'accepted');
-              cookieNotice = false;
-            }}>Accept</button
-          >
-          <button
-            on:click={() => {
-              cookieNotice = false;
-            }}>Dismiss</button
-          >
-          <a href="/about/cookies">Read Full Policy</a>
-        </div>
-      </div>
-    {{ end }}
-    {{ if .ShowNotice }}
-      <div class="notices">
-        <button
-          on:click={() => {
-            localStorage.setItem(noticekey, noticestring);
-            noticeVisible = false;
-          }}>X</button
-        >
-        <div>
-          {{ if .ReadOnly }}
-            <p>Mince Pie Rank is read-only until the next Christmas period</p>
-          {{ end }}
-          {{ if .HasNotice }}
-            <p>{{ .Notice }}</p>
-          {{ end }}
-        </div>
-      </div>
-    {{ end }}
+ 
     {{ if .ShowBreadcrumb }}
         {{template "fragment:components:breadcrumb" .Breadcrumbs }}
     {{ end }}

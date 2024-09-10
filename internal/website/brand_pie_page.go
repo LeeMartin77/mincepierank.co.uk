@@ -1,50 +1,52 @@
 package website
 
 import (
-	"context"
 	"fmt"
+	"net/http"
 
+	"github.com/gin-gonic/gin"
 	"github.com/leemartin77/mincepierank.co.uk/internal/templater"
-	generated "github.com/leemartin77/mincepierank.co.uk/internal/website/generated"
+	"github.com/rs/zerolog/log"
 )
 
-func returnPiePageUnexpectedError(err error) (generated.YearBrandPieResponseObject, error) {
-	return generated.YearBrandPiedefaultJSONResponse{
-		Body: generated.Error{
-			Code:    500,
-			Message: err.Error(),
-		},
-		StatusCode: 500,
-	}, nil
-}
-
-func (wrpr *WebsiteWrapper) YearBrandPie(ctx context.Context, request generated.YearBrandPieRequestObject) (generated.YearBrandPieResponseObject, error) {
+func (wrpr *WebsiteWrapper) YearBrandPie(ctx *gin.Context, year int64, brand string, pieParam string) {
 	ay, err := wrpr.storage.GetActiveYear(ctx)
 	if err != nil {
-		return returnPiePageUnexpectedError(err)
+		log.Error().Err(err).Msg("Error getting active year")
+		ctx.AbortWithStatus(500)
+		return
 	}
 
-	pie, err := wrpr.storage.GetMakerPieYearly(ctx, int32(request.Year), request.Brand, request.Pie)
+	pie, err := wrpr.storage.GetMakerPieYearly(ctx, int32(year), ctx.Param("brand"), ctx.Param("pie"))
 	if err != nil {
-		return returnPiePageUnexpectedError(err)
+		log.Error().Err(err).Msg("Error getting maker year pie")
+		ctx.AbortWithStatus(500)
+		return
 	}
 	if pie == nil {
-		return generated.YearBrandPie404TexthtmlResponse{}, nil
+		ctx.AbortWithStatus(404)
+		return
 	}
 
-	maker, err := wrpr.storage.GetMaker(ctx, request.Brand)
+	maker, err := wrpr.storage.GetMaker(ctx, ctx.Param("brand"))
 	if err != nil {
-		return returnPiePageUnexpectedError(err)
+		log.Error().Err(err).Msg("Error getting maker year pie")
+		ctx.AbortWithStatus(500)
+		return
 	}
 
-	rankingSummary, err := wrpr.storage.GetMakerPieYearlyRankingSummary(ctx, int32(request.Year), request.Brand, request.Pie)
+	rankingSummary, err := wrpr.storage.GetMakerPieYearlyRankingSummary(ctx, int32(year), ctx.Param("brand"), ctx.Param("pie"))
 	if err != nil {
-		return returnPiePageUnexpectedError(err)
+		log.Error().Err(err).Msg("Error getting maker year pie rank summary")
+		ctx.AbortWithStatus(500)
+		return
 	}
 
 	cats, err := wrpr.storage.GetMakerPieCategoriesForMakerPieOid(ctx, pie.OId)
 	if err != nil {
-		return returnPiePageUnexpectedError(err)
+		log.Error().Err(err).Msg("Error getting maker year pie rank categories")
+		ctx.AbortWithStatus(500)
+		return
 	}
 
 	pieCategoryLinks := []templater.Link{}
@@ -72,11 +74,5 @@ func (wrpr *WebsiteWrapper) YearBrandPie(ctx context.Context, request generated.
 		},
 	}
 
-	rdr, err := wrpr.htmlTemplater.GeneratePage("singlepie", vals)
-	if err != nil {
-		return nil, err
-	}
-	return generated.YearBrandPie200TexthtmlResponse{
-		Body: rdr,
-	}, nil
+	ctx.HTML(http.StatusOK, "page:singlepie", vals)
 }
