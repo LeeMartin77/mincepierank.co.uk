@@ -11,6 +11,7 @@ import (
 type Querier interface {
 	GetActiveYear(ctx context.Context) (int64, error)
 	GetConfig(ctx context.Context, key string) (Config, error)
+	IsAdminId(ctx context.Context, userID string) (bool, error)
 }
 
 var _ Querier = (*Queries)(nil)

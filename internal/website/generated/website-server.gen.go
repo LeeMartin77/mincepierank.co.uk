@@ -33,6 +33,12 @@ type ServerInterface interface {
 	// (GET /about/privacy)
 	PrivacyPage(c *gin.Context)
 
+	// (GET /admin)
+	GetAdminIndex(c *gin.Context)
+
+	// (GET /admin/config)
+	GetAdminConfig(c *gin.Context)
+
 	// (GET /profile/rankings/{year})
 	YearPersonalRanking(c *gin.Context, year Year, params YearPersonalRankingParams)
 
@@ -120,6 +126,32 @@ func (siw *ServerInterfaceWrapper) PrivacyPage(c *gin.Context) {
 	}
 
 	siw.Handler.PrivacyPage(c)
+}
+
+// GetAdminIndex operation middleware
+func (siw *ServerInterfaceWrapper) GetAdminIndex(c *gin.Context) {
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.GetAdminIndex(c)
+}
+
+// GetAdminConfig operation middleware
+func (siw *ServerInterfaceWrapper) GetAdminConfig(c *gin.Context) {
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.GetAdminConfig(c)
 }
 
 // YearPersonalRanking operation middleware
@@ -502,6 +534,8 @@ func RegisterHandlersWithOptions(router gin.IRouter, si ServerInterface, options
 	router.GET(options.BaseURL+"/about", wrapper.AboutPage)
 	router.GET(options.BaseURL+"/about/cookies", wrapper.CookiePage)
 	router.GET(options.BaseURL+"/about/privacy", wrapper.PrivacyPage)
+	router.GET(options.BaseURL+"/admin", wrapper.GetAdminIndex)
+	router.GET(options.BaseURL+"/admin/config", wrapper.GetAdminConfig)
 	router.GET(options.BaseURL+"/profile/rankings/:year", wrapper.YearPersonalRanking)
 	router.GET(options.BaseURL+"/years", wrapper.YearsPage)
 	router.GET(options.BaseURL+"/years/:year", wrapper.YearPage)
@@ -516,21 +550,22 @@ func RegisterHandlersWithOptions(router gin.IRouter, si ServerInterface, options
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"H4sIAAAAAAAC/+xYSW/rNhD+K8K0QC+q6SzoQbckaNACbSEEyKEIfKClsc2YIhmSMiIY+u8FSUl2HHnp",
-	"Q/ReEuSSWJ7hcL6FFM01ZLJQUqCwBpI1KKppgRa1f7rWVOTuAxOQgKJ2ATEIWiAkMPWxGDQ+lUxjDonV",
-	"JcZgsgUW1A2ylXKJxmom5lDXMdxQi3OpGZpbxi1ql5WjyTRTlkk3xyYjsjKa+axIuUcpIA59PJWoq00j",
-	"WTcEtmdnFgvT00bcfkG1ppVv6y9WMNvB3CnPfXC7co4zWnILyfk4hpnUBbWQABP2t0voqjNhcY7a10/p",
-	"HPeVVy7WW/3stOL/ItV7JKpc6JBCx+vXbrhRUhj0ZP4j7a0sgykyKSwKT5zFZ0sWtuDuYb8D6nhHbiFt",
-	"NPP16hjuBT4rzCzmv2st9c4UVCnOMuoGkkfjRm/P9LPGGSTwE9nYmYSoIaFaz+xlN2GETU7LjgfbtaG0",
-	"VKgtCxxkMsdd9i7Oe9iLoUBjGvFfr4aNLg+h5iZ/0hWT00fMbOieiZn0pZjlLvY3ExmmDO+oWEIMK9Qm",
-	"ADsbjUdjN79UKKhikMCF/yr2DvEoiPszR8+tQ+eZ/TOHBP6QBabBli+0Px+P30j2hSww8s73ocbw/Sp2",
-	"LZBdf3i1yqKgumq6jpq2LZ0bx6oqp5xlMHGZhE5lafeCvnLRj4J6Pz6SSblsfNqL88bHhwUaehgcqtJs",
-	"RbNqL9Q0xIfF2jQxIFil5YxxJJqKJRNzQ9ZuX6/3wnYvhBS1kYLyuzBmOPj3BvUvJmIiZyuWl5RHbZuO",
-	"jMvx5XEiulfKm7HXgIdJHb840Dz0V92kEP8yreOjeWlQ+2heOFmckPjqZFS75olT2hxU2gxrb9/AgOb2",
-	"9U9y9OAwO5Q/yLUtLd/m2ckum4Ry/qs69CpwA684T8PJeUhmKef+EP9h2X1nO0Irsf8NdlTg65A1vMRN",
-	"O59nCQVAZO3/H96fPMnfaSl9cJ6Pez/cO7zvVde6gqwVw9O88WWNt7RGz4WHajg+9UbqtbZbl0lHdtWb",
-	"7WunoWXdauvz7K4bUGTdfK4OL6SG8yr9Yv30BdWzTlq2/9/17fvYjesYDOpVy0KpOSSwsFaZhJCCiQwV",
-	"Q/cjdJTJUbkkbsx/AQAA//93pElf5hYAAA==",
+	"H4sIAAAAAAAC/+xYUW/bNhD+K8JtwF640E2DPegtDdatwDYYBfowFHlgqLPNhiJZkgoiGPrvA0lJdh3J",
+	"8oZoTdq8JJbveHffdx/PFLfAdWm0QuUd5FswzLISPdr49MYyVYQPQkEOhvkNEFCsRMjhJtoIWPxcCYsF",
+	"5N5WSMDxDZYsLPK1CY7OW6HW0DQErpjHtbYC3VshPdrgVaDjVhgvdMix88i8zlbRKzPhUSsgqY7PFdp6",
+	"Vwjvl8B+duGxdANlkO4LZi2rY1l/iFL4HuZBeBmN+5ELXLFKesjPFwRW2pbMQw5C+V8uoI8ulMc12hh/",
+	"ydY4Ft4E22D0V6cF/xuZHWlRHUzHOjQdvwnLndHKYSTzL+3f6iqJgmvlUUXiPN57uvGlDA/jCmjIQbuV",
+	"9tkqxmsIfFB4b5B7LH61VtuDFMwYKTgLC+knF1bvZ/rR4gpy+IHu5EyT1dEUbSB71SfMsPXp2Ilg+zKM",
+	"1QatF4kDrgs8ZO/1+QB7BEp0rm3+w92w68vHFHPnf90H0zefkPtUvVArHUMJL4PtT6E4LgW+Z+oWCNyh",
+	"dQnYq7PF2SLk1wYVMwJyeB2/IlEhEQUNf9YYuQ3oIrPvCsjhd13iMsnyi96fLxaP1PaNLjGLyo+mVvDD",
+	"XexLoIf6iN2qypLZuq06a8v2bO0Cq6a6kYLDdfCk7EZXfhT0ZbA+F9Tj+CjX+rbV6SDOq2ifF2iqYXao",
+	"xoo7xutRqMtknxdrW8ScYItSqFGQv6G/DA7vVIH388GMOTIRkzQELhYX0wj734rHoiUxsccK5VqtxHqS",
+	"nKvk9v2wY6xeCYnUMnUr1NrRbTgLNKNEhUPEEq3Tisn3ac18bH1waH9ygS5xJ4qKyawr8+uRZ1rwcN2Q",
+	"Lw7BH4ej7lxoPIA1ZNJvmSbEpF86jZ7g+OA03YTiaei0O9ppN+9IjAXMOBBj/JMUPTvMHuVXUm1Hy3/T",
+	"7PUhm5RJ+bM5dnwICy+lXKa3rTmZZVLGF79ny+4Tmwhdi+N7+2SD3ySv+VvclvPtbKEEiG7j/+PzKZL8",
+	"P22lZ87ztPbTXdXT3nWdKujWCDxNGy/SeExpDFySmZbjU28xH/Z27wJyYqpe7V9Vzt3WvbK+nem6A0W3",
+	"7ef6+EZqOa+XL6yfvqEG9knH9r+78n8a07gh4NDedSxUVkIOG++NyyktheJoBIaX0DOuz6pbGtb8EwAA",
+	"//998TLSGhkAAA==",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file
