@@ -1,7 +1,36 @@
 {{define "page:admin:config"}}
 {{template "fragment:global:head" .Head}}
 
-admin page
+<h1>admin config</h1>
+
+<div>
+    <table id="config-table">
+        <tr>
+            <th>Key</th>
+            <th>Value</th>
+            <th>Actions</th>
+            <th></th>
+        </tr>
+        {{ range .PageData.Config }}
+        <tr>
+            <form hx-put="/admin/config/{{.Key}}" hx-target="#config-table" hx-select="#config-table">
+                <td>{{.Key}}</td>
+                <td><input name="value" value="{{.Value}}"/></td>
+                <td><button type="submit">Update</button></td>
+            </form>
+            <td><button type="button" hx-delete="/admin/config/{{.Key}}" hx-target="#config-table" hx-select="#config-table">Delete</button></td>
+        </tr>
+        {{ end }}
+        <tr>
+            <form hx-post="/admin/config" hx-target="#config-table" hx-select="#config-table">
+                <td><input name="key" required/></td>
+                <td><input name="value" required/></td>
+                <td><button type="submit">Create</button></td>
+            </form>
+            <td></td>
+        </tr>
+    </table>
+</div>
 
 {{template "fragment:global:foot" .Foot}}
 {{end}}

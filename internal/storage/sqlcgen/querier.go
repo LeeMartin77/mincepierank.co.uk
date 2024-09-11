@@ -9,9 +9,13 @@ import (
 )
 
 type Querier interface {
+	DeleteConfig(ctx context.Context, key string) error
 	GetActiveYear(ctx context.Context) (int64, error)
+	GetAllConfig(ctx context.Context) ([]GetAllConfigRow, error)
 	GetConfig(ctx context.Context, key string) (Config, error)
+	InsertConfig(ctx context.Context, arg InsertConfigParams) error
 	IsAdminId(ctx context.Context, userID string) (bool, error)
+	UpdateConfig(ctx context.Context, arg UpdateConfigParams) error
 }
 
 var _ Querier = (*Queries)(nil)

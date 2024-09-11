@@ -39,6 +39,15 @@ type ServerInterface interface {
 	// (GET /admin/config)
 	GetAdminConfig(c *gin.Context)
 
+	// (POST /admin/config)
+	CreateAdminConfig(c *gin.Context)
+
+	// (DELETE /admin/config/{key})
+	DeleteAdminConfig(c *gin.Context, key string)
+
+	// (PUT /admin/config/{key})
+	UpdateAdminConfig(c *gin.Context, key string)
+
 	// (GET /profile/rankings/{year})
 	YearPersonalRanking(c *gin.Context, year Year, params YearPersonalRankingParams)
 
@@ -152,6 +161,67 @@ func (siw *ServerInterfaceWrapper) GetAdminConfig(c *gin.Context) {
 	}
 
 	siw.Handler.GetAdminConfig(c)
+}
+
+// CreateAdminConfig operation middleware
+func (siw *ServerInterfaceWrapper) CreateAdminConfig(c *gin.Context) {
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.CreateAdminConfig(c)
+}
+
+// DeleteAdminConfig operation middleware
+func (siw *ServerInterfaceWrapper) DeleteAdminConfig(c *gin.Context) {
+
+	var err error
+
+	// ------------- Path parameter "key" -------------
+	var key string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "key", c.Param("key"), &key, runtime.BindStyledParameterOptions{Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter key: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.DeleteAdminConfig(c, key)
+}
+
+// UpdateAdminConfig operation middleware
+func (siw *ServerInterfaceWrapper) UpdateAdminConfig(c *gin.Context) {
+
+	var err error
+
+	// ------------- Path parameter "key" -------------
+	var key string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "key", c.Param("key"), &key, runtime.BindStyledParameterOptions{Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter key: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.UpdateAdminConfig(c, key)
 }
 
 // YearPersonalRanking operation middleware
@@ -536,6 +606,9 @@ func RegisterHandlersWithOptions(router gin.IRouter, si ServerInterface, options
 	router.GET(options.BaseURL+"/about/privacy", wrapper.PrivacyPage)
 	router.GET(options.BaseURL+"/admin", wrapper.GetAdminIndex)
 	router.GET(options.BaseURL+"/admin/config", wrapper.GetAdminConfig)
+	router.POST(options.BaseURL+"/admin/config", wrapper.CreateAdminConfig)
+	router.DELETE(options.BaseURL+"/admin/config/:key", wrapper.DeleteAdminConfig)
+	router.PUT(options.BaseURL+"/admin/config/:key", wrapper.UpdateAdminConfig)
 	router.GET(options.BaseURL+"/profile/rankings/:year", wrapper.YearPersonalRanking)
 	router.GET(options.BaseURL+"/years", wrapper.YearsPage)
 	router.GET(options.BaseURL+"/years/:year", wrapper.YearPage)
@@ -550,22 +623,24 @@ func RegisterHandlersWithOptions(router gin.IRouter, si ServerInterface, options
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"H4sIAAAAAAAC/+xYUW/bNhD+K8JtwF640E2DPegtDdatwDYYBfowFHlgqLPNhiJZkgoiGPrvA0lJdh3J",
-	"8oZoTdq8JJbveHffdx/PFLfAdWm0QuUd5FswzLISPdr49MYyVYQPQkEOhvkNEFCsRMjhJtoIWPxcCYsF",
-	"5N5WSMDxDZYsLPK1CY7OW6HW0DQErpjHtbYC3VshPdrgVaDjVhgvdMix88i8zlbRKzPhUSsgqY7PFdp6",
-	"Vwjvl8B+duGxdANlkO4LZi2rY1l/iFL4HuZBeBmN+5ELXLFKesjPFwRW2pbMQw5C+V8uoI8ulMc12hh/",
-	"ydY4Ft4E22D0V6cF/xuZHWlRHUzHOjQdvwnLndHKYSTzL+3f6iqJgmvlUUXiPN57uvGlDA/jCmjIQbuV",
-	"9tkqxmsIfFB4b5B7LH61VtuDFMwYKTgLC+knF1bvZ/rR4gpy+IHu5EyT1dEUbSB71SfMsPXp2Ilg+zKM",
-	"1QatF4kDrgs8ZO/1+QB7BEp0rm3+w92w68vHFHPnf90H0zefkPtUvVArHUMJL4PtT6E4LgW+Z+oWCNyh",
-	"dQnYq7PF2SLk1wYVMwJyeB2/IlEhEQUNf9YYuQ3oIrPvCsjhd13iMsnyi96fLxaP1PaNLjGLyo+mVvDD",
-	"XexLoIf6iN2qypLZuq06a8v2bO0Cq6a6kYLDdfCk7EZXfhT0ZbA+F9Tj+CjX+rbV6SDOq2ifF2iqYXao",
-	"xoo7xutRqMtknxdrW8ScYItSqFGQv6G/DA7vVIH388GMOTIRkzQELhYX0wj734rHoiUxsccK5VqtxHqS",
-	"nKvk9v2wY6xeCYnUMnUr1NrRbTgLNKNEhUPEEq3Tisn3ac18bH1waH9ygS5xJ4qKyawr8+uRZ1rwcN2Q",
-	"Lw7BH4ej7lxoPIA1ZNJvmSbEpF86jZ7g+OA03YTiaei0O9ppN+9IjAXMOBBj/JMUPTvMHuVXUm1Hy3/T",
-	"7PUhm5RJ+bM5dnwICy+lXKa3rTmZZVLGF79ny+4Tmwhdi+N7+2SD3ySv+VvclvPtbKEEiG7j/+PzKZL8",
-	"P22lZ87ztPbTXdXT3nWdKujWCDxNGy/SeExpDFySmZbjU28xH/Z27wJyYqpe7V9Vzt3WvbK+nem6A0W3",
-	"7ef6+EZqOa+XL6yfvqEG9knH9r+78n8a07gh4NDedSxUVkIOG++NyyktheJoBIaX0DOuz6pbGtb8EwAA",
-	"//998TLSGhkAAA==",
+	"H4sIAAAAAAAC/+xZUW/bNhD+K8JtwF6U0E2DPegtydatwDYYBfIwFHlgpLPNmiIZknIiGPrvA0lJthXZ",
+	"1oqoTZq8JJZ4PN733XfiUVpDKnMlBQprIFmDoprmaFH7q0tNReZ+MAEJKGoXEIOgOUICt34sBo13BdOY",
+	"QWJ1gTGYdIE5dZNsqZyhsZqJOVRVDFfU4lxqhuYD4xa1s8rQpJopy6RbY2MRWRnNvFWk3KUUEIc47grU",
+	"5SaQtJ0C26szi7npCSNublCtaenD+ovlzLYwO+65H9z2nOGMFtxCcjaJYSZ1Ti0kwIT99Rxa70xYnKP2",
+	"/qd0jvvcKzfW6/3dMOf/ItV7UlS6oUMZOu6/ctONksKgJ/MfaT/IIogilcKi8MRZfLBkYXPuLvYroIo7",
+	"6RbSRjPvr4rhWuCDwtRi9rvWUneWoEpxllI3kXwxbvb2Sj9rnEECP5GNnEkYNSR461m9aBeMsLZp2PFg",
+	"2zCUlgq1ZYGDVGbYZe/9WQ97MeRoTJ38x9Wwycvn4HNjf9M6k7dfMLUheiZm0rtilruxv5lIccrwExVL",
+	"iGGF2gRg704npxO3vlQoqGKQwHt/K/YK8SiI+zNHz61D55n9mEECf8ocp0GWO7k/m0yeKO0LmWPkle+H",
+	"asH3Z7ENgXT14bNV5DnVZR11VIdt6dw4VlVxy1kKN86S0FtZ2L2gL9zoS0G9Hx9JpVzWOu3FeeXHxwUa",
+	"YhgdqtJsRdNyL9RpGB8Xax3EmGCznIm9IP9Ae+EMPooMH8aD6deImF+kiuF8cn4cYbtXPBUtgYktVkgq",
+	"xYzNj5JzFcxeBzsxKGn6Kl8jtdjl465AYy9lVh7Ybh9O7u/vT9x2d1JojsJtVtkuRbs75BLL3s5rRXkx",
+	"YDN00xvj/p2w0zR6ZJFH0W13qpGTXivw2dUEWS+xrEJDydHiYz385u/v6mG7/f/c21OG3Axv+m9eCf8x",
+	"qKKn6K5VRr8RyaNU8sCKHV6rgZC3WlVazhhHoqlYMjE3ZO1Oa9Xercwd86aojRSUfwpzxtvPrg3qX4zb",
+	"0NiKZQXlURPm9yNP1eBDre2WUJ/XjQnxR+QqPmo3DT3cUbvwvmCA4aP3HZULnrhMm4OZNuM2rT6AEVtW",
+	"73+QokeH2aL8TqptaPk6zd502SSU8xN16IDnJl5wPg3vw8ZklnLuX829WHaf2ROhSbF/s3o0wZfBavwU",
+	"1+H8OCUUAJG1/3/4+eRJ/kal9MJ5Pq798DXheVddowqyVgyHaeNNGk8pjZ7TkKo5HnwaepTbrU9ER56q",
+	"V9sfk8ZO61ZYP87TdQOKrOvf5eFCqjkvp2+sDy+onjpp2P5/H2Wfx9O4isGgXjUsFJpDAgtrlUkIyZlI",
+	"UTF0h9DTVJ4WS+Lm/BcAAP//F4s5fLweAAA=",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file

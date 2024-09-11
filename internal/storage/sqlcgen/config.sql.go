@@ -9,6 +9,16 @@ import (
 	"context"
 )
 
+const deleteConfig = `-- name: DeleteConfig :exec
+DELETE FROM config 
+WHERE key=$1::text
+`
+
+func (q *Queries) DeleteConfig(ctx context.Context, key string) error {
+	_, err := q.db.Exec(ctx, deleteConfig, key)
+	return err
+}
+
 const getActiveYear = `-- name: GetActiveYear :one
 SELECT CAST(coalesce(value, '2023') AS bigint) FROM config WHERE key = 'activeYear'
 `
@@ -20,6 +30,35 @@ func (q *Queries) GetActiveYear(ctx context.Context) (int64, error) {
 	return column_1, err
 }
 
+const getAllConfig = `-- name: GetAllConfig :many
+SELECT key, coalesce(value, '') FROM config
+`
+
+type GetAllConfigRow struct {
+	Key   string
+	Value string
+}
+
+func (q *Queries) GetAllConfig(ctx context.Context) ([]GetAllConfigRow, error) {
+	rows, err := q.db.Query(ctx, getAllConfig)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetAllConfigRow
+	for rows.Next() {
+		var i GetAllConfigRow
+		if err := rows.Scan(&i.Key, &i.Value); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getConfig = `-- name: GetConfig :one
 SELECT key, value FROM config WHERE key = $1::text
 `
@@ -29,6 +68,20 @@ func (q *Queries) GetConfig(ctx context.Context, key string) (Config, error) {
 	var i Config
 	err := row.Scan(&i.Key, &i.Value)
 	return i, err
+}
+
+const insertConfig = `-- name: InsertConfig :exec
+INSERT INTO config (key, value) VALUES ($1::text, $2::text)
+`
+
+type InsertConfigParams struct {
+	Key   string
+	Value string
+}
+
+func (q *Queries) InsertConfig(ctx context.Context, arg InsertConfigParams) error {
+	_, err := q.db.Exec(ctx, insertConfig, arg.Key, arg.Value)
+	return err
 }
 
 const isAdminId = `-- name: IsAdminId :one
@@ -48,4 +101,20 @@ func (q *Queries) IsAdminId(ctx context.Context, userID string) (bool, error) {
 	var column_1 bool
 	err := row.Scan(&column_1)
 	return column_1, err
+}
+
+const updateConfig = `-- name: UpdateConfig :exec
+UPDATE config 
+SET value=$1::text
+WHERE key=$2::text
+`
+
+type UpdateConfigParams struct {
+	Value string
+	Key   string
+}
+
+func (q *Queries) UpdateConfig(ctx context.Context, arg UpdateConfigParams) error {
+	_, err := q.db.Exec(ctx, updateConfig, arg.Value, arg.Key)
+	return err
 }

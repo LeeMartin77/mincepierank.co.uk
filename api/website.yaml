@@ -276,6 +276,91 @@ paths:
           $ref: "#/components/responses/NotFound"
         default:
           $ref: "#/components/responses/UnexpectedError"
+    post:
+      operationId: createAdminConfig
+      tags:
+        - admin
+      requestBody:
+        description: Create Body
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+                - key
+                - value
+              properties:
+                key:
+                  type: string
+                value:
+                  type: string
+      responses:
+        "200":
+          description: Admin config
+          content:
+            text/html:
+              schema:
+                type: string
+        "404":
+          $ref: "#/components/responses/NotFound"
+        default:
+          $ref: "#/components/responses/UnexpectedError"
+  /admin/config/{key}:
+    delete:
+      operationId: deleteAdminConfig
+      parameters:
+        - name: key
+          in: path
+          required: true
+          schema:
+            type: string
+      tags:
+        - admin
+      responses:
+        "200":
+          description: Admin config
+          content:
+            text/html:
+              schema:
+                type: string
+        "404":
+          $ref: "#/components/responses/NotFound"
+        default:
+          $ref: "#/components/responses/UnexpectedError"
+    put:
+      operationId: updateAdminConfig
+      parameters:
+        - name: key
+          in: path
+          required: true
+          schema:
+            type: string
+      tags:
+        - admin
+      requestBody:
+        description: Update Body
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+                - value
+              properties:
+                value:
+                  type: string
+      responses:
+        "200":
+          description: Admin config
+          content:
+            text/html:
+              schema:
+                type: string
+        "404":
+          $ref: "#/components/responses/NotFound"
+        default:
+          $ref: "#/components/responses/UnexpectedError"
 components:
   parameters:
     Year:

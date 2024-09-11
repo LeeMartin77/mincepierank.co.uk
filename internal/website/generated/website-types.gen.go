@@ -27,6 +27,17 @@ type Year = int64
 // UnexpectedError defines model for UnexpectedError.
 type UnexpectedError = Error
 
+// CreateAdminConfigFormdataBody defines parameters for CreateAdminConfig.
+type CreateAdminConfigFormdataBody struct {
+	Key   string `form:"key" json:"key"`
+	Value string `form:"value" json:"value"`
+}
+
+// UpdateAdminConfigFormdataBody defines parameters for UpdateAdminConfig.
+type UpdateAdminConfigFormdataBody struct {
+	Value string `form:"value" json:"value"`
+}
+
 // YearPersonalRankingParams defines parameters for YearPersonalRanking.
 type YearPersonalRankingParams struct {
 	Page  *Page  `form:"page,omitempty" json:"page,omitempty"`
@@ -62,3 +73,9 @@ type YearCategoryPiesParams struct {
 	// Categories Categories to filter pies on
 	Categories *CategoriesFilter `form:"categories,omitempty" json:"categories,omitempty"`
 }
+
+// CreateAdminConfigFormdataRequestBody defines body for CreateAdminConfig for application/x-www-form-urlencoded ContentType.
+type CreateAdminConfigFormdataRequestBody CreateAdminConfigFormdataBody
+
+// UpdateAdminConfigFormdataRequestBody defines body for UpdateAdminConfig for application/x-www-form-urlencoded ContentType.
+type UpdateAdminConfigFormdataRequestBody UpdateAdminConfigFormdataBody
