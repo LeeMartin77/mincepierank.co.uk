@@ -7,6 +7,7 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/leemartin77/mincepierank.co.uk/internal/storage/generated"
+	"github.com/leemartin77/mincepierank.co.uk/internal/storage/sqlcgen"
 	"github.com/leemartin77/mincepierank.co.uk/internal/storage/types"
 )
 
@@ -20,6 +21,8 @@ type Operations interface {
 	TestData(c context.Context) (*string, error)
 	Migrate(c context.Context) error
 	GetDatabase() *pgxpool.Pool
+
+	GetQuerier() sqlcgen.Querier
 
 	GetActiveYear(c context.Context) (*int64, error)
 

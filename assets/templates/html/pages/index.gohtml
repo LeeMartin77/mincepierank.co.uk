@@ -1,7 +1,7 @@
 {{define "page:index"}}
 {{template "fragment:global:head" .Head}}
 
-<h2 style="text-align:center">2023's Top Pie</h2>
+<h2 style="text-align:center">{{.Head.MenuSettings.ActiveYear}}'s Top Pie</h2>
 
 {{template "fragment:components:pielinkcard" .PageData.TopPie}}
 

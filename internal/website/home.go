@@ -10,21 +10,21 @@ import (
 )
 
 func (wrpr *WebsiteWrapper) HomePage(c *gin.Context) {
-	ay, err := wrpr.storage.GetActiveYear(c)
+	ay, err := wrpr.storage.GetQuerier().GetActiveYear(c)
 	if err != nil {
 		log.Error().Err(err).Msg("Error getting active year")
 		c.AbortWithStatus(500)
 		return
 	}
 
-	topPie, err := wrpr.storage.GetTopMakerPie(c, *ay)
+	topPie, err := wrpr.storage.GetTopMakerPie(c, ay)
 	if err != nil {
 		log.Error().Err(err).Msg("Error getting top maker pie")
 		c.AbortWithStatus(500)
 		return
 	}
 
-	makers, err := wrpr.storage.GetMakersForYear(c, *ay)
+	makers, err := wrpr.storage.GetMakersForYear(c, ay)
 	if err != nil {
 		log.Error().Err(err).Msg("Error getting year makers")
 		c.AbortWithStatus(500)
@@ -34,7 +34,7 @@ func (wrpr *WebsiteWrapper) HomePage(c *gin.Context) {
 	for _, mkr := range *makers {
 		mrks = append(mrks, templater.MakerCardData{
 			ImgprssrPrefix: imgprssrPrefix,
-			Year:           *ay,
+			Year:           ay,
 			Maker:          mkr,
 		})
 	}
@@ -49,7 +49,7 @@ func (wrpr *WebsiteWrapper) HomePage(c *gin.Context) {
 			Description: "Rank mince pies from major UK brands",
 			Keywords:    "Mince Pies, UK, Ranking",
 			MenuSettings: templater.MenuSettings{
-				ActiveYear: *ay,
+				ActiveYear: ay,
 				SignedIn:   c.Keys["signedin"].(bool),
 			},
 		},

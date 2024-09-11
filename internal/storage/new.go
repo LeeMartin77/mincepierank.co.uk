@@ -5,11 +5,18 @@ import (
 	"os"
 
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/leemartin77/mincepierank.co.uk/internal/storage/sqlcgen"
 	"github.com/rs/zerolog/log"
 )
 
 type OperationWrapper struct {
-	db *pgxpool.Pool
+	db      *pgxpool.Pool
+	querier sqlcgen.Querier
+}
+
+// GetQuerier implements Operations.
+func (o *OperationWrapper) GetQuerier() sqlcgen.Querier {
+	return o.querier
 }
 
 // TestData implements Operations.
@@ -37,7 +44,8 @@ func NewOperations(connectionString string) (Operations, error) {
 	}
 
 	return &OperationWrapper{
-		db: pool,
+		db:      pool,
+		querier: sqlcgen.New(pool),
 	}, nil
 }
 

@@ -3,6 +3,7 @@ version: 3
 tasks:
   generate:
     cmds:
+      - cd internal/storage && sqlc generate
       - go generate ./...
   build:
     deps:
