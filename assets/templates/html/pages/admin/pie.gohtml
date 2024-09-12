@@ -1,0 +1,11 @@
+{{define "page:admin:pie"}}
+{{template "fragment:global:head" .Head}}
+
+<h1>admin config</h1>
+
+<div>
+    {{.PageData.Pie.Displayname.String}}
+</div>
+
+{{template "fragment:global:foot" .Foot}}
+{{end}}

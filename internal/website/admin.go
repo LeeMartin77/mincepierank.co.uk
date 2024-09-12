@@ -132,3 +132,90 @@ func (wrpr *WebsiteWrapper) UpdateAdminConfig(c *gin.Context, key string) {
 	}
 	configPage(wrpr, c)
 }
+
+func piesPage(wrpr *WebsiteWrapper, c *gin.Context) {
+	pies, err := wrpr.storage.GetQuerier().GetAllMakerPies(c)
+	if err != nil {
+		c.AbortWithError(500, err)
+		return
+	}
+	ay, err := wrpr.storage.GetQuerier().GetActiveYear(c)
+	if err != nil {
+		c.AbortWithError(500, err)
+		return
+	}
+	vals := templater.PageData{
+		Head: templater.PageDataHead{
+			Title:       "Admin Pies",
+			Description: "",
+			Keywords:    "",
+			MenuSettings: templater.MenuSettings{
+				ActiveYear: ay,
+			},
+		},
+		PageData: map[string]interface{}{
+			"Pies": pies,
+		},
+	}
+
+	c.HTML(http.StatusOK, "page:admin:pies", vals)
+}
+
+func piePage(wrpr *WebsiteWrapper, c *gin.Context, oid string) {
+	pie, err := wrpr.storage.GetQuerier().GetMakerPieByOid(c, oid)
+	if err != nil {
+		c.AbortWithError(500, err)
+		return
+	}
+	ay, err := wrpr.storage.GetQuerier().GetActiveYear(c)
+	if err != nil {
+		c.AbortWithError(500, err)
+		return
+	}
+	vals := templater.PageData{
+		Head: templater.PageDataHead{
+			Title:       "Admin Pie",
+			Description: "",
+			Keywords:    "",
+			MenuSettings: templater.MenuSettings{
+				ActiveYear: ay,
+			},
+		},
+		PageData: map[string]interface{}{
+			"Pie": pie,
+		},
+	}
+
+	c.HTML(http.StatusOK, "page:admin:pie", vals)
+}
+
+// GetMakerPie implements generated.ServerInterface.
+func (wrpr *WebsiteWrapper) GetMakerPieAdmin(c *gin.Context, oid string) {
+	if !validateAdmin(wrpr, c) {
+		return
+	}
+	piePage(wrpr, c, oid)
+}
+
+// GetMakerPiesAdmin implements generated.ServerInterface.
+func (wrpr *WebsiteWrapper) GetMakerPiesAdmin(c *gin.Context) {
+	if !validateAdmin(wrpr, c) {
+		return
+	}
+	piesPage(wrpr, c)
+}
+
+// CreateMakerPieAdmin implements generated.ServerInterface.
+func (wrpr *WebsiteWrapper) CreateMakerPieAdmin(c *gin.Context) {
+	panic("unimplemented")
+}
+
+// DeleteMakerPie implements generated.ServerInterface.
+func (wrpr *WebsiteWrapper) DeleteMakerPie(c *gin.Context, oid string) {
+	panic("unimplemented")
+}
+
+// UpdateMakerPie implements generated.ServerInterface.
+func (wrpr *WebsiteWrapper) UpdateMakerPie(c *gin.Context, oid string) {
+	panic("unimplemented")
+}

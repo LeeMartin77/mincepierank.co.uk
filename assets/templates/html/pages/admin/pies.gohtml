@@ -1,0 +1,28 @@
+{{define "page:admin:pies"}}
+{{template "fragment:global:head" .Head}}
+
+<h1>admin config</h1>
+
+<div>
+    <table id="config-table">
+        <tr>
+            <th>Year</th>
+            <th>Makerid</th>
+            <th>ID</th>
+            <th>Displayname</th>
+            <th>Actions</th>
+        </tr>
+        {{ range .PageData.Pies }}
+        <tr>
+                <td>{{.Year}}</td>
+                <td>{{.Makerid}}</td>
+                <td>{{.ID}}</td>
+                <td>{{.Displayname}}</td>
+                <td><a href="/admin/makerpies/{{.Oidstr}}">Admin page</a></td>
+        </tr>
+        {{ end }}
+    </table>
+</div>
+
+{{template "fragment:global:foot" .Foot}}
+{{end}}

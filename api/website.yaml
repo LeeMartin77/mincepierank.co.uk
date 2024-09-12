@@ -361,6 +361,182 @@ paths:
           $ref: "#/components/responses/NotFound"
         default:
           $ref: "#/components/responses/UnexpectedError"
+  /admin/makerpies:
+    get:
+      operationId: getMakerPiesAdmin
+      tags:
+        - admin
+      responses:
+        "200":
+          description: Admin index
+          content:
+            text/html:
+              schema:
+                type: string
+        "404":
+          $ref: "#/components/responses/NotFound"
+        default:
+          $ref: "#/components/responses/UnexpectedError"
+    post:
+      operationId: createMakerPieAdmin
+      tags:
+        - admin
+      requestBody:
+        description: Create Body
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - year
+                - makerid
+                - id
+                - displayname
+                - fresh
+                - labels
+                - imageFile
+                - webLink
+                - packCount
+                - packPriceInPence
+                - validated
+              properties:
+                year:
+                  type: number
+                  x-go-type: int32
+                makerid:
+                  type: string
+                id:
+                  type: string
+                displayname:
+                  type: string
+                fresh:
+                  type: boolean
+                labels:
+                  type: string
+                imageFile:
+                  type: string
+                  format: binary
+                webLink:
+                  type: string
+                packCount:
+                  type: number
+                  x-go-type: int32
+                packPriceInPence:
+                  type: number
+                  x-go-type: int32
+                validated:
+                  type: boolean
+      responses:
+        "200":
+          description: Admin config
+          content:
+            text/html:
+              schema:
+                type: string
+        "404":
+          $ref: "#/components/responses/NotFound"
+        default:
+          $ref: "#/components/responses/UnexpectedError"
+  /admin/makerpies/{oid}:
+    get:
+      operationId: getMakerPieAdmin
+      parameters:
+        - name: oid
+          in: path
+          required: true
+          schema:
+            type: string
+      tags:
+        - admin
+      responses:
+        "200":
+          description: Admin config
+          content:
+            text/html:
+              schema:
+                type: string
+        "404":
+          $ref: "#/components/responses/NotFound"
+        default:
+          $ref: "#/components/responses/UnexpectedError"
+    delete:
+      operationId: deleteMakerPie
+      parameters:
+        - name: oid
+          in: path
+          required: true
+          schema:
+            type: string
+      tags:
+        - admin
+      responses:
+        "200":
+          description: Admin config
+          content:
+            text/html:
+              schema:
+                type: string
+        "404":
+          $ref: "#/components/responses/NotFound"
+        default:
+          $ref: "#/components/responses/UnexpectedError"
+    put:
+      operationId: updateMakerPie
+      parameters:
+        - name: oid
+          in: path
+          required: true
+          schema:
+            type: string
+      tags:
+        - admin
+      requestBody:
+        description: Update Body
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - displayname
+                - fresh
+                - labels
+                - webLink
+                - packCount
+                - packPriceInPence
+                - validated
+              properties:
+                displayname:
+                  type: string
+                fresh:
+                  type: boolean
+                labels:
+                  type: string
+                imageFile:
+                  type: string
+                  format: binary
+                webLink:
+                  type: string
+                packCount:
+                  type: number
+                  x-go-type: int32
+                packPriceInPence:
+                  type: number
+                  x-go-type: int32
+                validated:
+                  type: boolean
+      responses:
+        "200":
+          description: Admin config
+          content:
+            text/html:
+              schema:
+                type: string
+        "404":
+          $ref: "#/components/responses/NotFound"
+        default:
+          $ref: "#/components/responses/UnexpectedError"
 components:
   parameters:
     Year:

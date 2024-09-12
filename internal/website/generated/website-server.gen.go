@@ -48,6 +48,21 @@ type ServerInterface interface {
 	// (PUT /admin/config/{key})
 	UpdateAdminConfig(c *gin.Context, key string)
 
+	// (GET /admin/makerpies)
+	GetMakerPiesAdmin(c *gin.Context)
+
+	// (POST /admin/makerpies)
+	CreateMakerPieAdmin(c *gin.Context)
+
+	// (DELETE /admin/makerpies/{oid})
+	DeleteMakerPie(c *gin.Context, oid string)
+
+	// (GET /admin/makerpies/{oid})
+	GetMakerPieAdmin(c *gin.Context, oid string)
+
+	// (PUT /admin/makerpies/{oid})
+	UpdateMakerPie(c *gin.Context, oid string)
+
 	// (GET /profile/rankings/{year})
 	YearPersonalRanking(c *gin.Context, year Year, params YearPersonalRankingParams)
 
@@ -222,6 +237,104 @@ func (siw *ServerInterfaceWrapper) UpdateAdminConfig(c *gin.Context) {
 	}
 
 	siw.Handler.UpdateAdminConfig(c, key)
+}
+
+// GetMakerPiesAdmin operation middleware
+func (siw *ServerInterfaceWrapper) GetMakerPiesAdmin(c *gin.Context) {
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.GetMakerPiesAdmin(c)
+}
+
+// CreateMakerPieAdmin operation middleware
+func (siw *ServerInterfaceWrapper) CreateMakerPieAdmin(c *gin.Context) {
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.CreateMakerPieAdmin(c)
+}
+
+// DeleteMakerPie operation middleware
+func (siw *ServerInterfaceWrapper) DeleteMakerPie(c *gin.Context) {
+
+	var err error
+
+	// ------------- Path parameter "oid" -------------
+	var oid string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "oid", c.Param("oid"), &oid, runtime.BindStyledParameterOptions{Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter oid: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.DeleteMakerPie(c, oid)
+}
+
+// GetMakerPieAdmin operation middleware
+func (siw *ServerInterfaceWrapper) GetMakerPieAdmin(c *gin.Context) {
+
+	var err error
+
+	// ------------- Path parameter "oid" -------------
+	var oid string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "oid", c.Param("oid"), &oid, runtime.BindStyledParameterOptions{Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter oid: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.GetMakerPieAdmin(c, oid)
+}
+
+// UpdateMakerPie operation middleware
+func (siw *ServerInterfaceWrapper) UpdateMakerPie(c *gin.Context) {
+
+	var err error
+
+	// ------------- Path parameter "oid" -------------
+	var oid string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "oid", c.Param("oid"), &oid, runtime.BindStyledParameterOptions{Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter oid: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.UpdateMakerPie(c, oid)
 }
 
 // YearPersonalRanking operation middleware
@@ -609,6 +722,11 @@ func RegisterHandlersWithOptions(router gin.IRouter, si ServerInterface, options
 	router.POST(options.BaseURL+"/admin/config", wrapper.CreateAdminConfig)
 	router.DELETE(options.BaseURL+"/admin/config/:key", wrapper.DeleteAdminConfig)
 	router.PUT(options.BaseURL+"/admin/config/:key", wrapper.UpdateAdminConfig)
+	router.GET(options.BaseURL+"/admin/makerpies", wrapper.GetMakerPiesAdmin)
+	router.POST(options.BaseURL+"/admin/makerpies", wrapper.CreateMakerPieAdmin)
+	router.DELETE(options.BaseURL+"/admin/makerpies/:oid", wrapper.DeleteMakerPie)
+	router.GET(options.BaseURL+"/admin/makerpies/:oid", wrapper.GetMakerPieAdmin)
+	router.PUT(options.BaseURL+"/admin/makerpies/:oid", wrapper.UpdateMakerPie)
 	router.GET(options.BaseURL+"/profile/rankings/:year", wrapper.YearPersonalRanking)
 	router.GET(options.BaseURL+"/years", wrapper.YearsPage)
 	router.GET(options.BaseURL+"/years/:year", wrapper.YearPage)
@@ -623,24 +741,28 @@ func RegisterHandlersWithOptions(router gin.IRouter, si ServerInterface, options
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"H4sIAAAAAAAC/+xZUW/bNhD+K8JtwF6U0E2DPegtydatwDYYBfIwFHlgpLPNmiIZknIiGPrvA0lJthXZ",
-	"1oqoTZq8JJZ4PN733XfiUVpDKnMlBQprIFmDoprmaFH7q0tNReZ+MAEJKGoXEIOgOUICt34sBo13BdOY",
-	"QWJ1gTGYdIE5dZNsqZyhsZqJOVRVDFfU4lxqhuYD4xa1s8rQpJopy6RbY2MRWRnNvFWk3KUUEIc47grU",
-	"5SaQtJ0C26szi7npCSNublCtaenD+ovlzLYwO+65H9z2nOGMFtxCcjaJYSZ1Ti0kwIT99Rxa70xYnKP2",
-	"/qd0jvvcKzfW6/3dMOf/ItV7UlS6oUMZOu6/ctONksKgJ/MfaT/IIogilcKi8MRZfLBkYXPuLvYroIo7",
-	"6RbSRjPvr4rhWuCDwtRi9rvWUneWoEpxllI3kXwxbvb2Sj9rnEECP5GNnEkYNSR461m9aBeMsLZp2PFg",
-	"2zCUlgq1ZYGDVGbYZe/9WQ97MeRoTJ38x9Wwycvn4HNjf9M6k7dfMLUheiZm0rtilruxv5lIccrwExVL",
-	"iGGF2gRg704npxO3vlQoqGKQwHt/K/YK8SiI+zNHz61D55n9mEECf8ocp0GWO7k/m0yeKO0LmWPkle+H",
-	"asH3Z7ENgXT14bNV5DnVZR11VIdt6dw4VlVxy1kKN86S0FtZ2L2gL9zoS0G9Hx9JpVzWOu3FeeXHxwUa",
-	"YhgdqtJsRdNyL9RpGB8Xax3EmGCznIm9IP9Ae+EMPooMH8aD6deImF+kiuF8cn4cYbtXPBUtgYktVkgq",
-	"xYzNj5JzFcxeBzsxKGn6Kl8jtdjl465AYy9lVh7Ybh9O7u/vT9x2d1JojsJtVtkuRbs75BLL3s5rRXkx",
-	"YDN00xvj/p2w0zR6ZJFH0W13qpGTXivw2dUEWS+xrEJDydHiYz385u/v6mG7/f/c21OG3Axv+m9eCf8x",
-	"qKKn6K5VRr8RyaNU8sCKHV6rgZC3WlVazhhHoqlYMjE3ZO1Oa9Xercwd86aojRSUfwpzxtvPrg3qX4zb",
-	"0NiKZQXlURPm9yNP1eBDre2WUJ/XjQnxR+QqPmo3DT3cUbvwvmCA4aP3HZULnrhMm4OZNuM2rT6AEVtW",
-	"73+QokeH2aL8TqptaPk6zd502SSU8xN16IDnJl5wPg3vw8ZklnLuX829WHaf2ROhSbF/s3o0wZfBavwU",
-	"1+H8OCUUAJG1/3/4+eRJ/kal9MJ5Pq798DXheVddowqyVgyHaeNNGk8pjZ7TkKo5HnwaepTbrU9ER56q",
-	"V9sfk8ZO61ZYP87TdQOKrOvf5eFCqjkvp2+sDy+onjpp2P5/H2Wfx9O4isGgXjUsFJpDAgtrlUkIyZlI",
-	"UTF0h9DTVJ4WS+Lm/BcAAP//F4s5fLweAAA=",
+	"H4sIAAAAAAAC/+xaX2/bOAz/KoHugHtxqqwb7iFvbe+6K7AdggF9GIY+KDaTcJElVZLTGoG/+0GSnTiu",
+	"k/iGemu3vLRJSFHkjz+K9J81iWWqpABhDRmviWKapWBB+2+XmonEfUBBxkQxuyARESwFMiZTL4uIhvsM",
+	"NSRkbHUGETHxAlLmFtlcOUVjNYo5KYqIXDELc6kRzDVyC9ppJWBijcqidHtsNQZWDmZea6DcVylIFPy4",
+	"z0DnW0fizRJS3x0tpKbFjaj6gWnNcu/WB0zRbsJsmOdeWLecwIxl3JLx+SgiM6lTZsmYoLB/viMb6ygs",
+	"zEF7+xM2h33mlZO1Wn/TzfhnYHpPinInOpSh4/YLt9woKQx4MP+V9lpmgRSxFBaEB87Co6ULm3L3ZT8D",
+	"iqiRbiHtYObtFRG5FfCoILaQ/K211I0tmFIcY+YW0q/Gra7v9LuGGRmT3+iWzjRIDQ3WWnbPNhsOoNSp",
+	"0PHBbtxQWirQFgMGsUygid7b8xb0IpKCMWXyn1bDNi9fgs2t/t3GmJx+hdgG71HMpDeFljvZRxQxTBA+",
+	"MbEkEVmBNiGwN2ejs5HbXyoQTCEZk7f+p8gzxEdB3Z85eGxddB7Zm4SMyT8yhUmg5U7uz0ejZ0r7QqYw",
+	"8Mz3opLw7VncuECb/PDZytKU6bz0elC6bdncOFRVNuUYkzunSdlUZnZv0BdO+lqi3h8fjaVcljxtjfPK",
+	"y/sNNPjQe6hK44rF+d5QJ0Heb6ylE30Gm6Qo9gb5HuyFU7gRCTz2F6bfY4B+kyIi70bvjke46RXPBUtA",
+	"ooYKjaWY4fwoOFdB7ddAJyJKmrbK18AsNPG4z8DYS5nkB9rt4/Dh4WHo2t0w0xyEa1bJLkS7HXIJeevk",
+	"tWI869AM3fJKub0TNoZGH9nAR9Ecd4qek14y8MXVBF0vIS/CQMnBwlM+/OV/3+VDffz/0jpThtx0H/rv",
+	"fhH8I6KylqK7VQn7TiD3UskdK7Z7rQZATrUaajVlS9Dq0Lz2HuxHpzRBMD6KUxdjFipItojsY3+acYuK",
+	"aUs96xNm2SG+J2gUZ3mow5YONtNgFjXJVEoOTDgRJq0rMGVzuEa+e8k4RcH8bYAn+pxNgbffuPBs2bON",
+	"YvHySmYlA4JUZOkUNInI43Auh9ur07fn1YqJxhhuxAREDJ0XrhhHV8RJOw4PMP2AYtnqZV7erOiwT+OE",
+	"Ke9lVBB4uKOddFXJ2UBYx37rVh2qFhDq4Z1mj28+z+haYtJh/KgKuVNblJicZo/Ws/JY66jOyRPGvcx3",
+	"/bP4BbS35+tjr6FXNdrPkUbTU3M5DcuhuSgtZ8iBaiaWKOaGrt04UOwdmj8D0xPQRgrGP4U1/Y3Ntwb0",
+	"H8bNzbjCJGN8ULn548BTZfDh4No9ktqsblWof55UREf1JuGG51G98HCtg+KTh4OFc566TJuDmTb93uH1",
+	"DvR4f9fb78To3sPcRPmDWFvB8m2cvWuiSRnnw4NX127hBeeT8PC4T2QZ5/459qtF94WdCFWK/WsIRxN8",
+	"GbT6T3Hpzs9TQiEguvb/D59PHuTvVEqvHOfj3A+v3rzsqqtYQdcKoRs3TtR4Tmq0XF2qEuPOV5dPclt7",
+	"n+rIqXpVf/Oq77TW3Pp5TtdtUHRdfs4PF1KJeT45od69oFrqpEL7/73B+DJO4yIiBvSqQiHTnIzJwlpl",
+	"xpSmKGJQCO4i9CyWZ9mSujX/BQAA//9sopUI6SkAAA==",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file
