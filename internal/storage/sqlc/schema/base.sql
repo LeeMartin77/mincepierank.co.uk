@@ -55,7 +55,6 @@ CREATE TABLE IF NOT EXISTS maker_pie_yearly
       location text,
       displayname text,
       fresh boolean,
-      labels text[],
       image_file text,
       web_link text,
       pack_count int,

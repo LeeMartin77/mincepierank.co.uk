@@ -65,7 +65,7 @@ func (wrpr *WebsiteWrapper) YearBrandPie(ctx *gin.Context, year int64, brand str
 		},
 		PageData: map[string]interface{}{
 			"CategoryLinks":  pieCategoryLinks,
-			"ImgprssrPrefix": imgprssrPrefix,
+			"ImgprssrPrefix": wrpr.config.ImgprssrPrefix,
 			"HasMaker":       true,
 			"Pie":            pie,
 			"RankingSummary": rankingSummary,

@@ -11,6 +11,76 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const createMakerPie = `-- name: CreateMakerPie :one
+INSERT INTO maker_pie_yearly
+    (
+        year,
+        makerid,
+        id,
+        displayname,
+        fresh,
+        image_file,
+        web_link,
+        pack_count,
+        pack_price_in_pence,
+        validated
+    ) 
+    VALUES
+    (
+        $1::int,
+        $2::text,
+        $3::text,
+        $4::text,
+        $5::boolean,
+        $6::text,
+        $7::text,
+        $8::int,
+        $9::int,
+        $10::boolean
+    )
+RETURNING oid::text as oid
+`
+
+type CreateMakerPieParams struct {
+	Year             int32
+	Makerid          string
+	ID               string
+	Displayname      string
+	Fresh            bool
+	ImageFile        string
+	WebLink          string
+	PackCount        int32
+	PackPriceInPence int32
+	Validated        bool
+}
+
+func (q *Queries) CreateMakerPie(ctx context.Context, arg CreateMakerPieParams) (string, error) {
+	row := q.db.QueryRow(ctx, createMakerPie,
+		arg.Year,
+		arg.Makerid,
+		arg.ID,
+		arg.Displayname,
+		arg.Fresh,
+		arg.ImageFile,
+		arg.WebLink,
+		arg.PackCount,
+		arg.PackPriceInPence,
+		arg.Validated,
+	)
+	var oid string
+	err := row.Scan(&oid)
+	return oid, err
+}
+
+const deleteMakerPieByOid = `-- name: DeleteMakerPieByOid :exec
+DELETE FROM maker_pie_yearly where oid = uuid($1::text)
+`
+
+func (q *Queries) DeleteMakerPieByOid(ctx context.Context, oid string) error {
+	_, err := q.db.Exec(ctx, deleteMakerPieByOid, oid)
+	return err
+}
+
 const getAllMakerPies = `-- name: GetAllMakerPies :many
 SELECT mpy.oid::text as oidstr , mpy.year, mpy.makerid, mpy.id, mpy.displayname, mpy.fresh, mpy.labels, mpy.image_file, mpy.web_link, mpy.pack_count, mpy.pack_price_in_pence, mpy.validated, mpy.oid FROM maker_pie_yearly mpy
 `
@@ -87,4 +157,43 @@ func (q *Queries) GetMakerPieByOid(ctx context.Context, oid string) (MakerPieYea
 		&i.Oid,
 	)
 	return i, err
+}
+
+const updateMakerPieByOid = `-- name: UpdateMakerPieByOid :exec
+UPDATE maker_pie_yearly
+SET
+    -- year=sqlc.arg(year)::int,
+    -- makerid=sqlc.arg(makerid)::text,
+    -- id=sqlc.arg(id)::text,
+    displayname=$1::text,
+    fresh=$2::boolean,
+    -- image_file=sqlc.arg(image_file)::text,
+    web_link=$3::text,
+    pack_count=$4::int,
+    pack_price_in_pence=$5::int,
+    validated=$6::boolean
+WHERE oid = uuid($7::text)
+`
+
+type UpdateMakerPieByOidParams struct {
+	Displayname      string
+	Fresh            bool
+	WebLink          string
+	PackCount        int32
+	PackPriceInPence int32
+	Validated        bool
+	Oid              string
+}
+
+func (q *Queries) UpdateMakerPieByOid(ctx context.Context, arg UpdateMakerPieByOidParams) error {
+	_, err := q.db.Exec(ctx, updateMakerPieByOid,
+		arg.Displayname,
+		arg.Fresh,
+		arg.WebLink,
+		arg.PackCount,
+		arg.PackPriceInPence,
+		arg.Validated,
+		arg.Oid,
+	)
+	return err
 }

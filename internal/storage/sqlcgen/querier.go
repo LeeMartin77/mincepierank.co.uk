@@ -9,7 +9,9 @@ import (
 )
 
 type Querier interface {
+	CreateMakerPie(ctx context.Context, arg CreateMakerPieParams) (string, error)
 	DeleteConfig(ctx context.Context, key string) error
+	DeleteMakerPieByOid(ctx context.Context, oid string) error
 	GetActiveYear(ctx context.Context) (int64, error)
 	GetAllConfig(ctx context.Context) ([]GetAllConfigRow, error)
 	GetAllMakerPies(ctx context.Context) ([]GetAllMakerPiesRow, error)
@@ -18,6 +20,7 @@ type Querier interface {
 	InsertConfig(ctx context.Context, arg InsertConfigParams) error
 	IsAdminId(ctx context.Context, userID string) (bool, error)
 	UpdateConfig(ctx context.Context, arg UpdateConfigParams) error
+	UpdateMakerPieByOid(ctx context.Context, arg UpdateMakerPieByOidParams) error
 }
 
 var _ Querier = (*Queries)(nil)

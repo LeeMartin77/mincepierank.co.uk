@@ -4,7 +4,43 @@
 <h1>admin config</h1>
 
 <div>
-    <table id="config-table">
+<h3>Create Pie</h3>
+<form method="post" action="/admin/makerpies" enctype='multipart/form-data' style="display: flex; flex-direction: column;">
+    <label for="year">Year</label>
+    <input name="year" type="number"/>
+
+    <label for="makerid">Maker Id</label>
+    <input name="makerid" />
+
+    <label for="id">ID/Slug</label>
+    <input name="id" />
+
+    <label for="img">Image file</label>
+    <input name="img" type="file"/>
+
+    <label for="fresh">Fresh</label>
+    <input name="fresh" type="checkbox" />
+
+    <label for="displayname">Display Name</label>
+    <input name="displayname" />
+
+    <label for="web_link">Web Link</label>
+    <input name="web_link" />
+
+    <label for="pack_count">Pack Count</label>
+    <input name="pack_count" type="number"/>
+
+    <label for="pack_price_in_pence">Pack Price Pence</label>
+    <input name="pack_price_in_pence" />
+
+    <label for="validated">Validated</label>
+    <input name="validated" type="checkbox" />
+    <button type="submit">Submit</button>
+</form>
+</div>
+
+<div>
+    <table id="pie-table">
         <tr>
             <th>Year</th>
             <th>Makerid</th>
@@ -18,7 +54,10 @@
                 <td>{{.Makerid}}</td>
                 <td>{{.ID}}</td>
                 <td>{{.Displayname}}</td>
-                <td><a href="/admin/makerpies/{{.Oidstr}}">Admin page</a></td>
+                <td>
+                    <a href="/admin/makerpies/{{.Oidstr}}">Edit</a>
+                    <button type="button" hx-delete="/admin/makerpies/{{.Oidstr}}" hx-target="#pie-table" hx-select="#pie-table">Delete</button>
+                </td>
         </tr>
         {{ end }}
     </table>

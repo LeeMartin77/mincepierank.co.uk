@@ -30,19 +30,16 @@ func (wrpr *WebsiteWrapper) HomePage(c *gin.Context) {
 		c.AbortWithStatus(500)
 		return
 	}
+	log.Debug().Any("imgprsr", wrpr.config.ImgprssrPrefix).Msg("Imgprssr")
 	mrks := []templater.MakerCardData{}
 	for _, mkr := range *makers {
 		mrks = append(mrks, templater.MakerCardData{
-			ImgprssrPrefix: imgprssrPrefix,
+			ImgprssrPrefix: wrpr.config.ImgprssrPrefix,
 			Year:           ay,
 			Maker:          mkr,
 		})
 	}
 
-	pieCategoryLinks := []templater.Link{}
-	for _, ct := range topPie.Categories {
-		pieCategoryLinks = append(pieCategoryLinks, templater.Link{URL: fmt.Sprintf("/years/%d/categories/%s", topPie.Year, ct.Slug), Label: ct.Label})
-	}
 	vals := templater.PageData{
 		Head: templater.PageDataHead{
 			Title:       "Home Page",
@@ -54,15 +51,25 @@ func (wrpr *WebsiteWrapper) HomePage(c *gin.Context) {
 			},
 		},
 		PageData: map[string]interface{}{
-			"TopPie": templater.PieCardData{
-				Pie:            *topPie,
-				CategoryLinks:  pieCategoryLinks,
-				ImgprssrPrefix: imgprssrPrefix,
-				HasDate:        false,
-				PieLink:        fmt.Sprintf("/years/%d/brands/%s/%s", topPie.Year, topPie.MakerId, topPie.Id),
-			},
 			"MakerCards": mrks,
 		},
+	}
+	if topPie != nil {
+		pieCategoryLinks := []templater.Link{}
+		for _, ct := range topPie.Categories {
+			pieCategoryLinks = append(pieCategoryLinks, templater.Link{URL: fmt.Sprintf("/years/%d/categories/%s", topPie.Year, ct.Slug), Label: ct.Label})
+		}
+		tp := templater.PieCardData{
+			Pie:            *topPie,
+			CategoryLinks:  pieCategoryLinks,
+			ImgprssrPrefix: wrpr.config.ImgprssrPrefix,
+			HasDate:        false,
+			PieLink:        fmt.Sprintf("/years/%d/brands/%s/%s", topPie.Year, topPie.MakerId, topPie.Id),
+		}
+		vals.PageData = map[string]interface{}{
+			"MakerCards": mrks,
+			"TopPie":     tp,
+		}
 	}
 
 	c.HTML(http.StatusOK, "page:index", vals)

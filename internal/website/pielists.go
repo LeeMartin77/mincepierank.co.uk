@@ -119,7 +119,7 @@ func (wrpr *WebsiteWrapper) YearAllPies(c *gin.Context, year int64, params gener
 		pieCards = append(pieCards, templater.PieCardData{
 			Pie:            pie,
 			CategoryLinks:  pieCategoryLinks,
-			ImgprssrPrefix: imgprssrPrefix,
+			ImgprssrPrefix: wrpr.config.ImgprssrPrefix,
 			HasDate:        false,
 			IsGold:         i == 0 && pie.Count > 0,
 			PieLink:        fmt.Sprintf("/years/%d/brands/%s/%s", pie.Year, pie.MakerId, pie.Id),
@@ -190,7 +190,7 @@ func (wrpr *WebsiteWrapper) YearPersonalRanking(c *gin.Context, year int64, para
 		pieCards = append(pieCards, templater.PieCardData{
 			Pie:            pie,
 			CategoryLinks:  pieCategoryLinks,
-			ImgprssrPrefix: imgprssrPrefix,
+			ImgprssrPrefix: wrpr.config.ImgprssrPrefix,
 			HasDate:        false,
 			IsGold:         i == 0 && pie.Count > 0,
 			PieLink:        fmt.Sprintf("/years/%d/brands/%s/%s", pie.Year, pie.MakerId, pie.Id),
@@ -282,7 +282,7 @@ func (wrpr *WebsiteWrapper) YearBrandPies(c *gin.Context, year int64, brand stri
 		pieCards = append(pieCards, templater.PieCardData{
 			Pie:            pie,
 			CategoryLinks:  pieCategoryLinks,
-			ImgprssrPrefix: imgprssrPrefix,
+			ImgprssrPrefix: wrpr.config.ImgprssrPrefix,
 			HasDate:        false,
 			IsGold:         i == 0 && pie.Count > 0,
 			PieLink:        fmt.Sprintf("/years/%d/brands/%s/%s", pie.Year, pie.MakerId, pie.Id),
@@ -360,7 +360,7 @@ func (wrpr *WebsiteWrapper) YearCategoryPies(c *gin.Context, year int64, brand s
 		pieCards = append(pieCards, templater.PieCardData{
 			Pie:            pie,
 			CategoryLinks:  pieCategoryLinks,
-			ImgprssrPrefix: imgprssrPrefix,
+			ImgprssrPrefix: wrpr.config.ImgprssrPrefix,
 			HasDate:        false,
 			IsGold:         i == 0 && pie.Count > 0,
 			PieLink:        fmt.Sprintf("/years/%d/brands/%s/%s", pie.Year, pie.MakerId, pie.Id),

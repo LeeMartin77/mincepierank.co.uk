@@ -91,7 +91,6 @@ type UserPieYearly struct {
 	Location         pgtype.Text
 	Displayname      pgtype.Text
 	Fresh            pgtype.Bool
-	Labels           []string
 	ImageFile        pgtype.Text
 	WebLink          pgtype.Text
 	PackCount        pgtype.Int4

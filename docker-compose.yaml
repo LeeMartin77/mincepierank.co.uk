@@ -25,15 +25,30 @@ services:
       - AUTH_REDIRECT_URL=${AUTH_REDIRECT_URL}
       - AUTH_PROVIDER_URL=${AUTH_PROVIDER_URL}
       - JWT_SIGNING_KEY=all-your-base-belong
+      - IMGPRSSR_PREFIX=http://localhost:3000
+      - IMGPRSSR_DIR=/images
     ports:
       - "8080:8080"
+    volumes:
+      - images:/images
   postgres:
     image: postgres:13.13
     ports:
       - "5432:5432"
     environment:
       - POSTGRES_PASSWORD=mysecretpassword
+    volumes:
+      - postgres:/var/lib/postgresql/data
+  imgprssr:
+    image: ghcr.io/leemartin77/imgprssr:latest
+    ports:
+      - "3000:3000"
+    volumes:
+      - images:/images
   redis:
     image: redis:latest
     ports:
       - "6379:6379"
+volumes:
+  images: 
+  postgres: 

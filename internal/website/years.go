@@ -47,7 +47,7 @@ func (wrpr *WebsiteWrapper) YearPage(c *gin.Context, year int64) {
 	mrks := []templater.MakerCardData{}
 	for _, mkr := range *makers {
 		mrks = append(mrks, templater.MakerCardData{
-			ImgprssrPrefix: imgprssrPrefix,
+			ImgprssrPrefix: wrpr.config.ImgprssrPrefix,
 			Year:           year,
 			Maker:          mkr,
 		})
@@ -66,7 +66,7 @@ func (wrpr *WebsiteWrapper) YearPage(c *gin.Context, year int64) {
 			"Year": year,
 			"TopPie": templater.PieCardData{
 				Pie:            *topPie,
-				ImgprssrPrefix: imgprssrPrefix,
+				ImgprssrPrefix: wrpr.config.ImgprssrPrefix,
 				CategoryLinks:  pieCategoryLinks,
 				HasDate:        false,
 				PieLink:        fmt.Sprintf("/years/%d/brands/%s/%s", topPie.Year, topPie.MakerId, topPie.Id),
@@ -99,7 +99,7 @@ func (wrpr *WebsiteWrapper) YearAllBrands(c *gin.Context, year int64) {
 	mrks := []templater.MakerCardData{}
 	for _, mkr := range *makers {
 		mrks = append(mrks, templater.MakerCardData{
-			ImgprssrPrefix: imgprssrPrefix,
+			ImgprssrPrefix: wrpr.config.ImgprssrPrefix,
 			Year:           year,
 			Maker:          mkr,
 		})

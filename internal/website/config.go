@@ -1,8 +1,10 @@
 package website
 
 type WebsiteConfiguration struct {
-	DatabaseUrl string `env:"DATABASE_URL, required"`
-	RedisUrl    string `env:"REDIS_URL, required"`
+	DatabaseUrl    string `env:"DATABASE_URL, required"`
+	RedisUrl       string `env:"REDIS_URL, required"`
+	ImgprssrPrefix string `env:"IMGPRSSR_PREFIX, default=https://static.mincepierank.co.uk"`
+	ImgprssrDir    string `env:"IMGPRSSR_DIR, default=/images"`
 
 	MincepierankDomain       string `env:"MINCEPIERANK_DOMAIN, required"`
 	MincepierankSecureDomain bool   `env:"MINCEPIERANK_SECURE_DOMAIN, required"`

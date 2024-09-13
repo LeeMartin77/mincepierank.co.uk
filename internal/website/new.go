@@ -15,8 +15,6 @@ type Website struct {
 	htmlTemplater   templater.Templater
 }
 
-var imgprssrPrefix = "https://static.mincepierank.co.uk"
-
 func NewWebsite(cfg WebsiteConfiguration) (*Website, error) {
 
 	opt, err := redis.ParseURL(cfg.RedisUrl)
@@ -39,7 +37,7 @@ func NewWebsite(cfg WebsiteConfiguration) (*Website, error) {
 	if err != nil {
 		return nil, err
 	}
-	fsi := NewWebsiteWrapper(ops)
+	fsi := NewWebsiteWrapper(ops, cfg)
 
 	tmpltr := templater.NewHtmlTemplater()
 	return &Website{
@@ -52,10 +50,12 @@ func NewWebsite(cfg WebsiteConfiguration) (*Website, error) {
 
 type WebsiteWrapper struct {
 	storage storage.Operations
+	config  WebsiteConfiguration
 }
 
-func NewWebsiteWrapper(storage storage.Operations) generated.ServerInterface {
+func NewWebsiteWrapper(storage storage.Operations, cfg WebsiteConfiguration) generated.ServerInterface {
 	return &WebsiteWrapper{
 		storage: storage,
+		config:  cfg,
 	}
 }
