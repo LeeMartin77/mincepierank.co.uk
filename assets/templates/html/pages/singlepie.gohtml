@@ -1,8 +1,8 @@
 {{define "page:singlepie"}}
 {{template "fragment:global:head" .Head}}
 {{template "fragment:components:breadcrumb" .PageData.Breadcrumb}}
-<div class="pie-page-wrapper">
-  <div style="display:flex; flex-direction: column; gap: 0.5em;">
+<div class="columns">
+  <div class="column">
     <h1 style="margin-bottom: 0em;">{{.PageData.Pie.DisplayName}}</h1>
     {{ if .PageData.HasMaker }}
       <h3>from {{.PageData.Maker.Name}}</h3>
@@ -13,7 +13,7 @@
       alt="{{.PageData.Pie.DisplayName}}"
     />
   </div>
-  <div>
+  <div class="column">
     <div class="category-links">
 
         {{range .PageData.CategoryLinks}}
@@ -36,7 +36,7 @@
     <!-- ShareButton -->
   </div>
 
-  <div>
+  <div class="column">
     {{template "fragment:components:rankingsummary" .PageData.RankingSummary}}
   </div>
     <!-- PieRankingInterface -->

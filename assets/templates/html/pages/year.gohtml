@@ -4,7 +4,10 @@
 
 <h2 style="text-align: center">{{.PageData.Year}} Top Pie</h2>
 
+{{ if not .PageData.TopPie }}
+{{ else }}
 {{template "fragment:components:pielinkcard" .PageData.TopPie}}
+{{ end }}
 
 <a style="margin-top: 2em; margin-bottom: 2em;" class="link-button" href="/years/{{.PageData.Year}}/all-pies">View All Pies</a>
 

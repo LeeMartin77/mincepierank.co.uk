@@ -6,9 +6,12 @@
 <div>
 <h3>Create Pie</h3>
 <form method="post" action="/admin/makerpies" enctype='multipart/form-data' style="display: flex; flex-direction: column;">
-    <label for="year">Year</label>
-    <input name="year" type="number"/>
-
+    <div class="field">
+        <label class="label">Year</label>
+        <div class="control">
+            <input name="year" type="number"/>
+        </div>
+    </div>
     <label for="makerid">Maker Id</label>
     <input name="makerid" />
 

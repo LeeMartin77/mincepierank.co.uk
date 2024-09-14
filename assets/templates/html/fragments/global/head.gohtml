@@ -1,27 +1,20 @@
 {{define "fragment:global:head"}}
 <!DOCTYPE html>
-<html>
+<html data-theme="light" style="margin:0; padding-bottom: 1em; min-height: 100vh;">
 <head>
     <meta charset="UTF-8" />
+    <link href="/static/bulma@1.0.2.min.css" rel="stylesheet"/>
     <link href="/static/styles.css" rel="stylesheet"/>
     <script src="/static/htmx.org@2.0.1.min.js" type="application/javascript"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="/static/deck.gl@9.0.25.min.js"></script>
-    <!-- optional if maplibre base map is needed -->
-    <script src="/static/maplibre-gl@3.0.0.js"></script>
-    <link href="/static/maplibre-gl@3.0.0.css" rel="stylesheet" />
     <title>{{.Title}} :: Mince Pie Rank</title>
     <meta name="description" content="{{.Description}}" />
     <meta name="keywords" content="{{.Keywords}}" />
 </head>
 <body hx-boost="true">
-<!--<canvas id="canvas" hx-preserve="true"></canvas>-->
-<div class="page-container">
-  {{template "fragment:components:menu" .MenuSettings }}
-  <div class="content-container">
- 
+    <div class="container">
+    {{template "fragment:components:menu" .MenuSettings }}
     {{ if .ShowBreadcrumb }}
         {{template "fragment:components:breadcrumb" .Breadcrumbs }}
     {{ end }}
-    <div class="content">
 {{end}}

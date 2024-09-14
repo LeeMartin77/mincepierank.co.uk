@@ -40,10 +40,6 @@ func (wrpr *WebsiteWrapper) YearPage(c *gin.Context, year int64) {
 	for _, ct := range *cats {
 		categoryLinks = append(categoryLinks, templater.Link{URL: fmt.Sprintf("/years/%d/categories/%s", year, ct.Slug), Label: ct.Label})
 	}
-	pieCategoryLinks := []templater.Link{}
-	for _, ct := range topPie.Categories {
-		pieCategoryLinks = append(pieCategoryLinks, templater.Link{URL: fmt.Sprintf("/years/%d/categories/%s", year, ct.Slug), Label: ct.Label})
-	}
 	mrks := []templater.MakerCardData{}
 	for _, mkr := range *makers {
 		mrks = append(mrks, templater.MakerCardData{
@@ -51,6 +47,12 @@ func (wrpr *WebsiteWrapper) YearPage(c *gin.Context, year int64) {
 			Year:           year,
 			Maker:          mkr,
 		})
+	}
+	pageData := map[string]interface{}{
+		"Year":       year,
+		"MakerCards": mrks,
+		"Categories": categoryLinks,
+		"Breadcrumb": templater.BreadcrumbsFromUrl(fmt.Sprintf("/years/%d", year)),
 	}
 	vals := templater.PageData{
 		Head: templater.PageDataHead{
@@ -62,20 +64,23 @@ func (wrpr *WebsiteWrapper) YearPage(c *gin.Context, year int64) {
 				SignedIn:   c.Keys["signedin"].(bool),
 			},
 		},
-		PageData: map[string]interface{}{
-			"Year": year,
-			"TopPie": templater.PieCardData{
-				Pie:            *topPie,
-				ImgprssrPrefix: wrpr.config.ImgprssrPrefix,
-				CategoryLinks:  pieCategoryLinks,
-				HasDate:        false,
-				PieLink:        fmt.Sprintf("/years/%d/brands/%s/%s", topPie.Year, topPie.MakerId, topPie.Id),
-			},
-			"MakerCards": mrks,
-			"Categories": categoryLinks,
-			"Breadcrumb": templater.BreadcrumbsFromUrl(fmt.Sprintf("/years/%d", year)),
-		},
 	}
+	if topPie != nil {
+
+		pieCategoryLinks := []templater.Link{}
+		for _, ct := range topPie.Categories {
+			pieCategoryLinks = append(pieCategoryLinks, templater.Link{URL: fmt.Sprintf("/years/%d/categories/%s", year, ct.Slug), Label: ct.Label})
+		}
+		topPieData := templater.PieCardData{
+			Pie:            *topPie,
+			ImgprssrPrefix: wrpr.config.ImgprssrPrefix,
+			CategoryLinks:  pieCategoryLinks,
+			HasDate:        false,
+			PieLink:        fmt.Sprintf("/years/%d/brands/%s/%s", topPie.Year, topPie.MakerId, topPie.Id),
+		}
+		pageData["TopPie"] = topPieData
+	}
+	vals.PageData = pageData
 
 	c.HTML(200, "page:year", vals)
 }

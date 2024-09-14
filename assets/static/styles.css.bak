@@ -1,0 +1,396 @@
+html {
+    background: #c0e1ff;
+}
+
+body {
+    font-family: "EB Garamond", serif;
+    color: #111;
+    padding: 0;
+    margin: 0;
+}
+
+
+a {
+    color: #111;
+}
+
+a:visited {
+    color: #222;
+}
+
+select,
+input,
+textarea {
+    background-color: #fff;
+    color: #111;
+    border-bottom: solid 1px #111;
+    border: none;
+    width: 100%;
+    padding: 1em;
+}
+
+select:disabled,
+input:disabled {
+    color: #555;
+    border-bottom: dashed 1px #555;
+}
+
+label {
+    font-weight: bold;
+    text-align: center;
+    width: 100%;
+    display: block;
+    margin-top: 2em;
+    margin-bottom: 1em;
+    font-size: 1.5em;
+}
+
+dt {
+    font-weight: bold;
+    margin-top: 1em;
+}
+
+/* specific classes */
+
+/* pie link card */
+.pie-card-top {
+    display: flex;
+    gap: 2em;
+    justify-content: center;
+}
+.category-links {
+    display: flex;
+    justify-content: center;
+    gap: 0.5em;
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+}
+
+.category-link {
+    display: block;
+    box-shadow: 0em 0em 0.2em rgba(0, 0, 0, 0.2);
+    font-size: 0.8em;
+    border-radius: 2em;
+    padding: 0.5em;
+    text-decoration: none;
+    text-align: center;
+    color: initial;
+}
+.category-link:visited {
+    color: initial;
+}
+
+/* Utility classes */
+
+div.card {
+    padding: 1em;
+    border-radius: 1em;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0.2em 0.1em 0.5em rgba(0, 0, 0, 0.1);
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+div.raised {
+    box-shadow: 0.3em 0.2em 0.6em rgba(0, 0, 0, 0.2);
+}
+
+a.link-button {
+    display: block;
+    box-shadow: 0em 0em 0.3em rgba(0, 0, 0, 0.2);
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 1em;
+    padding: 1em;
+    text-align: center;
+    font-weight: bold;
+    color: #111;
+}
+a.link-button:visited {
+    color: #111;
+}
+
+/* layout */
+
+.page-container {
+    display: flex;
+    flex-direction: row;
+    top: 0;
+    left: 0;
+}
+.mpr-content-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 1em;
+    overflow-y: auto;
+    max-height: calc(100dvh - 2em);
+}
+.notices {
+    text-align: center;
+    border-radius: 1em;
+    position: fixed;
+    width: calc(100vw - 4em);
+    box-shadow: 0.2em 0.1em 0.5em rgba(0, 0, 0, 0.1);
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    top: 1em;
+    left: 1em;
+    display: flex;
+    padding: 1em;
+    align-items: center;
+    gap: 1em;
+    z-index: 9999999999998;
+}
+
+.notices button {
+    height: 2em;
+    width: 2em;
+    background: none;
+    border: 1px solid black;
+    border-radius: 0.5em;
+}
+
+.cookie-notice {
+    text-align: center;
+    border-radius: 1em;
+    position: fixed;
+    width: calc(100vw - 4em);
+    box-shadow: 0.2em 0.1em 0.5em rgba(0, 0, 0, 0.1);
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    bottom: 1em;
+    left: 1em;
+    display: flex;
+    flex-direction: column;
+    padding: 1em;
+    align-items: center;
+    gap: 1em;
+    z-index: 9999999999999;
+}
+
+.cookie-notice button {
+    display: block;
+    width: 100%;
+    cursor: pointer;
+    border-radius: 1em;
+    box-shadow: 0em 0em 0.3em rgba(0, 0, 0, 0.2);
+    background: white;
+    border: none;
+    padding: 1em;
+    text-align: center;
+    font-weight: bold;
+    color: #111;
+    margin-bottom: 1em;
+}
+
+.cookie-notice a {
+    display: block;
+    border-radius: 1em;
+    padding: 0.5em;
+    text-align: center;
+    font-weight: bold;
+    color: #111;
+}
+.cookie-notice a:visited {
+    color: #111;
+}
+
+.notices button:hover {
+    cursor: pointer;
+}
+
+.mpr-content {
+    padding-bottom: 6em;
+}
+
+@media only screen and (max-width: 640px) {
+    .mpr-content {
+        min-width: 320px;
+        max-width: 460px;
+    }
+}
+@media only screen and (min-width: 640px) and (max-width: 960px) {
+    .mpr-content {
+        min-width: 460px;
+        max-width: 960px;
+    }
+}
+
+@media only screen and (min-width: 1020px) {
+    .mpr-content {
+        min-width: 840px;
+        max-width: 1020px;
+    }
+}
+
+/* canvas {
+    /* position: fixed; */
+    /* background-image: linear-gradient(bottom, #c0e1ff 0%, #8ec8ff 84%); */
+
+    /* background-image: -webkit-gradient(
+        linear,
+        left bottom,
+        left top,
+        color-stop(0, #c0e1ff),
+        color-stop(0.84, #8ec8ff)
+    ); *
+    } */
+
+.mpr-breadcrumb-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1em;
+    background-color: white;
+    box-shadow: 0em 0.2em 0.2em 0 rgba(0, 0, 0, 0.2);
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    margin: 1em;
+    padding: 1em;
+}
+.mpr-breadcrumb-container > a {
+    color: #111;
+}
+.mpr-breadcrumb-container > a:visited {
+    color: #111;
+}
+
+.mini-category-link {
+    display: block;
+    box-shadow: 0 0 0.2em #0003;
+    font-size: 0.8em;
+    border-radius: 2em;
+    padding: 0.6em;
+    text-decoration: none;
+    text-align: center;
+    color: initial;
+}
+
+.menu-container button:hover:not(.menu-button) {
+    background-color: rgba(255, 255, 255, 0.8);
+    cursor: pointer;
+}
+
+@media only screen and (max-width: 640px) {
+    .menu-container {
+        position: fixed;
+        width: 100%;
+    }
+}
+
+.brand-list {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 1em;
+}
+.brand-link-container {
+    max-width: 320px;
+}
+.brand-link-image {
+    display: flex;
+    height: 250px;
+    align-items: center;
+}
+
+.category-links {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5em;
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+}
+
+.category-link {
+    display: block;
+    box-shadow: 0em 0em 0.3em rgba(0, 0, 0, 0.1);
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    font-size: 1em;
+    font-weight: bold;
+    border-radius: 0.5em;
+    padding: 0.5em 1em;
+    text-align: center;
+    color: #111;
+}
+.category-link:visited {
+    color: #111;
+}
+.pie-page-wrapper {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 2em;
+}
+.pie-page-wrapper > div {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.pie-page-wrapper > td {
+    padding: 0.25em 0.75em;
+}
+
+.pie-page-wrapper > table tr td {
+    border-bottom: 1px solid black;
+}
+
+.pie-page-wrapper > table tr:last-of-type td {
+    border: none;
+}
+
+.pie-list {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    width: 100%;
+    gap: 1em;
+}
+.pie-link-card-container {
+    max-width: 320px;
+}
+
+.filters {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5em;
+    margin: 1em;
+}
+.filters a {
+    cursor: pointer;
+    border: 1px dotted grey;
+    color: black;
+    text-decoration: none;
+    background: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    border-radius: 0.5em;
+    background-color: transparent;
+    padding: 0.5em;
+}
+.filters a:hover {
+    background-color: rgba(0, 0, 0, 0.1);
+}
+.filters a.selected {
+    border: 1px solid black;
+}

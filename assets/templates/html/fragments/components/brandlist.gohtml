@@ -1,8 +1,8 @@
 {{define "fragment:components:brandlist"}}
 <h2  style="text-align:center">Brands</h2>
-<div class="brand-list">
+<div class="grid">
   {{ range . }}
-    <div class="brand-link-container">
+    <div class="cell">
         <div class="card">
         <a class="brand-link-image" href="/years/{{.Year}}/brands/{{.Maker.Id}}">
             <div>
