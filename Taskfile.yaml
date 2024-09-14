@@ -1,5 +1,8 @@
 version: 3
 
+
+dotenv: ['.env']
+
 tasks:
   generate:
     cmds:
@@ -15,3 +18,8 @@ tasks:
       - generate
     cmds:
       - go run cmd/website/main.go
+  watch:
+    deps:
+      - generate
+    cmds:
+      - gow run cmd/website/main.go

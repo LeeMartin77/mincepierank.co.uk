@@ -6,11 +6,10 @@
 
 {{template "fragment:components:filterlinks" .PageData.FilterLinks}}
 
-<div class="pie-list" id="pie-list">
+<div class="pie-list" id="pie-list" style="display: flex; flex-direction: row; gap: 2em; flex-wrap: wrap; justify-content: center;">
+    
     {{ range .PageData.PieCards }}
-        <div class="pie-link-card-container">
-            {{template "fragment:components:pielinkcard" .}}
-        </div>
+        {{template "fragment:components:pielinkcard" .}}
     {{ end }}
 
     {{ if .PageData.ShouldLoadNextPage }}
@@ -18,7 +17,7 @@
         hx-trigger="click"
         hx-get="{{.PageData.URL}}?page={{.PageData.NextPage}}&{{.PageData.Query}}"
         hx-swap="outerHTML"
-        hx-select="#pie-list > div, #pie-list > button">
+        hx-select="#pie-list > .card, #pie-list > .nice-button">
         Load More
         </button>
     {{ end}}

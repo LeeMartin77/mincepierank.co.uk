@@ -3,6 +3,7 @@ package storage
 import (
 	"context"
 	"os"
+	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/leemartin77/mincepierank.co.uk/internal/storage/sqlcgen"
@@ -40,6 +41,12 @@ func NewOperations(connectionString string) (Operations, error) {
 	pool, err := pgxpool.New(context.Background(), connectionString)
 	if err != nil {
 		log.Error().Err(err).Msg("Unable to connect to database")
+		os.Exit(1)
+	}
+	tmt, _ := context.WithTimeout(context.Background(), time.Second*5)
+	err = pool.Ping(tmt)
+	if err != nil {
+		log.Error().Err(err).Msg("Unable to ping to database")
 		os.Exit(1)
 	}
 

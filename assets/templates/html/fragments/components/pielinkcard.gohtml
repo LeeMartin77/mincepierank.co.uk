@@ -1,7 +1,7 @@
 {{define "fragment:components:pielinkcard"}}
-<div class="card raised">
-  <div class="pie-card-top">
-    <div style="width: 30%">
+<div class="card">
+  <div class="card-image">
+    <figure class="image">
         <a href="{{.PieLink}}" aria-label="{{.Pie.DisplayName}}">
           <img
             width="100%"
@@ -9,28 +9,86 @@
             alt="{{.Pie.DisplayName}}"
           />
         </a>
+    </figure>
+  </div>
+  <div class="card-content">
+    <div class="media">
+      <div class="media-content">
+        <p class="title is-4">{{.Pie.DisplayName}}</p>
+        <p class="subtitle is-6">avg: {{ .Pie.Average }}</p>
+      </div>
     </div>
-    <div style="padding-top: 1em;">
+
+    <div class="content">
         {{ if .HasDate }}
             <h5 style="margin-top: 0.25em; margin-bottom: 0.25em;">
              TODO: Date on piecarddata
             </h5>
         {{ end }}
-      <div>avg: {{ .Pie.Average }}</div>
-    <h5 style="margin-top: 0.25em; margin-bottom: 0.25em;">{{.Pie.Count}} Votes</h5>
+      <h5 style="margin-top: 0.25em; margin-bottom: 0.25em;">{{.Pie.Count}} Votes</h5>
       {{ if .Pie.PackPriceInPence }}
         <h6 style="margin-top: 0.25em; margin-bottom: 0.25em;">
           {{ .Pie.PackPriceInPence }} per Pack
         </h6>
       {{ end }}
+
+      <div class="category-links">
+      {{range .CategoryLinks}}
+        <a class="mini-category-link" href="{{.URL}}">{{.Label}}</a>
+      {{end}}
+      </div>
+      <a class="button" href="{{.PieLink}}">{{.Pie.DisplayName}}</a>
     </div>
   </div>
-  <div class="category-links">
-   {{range .CategoryLinks}}
-    <a class="mini-category-link" href="{{.URL}}">{{.Label}}</a>
-   {{end}}
-  </div>
+</div>
+{{end}}
 
-  <a class="link-button" href="{{.PieLink}}">{{.Pie.DisplayName}}</a>
+{{define "fragment:components:toppielinkcard"}}
+<div class="card" style="max-width: 24em;">
+  <div class="card-content">
+    <div class="media">
+      <div class="media-content">
+        <p class="title is-4">{{.Pie.DisplayName}}</p>
+        <p class="subtitle is-6">avg: {{ .Pie.Average }}</p>
+      </div>
+    </div>
+
+    <div class="content">
+      <div class="columns">
+        <div class="column">
+         
+          <figure class="media-left">
+              <a href="{{.PieLink}}" aria-label="{{.Pie.DisplayName}}">
+                <img
+                  width="100%"
+                  src="{{.ImgprssrPrefix}}{{.Pie.ImageFile}}?width=250&height=250&filter=gaussian"
+                  alt="{{.Pie.DisplayName}}"
+                />
+              </a>
+          </figure>
+        </div>
+        <div class="column">
+        {{ if .HasDate }}
+            <h5 style="margin-top: 0.25em; margin-bottom: 0.25em;">
+             TODO: Date on piecarddata
+            </h5>
+        {{ end }}
+      <h5 style="margin-top: 0.25em; margin-bottom: 0.25em;">{{.Pie.Count}} Votes</h5>
+      {{ if .Pie.PackPriceInPence }}
+        <h6 style="margin-top: 0.25em; margin-bottom: 0.25em;">
+          {{ .Pie.PackPriceInPence }} per Pack
+        </h6>
+      {{ end }}
+
+      <div class="category-links">
+      {{range .CategoryLinks}}
+        <a class="mini-category-link" href="{{.URL}}">{{.Label}}</a>
+      {{end}}
+      </div>
+      <a class="button" href="{{.PieLink}}">{{.Pie.DisplayName}}</a>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 {{end}}

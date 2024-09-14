@@ -6,7 +6,7 @@
 
 {{ if not .PageData.TopPie }}
 {{ else }}
-{{template "fragment:components:pielinkcard" .PageData.TopPie}}
+{{template "fragment:components:toppielinkcard" .PageData.TopPie}}
 {{ end }}
 
 <a style="margin-top: 2em; margin-bottom: 2em;" class="link-button" href="/years/{{.PageData.Year}}/all-pies">View All Pies</a>
