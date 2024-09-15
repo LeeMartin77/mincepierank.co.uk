@@ -1,9 +1,8 @@
 {{define "fragment:components:brandlist"}}
 <h2  style="text-align:center">Brands</h2>
-<div class="grid">
+<div class="container"  style="display: flex; flex-direction: row; gap: 2em; flex-wrap: wrap; justify-content: center;">
   {{ range . }}
-    <div class="cell">
-        <div class="card">
+        <div class="card" style="display: flex; flex-direction: column; gap: 2em; justify-content: center;">
         <a class="brand-link-image" href="/years/{{.Year}}/brands/{{.Maker.Id}}">
             <div>
             <img
@@ -12,9 +11,8 @@
             />
             </div>
         </a>
-        <a class="link-button" href="/years/{{.Year}}/brands/{{.Maker.Id}}">{{.Maker.Name}}</a>
+        <a class="button" style="width: 100%; margin-bottom: 0;" href="/years/{{.Year}}/brands/{{.Maker.Id}}">{{.Maker.Name}}</a>
         </div>
-    </div>
   {{ end }}
 </div>
 {{end}}

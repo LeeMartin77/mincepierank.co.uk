@@ -43,7 +43,8 @@ func NewOperations(connectionString string) (Operations, error) {
 		log.Error().Err(err).Msg("Unable to connect to database")
 		os.Exit(1)
 	}
-	tmt, _ := context.WithTimeout(context.Background(), time.Second*5)
+	tmt, clc := context.WithTimeout(context.Background(), time.Second*5)
+	defer clc()
 	err = pool.Ping(tmt)
 	if err != nil {
 		log.Error().Err(err).Msg("Unable to ping to database")

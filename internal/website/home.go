@@ -30,7 +30,6 @@ func (wrpr *WebsiteWrapper) HomePage(c *gin.Context) {
 		c.AbortWithStatus(500)
 		return
 	}
-	log.Debug().Any("imgprsr", wrpr.config.ImgprssrPrefix).Msg("Imgprssr")
 	mrks := []templater.MakerCardData{}
 	for _, mkr := range *makers {
 		mrks = append(mrks, templater.MakerCardData{
