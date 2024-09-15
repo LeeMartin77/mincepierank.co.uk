@@ -2,6 +2,8 @@ package templater
 
 import (
 	"bytes"
+	"encoding/json"
+	"errors"
 	"fmt"
 	"html/template"
 	"io"
@@ -67,5 +69,40 @@ func getFilesInDirAndChildren(dir string) []string {
 
 func getTemplates(tmpltdir string) (templates *template.Template, err error) {
 	allFiles := getFilesInDirAndChildren(tmpltdir)
-	return template.New("").ParseFiles(allFiles...)
+	return template.New("").Funcs(template.FuncMap{
+		"dict": func(values ...interface{}) (map[string]interface{}, error) {
+			if len(values)%2 != 0 {
+				return nil, errors.New("invalid dict call")
+			}
+			dict := make(map[string]interface{}, len(values)/2)
+			for i := 0; i < len(values); i += 2 {
+				key, ok := values[i].(string)
+				if !ok {
+					return nil, errors.New("dict keys must be strings")
+				}
+				dict[key] = values[i+1]
+			}
+			return dict, nil
+		},
+		"jsonserial": func(value interface{}) (string, error) {
+			b, err := json.MarshalIndent(value, "", "  ")
+			if err != nil {
+				fmt.Println(value)
+				return "Error serialising", err
+			}
+			return string(b), nil
+		},
+		"ppencediv": func(value interface{}) (float32, error) {
+			first, ok := value.(float32)
+			if !ok {
+				fint, ok := value.(int32)
+				if !ok {
+
+					return 0, fmt.Errorf("first value not floatable")
+				}
+				first = float32(fint)
+			}
+			return first / 100, nil
+		},
+	}).ParseFiles(allFiles...)
 }

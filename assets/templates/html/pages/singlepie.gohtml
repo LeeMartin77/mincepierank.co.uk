@@ -1,45 +1,52 @@
 {{define "page:singlepie"}}
 {{template "fragment:global:head" .Head}}
 {{template "fragment:components:breadcrumb" .PageData.Breadcrumb}}
-<div class="columns">
-  <div class="column">
-    <h1 style="margin-bottom: 0em;">{{.PageData.Pie.DisplayName}}</h1>
-    {{ if .PageData.HasMaker }}
-      <h3>from {{.PageData.Maker.Name}}</h3>
-    {{ end }}
-    <a href="{{.PageData.Pie.WebLink}}">Link to Website</a>
-    <img
-      src="{{.PageData.ImgprssrPrefix}}{{.PageData.Pie.ImageFile}}?filter=gaussian&width=250"
-      alt="{{.PageData.Pie.DisplayName}}"
-    />
-  </div>
-  <div class="column">
-    <div class="category-links">
 
-        {{range .PageData.CategoryLinks}}
-            <a class="category-link" href="{{.URL}}">{{.Label}}</a>
-        {{end}}
+<section class="section">
+  <div class="container">
+
+    <!-- Header with Pie Name and Maker -->
+    <div class="box">
+      <h1 class="title">{{.PageData.Pie.DisplayName}}</h1>
+      {{ if .PageData.HasMaker }}
+        <h2 class="subtitle">Made by: {{.PageData.Maker.Name}}</h2>
+      {{ end }}
     </div>
-    <h3>Pieformation</h3>
-    <table>
-      <tbody>
-        <tr>
-          <td><b>Pack Count</b></td>
-          <td>{{.PageData.Pie.PackCount}}</td>
-        </tr>
-        <tr>
-          <td><b>Price</b></td>
-          <td>{{.PageData.Pie.PackPriceInPence}}</td>
-        </tr>
-      </tbody>
-    </table>
-    <!-- ShareButton -->
-  </div>
 
-  <div class="column">
+    <!-- Image and Link to Website -->
+    <div class="columns is-vcentered">
+      <div class="column is-one-third">
+        <figure class="image">
+          <img 
+            src="{{.PageData.ImgprssrPrefix}}{{.PageData.Pie.ImageFile}}?filter=gaussian&width=250"
+            alt="{{.PageData.Pie.DisplayName}}">
+        </figure>
+      </div>
+
+      <div class="column is-two-thirds">
+        <a href="{{.PageData.Pie.WebLink}}" class="button is-link is-outlined">Link to Website</a>
+      </div>
+    </div>
+
+    <!-- Pie Details (Pack Count and Price) -->
+    <div class="box">
+      <div class="columns">
+        <div class="column">
+          <p><strong>Pack Count:</strong> {{.PageData.Pie.PackCount}}</p>
+        </div>
+        <div class="column">
+          <p><strong>Pack Price:</strong> £{{printf "%.2f" (ppencediv .PageData.Pie.PackPriceInPence)}}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- User Rankings Section -->
     {{template "fragment:components:rankingsummary" .PageData.RankingSummary}}
+
   </div>
-    <!-- PieRankingInterface -->
-</div>
+</section>
+
 {{template "fragment:global:foot" .Foot}}
 {{end}}
+
+

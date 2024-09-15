@@ -1,31 +1,20 @@
 {{define "fragment:components:rankingsummary"}}
-  <div style="display: flex; flex-direction: column; align-items:center;">
-      <h3>Average: {{.Average}}</h3>
-      <!-- PieGraph -->
-      <h5>{{.Count}} Rankings</h5>
-    <table>
-      <tbody>
-          <tr>
-            <td><b>Pastry</b></td>
-            <td>{{.Pastry}}</td>
-          </tr>
-          <tr>
-            <td><b>Filling</b></td>
-            <td>{{.Filling}}</td>
-          </tr>
-          <tr>
-            <td><b>Topping</b></td>
-            <td>{{.Topping}}</td>
-          </tr>
-          <tr>
-            <td><b>Looks</b></td>
-            <td>{{.Looks}}</td>
-          </tr>
-          <tr>
-            <td><b>Value</b></td>
-            <td>{{.Value}}</td>
-          </tr>
-      </tbody>
-    </table>
+    <div class="box">
+      <h2 class="title is-4">User Rankings</h2>
+      <div class="columns">
+        <div class="column">
+          <p><strong>Average:</strong> {{.Average}} / 5</p>
+          <p><strong>Pastry:</strong> {{.Pastry}} / 5</p>
+        </div>
+        <div class="column">
+          <p><strong>Filling:</strong> {{.Filling}} / 5</p>
+          <p><strong>Topping:</strong> {{.Topping}} / 5</p>
+        </div>
+        <div class="column">
+          <p><strong>Looks:</strong> {{.Looks}} / 5</p>
+          <p><strong>Value for Money:</strong> {{.Value}} / 5</p>
+        </div>
+      </div>
+    </div>
   </div>
   {{end}}
