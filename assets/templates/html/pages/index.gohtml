@@ -1,7 +1,7 @@
 {{define "page:index"}}
 {{template "fragment:global:head" .Head}}
 
-<h2 style="text-align:center">{{.Head.MenuSettings.ActiveYear}}'s Top Pie</h2>
+<h2 class="title" style="text-align:center">{{.Head.MenuSettings.ActiveYear}}'s Top Pie</h2>
 {{ if not .PageData.TopPie }}
 {{ else }}
 <div style="display: flex; flex-direction: row; justify-content: center;">

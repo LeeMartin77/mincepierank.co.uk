@@ -159,6 +159,32 @@ func (q *Queries) GetMakerPieByOid(ctx context.Context, oid string) (MakerPieYea
 	return i, err
 }
 
+const getMakerPieYears = `-- name: GetMakerPieYears :many
+SELECT DISTINCT year
+FROM maker_pie_yearly
+WHERE validated = true
+`
+
+func (q *Queries) GetMakerPieYears(ctx context.Context) ([]int32, error) {
+	rows, err := q.db.Query(ctx, getMakerPieYears)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []int32
+	for rows.Next() {
+		var year int32
+		if err := rows.Scan(&year); err != nil {
+			return nil, err
+		}
+		items = append(items, year)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const updateMakerPieByOid = `-- name: UpdateMakerPieByOid :exec
 UPDATE maker_pie_yearly
 SET

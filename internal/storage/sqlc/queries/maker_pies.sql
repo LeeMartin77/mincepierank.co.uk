@@ -50,3 +50,8 @@ SET
     pack_price_in_pence=sqlc.arg(pack_price_in_pence)::int,
     validated=sqlc.arg(validated)::boolean
 WHERE oid = uuid(sqlc.arg(oid)::text);
+
+-- name: GetMakerPieYears :many
+SELECT DISTINCT year
+FROM maker_pie_yearly
+WHERE validated = true;

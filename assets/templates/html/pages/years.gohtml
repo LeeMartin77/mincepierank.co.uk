@@ -3,11 +3,11 @@
 {{template "fragment:components:breadcrumb" .PageData.Breadcrumb}}
 
 
-<h1 style="min-width: 240px; text-align: center;">Years</h1>
+<h1 class="title" style="min-width: 240px; text-align: center;">Years</h1>
 
 <div style="width: 100%; display: flex; flex-direction: column; gap: 2em;">
   {{ range .PageData.Years }}
-    <a class="link-button" href="/years/{{.}}" style="width: calc(100% - 2em); display: block;">{{.}}</a>
+    <a class="link-button button" href="/years/{{.}}" style="width: calc(100% - 2em); display: block;">{{.}}</a>
   {{ end }}
 </div>
 

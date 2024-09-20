@@ -17,6 +17,7 @@ type Querier interface {
 	GetAllMakerPies(ctx context.Context) ([]GetAllMakerPiesRow, error)
 	GetConfig(ctx context.Context, key string) (Config, error)
 	GetMakerPieByOid(ctx context.Context, oid string) (MakerPieYearly, error)
+	GetMakerPieYears(ctx context.Context) ([]int32, error)
 	InsertConfig(ctx context.Context, arg InsertConfigParams) error
 	IsAdminId(ctx context.Context, userID string) (bool, error)
 	UpdateConfig(ctx context.Context, arg UpdateConfigParams) error

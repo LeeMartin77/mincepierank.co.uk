@@ -2,6 +2,7 @@ package website
 
 import (
 	"fmt"
+	"slices"
 
 	"github.com/gin-gonic/gin"
 	"github.com/leemartin77/mincepierank.co.uk/internal/templater"
@@ -177,6 +178,14 @@ func (wrpr *WebsiteWrapper) YearsPage(c *gin.Context) {
 		c.AbortWithStatus(500)
 		return
 	}
+	yrs, err := wrpr.storage.GetQuerier().GetMakerPieYears(c)
+	if err != nil {
+		log.Error().Err(err).Msg("Error getting years")
+		c.AbortWithStatus(500)
+		return
+	}
+	slices.Sort(yrs)
+	slices.Reverse(yrs)
 	vals := templater.PageData{
 		Head: templater.PageDataHead{
 			Title:       "Available Years",
@@ -188,7 +197,7 @@ func (wrpr *WebsiteWrapper) YearsPage(c *gin.Context) {
 			},
 		},
 		PageData: map[string]interface{}{
-			"Years":      []int64{2023, 2022},
+			"Years":      yrs,
 			"Breadcrumb": templater.BreadcrumbsFromUrl("/years"),
 		},
 	}

@@ -28,7 +28,7 @@
       <h5 style="margin-top: 0.25em; margin-bottom: 0.25em;">{{.Pie.Count}} Votes</h5>
       {{ if .Pie.PackPriceInPence }}
         <h6 style="margin-top: 0.25em; margin-bottom: 0.25em;">
-          {{ .Pie.PackPriceInPence }} per Pack
+          £{{printf "%.2f" (ppencediv .Pie.PackPriceInPence)}} per Pack
         </h6>
       {{ end }}
 
@@ -37,7 +37,7 @@
         <a class="mini-category-link" href="{{.URL}}">{{.Label}}</a>
       {{end}}
       </div>
-      <a class="button" href="{{.PieLink}}">{{.Pie.DisplayName}}</a>
+      <a class="button" style="width: 100%;" href="{{.PieLink}}">{{.Pie.DisplayName}}</a>
     </div>
   </div>
 </div>
@@ -76,7 +76,7 @@
       <h5 style="margin-top: 0.25em; margin-bottom: 0.25em;">{{.Pie.Count}} Votes</h5>
       {{ if .Pie.PackPriceInPence }}
         <h6 style="margin-top: 0.25em; margin-bottom: 0.25em;">
-          {{ .Pie.PackPriceInPence }} per Pack
+          £{{printf "%.2f" (ppencediv .Pie.PackPriceInPence)}} per Pack
         </h6>
       {{ end }}
 
@@ -85,7 +85,7 @@
         <a class="mini-category-link" href="{{.URL}}">{{.Label}}</a>
       {{end}}
       </div>
-      <a class="button" href="{{.PieLink}}">{{.Pie.DisplayName}}</a>
+      <a class="button" style="width: 100%;" href="{{.PieLink}}">{{.Pie.DisplayName}}</a>
         </div>
       </div>
     </div>
