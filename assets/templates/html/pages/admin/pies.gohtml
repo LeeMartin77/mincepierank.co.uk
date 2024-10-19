@@ -3,67 +3,124 @@
 
 <h1>admin config</h1>
 
-<div>
+<div class="section">
 <h3>Create Pie</h3>
-<form method="post" action="/admin/makerpies" enctype='multipart/form-data' style="display: flex; flex-direction: column;">
+<form method="post" action="/admin/makerpies" enctype='multipart/form-data'>
     <div class="field">
-        <label class="label">Year</label>
+        <label class="label" for="year">Year</label>
         <div class="control">
-            <input name="year" type="number"/>
+            <input class="input" name="year" type="number" placeholder="Enter year" />
         </div>
     </div>
-    <label for="makerid">Maker Id</label>
-    <input name="makerid" />
 
-    <label for="id">ID/Slug</label>
-    <input name="id" />
+    <div class="field">
+        <label class="label" for="makerid">Maker Id</label>
+        <div class="control">
+            <input class="input" name="makerid" type="text" placeholder="Enter maker id" />
+        </div>
+    </div>
 
-    <label for="img">Image file</label>
-    <input name="img" type="file"/>
+    <div class="field">
+        <label class="label" for="id">ID/Slug</label>
+        <div class="control">
+            <input class="input" name="id" type="text" placeholder="Enter ID/Slug" />
+        </div>
+    </div>
 
-    <label for="fresh">Fresh</label>
-    <input name="fresh" type="checkbox" />
+    <div class="field">
+        <label class="label" for="img">Image file</label>
+        <div class="control">
+            <div class="file">
+                <label class="file-label">
+                    <input class="file-input" name="img" type="file">
+                    <span class="file-cta">
+                        <span class="file-label">Choose a file…</span>
+                    </span>
+                </label>
+            </div>
+        </div>
+    </div>
 
-    <label for="displayname">Display Name</label>
-    <input name="displayname" />
+    <div class="field">
+        <label class="checkbox">
+            <input name="fresh" type="checkbox"> Fresh
+        </label>
+    </div>
 
-    <label for="web_link">Web Link</label>
-    <input name="web_link" />
+    <div class="field">
+        <label class="label" for="displayname">Display Name</label>
+        <div class="control">
+            <input class="input" name="displayname" type="text" placeholder="Enter display name" />
+        </div>
+    </div>
 
-    <label for="pack_count">Pack Count</label>
-    <input name="pack_count" type="number"/>
+    <div class="field">
+        <label class="label" for="web_link">Web Link</label>
+        <div class="control">
+            <input class="input" name="web_link" type="url" placeholder="Enter web link" />
+        </div>
+    </div>
 
-    <label for="pack_price_in_pence">Pack Price Pence</label>
-    <input name="pack_price_in_pence" />
+    <div class="field">
+        <label class="label" for="pack_count">Pack Count</label>
+        <div class="control">
+            <input class="input" name="pack_count" type="number" placeholder="Enter pack count" />
+        </div>
+    </div>
 
-    <label for="validated">Validated</label>
-    <input name="validated" type="checkbox" />
-    <button type="submit">Submit</button>
+    <div class="field">
+        <label class="label" for="pack_price_in_pence">Pack Price Pence</label>
+        <div class="control">
+            <input class="input" name="pack_price_in_pence" type="number" placeholder="Enter pack price in pence" />
+        </div>
+    </div>
+
+    <div class="field">
+        <label class="checkbox">
+            <input name="validated" type="checkbox"> Validated
+        </label>
+    </div>
+
+    <div class="field is-grouped">
+        <div class="control">
+            <button class="button is-primary" type="submit">Submit</button>
+        </div>
+    </div>
 </form>
+
 </div>
 
-<div>
-    <table id="pie-table">
+<div class="section" style="margin-bottom: 5em;">
+<table id="pie-table" class="table is-striped is-fullwidth is-hoverable">
+    <thead>
         <tr>
             <th>Year</th>
-            <th>Makerid</th>
+            <th>Maker ID</th>
             <th>ID</th>
-            <th>Displayname</th>
+            <th>Display Name</th>
             <th>Actions</th>
         </tr>
+    </thead>
+    <tbody>
         {{ range .PageData.Pies }}
         <tr>
-                <td>{{.Year}}</td>
-                <td>{{.Makerid}}</td>
-                <td>{{.ID}}</td>
-                <td>{{.Displayname}}</td>
-                <td>
-                    <a href="/admin/makerpies/{{.Oidstr}}">Edit</a>
-                    <button type="button" hx-delete="/admin/makerpies/{{.Oidstr}}" hx-target="#pie-table" hx-select="#pie-table">Delete</button>
-                </td>
+            <td>{{.Year}}</td>
+            <td>{{.Makerid}}</td>
+            <td>{{.ID}}</td>
+            <td>{{.Displayname.String}}</td>
+            <td>
+                <a class="button is-small is-info" href="/years/{{.Year}}/brands/{{.Makerid}}/{{.ID}}">View</a>
+                <a class="button is-small is-info" href="/admin/makerpies/{{.Oidstr}}">Edit</a>
+                <button class="button is-small is-danger" type="button" 
+                        hx-delete="/admin/makerpies/{{.Oidstr}}" 
+                        hx-target="#pie-table" 
+                        hx-select="#pie-table">Delete</button>
+            </td>
         </tr>
         {{ end }}
-    </table>
+    </tbody>
+</table>
+
 </div>
 
 {{template "fragment:global:foot" .Foot}}
