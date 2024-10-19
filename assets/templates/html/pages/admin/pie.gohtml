@@ -29,7 +29,7 @@
 
         <div class="field">
             <label class="checkbox">
-                <input name="fresh" type="checkbox" checked="{{.PageData.Pie.Fresh.Bool}}"> Fresh
+                <input name="fresh" type="checkbox" value="true" {{if .PageData.Pie.Fresh.Bool }}checked{{end}}> Fresh
             </label>
         </div>
 
@@ -77,7 +77,7 @@
 
         <div class="field">
             <label class="checkbox">
-                <input name="validated" type="checkbox" value="{{.PageData.Pie.Validated.Bool}}"> Validated
+                <input name="validated" type="checkbox" value="true" {{if .PageData.Pie.Validated.Bool}}checked{{end}}> Validated
             </label>
         </div>
 
