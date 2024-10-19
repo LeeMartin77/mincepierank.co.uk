@@ -9,7 +9,10 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
+
+	"github.com/leemartin77/mincepierank.co.uk/internal/storage/types"
 )
 
 func NewHtmlTemplater() Templater {
@@ -103,6 +106,19 @@ func getTemplates(tmpltdir string) (templates *template.Template, err error) {
 				first = float32(fint)
 			}
 			return first / 100, nil
+		},
+		"containscat": func(cat interface{}, catlist interface{}) bool {
+			category, ok := cat.(types.Category)
+			if !ok {
+				return false
+			}
+			category_list, ok := catlist.(*[]types.Category)
+			if !ok {
+				return false
+			}
+			return slices.ContainsFunc(*category_list, func(cl types.Category) bool {
+				return cl.Id == category.Id
+			})
 		},
 	}).ParseFiles(allFiles...)
 }

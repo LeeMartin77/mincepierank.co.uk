@@ -67,7 +67,7 @@
                 <div class="select is-multiple">
                     <select multiple name="categories">
                         {{ range .PageData.AllCategories }}
-                            <option value="{{.Slug}}">{{.Label}}</option>
+                            <option value="{{.Slug}}" {{if containscat . $.PageData.PieCategories}}selected{{end}}>{{.Label}}</option>
                         {{ end }}
                     </select>
                 </div>
