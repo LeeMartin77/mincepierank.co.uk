@@ -2,7 +2,7 @@
 SELECT mpy.oid::text as oidstr , mpy.* FROM maker_pie_yearly mpy;
 
 -- name: GetMakerPieByOid :one
-SELECT * FROM maker_pie_yearly where oid = uuid(sqlc.arg(oid)::text);
+SELECT mpy.oid::text as oidstr , mpy.* FROM maker_pie_yearly mpy where mpy.oid = uuid(sqlc.arg(oid)::text);
 
 -- name: DeleteMakerPieByOid :exec
 DELETE FROM maker_pie_yearly where oid = uuid(sqlc.arg(oid)::text);

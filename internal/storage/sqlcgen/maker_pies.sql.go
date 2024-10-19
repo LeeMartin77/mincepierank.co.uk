@@ -136,13 +136,30 @@ func (q *Queries) GetAllMakerPies(ctx context.Context) ([]GetAllMakerPiesRow, er
 }
 
 const getMakerPieByOid = `-- name: GetMakerPieByOid :one
-SELECT year, makerid, id, displayname, fresh, labels, image_file, web_link, pack_count, pack_price_in_pence, validated, oid FROM maker_pie_yearly where oid = uuid($1::text)
+SELECT mpy.oid::text as oidstr , mpy.year, mpy.makerid, mpy.id, mpy.displayname, mpy.fresh, mpy.labels, mpy.image_file, mpy.web_link, mpy.pack_count, mpy.pack_price_in_pence, mpy.validated, mpy.oid FROM maker_pie_yearly mpy where mpy.oid = uuid($1::text)
 `
 
-func (q *Queries) GetMakerPieByOid(ctx context.Context, oid string) (MakerPieYearly, error) {
+type GetMakerPieByOidRow struct {
+	Oidstr           string
+	Year             int32
+	Makerid          string
+	ID               string
+	Displayname      pgtype.Text
+	Fresh            pgtype.Bool
+	Labels           []string
+	ImageFile        pgtype.Text
+	WebLink          pgtype.Text
+	PackCount        pgtype.Int4
+	PackPriceInPence pgtype.Int4
+	Validated        pgtype.Bool
+	Oid              pgtype.UUID
+}
+
+func (q *Queries) GetMakerPieByOid(ctx context.Context, oid string) (GetMakerPieByOidRow, error) {
 	row := q.db.QueryRow(ctx, getMakerPieByOid, oid)
-	var i MakerPieYearly
+	var i GetMakerPieByOidRow
 	err := row.Scan(
+		&i.Oidstr,
 		&i.Year,
 		&i.Makerid,
 		&i.ID,

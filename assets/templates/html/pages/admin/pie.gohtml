@@ -1,10 +1,78 @@
 {{define "page:admin:pie"}}
 {{template "fragment:global:head" .Head}}
 
-<h1>admin config</h1>
 
-<div>
-    {{.PageData.Pie.Displayname.String}}
+
+<div class="section">
+    <h1>Update Data</h1>
+    <form hx-target="body" hx-swap="body" hx-put="/admin/makerpies/{{.PageData.Pie.Oidstr}}" enctype='multipart/form-data'>
+        <div class="field">
+            <label class="label" for="year">Year</label>
+            <div class="control">
+                <input class="input" name="year" type="number" placeholder="Enter year" value="{{.PageData.Pie.Year}}" disabled/>
+            </div>
+        </div>
+
+        <div class="field">
+            <label class="label" for="makerid">Maker Id</label>
+            <div class="control">
+                <input class="input" name="makerid" type="text" placeholder="Enter maker id" value="{{.PageData.Pie.Makerid}}" disabled />
+            </div>
+        </div>
+
+        <div class="field">
+            <label class="label" for="id">ID/Slug</label>
+            <div class="control">
+                <input class="input" name="id" type="text" placeholder="Enter ID/Slug" value="{{.PageData.Pie.ID}}" disabled />
+            </div>
+        </div>
+
+        <div class="field">
+            <label class="checkbox">
+                <input name="fresh" type="checkbox" checked="{{.PageData.Pie.Fresh.Bool}}"> Fresh
+            </label>
+        </div>
+
+        <div class="field">
+            <label class="label" for="displayname">Display Name</label>
+            <div class="control">
+                <input class="input" name="displayname" type="text" placeholder="Enter display name" value="{{.PageData.Pie.Displayname.String}}"/>
+            </div>
+        </div>
+
+        <div class="field">
+            <label class="label" for="web_link">Web Link</label>
+            <div class="control">
+                <input class="input" name="web_link" type="url" placeholder="Enter web link" value="{{.PageData.Pie.WebLink.String}}" />
+            </div>
+        </div>
+
+        <div class="field">
+            <label class="label" for="pack_count">Pack Count</label>
+            <div class="control">
+                <input class="input" name="pack_count" type="number" placeholder="Enter pack count" value="{{.PageData.Pie.PackCount.Int32}}"/>
+            </div>
+        </div>
+
+        <div class="field">
+            <label class="label" for="pack_price_in_pence">Pack Price Pence</label>
+            <div class="control">
+                <input class="input" name="pack_price_in_pence" type="number" placeholder="Enter pack price in pence" value="{{.PageData.Pie.PackPriceInPence.Int32}}"/>
+            </div>
+        </div>
+
+        <div class="field">
+            <label class="checkbox">
+                <input name="validated" type="checkbox" value="{{.PageData.Pie.Validated.Bool}}"> Validated
+            </label>
+        </div>
+
+        <div class="field is-grouped">
+            <div class="control">
+                <button class="button is-primary" type="submit">Submit</button>
+            </div>
+        </div>
+    </form>
 </div>
 
 {{template "fragment:global:foot" .Foot}}
