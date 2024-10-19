@@ -505,6 +505,7 @@ paths:
                 - webLink
                 - packCount
                 - packPriceInPence
+                - categories
                 - validated
               properties:
                 displayname:
@@ -518,6 +519,10 @@ paths:
                   format: binary
                 webLink:
                   type: string
+                categories:
+                  type: array
+                  items: 
+                    type: string
                 packCount:
                   type: number
                   x-go-type: int32

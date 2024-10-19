@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"github.com/leemartin77/mincepierank.co.uk/internal/storage/sqlcgen"
 	"github.com/leemartin77/mincepierank.co.uk/internal/templater"
 )
@@ -177,6 +178,21 @@ func piePage(wrpr *WebsiteWrapper, c *gin.Context, oid string) {
 		c.AbortWithError(500, err)
 		return
 	}
+	uid, err := uuid.Parse(oid)
+	if err != nil {
+		c.AbortWithError(500, err)
+		return
+	}
+	pcats, err := wrpr.storage.GetMakerPieCategoriesForMakerPieOid(c, uid)
+	if err != nil {
+		c.AbortWithError(500, err)
+		return
+	}
+	cats, err := wrpr.storage.GetMakerPieCategories(c)
+	if err != nil {
+		c.AbortWithError(500, err)
+		return
+	}
 	vals := templater.PageData{
 		Head: templater.PageDataHead{
 			Title:       "Admin Pie",
@@ -187,7 +203,9 @@ func piePage(wrpr *WebsiteWrapper, c *gin.Context, oid string) {
 			},
 		},
 		PageData: map[string]interface{}{
-			"Pie": pie,
+			"Pie":           pie,
+			"PieCategories": pcats,
+			"AllCategories": cats,
 		},
 	}
 
@@ -293,7 +311,12 @@ func (wrpr *WebsiteWrapper) UpdateMakerPie(c *gin.Context, oid string) {
 	if !validateAdmin(wrpr, c) {
 		return
 	}
-	err := wrpr.storage.GetQuerier().UpdateMakerPieByOid(c, sqlcgen.UpdateMakerPieByOidParams{
+	uid, err := uuid.Parse(oid)
+	if err != nil {
+		c.AbortWithStatus(400)
+		return
+	}
+	err = wrpr.storage.GetQuerier().UpdateMakerPieByOid(c, sqlcgen.UpdateMakerPieByOidParams{
 		Displayname:      c.Request.FormValue("displayname"),
 		Fresh:            mustParseBool(c.Request.FormValue("fresh")),
 		WebLink:          c.Request.FormValue("web_link"),
@@ -302,6 +325,11 @@ func (wrpr *WebsiteWrapper) UpdateMakerPie(c *gin.Context, oid string) {
 		Validated:        mustParseBool(c.Request.FormValue("validated")),
 		Oid:              oid,
 	})
+	if err != nil {
+		c.AbortWithError(500, err)
+		return
+	}
+	err = wrpr.storage.SetPieCategories(c, uid, c.Request.Form["categories"])
 	if err != nil {
 		c.AbortWithError(500, err)
 		return

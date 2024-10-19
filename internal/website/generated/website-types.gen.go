@@ -59,6 +59,7 @@ type CreateMakerPieAdminMultipartBody struct {
 
 // UpdateMakerPieMultipartBody defines parameters for UpdateMakerPie.
 type UpdateMakerPieMultipartBody struct {
+	Categories       []string            `json:"categories"`
 	Displayname      string              `json:"displayname"`
 	Fresh            bool                `json:"fresh"`
 	ImageFile        *openapi_types.File `json:"imageFile,omitempty"`

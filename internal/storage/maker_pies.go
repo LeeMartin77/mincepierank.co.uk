@@ -2,6 +2,7 @@ package storage
 
 import (
 	"context"
+	"fmt"
 	"strings"
 
 	"github.com/google/uuid"
@@ -402,4 +403,95 @@ func (o *OperationWrapper) GetMakerPieCategoriesForMakerPieOid(ctx context.Conte
 		log.Error().Err(err).Msg("Error during categories for year iteration")
 	}
 	return &r, nil
+}
+
+func (o *OperationWrapper) GetMakerPieCategories(ctx context.Context) (*[]types.Category, error) {
+	r := []types.Category{}
+	sql := `
+	SELECT c.id, c.slug, c.label
+	FROM categories c;
+	`
+	rows, err := o.db.Query(ctx, sql)
+	if err == pgx.ErrNoRows {
+		return &r, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var ctg types.Category
+		if err := rows.Scan(&ctg.Id, &ctg.Slug, &ctg.Label); err != nil {
+			log.Error().Err(err).Msg("Scan failed in get categories")
+			continue
+		}
+		r = append(r, ctg)
+	}
+
+	if err := rows.Err(); err != nil {
+		log.Error().Err(err).Msg("Error during categories")
+	}
+	return &r, nil
+}
+
+func (o *OperationWrapper) SetPieCategories(ctx context.Context, oid uuid.UUID, category_keys []string) error {
+	// start a transaction
+	tx, err := o.db.BeginTx(ctx, pgx.TxOptions{})
+	if err != nil {
+		return err
+	}
+	defer func() {
+		tx.Rollback(ctx)
+	}()
+
+	_, err = tx.Exec(ctx, `DELETE from maker_pie_categories WHERE maker_pie_oid = $1`, oid)
+	if err != nil {
+		return err
+	}
+
+	catids := []uuid.UUID{}
+	sql := `
+	SELECT c.id, c.slug, c.label
+	FROM categories c
+	WHERE c.slug = ANY($1::text[])
+	`
+	rows, err := o.db.Query(ctx, sql, category_keys)
+	if err == pgx.ErrNoRows || len(category_keys) == 0 {
+		tx.Commit(ctx)
+		return nil
+	}
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var ctg types.Category
+		if err := rows.Scan(&ctg.Id, &ctg.Slug, &ctg.Label); err != nil {
+			log.Error().Err(err).Msg("Scan failed")
+			continue
+		}
+		catids = append(catids, ctg.Id)
+	}
+
+	if err := rows.Err(); err != nil {
+		log.Error().Err(err).Msg("Error during cat id retreival")
+	}
+
+	insql := `INSERT INTO maker_pie_categories (maker_pie_oid, category_id) VALUES `
+	argidx := 1
+	args := []any{}
+	for _, cid := range catids {
+		insql += fmt.Sprintf(" ($%d, $%d),", argidx, argidx+1)
+		argidx += 2
+		args = append(args, oid)
+		args = append(args, cid)
+	}
+	insql = insql[:len(insql)-1]
+	insql += ";"
+	_, err = tx.Exec(ctx, insql, args...)
+	if err != nil {
+		return err
+	}
+	tx.Commit(ctx)
+	return nil
 }

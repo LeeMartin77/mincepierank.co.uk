@@ -62,6 +62,20 @@
         </div>
 
         <div class="field">
+            <label class="label" for="categories">Pie Categories</label>
+            <div class="control">
+                <div class="select is-multiple">
+                    <select multiple name="categories">
+                        {{ range .PageData.AllCategories }}
+                            <option value="{{.Slug}}">{{.Label}}</option>
+                        {{ end }}
+                    </select>
+                </div>
+            </div>
+            </div>
+        </div>
+
+        <div class="field">
             <label class="checkbox">
                 <input name="validated" type="checkbox" value="{{.PageData.Pie.Validated.Bool}}"> Validated
             </label>

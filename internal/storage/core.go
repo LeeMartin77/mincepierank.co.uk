@@ -37,6 +37,9 @@ type Operations interface {
 	GetMakerPieYearly(ctx context.Context, year int32, makerid string, id string) (*types.MakerPieYearly, error)
 	GetMakerPieCategoriesForMakerPieOid(ctx context.Context, oid uuid.UUID) (*[]types.Category, error)
 	GetMakerPieYearlyRankingSummary(c context.Context, year int32, makerid string, id string) (*RankingSummary, error)
+
+	GetMakerPieCategories(ctx context.Context) (*[]types.Category, error)
+	SetPieCategories(ctx context.Context, oid uuid.UUID, category_keys []string) error
 }
 
 func (o *OperationWrapper) GetMaker(ctx context.Context, Id string) (*types.Maker, error) {
