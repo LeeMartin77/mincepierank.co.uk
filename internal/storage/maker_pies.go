@@ -97,6 +97,7 @@ func (o *OperationWrapper) GetFilterableMakerPies(c context.Context, year int64,
 		INNER JOIN maker_pie_yearly_categories cts ON
 		cts.oid = mpy.oid
 		WHERE mpy.year = $1
+		AND mpy.validated = true
 		AND ($4 = '' OR mpy.makerid=ANY(string_to_array($4, ',')))
 		AND ($5 = '' OR cts.category_slugs @> string_to_array($5, ','))
 		ORDER BY tp.avg DESC NULLS LAST
@@ -183,6 +184,7 @@ func (o *OperationWrapper) GetFilterableMakerPiesForUser(c context.Context, year
 		INNER JOIN maker_pie_yearly_categories cts ON
 		cts.oid = mpy.oid
 		WHERE mpy.year = $1
+		AND mpy.validated = true
 		AND ($5 = '' OR mpy.makerid=ANY(string_to_array($5, ',')))
 		AND ($6 = '' OR cts.category_slugs @> string_to_array($6, ','))
 		ORDER BY (
