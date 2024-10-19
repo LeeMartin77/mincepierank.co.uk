@@ -40,11 +40,11 @@ type MakerPieRankingYearly struct {
 	Makerid     string
 	Pieid       string
 	Userid      string
-	Pastry      pgtype.Int4
-	Filling     pgtype.Int4
-	Topping     pgtype.Int4
-	Looks       pgtype.Int4
-	Value       pgtype.Int4
+	Pastry      int32
+	Filling     int32
+	Topping     int32
+	Looks       int32
+	Value       int32
 	Notes       pgtype.Text
 	LastUpdated pgtype.Timestamp
 }

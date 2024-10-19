@@ -1,0 +1,40 @@
+{{define "fragment:components:userranking"}}
+    <div class="box">
+      <h2 class="title is-4">Your Ranking</h2>
+      {{if not .Ranking.Year }}
+      <h3 class="subtitle is-6">You haven't ranked this!</h3>
+      {{else}}
+      <h3 class="subtitle is-6">You ranked this on {{.Ranking.LastUpdated.Time}}</h3>
+      {{end}}
+      {{if not .Readonly}}
+        {{ if eq .ActiveYear .Pie.Year }} 
+        ranking interface here
+        {{else}}
+        <div class="columns">
+            <div class="column">
+            <p><strong>Pastry:</strong> {{.Ranking.Pastry}} / 5</p>
+            <p><strong>Filling:</strong> {{.Ranking.Filling}} / 5</p>
+            </div>
+            <div class="column">
+            <p><strong>Topping:</strong> {{.Ranking.Topping}} / 5</p>
+            <p><strong>Looks:</strong> {{.Ranking.Looks}} / 5</p>
+            </div>
+        </div>
+        <p><strong>Value for Money:</strong> {{.Ranking.Value}} / 5</p>
+        {{end}}
+      {{else}}
+        <div class="columns">
+            <div class="column">
+            <p><strong>Pastry:</strong> {{.Ranking.Pastry}} / 5</p>
+            <p><strong>Filling:</strong> {{.Ranking.Filling}} / 5</p>
+            </div>
+            <div class="column">
+            <p><strong>Topping:</strong> {{.Ranking.Topping}} / 5</p>
+            <p><strong>Looks:</strong> {{.Ranking.Looks}} / 5</p>
+            </div>
+        </div>
+        <p><strong>Value for Money:</strong> {{.Ranking.Value}} / 5</p>
+      {{end}}
+    </div>
+  </div>
+  {{end}}

@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/leemartin77/mincepierank.co.uk/internal/storage/sqlcgen"
 	"github.com/leemartin77/mincepierank.co.uk/internal/templater"
 	"github.com/rs/zerolog/log"
 )
@@ -15,6 +16,11 @@ func (wrpr *WebsiteWrapper) YearBrandPie(ctx *gin.Context, year int64, brand str
 		log.Error().Err(err).Msg("Error getting active year")
 		ctx.AbortWithStatus(500)
 		return
+	}
+
+	ro, err := wrpr.storage.GetReadonly(ctx)
+	if err != nil {
+		log.Error().Err(err).Msg("Error getting readonly - fails closed")
 	}
 
 	pie, err := wrpr.storage.GetMakerPieYearly(ctx, int32(year), ctx.Param("brand"), ctx.Param("pie"))
@@ -49,6 +55,16 @@ func (wrpr *WebsiteWrapper) YearBrandPie(ctx *gin.Context, year int64, brand str
 		return
 	}
 
+	uid, _ := ctx.Keys["userid"].(string)
+	sin, _ := ctx.Keys["signedin"].(bool)
+
+	urnking, _ := wrpr.storage.GetQuerier().GetUserMakerPieRanking(ctx, sqlcgen.GetUserMakerPieRankingParams{
+		Userid:  uid,
+		Year:    pie.Year,
+		Makerid: pie.MakerId,
+		Pieid:   pie.Id,
+	})
+
 	pieCategoryLinks := []templater.Link{}
 	for _, ct := range *cats {
 		pieCategoryLinks = append(pieCategoryLinks, templater.Link{URL: fmt.Sprintf("/years/%d/categories/%s", pie.Year, ct.Slug), Label: ct.Label})
@@ -61,6 +77,7 @@ func (wrpr *WebsiteWrapper) YearBrandPie(ctx *gin.Context, year int64, brand str
 			Keywords:    fmt.Sprintf("Mince Pies, UK, Ranking, %d, %s, %s", pie.Year, maker.Name, pie.DisplayName),
 			MenuSettings: templater.MenuSettings{
 				ActiveYear: *ay,
+				SignedIn:   sin,
 			},
 		},
 		PageData: map[string]interface{}{
@@ -71,6 +88,8 @@ func (wrpr *WebsiteWrapper) YearBrandPie(ctx *gin.Context, year int64, brand str
 			"RankingSummary": rankingSummary,
 			"Maker":          maker,
 			"Breadcrumb":     templater.BreadcrumbsFromUrl(fmt.Sprintf("/years/%d/brands/%s/%s", pie.Year, pie.MakerId, pie.Id)),
+			"Readonly":       ro,
+			"UserRanking":    urnking,
 		},
 	}
 

@@ -2,7 +2,7 @@
 {{template "fragment:global:head" .Head}}
 {{template "fragment:components:breadcrumb" .PageData.Breadcrumb}}
 
-<section class="section">
+<section class="section" style="margin-bottom: 6em;">
   <div class="container">
 
     <!-- Header with Pie Name and Maker -->
@@ -41,8 +41,13 @@
     </div>
 
     <!-- User Rankings Section -->
+    <div class="section">
     {{template "fragment:components:rankingsummary" .PageData.RankingSummary}}
+    </div>
 
+    <div class="section">
+    {{template "fragment:components:userranking" dict "Ranking" .PageData.UserRanking "Readonly" .PageData.Readonly "Pie" .PageData.Pie "ActiveYear" .Head.MenuSettings.ActiveYear}}
+    </div>
   </div>
 </section>
 
