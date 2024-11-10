@@ -214,7 +214,61 @@ paths:
         - public
       responses:
         "200":
-          description: year all brands
+          description: single pie
+          content:
+            text/html:
+              schema:
+                type: string
+        "404":
+          $ref: "#/components/responses/NotFound"
+        default:
+          $ref: "#/components/responses/UnexpectedError"
+  /years/{year}/brands/{brand}/{pie}/rating:
+    parameters:
+      - $ref: "#/components/parameters/Year"
+      - $ref: "#/components/parameters/Brand"
+      - name: pie
+        in: path
+        required: true
+        schema:
+          type: string
+    put:
+      operationId: rateYearBrandPie
+      requestBody:
+        description: Update Body
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+                - value
+                - looks
+                - topping
+                - filling
+                - pastry
+              properties:
+                value:
+                  type: integer
+                looks:
+                  type: integer
+                topping:
+                  type: integer
+                filling:
+                  type: integer
+                pastry:
+                  type: integer
+      tags:
+        - public
+      responses:
+        "200":
+          description: Successfully updated rating
+          content:
+            text/html:
+              schema:
+                type: string
+        "400":
+          description: Something was wrong with the request
           content:
             text/html:
               schema:

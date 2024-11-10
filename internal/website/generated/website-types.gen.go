@@ -97,6 +97,15 @@ type YearBrandPiesParams struct {
 	Categories *CategoriesFilter `form:"categories,omitempty" json:"categories,omitempty"`
 }
 
+// RateYearBrandPieFormdataBody defines parameters for RateYearBrandPie.
+type RateYearBrandPieFormdataBody struct {
+	Filling int `form:"filling" json:"filling"`
+	Looks   int `form:"looks" json:"looks"`
+	Pastry  int `form:"pastry" json:"pastry"`
+	Topping int `form:"topping" json:"topping"`
+	Value   int `form:"value" json:"value"`
+}
+
 // YearCategoryPiesParams defines parameters for YearCategoryPies.
 type YearCategoryPiesParams struct {
 	Page  *Page  `form:"page,omitempty" json:"page,omitempty"`
@@ -117,3 +126,6 @@ type CreateMakerPieAdminMultipartRequestBody CreateMakerPieAdminMultipartBody
 
 // UpdateMakerPieMultipartRequestBody defines body for UpdateMakerPie for multipart/form-data ContentType.
 type UpdateMakerPieMultipartRequestBody UpdateMakerPieMultipartBody
+
+// RateYearBrandPieFormdataRequestBody defines body for RateYearBrandPie for application/x-www-form-urlencoded ContentType.
+type RateYearBrandPieFormdataRequestBody RateYearBrandPieFormdataBody

@@ -6,6 +6,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/leemartin77/mincepierank.co.uk/internal/storage/sqlcgen"
+	"github.com/leemartin77/mincepierank.co.uk/internal/storage/types"
 	"github.com/leemartin77/mincepierank.co.uk/internal/templater"
 	"github.com/rs/zerolog/log"
 )
@@ -34,6 +35,43 @@ func (wrpr *WebsiteWrapper) YearBrandPie(ctx *gin.Context, year int64, brand str
 		return
 	}
 
+	returnSinglePiePage(wrpr, ctx, year, ay, ro, pie)
+}
+
+// RateYearBrandPie implements generated.ServerInterface.
+func (wrpr *WebsiteWrapper) RateYearBrandPie(ctx *gin.Context, year int64, brand string, pieParam string) {
+	ay, err := wrpr.storage.GetActiveYear(ctx)
+	if err != nil {
+		log.Error().Err(err).Msg("Error getting active year")
+		ctx.AbortWithStatus(500)
+		return
+	}
+
+	ro, err := wrpr.storage.GetReadonly(ctx)
+	if err != nil {
+		log.Error().Err(err).Msg("Error getting readonly - fails closed")
+	}
+
+	pie, err := wrpr.storage.GetMakerPieYearly(ctx, int32(year), ctx.Param("brand"), ctx.Param("pie"))
+	if err != nil {
+		log.Error().Err(err).Msg("Error getting maker year pie")
+		ctx.AbortWithStatus(500)
+		return
+	}
+	if pie == nil {
+		ctx.AbortWithStatus(404)
+		return
+	}
+
+	if pie.Year != int32(*ay) || ro {
+		ctx.AbortWithStatus(400)
+		return
+	}
+
+	returnSinglePiePage(wrpr, ctx, year, ay, ro, pie)
+}
+
+func returnSinglePiePage(wrpr *WebsiteWrapper, ctx *gin.Context, year int64, ay *int64, ro bool, pie *types.MakerPieYearly) {
 	maker, err := wrpr.storage.GetMaker(ctx, ctx.Param("brand"))
 	if err != nil {
 		log.Error().Err(err).Msg("Error getting maker year pie")

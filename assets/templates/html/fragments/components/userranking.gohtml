@@ -8,7 +8,20 @@
       {{end}}
       {{if not .Readonly}}
         {{ if eq .ActiveYear .Pie.Year }} 
-        ranking interface here
+        <form hx-put="/years/{{.Pie.Year}}/brands/{{.Pie.MakerId}}/{{.Pie.Id}}/rating" hx-swap="outerHTML" hx-select="#pie-data-container" hx-target="#pie-data-container">
+        <div class="columns">
+            <div class="column">
+            <p><strong>Pastry:</strong> <input name="pastry" type="number" min="0" max="5" step="1" value="{{.Ranking.Pastry}}"/> / 5</p>
+            <p><strong>Filling:</strong> <input name="filling" type="number" min="0" max="5" step="1" value="{{.Ranking.Filling}}"/>/ 5</p>
+            </div>
+            <div class="column">
+            <p><strong>Topping:</strong> <input name="topping" type="number" min="0" max="5" step="1" value="{{.Ranking.Topping}}"/> / 5</p>
+            <p><strong>Looks:</strong> <input name="looks" type="number" min="0" max="5" step="1" value="{{.Ranking.Looks}}"/> / 5</p>
+            </div>
+        </div>
+        <p><strong>Value for Money:</strong> <input name="value" type="number" min="0" max="5" step="1" value="{{.Ranking.Value}}"/> / 5</p>
+        <button class="button">Submit</button>
+        </form>
         {{else}}
         <div class="columns">
             <div class="column">
