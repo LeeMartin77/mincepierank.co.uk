@@ -23,6 +23,7 @@ type Querier interface {
 	IsAdminId(ctx context.Context, userID string) (bool, error)
 	UpdateConfig(ctx context.Context, arg UpdateConfigParams) error
 	UpdateMakerPieByOid(ctx context.Context, arg UpdateMakerPieByOidParams) error
+	UpsertUserMakerPieRanking(ctx context.Context, arg UpsertUserMakerPieRankingParams) error
 }
 
 var _ Querier = (*Queries)(nil)

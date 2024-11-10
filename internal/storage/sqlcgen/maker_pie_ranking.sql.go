@@ -49,3 +49,48 @@ func (q *Queries) GetUserMakerPieRanking(ctx context.Context, arg GetUserMakerPi
 	)
 	return i, err
 }
+
+const upsertUserMakerPieRanking = `-- name: UpsertUserMakerPieRanking :exec
+INSERT INTO maker_pie_ranking_yearly (year, makerid, pieid, userid, pastry, filling, topping, looks, value, last_updated)
+VALUES (
+        $1::int,
+        $2::text,
+        $3::text,
+        $4::text,
+        $5::int,
+        $6::int,
+        $7::int,
+        $8::int,
+        $9::int,
+        NOW()
+)
+ON CONFLICT (year, makerid, pieid, userid)
+DO UPDATE SET pastry = EXCLUDED.pastry, filling = EXCLUDED.filling, topping = EXCLUDED.topping, looks = EXCLUDED.looks, value = EXCLUDED.value, last_updated = NOW()
+`
+
+type UpsertUserMakerPieRankingParams struct {
+	Year    int32
+	Makerid string
+	Pieid   string
+	Userid  string
+	Pastry  int32
+	Filling int32
+	Topping int32
+	Looks   int32
+	Value   int32
+}
+
+func (q *Queries) UpsertUserMakerPieRanking(ctx context.Context, arg UpsertUserMakerPieRankingParams) error {
+	_, err := q.db.Exec(ctx, upsertUserMakerPieRanking,
+		arg.Year,
+		arg.Makerid,
+		arg.Pieid,
+		arg.Userid,
+		arg.Pastry,
+		arg.Filling,
+		arg.Topping,
+		arg.Looks,
+		arg.Value,
+	)
+	return err
+}

@@ -3,6 +3,7 @@ package website
 import (
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/leemartin77/mincepierank.co.uk/internal/storage/sqlcgen"
@@ -38,6 +39,8 @@ func (wrpr *WebsiteWrapper) YearBrandPie(ctx *gin.Context, year int64, brand str
 	returnSinglePiePage(wrpr, ctx, year, ay, ro, pie)
 }
 
+var rankings []string = []string{"filling", "pastry", "topping", "looks", "value"}
+
 // RateYearBrandPie implements generated.ServerInterface.
 func (wrpr *WebsiteWrapper) RateYearBrandPie(ctx *gin.Context, year int64, brand string, pieParam string) {
 	ay, err := wrpr.storage.GetActiveYear(ctx)
@@ -67,6 +70,38 @@ func (wrpr *WebsiteWrapper) RateYearBrandPie(ctx *gin.Context, year int64, brand
 		ctx.AbortWithStatus(400)
 		return
 	}
+
+	// validate
+	rnkingmap := map[string]int32{}
+
+	for _, k := range rankings {
+		rv := ctx.Request.FormValue(k)
+		prsd, err := strconv.ParseInt(rv, 10, 32)
+		if err != nil {
+			ctx.AbortWithStatus(400)
+			return
+		}
+		if prsd < 0 || prsd > 5 {
+			ctx.AbortWithStatus(400)
+			return
+		}
+		rnkingmap[k] = int32(prsd)
+	}
+
+	// rate
+
+	uid, _ := ctx.Keys["userid"].(string)
+	wrpr.storage.GetQuerier().UpsertUserMakerPieRanking(ctx, sqlcgen.UpsertUserMakerPieRankingParams{
+		Year:    int32(year),
+		Makerid: brand,
+		Pieid:   pieParam,
+		Userid:  uid,
+		Pastry:  rnkingmap["pastry"],
+		Filling: rnkingmap["filling"],
+		Topping: rnkingmap["topping"],
+		Looks:   rnkingmap["looks"],
+		Value:   rnkingmap["value"],
+	})
 
 	returnSinglePiePage(wrpr, ctx, year, ay, ro, pie)
 }
