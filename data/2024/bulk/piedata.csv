@@ -78,8 +78,8 @@ year,makerid,id,displayname,fresh,pack_count,pack_price_in_pence,category_slugs,
 2024,tesco,fruity,Finest Rum and Port Mince Pies,no,4,350,"premium,alcohol",https://www.tesco.com/groceries/en-GB/products/316932053,images/tesco/fruity.jpg
 2024,tesco,iced,Snowy Mince Pies,no,6,215,"iced",https://www.tesco.com/groceries/en-GB/products/317405296,images/tesco/iced.jpg
 2024,tesco,plant-chef,Plant Chef Mince Pies,no,6,215,"vegan",https://www.tesco.com/groceries/en-GB/products/307340507,images/tesco/plant-chef.jpg
-2024,tesco,free-from,Free From Mince Pies,no,4,200,"gluten-free,vegan",https://www.tesco.com/groceries/en-GB/products/309777293,images/tesco/free-from.jpg
-2024,tesco,iced-free-from,Free From Iced Topped Mince Pies,no,4,225,"gluten-free,vegan",https://www.tesco.com/groceries/en-GB/products/310120997,images/tesco/iced-free-from.jpg
+2024,tesco,free-from,Free From Mince Pies,no,4,200,"gluten-free,vegan",https://www.tesco.com/groceries/en-GB/products/309777293,images/tesco/free-from.webp
+2024,tesco,iced-free-from,Free From Iced Topped Mince Pies,no,4,225,"gluten-free,vegan",https://www.tesco.com/groceries/en-GB/products/310120997,images/tesco/iced-free-from.webp
 2024,waitrose,classic-butter,All Butter Mince Pies,no,6,275,"classic",https://www.waitrose.com/ecom/products/waitrose-christmas-6-all-butter-mince-pies/735193-785976-785977,images/waitrose/classic-butter.jpg
 2024,waitrose,puff-pastry,All Butter Puff Pastry Mince Pies,no,6,275,"puff-pastry",https://www.waitrose.com/ecom/products/waitrose-christmas-6-all-butter-puff-pastry-mince-pies/376842-833047-833048,images/waitrose/puff-pastry.jpg
 2024,waitrose,mini-brown-butter,Mini Brown Butter Mince Pies with Cognac,no,9,400,"mini,alcohol,brown-butter,premium",https://www.waitrose.com/ecom/products/no1-9-mini-brown-butter-mince-pies-with-cognac/805475-833085-833086,images/waitrose/mini-brown-butter.jpg
