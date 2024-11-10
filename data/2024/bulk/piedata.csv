@@ -21,10 +21,10 @@ year,makerid,id,displayname,fresh,pack_count,pack_price_in_pence,category_slugs,
 2024,asda,brown-butter,Brown Butter Flavour and Rum Mince Pies,no,4,250,"premium,brown-butter,rum,alcohol",https://groceries.asda.com/product/tarts-pies-bakewells/exceptional-by-asda-4-brown-butter-flavour-rum-mince-pies/1000383234299,images/asda/brown-butter.webp
 2024,asda,whisky-fig,Whisky Fig and Spiced Honey Mince Pies,no,4,250,"premium,alcohol",https://groceries.asda.com/product/tarts-pies-bakewells/exceptional-by-asda-4-whisky-fig-spiced-honey-mince-pies/1000383234325,images/asda/whisky-fig.webp
 2024,asda,free-from-frangipane,Free From Frangipane Topped Mince Pies,no,4,225,"frangipane,free-from,vegan",https://groceries.asda.com/product/mince-pies/asda-free-from-4-frangipane-topped-mince-pies-196-g/1000383194713,images/asda/free-from-frangipane.webp
-2024,coop,classic,Merry Mince Pies,no,6,135,"classic",https://shop.coop.co.uk/product/co-op-6-merry-mince-pies--00689821-2d6c-4182-bd68-fa2f1cb24194,images/coop/classic.avif
-2024,coop,premium,All Butter Pastry Luxury Mince Pies,no,6,295,"classic,premium",https://shop.coop.co.uk/product/co-op-irresistible-all-butter-pastry-6-luxury-mince-pies--671164e8-4ad3-46ce-96c7-90a3a7a900a6,images/coop/premium.avif
-2024,coop,bakery,Bakery Shortcrust Mince Pies,yes,4,160,"fresh,shortcrust",https://shop.coop.co.uk/product/co-op-bakery-shortcrust-mince-pies-4s--610ecaf5-f5f3-4dc6-985a-04a93043622b,images/coop/bakery.avif
-2024,coop,blood-orange,Blood Orange and Chocolate Frangipane Mince Pies,no,4,275,"premium,chocolate,frangipane,orange",https://shop.coop.co.uk/product/co-op-irresistible-4-blood-orange-and-chocolate-frangipane-mince-pies--4c209185-0c32-4bcc-b7d4-3b1eb3894306,images/coop/blood-orange.avif
+2024,coop,classic,Merry Mince Pies,no,6,135,"classic",https://shop.coop.co.uk/product/co-op-6-merry-mince-pies--00689821-2d6c-4182-bd68-fa2f1cb24194,images/coop/classic.jpg
+2024,coop,premium,All Butter Pastry Luxury Mince Pies,no,6,295,"classic,premium",https://shop.coop.co.uk/product/co-op-irresistible-all-butter-pastry-6-luxury-mince-pies--671164e8-4ad3-46ce-96c7-90a3a7a900a6,images/coop/premium.jpg
+2024,coop,bakery,Bakery Shortcrust Mince Pies,yes,4,160,"fresh,shortcrust",https://shop.coop.co.uk/product/co-op-bakery-shortcrust-mince-pies-4s--610ecaf5-f5f3-4dc6-985a-04a93043622b,images/coop/bakery.jpg
+2024,coop,blood-orange,Blood Orange and Chocolate Frangipane Mince Pies,no,4,275,"premium,chocolate,frangipane,orange",https://shop.coop.co.uk/product/co-op-irresistible-4-blood-orange-and-chocolate-frangipane-mince-pies--4c209185-0c32-4bcc-b7d4-3b1eb3894306,images/coop/blood-orange.jpg
 2024,greggs,classic,Sweet Mince Pie,yes,1,65,"fresh,classic",https://www.greggs.co.uk/menu/product/sweet-mince-pie-1001842,images/greggs/classic.png
 2024,iceland,classic,Mince Pies,no,6,145,"classic",https://www.iceland.co.uk/p/iceland-6-mince-pies/45348.html,images/iceland/classic.jpg
 2024,lidl,deluxe,Deluxe All Butter Mince Pies,no,6,229,"premium,classic",https://www.lidl.co.uk/p/deluxe-all-butter-mince-pies-6-pack/p10017711,images/lidl/deluxe.jpg
@@ -65,21 +65,21 @@ year,makerid,id,displayname,fresh,pack_count,pack_price_in_pence,category_slugs,
 2024,sainsburys,frangipane,Frangipane Mince Pies,no,4,300,"frangipane,premium",https://www.sainsburys.co.uk/gol-ui/product/sainsburys-frangipane-mince-pies-taste-the-difference-x4-185g,images/sainsburys/frangipane.jpg
 2024,sainsburys,shortcrust,Short Crust Mince Pies,yes,4,150,"shortcrust,fresh",https://www.sainsburys.co.uk/gol-ui/product/sainsburys-short-crust-mince-pies-x5,images/sainsburys/shortcrust.jpg
 2024,sainsburys,premium,Mince Pies Taste The Difference,no,6,300,"premium",https://www.sainsburys.co.uk/gol-ui/product/sainsburys-mince-pies-taste-the-difference-x6-325g,images/sainsburys/premium.jpg
-2024,tesco,finest,Finest Mince Pies,no,6,300,"premium",https://www.tesco.com/groceries/en-GB/products/257246799,images/tesco/finest.avif
-2024,tesco,free-from-mini,Free From Mini,no,9,300,"gluten-free,vegan,mini",https://www.tesco.com/groceries/en-GB/products/312097511,images/tesco/free-from-mini.avif
-2024,tesco,free-from-finest,Finest Free From,no,4,280,"premium,gluten-free,vegan",https://www.tesco.com/groceries/en-GB/products/309203224,images/tesco/free-from-finest.avif
-2024,tesco,classic,Merry Mince Pies,no,6,125,"classic",https://www.tesco.com/groceries/en-GB/products/274308085,images/tesco/classic.avif
-2024,tesco,spiced-rum,Spiced Rum Mince Pies,no,4,250,"premium,rum,alcohol",https://www.tesco.com/groceries/en-GB/products/314299649,images/tesco/spiced-rum.avif
-2024,tesco,puff-pastry,Puff Pastry Mince Pies,yes,4,150,"puff-pastry,fresh",https://www.tesco.com/groceries/en-GB/products/314693453,images/tesco/puff-pastry.avif
-2024,tesco,finest-mini,All Butter Mini Mince Pies,no,9,350,"mini,premium",https://www.tesco.com/groceries/en-GB/products/314430304,images/tesco/finest-mini.avif
-2024,tesco,frangipane,Finest Frangipane Mince Pies,no,4,350,"frangipane,premium",https://www.tesco.com/groceries/en-GB/products/314578187,images/tesco/frangipane.avif
-2024,tesco,lattice,Lattice Top Puff Pastry Mince Pies,yes,4,150,"puff-pastry,fresh",https://www.tesco.com/groceries/en-GB/products/314687242,images/tesco/lattice.avif
-2024,tesco,crumble-topped,Finest Crumble Topped Mince Pies,no,4,350,"crumble,premium",https://www.tesco.com/groceries/en-GB/products/317404913,images/tesco/crumble-topped.avif
-2024,tesco,fruity,Finest Rum and Port Mince Pies,no,4,350,"premium,alcohol",https://www.tesco.com/groceries/en-GB/products/316932053,images/tesco/fruity.avif
-2024,tesco,iced,Snowy Mince Pies,no,6,215,"iced",https://www.tesco.com/groceries/en-GB/products/317405296,images/tesco/iced.avif
-2024,tesco,plant-chef,Plant Chef Mince Pies,no,6,215,"vegan",https://www.tesco.com/groceries/en-GB/products/307340507,images/tesco/plant-chef.avif
-2024,tesco,free-from,Free From Mince Pies,no,4,200,"gluten-free,vegan",https://www.tesco.com/groceries/en-GB/products/309777293,images/tesco/free-from.avif
-2024,tesco,iced-free-from,Free From Iced Topped Mince Pies,no,4,225,"gluten-free,vegan",https://www.tesco.com/groceries/en-GB/products/310120997,images/tesco/iced-free-from.avif
+2024,tesco,finest,Finest Mince Pies,no,6,300,"premium",https://www.tesco.com/groceries/en-GB/products/257246799,images/tesco/finest.jpg
+2024,tesco,free-from-mini,Free From Mini,no,9,300,"gluten-free,vegan,mini",https://www.tesco.com/groceries/en-GB/products/312097511,images/tesco/free-from-mini.jpg
+2024,tesco,free-from-finest,Finest Free From,no,4,280,"premium,gluten-free,vegan",https://www.tesco.com/groceries/en-GB/products/309203224,images/tesco/free-from-finest.jpg
+2024,tesco,classic,Merry Mince Pies,no,6,125,"classic",https://www.tesco.com/groceries/en-GB/products/274308085,images/tesco/classic.jpg
+2024,tesco,spiced-rum,Spiced Rum Mince Pies,no,4,250,"premium,rum,alcohol",https://www.tesco.com/groceries/en-GB/products/314299649,images/tesco/spiced-rum.jpg
+2024,tesco,puff-pastry,Puff Pastry Mince Pies,yes,4,150,"puff-pastry,fresh",https://www.tesco.com/groceries/en-GB/products/314693453,images/tesco/puff-pastry.jpg
+2024,tesco,finest-mini,All Butter Mini Mince Pies,no,9,350,"mini,premium",https://www.tesco.com/groceries/en-GB/products/314430304,images/tesco/finest-mini.jpg
+2024,tesco,frangipane,Finest Frangipane Mince Pies,no,4,350,"frangipane,premium",https://www.tesco.com/groceries/en-GB/products/314578187,images/tesco/frangipane.jpg
+2024,tesco,lattice,Lattice Top Puff Pastry Mince Pies,yes,4,150,"puff-pastry,fresh",https://www.tesco.com/groceries/en-GB/products/314687242,images/tesco/lattice.jpg
+2024,tesco,crumble-topped,Finest Crumble Topped Mince Pies,no,4,350,"crumble,premium",https://www.tesco.com/groceries/en-GB/products/317404913,images/tesco/crumble-topped.jpg
+2024,tesco,fruity,Finest Rum and Port Mince Pies,no,4,350,"premium,alcohol",https://www.tesco.com/groceries/en-GB/products/316932053,images/tesco/fruity.jpg
+2024,tesco,iced,Snowy Mince Pies,no,6,215,"iced",https://www.tesco.com/groceries/en-GB/products/317405296,images/tesco/iced.jpg
+2024,tesco,plant-chef,Plant Chef Mince Pies,no,6,215,"vegan",https://www.tesco.com/groceries/en-GB/products/307340507,images/tesco/plant-chef.jpg
+2024,tesco,free-from,Free From Mince Pies,no,4,200,"gluten-free,vegan",https://www.tesco.com/groceries/en-GB/products/309777293,images/tesco/free-from.jpg
+2024,tesco,iced-free-from,Free From Iced Topped Mince Pies,no,4,225,"gluten-free,vegan",https://www.tesco.com/groceries/en-GB/products/310120997,images/tesco/iced-free-from.jpg
 2024,waitrose,classic-butter,All Butter Mince Pies,no,6,275,"classic",https://www.waitrose.com/ecom/products/waitrose-christmas-6-all-butter-mince-pies/735193-785976-785977,images/waitrose/classic-butter.jpg
 2024,waitrose,puff-pastry,All Butter Puff Pastry Mince Pies,no,6,275,"puff-pastry",https://www.waitrose.com/ecom/products/waitrose-christmas-6-all-butter-puff-pastry-mince-pies/376842-833047-833048,images/waitrose/puff-pastry.jpg
 2024,waitrose,mini-brown-butter,Mini Brown Butter Mince Pies with Cognac,no,9,400,"mini,alcohol,brown-butter,premium",https://www.waitrose.com/ecom/products/no1-9-mini-brown-butter-mince-pies-with-cognac/805475-833085-833086,images/waitrose/mini-brown-butter.jpg
