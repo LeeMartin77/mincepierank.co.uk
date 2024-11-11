@@ -1,4 +1,4 @@
-year,makerid,id,displayname,fresh,pack_count,pack_price_in_pence,category_slugs,web_link,image_file,
+year,makerid,id,displayname,fresh,pack_count,pack_price_in_pence,category_slugs,web_link,image_file
 2024,aldi,ultimate,Specially Selected Ultimate Mince Pies,no,2,249,"premium,classic",https://groceries.aldi.co.uk/en-GB/p-specially-selected-the-ultimate-all-butter-mince-pies-222g/4061462560620,images/aldi/ultimate.jpg
 2024,aldi,frangipane,Specially Selected Frangipane Mince Pies,no,6,259,"frangipane,premium",https://groceries.aldi.co.uk/en-GB/p-specially-selected-rich-buttery-6-frangipane-mince-pies-260g/4088600178653,images/aldi/frangipane.jpg
 2024,aldi,iced,Holly Lane Iced Mince Pies,no,6,159,"iced",https://groceries.aldi.co.uk/en-GB/p-holly-lane-iced-mince-pies-295g6-pack/4061464750715,images/aldi/iced.jpg

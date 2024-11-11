@@ -3,6 +3,7 @@ package website
 import (
 	"archive/zip"
 	"bytes"
+	"encoding/csv"
 	"fmt"
 	"io"
 	"io/fs"
@@ -44,68 +45,126 @@ func (wrpr *WebsiteWrapper) BulkCreateMakerPieAdmin(c *gin.Context) {
 		return
 	}
 
-	dirpath := strings.Join([]string{
-		wrpr.config.ImgprssrDir,
-		c.Request.FormValue("year"),
-		c.Request.FormValue("makerid"),
-		c.Request.FormValue("id"),
-	}, "/")
+	mappedCsv := []map[string]string{}
 
-	path := strings.Join([]string{
-		c.Request.FormValue("year"),
-		c.Request.FormValue("makerid"),
-		c.Request.FormValue("id"),
-		img.Filename,
-	}, "/")
+	file, _ := os.ReadFile(dest + "/piedata.csv")
+	csvReader := csv.NewReader(bytes.NewReader(file))
 
-	oid, err := q.CreateMakerPie(c, sqlcgen.CreateMakerPieParams{
-		Year:    mustParseInt(c.Request.FormValue("year")),
-		Makerid: c.Request.FormValue("makerid"),
-		ID:      c.Request.FormValue("id"),
-
-		Displayname:      c.Request.FormValue("displayname"),
-		Fresh:            mustParseBool(c.Request.FormValue("fresh")),
-		ImageFile:        "/" + path,
-		WebLink:          c.Request.FormValue("web_link"),
-		PackCount:        mustParseInt(c.Request.FormValue("pack_count")),
-		PackPriceInPence: mustParseInt(c.Request.FormValue("pack_price_in_pence")),
-		Validated:        mustParseBool(c.Request.FormValue("validated")),
-	})
-
-	err = wrpr.storage.SetPieCategoriesTx(c, tx, uuid.MustParse(oid), c.Request.Form["categories"])
+	headers, err := csvReader.Read()
 	if err != nil {
-		c.AbortWithError(500, err)
+		c.AbortWithError(400, err)
 		return
 	}
 
-	err = os.MkdirAll(dirpath, os.ModePerm)
-	if err != nil {
-		c.AbortWithError(500, err)
-		return
+	for {
+		nxt, err := csvReader.Read()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			c.AbortWithError(400, err)
+			return
+		}
+		if nxt != nil {
+			if len(nxt) == 0 {
+				//skip empty rows
+				continue
+			}
+			mp := map[string]string{}
+			for i, hdr := range headers {
+				if i > len(nxt)-1 {
+
+					c.AbortWithError(400, err)
+					return
+				}
+				mp[hdr] = nxt[i]
+			}
+			mappedCsv = append(mappedCsv, mp)
+		}
 	}
 
-	err = os.WriteFile(wrpr.config.ImgprssrDir+"/"+path, byteContainer, fs.ModeAppend)
-	if err != nil {
-		c.AbortWithError(500, err)
-		return
+	for _, pie := range mappedCsv {
+
+		dirpath := strings.Join([]string{
+			wrpr.config.ImgprssrDir,
+			pie["year"],
+			pie["makerid"],
+			pie["id"],
+		}, "/")
+
+		img, err := os.Open(dest + "/" + pie["image_file"])
+		if err != nil {
+
+			c.AbortWithError(400, err)
+			return
+		}
+		defer img.Close()
+
+		rf, err := os.ReadFile(dest + "/" + pie["image_file"])
+		if err != nil {
+
+			c.AbortWithError(400, err)
+			return
+		}
+
+		prts := strings.Split(img.Name(), "/")
+		path := strings.Join([]string{
+			pie["year"],
+			pie["makerid"],
+			pie["id"],
+			prts[len(prts)-1],
+		}, "/")
+
+		fresh := pie["fresh"] == "yes"
+
+		oid, err := q.CreateMakerPie(c, sqlcgen.CreateMakerPieParams{
+			Year:    mustParseInt(pie["year"]),
+			Makerid: pie["makerid"],
+			ID:      pie["id"],
+
+			Displayname:      pie["displayname"],
+			Fresh:            fresh,
+			ImageFile:        "/" + path,
+			WebLink:          pie["web_link"],
+			PackCount:        mustParseInt(pie["pack_count"]),
+			PackPriceInPence: mustParseInt(pie["pack_price_in_pence"]),
+			Validated:        true,
+		})
+		if err != nil {
+			c.AbortWithError(400, err)
+			return
+		}
+		err = wrpr.storage.SetPieCategoriesTx(c, tx, uuid.MustParse(oid), strings.Split(pie["category_slugs"], ","))
+		if err != nil {
+			c.AbortWithError(400, err)
+			return
+		}
+
+		err = os.MkdirAll(dirpath, os.ModePerm)
+		if err != nil {
+			c.AbortWithError(500, err)
+			return
+		}
+
+		err = os.WriteFile(wrpr.config.ImgprssrDir+"/"+path, rf, fs.ModeAppend)
+		if err != nil {
+			c.AbortWithError(500, err)
+			return
+		}
+
 	}
+	tx.Commit(c)
 
 	c.Redirect(303, "/admin/makerpies/")
 }
 
 // Unzip function extracts a ZIP archive to a target directory
-func unzip(src *multipart.FileHeader, dest string) error {
+func unzip(zipfile *multipart.FileHeader, dest string) error {
 	// Open the zip archive for reading
-	zipfile, err := c.FormFile("zipFile")
-	if err != nil {
-		return err
-	}
-
 	fl, err := zipfile.Open()
 	if err != nil {
 		return err
 	}
-	defer zipfile.Close()
 	byteContainer, err := io.ReadAll(fl)
 	if err != nil {
 		return err
@@ -159,9 +218,9 @@ func unzip(src *multipart.FileHeader, dest string) error {
 	}
 
 	// Check for CSV
-	_, err := os.Stat(path)
+	_, err = os.Stat(dest + "/piedata.csv")
 	if err != nil && !os.IsNotExist(err) {
-
+		return err
 	}
 	return nil
 }

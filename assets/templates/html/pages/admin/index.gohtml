@@ -4,6 +4,23 @@
 <div>admin page index</div>
 <div><a href="/admin/config">Config</a></div>
 <div><a href="/admin/makerpies">Maker pies</a></div>
+<form method="post" action="/admin/makerpies/bulk" enctype='multipart/form-data'>
+
+    <div class="field">
+        <label class="label" for="img">Zip file</label>
+        <div class="control">
+            <div class="file">
+                <label class="file-label">
+                    <input class="file-input" name="zipFile" type="file">
+                    <span class="file-cta">
+                        <span class="file-label">Choose a zip file…</span>
+                    </span>
+                </label>
+            </div>
+        </div>
+    </div>
+    <button type="submit">Bulk Upload</button>
+</form>
 
 {{template "fragment:global:foot" .Foot}}
 {{end}}
