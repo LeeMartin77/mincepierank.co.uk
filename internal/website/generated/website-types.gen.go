@@ -57,6 +57,11 @@ type CreateMakerPieAdminMultipartBody struct {
 	Year             int32              `json:"year"`
 }
 
+// BulkCreateMakerPieAdminMultipartBody defines parameters for BulkCreateMakerPieAdmin.
+type BulkCreateMakerPieAdminMultipartBody struct {
+	ZipFile openapi_types.File `json:"zipFile"`
+}
+
 // UpdateMakerPieMultipartBody defines parameters for UpdateMakerPie.
 type UpdateMakerPieMultipartBody struct {
 	Categories       []string            `json:"categories"`
@@ -123,6 +128,9 @@ type UpdateAdminConfigFormdataRequestBody UpdateAdminConfigFormdataBody
 
 // CreateMakerPieAdminMultipartRequestBody defines body for CreateMakerPieAdmin for multipart/form-data ContentType.
 type CreateMakerPieAdminMultipartRequestBody CreateMakerPieAdminMultipartBody
+
+// BulkCreateMakerPieAdminMultipartRequestBody defines body for BulkCreateMakerPieAdmin for multipart/form-data ContentType.
+type BulkCreateMakerPieAdminMultipartRequestBody BulkCreateMakerPieAdminMultipartBody
 
 // UpdateMakerPieMultipartRequestBody defines body for UpdateMakerPie for multipart/form-data ContentType.
 type UpdateMakerPieMultipartRequestBody UpdateMakerPieMultipartBody

@@ -492,6 +492,35 @@ paths:
           $ref: "#/components/responses/NotFound"
         default:
           $ref: "#/components/responses/UnexpectedError"
+  /admin/makerpies/bulk:
+    post:
+      operationId: bulkCreateMakerPieAdmin
+      tags:
+        - admin
+      requestBody:
+        description: Bulk Create Body
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - zipFile
+              properties:
+                zipFile:
+                  type: string
+                  format: binary
+      responses:
+        "303":
+          description: Success! Redirect to admin pies page
+        "400":
+          description: Failure! Crude display of errors
+          content:
+            text/html:
+              schema:
+                type: string
+        default:
+          $ref: "#/components/responses/UnexpectedError"
   /admin/makerpies/{oid}:
     get:
       operationId: getMakerPieAdmin

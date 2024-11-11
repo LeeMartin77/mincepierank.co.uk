@@ -444,7 +444,16 @@ func (o *OperationWrapper) SetPieCategories(ctx context.Context, oid uuid.UUID, 
 		tx.Rollback(ctx)
 	}()
 
-	_, err = tx.Exec(ctx, `DELETE from maker_pie_categories WHERE maker_pie_oid = $1`, oid)
+	err = o.SetPieCategoriesTx(ctx, tx, oid, category_keys)
+	if err != nil {
+		return err
+	}
+	tx.Commit(ctx)
+	return nil
+}
+
+func (o *OperationWrapper) SetPieCategoriesTx(ctx context.Context, tx pgx.Tx, oid uuid.UUID, category_keys []string) error {
+	_, err := tx.Exec(ctx, `DELETE from maker_pie_categories WHERE maker_pie_oid = $1`, oid)
 	if err != nil {
 		return err
 	}
@@ -457,7 +466,6 @@ func (o *OperationWrapper) SetPieCategories(ctx context.Context, oid uuid.UUID, 
 	`
 	rows, err := o.db.Query(ctx, sql, category_keys)
 	if err == pgx.ErrNoRows || len(category_keys) == 0 {
-		tx.Commit(ctx)
 		return nil
 	}
 	if err != nil {
@@ -492,6 +500,5 @@ func (o *OperationWrapper) SetPieCategories(ctx context.Context, oid uuid.UUID, 
 	if err != nil {
 		return err
 	}
-	tx.Commit(ctx)
 	return nil
 }

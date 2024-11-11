@@ -23,6 +23,8 @@ type Operations interface {
 	GetDatabase() *pgxpool.Pool
 
 	GetQuerier() sqlcgen.Querier
+	GetQuerierWithTx(pgx.Tx) sqlcgen.Querier
+	GetTransaction(context.Context) (pgx.Tx, error)
 
 	GetActiveYear(c context.Context) (*int64, error)
 
@@ -42,6 +44,7 @@ type Operations interface {
 
 	GetMakerPieCategories(ctx context.Context) (*[]types.Category, error)
 	SetPieCategories(ctx context.Context, oid uuid.UUID, category_keys []string) error
+	SetPieCategoriesTx(ctx context.Context, tx pgx.Tx, oid uuid.UUID, category_keys []string) error
 }
 
 func (o *OperationWrapper) GetMaker(ctx context.Context, Id string) (*types.Maker, error) {
