@@ -5,6 +5,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/leemartin77/mincepierank.co.uk/internal/storage/sqlcgen"
 	"github.com/rs/zerolog/log"
@@ -18,6 +19,16 @@ type OperationWrapper struct {
 // GetQuerier implements Operations.
 func (o *OperationWrapper) GetQuerier() sqlcgen.Querier {
 	return o.querier
+}
+
+// GetPool implements Storage.
+func (o *OperationWrapper) GetTransaction(ctx context.Context) (pgx.Tx, error) {
+	return o.db.Begin(ctx)
+}
+
+// GetQuerierWithTx implements Storage.
+func (pgqc *OperationWrapper) GetQuerierWithTx(tx pgx.Tx) sqlcgen.Querier {
+	return sqlcgen.New(tx)
 }
 
 // TestData implements Operations.
