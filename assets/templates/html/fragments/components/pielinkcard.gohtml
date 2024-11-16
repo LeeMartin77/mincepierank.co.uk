@@ -1,21 +1,26 @@
 {{define "fragment:components:pielinkcard"}}
 <div class="card">
   <div class="card-image">
-    <figure class="image">
+    <figure class="image with-overlay">
         <a href="{{.PieLink}}" aria-label="{{.Pie.DisplayName}}">
           <img
             width="100%"
             src="{{.ImgprssrPrefix}}{{.Pie.ImageFile}}?width=250&height=250&filter=gaussian"
             alt="{{.Pie.DisplayName}}"
           />
+          
         </a>
+
+        {{ if .Maker }}
+          <h3 class="subtitle is-6">from <a href="/years/{{.Pie.Year}}/brands/{{.Maker.Id}}">{{ .Maker.Name }}</a></h3>
+        {{ end }}
     </figure>
   </div>
   <div class="card-content">
     <div class="media">
       <div class="media-content">
-        <p class="title is-4">{{.Pie.DisplayName}}</p>
-        <p class="subtitle is-6">avg: {{ .Pie.Average }}</p>
+        <h1 class="title is-4">{{.Pie.DisplayName}}</h1>
+        <h2 class="subtitle is-4">Score: {{ .Pie.Average }} ({{.Pie.Count}} Votes)</h2>
       </div>
     </div>
 
@@ -25,7 +30,6 @@
              TODO: Date on piecarddata
             </h5>
         {{ end }}
-      <h5 style="margin-top: 0.25em; margin-bottom: 0.25em;">{{.Pie.Count}} Votes</h5>
       {{ if .Pie.PackPriceInPence }}
         <h6 style="margin-top: 0.25em; margin-bottom: 0.25em;">
           £{{printf "%.2f" (ppencediv .Pie.PackPriceInPence)}} per Pack
@@ -49,15 +53,13 @@
     <div class="media">
       <div class="media-content">
         <p class="title is-4">{{.Pie.DisplayName}}</p>
-        <p class="subtitle is-6">avg: {{ .Pie.Average }}</p>
+        <p class="subtitle is-6">Score: {{ .Pie.Average }}</p>
       </div>
     </div>
 
     <div class="content">
-      <div class="columns">
-        <div class="column">
          
-          <figure class="media-left">
+          <figure class="image with-overlay">
               <a href="{{.PieLink}}" aria-label="{{.Pie.DisplayName}}">
                 <img
                   width="100%"
@@ -65,14 +67,11 @@
                   alt="{{.Pie.DisplayName}}"
                 />
               </a>
+              
+              {{ if .Maker }}
+                <h3 class="subtitle is-6">from <a href="/years/{{.Pie.Year}}/brands/{{.Maker.Id}}">{{ .Maker.Name }}</a></h3>
+              {{ end }}
           </figure>
-        </div>
-        <div class="column">
-        {{ if .HasDate }}
-            <h5 style="margin-top: 0.25em; margin-bottom: 0.25em;">
-             TODO: Date on piecarddata
-            </h5>
-        {{ end }}
       <h5 style="margin-top: 0.25em; margin-bottom: 0.25em;">{{.Pie.Count}} Votes</h5>
       {{ if .Pie.PackPriceInPence }}
         <h6 style="margin-top: 0.25em; margin-bottom: 0.25em;">
@@ -86,7 +85,6 @@
       {{end}}
       </div>
       <a class="button" style="width: 100%;" href="{{.PieLink}}">{{.Pie.DisplayName}}</a>
-        </div>
       </div>
     </div>
   </div>

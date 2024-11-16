@@ -177,3 +177,12 @@ button.nice-button {
 .filters a.selected {
     border: 1px solid black;
 }
+
+figure.with-overlay h3 {
+    position: absolute;
+    bottom: 10px; 
+    left: 10px; 
+    background-color: rgba(255, 255, 255, 0.5);
+    padding: 5px;
+    margin: 0;
+}

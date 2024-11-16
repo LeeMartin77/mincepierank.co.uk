@@ -69,6 +69,7 @@ type PieCardData struct {
 	CategoryLinks  []Link
 	IsGold         bool
 	Pie            interface{}
+	Maker          types.Maker
 }
 
 type MakerCardData struct {

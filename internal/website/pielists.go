@@ -108,6 +108,13 @@ func (wrpr *WebsiteWrapper) YearAllPies(c *gin.Context, year int64, params gener
 		return
 	}
 
+	mmap, err := wrpr.getMakerMap(c, year)
+	if err != nil {
+		log.Error().Err(err).Msg("Error getting maker pies")
+		c.AbortWithStatus(500)
+		return
+	}
+
 	pieCards := []templater.PieCardData{}
 
 	for i, pie := range *pies {
@@ -123,6 +130,7 @@ func (wrpr *WebsiteWrapper) YearAllPies(c *gin.Context, year int64, params gener
 			HasDate:        false,
 			IsGold:         i == 0 && pie.Count > 0,
 			PieLink:        fmt.Sprintf("/years/%d/brands/%s/%s", pie.Year, pie.MakerId, pie.Id),
+			Maker:          mmap[pie.MakerId],
 		})
 	}
 
@@ -179,6 +187,13 @@ func (wrpr *WebsiteWrapper) YearPersonalRanking(c *gin.Context, year int64, para
 		return
 	}
 
+	mmap, err := wrpr.getMakerMap(c, year)
+	if err != nil {
+		log.Error().Err(err).Msg("Error getting maker pies")
+		c.AbortWithStatus(500)
+		return
+	}
+
 	pieCards := []templater.PieCardData{}
 
 	for i, pie := range *pies {
@@ -194,6 +209,7 @@ func (wrpr *WebsiteWrapper) YearPersonalRanking(c *gin.Context, year int64, para
 			HasDate:        false,
 			IsGold:         i == 0 && pie.Count > 0,
 			PieLink:        fmt.Sprintf("/years/%d/brands/%s/%s", pie.Year, pie.MakerId, pie.Id),
+			Maker:          mmap[pie.MakerId],
 		})
 	}
 
@@ -286,6 +302,7 @@ func (wrpr *WebsiteWrapper) YearBrandPies(c *gin.Context, year int64, brand stri
 			HasDate:        false,
 			IsGold:         i == 0 && pie.Count > 0,
 			PieLink:        fmt.Sprintf("/years/%d/brands/%s/%s", pie.Year, pie.MakerId, pie.Id),
+			Maker:          *maker,
 		})
 	}
 
@@ -349,6 +366,13 @@ func (wrpr *WebsiteWrapper) YearCategoryPies(c *gin.Context, year int64, brand s
 		return
 	}
 
+	mmap, err := wrpr.getMakerMap(c, year)
+	if err != nil {
+		log.Error().Err(err).Msg("Error getting maker pies")
+		c.AbortWithStatus(500)
+		return
+	}
+
 	pieCards := []templater.PieCardData{}
 
 	for i, pie := range *pies {
@@ -364,6 +388,7 @@ func (wrpr *WebsiteWrapper) YearCategoryPies(c *gin.Context, year int64, brand s
 			HasDate:        false,
 			IsGold:         i == 0 && pie.Count > 0,
 			PieLink:        fmt.Sprintf("/years/%d/brands/%s/%s", pie.Year, pie.MakerId, pie.Id),
+			Maker:          mmap[pie.MakerId],
 		})
 	}
 

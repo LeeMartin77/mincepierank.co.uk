@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/leemartin77/mincepierank.co.uk/internal/storage/types"
 	"github.com/leemartin77/mincepierank.co.uk/internal/templater"
 	"github.com/rs/zerolog/log"
 )
@@ -38,6 +39,10 @@ func (wrpr *WebsiteWrapper) HomePage(c *gin.Context) {
 			Maker:          mkr,
 		})
 	}
+	mkrMap := map[string]types.Maker{}
+	for _, mkr := range *makers {
+		mkrMap[mkr.Id] = mkr
+	}
 
 	vals := templater.PageData{
 		Head: templater.PageDataHead{
@@ -64,6 +69,7 @@ func (wrpr *WebsiteWrapper) HomePage(c *gin.Context) {
 			ImgprssrPrefix: wrpr.config.ImgprssrPrefix,
 			HasDate:        false,
 			PieLink:        fmt.Sprintf("/years/%d/brands/%s/%s", topPie.Year, topPie.MakerId, topPie.Id),
+			Maker:          mkrMap[topPie.MakerId],
 		}
 		vals.PageData = map[string]interface{}{
 			"MakerCards": mrks,
