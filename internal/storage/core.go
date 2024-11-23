@@ -2,6 +2,7 @@ package storage
 
 import (
 	"context"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
@@ -31,6 +32,7 @@ type Operations interface {
 	GetReadonly(c context.Context) (bool, error)
 
 	GetTopMakerPie(c context.Context, activeYear int64) (*MakerPieYearlyWithRankings, error)
+	GetLatestPieRanking(c context.Context, activeYear int64) (*MakerPieYearlyWithRankings, *time.Time, error)
 	GetFilterableMakerPies(c context.Context, year int64, pageSize int64, zeroIdxPage int64, filters PieFilters) (*[]MakerPieYearlyWithRankings, error)
 	GetFilterableMakerPiesForUser(c context.Context, year int64, userid string, pageSize int64, zeroIdxPage int64, filters PieFilters) (*[]MakerPieYearlyWithRankings, error)
 

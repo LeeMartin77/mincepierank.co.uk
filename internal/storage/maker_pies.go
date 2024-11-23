@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
@@ -327,6 +328,93 @@ func (o *OperationWrapper) GetTopMakerPie(c context.Context, activeYear int64) (
 		return nil, err
 	}
 	return &r, nil
+}
+
+// GetLatestPieRanking implements Operations.
+func (o *OperationWrapper) GetLatestPieRanking(c context.Context, activeYear int64) (*MakerPieYearlyWithRankings, *time.Time, error) {
+	r := MakerPieYearlyWithRankings{}
+	sql := `
+	WITH top_pie AS (
+	    SELECT
+	  		year,
+	  		makerid,
+	  		pieid,
+	  		pastry,
+	       	filling,
+	        topping,
+	        looks,
+	        value,
+	  		(
+	        pastry::float +
+	       	filling::float +
+	        topping::float +
+	        looks::float +
+	        value::float
+	      )/5 as avg,
+	  		1 as count,
+			last_updated
+	    FROM maker_pie_ranking_yearly
+	  	WHERE year = $1
+	  	ORDER BY last_updated DESC
+	  	LIMIT 1
+	)
+	SELECT
+		mpy.year,
+		mpy.makerid,
+		mpy.id,
+		mpy.displayname,
+		mpy.fresh,
+		cts.categories,
+		mpy.image_file,
+		mpy.web_link,
+		mpy.pack_count,
+		mpy.pack_price_in_pence,
+	    tp.pastry,
+	    tp.filling,
+	    tp.topping,
+	    tp.looks,
+	    tp.value,
+	    tp.avg,
+	    tp.count,
+		tp.last_updated
+		FROM maker_pie_yearly mpy
+		INNER JOIN top_pie tp ON
+	  	tp.year = mpy.year AND
+	  	tp.makerid = mpy.makerid AND
+	    tp.pieid = mpy.id
+		INNER JOIN maker_pie_yearly_categories cts ON
+		cts.oid = mpy.oid
+	`
+	res := o.db.QueryRow(c, sql, activeYear)
+	tm := time.Time{}
+	err := res.Scan(
+		&r.Year,
+		&r.MakerId,
+		&r.Id,
+		&r.DisplayName,
+		&r.Fresh,
+		&r.Categories,
+		&r.ImageFile,
+		&r.WebLink,
+		&r.PackCount,
+		&r.PackPriceInPence,
+
+		&r.Pastry,
+		&r.Filling,
+		&r.Topping,
+		&r.Looks,
+		&r.Value,
+		&r.Average,
+		&r.Count,
+		&tm,
+	)
+	if err == pgx.ErrNoRows {
+		return nil, nil, nil
+	}
+	if err != nil {
+		return nil, nil, err
+	}
+	return &r, &tm, nil
 }
 
 func (o *OperationWrapper) GetMakerPieCategoriesForYear(c context.Context, year int64, requiredSlugs []string, requiredBrand *string) (*[]types.Category, error) {

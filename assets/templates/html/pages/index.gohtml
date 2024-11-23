@@ -1,7 +1,7 @@
 {{define "page:index"}}
 {{template "fragment:global:head" .Head}}
 
-<h2 class="title" style="text-align:center">{{.Head.MenuSettings.ActiveYear}}'s Top Pie</h2>
+<h2 class="title" style="text-align:center; padding-top: 2em;">{{.Head.MenuSettings.ActiveYear}}'s Top Pie</h2>
 {{ if not .PageData.TopPie }}
 {{ else }}
 <div style="display: flex; flex-direction: row; justify-content: center;">
@@ -9,9 +9,19 @@
 </div>
 {{ end }}
 
+{{ if not .PageData.LatestRanking }}
+{{ else }}
+<h2 class="title" style="text-align:center; padding-top: 1em;">Latest Ranking</h2>
+
+<div style="display: flex; flex-direction: row; justify-content: center;">
+{{template "fragment:components:latestpielinkcard" .PageData.LatestRanking}}
+</div>
+{{ end }}
+
 <div style="display: flex; flex-direction: row; justify-content: center;">
 <a style="margin-top: 2em; margin-bottom: 2em;" class="button" href="/years/{{.Head.MenuSettings.ActiveYear}}/all-pies">View All Pies</a>
 </div>
+
 
 {{template "fragment:components:brandlist" .PageData.MakerCards}}
 {{template "fragment:global:foot" .Foot}}

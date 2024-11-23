@@ -4,6 +4,7 @@ import (
 	"html/template"
 	"io"
 	"strings"
+	"time"
 
 	"github.com/leemartin77/mincepierank.co.uk/internal/storage/types"
 )
@@ -70,6 +71,7 @@ type PieCardData struct {
 	IsGold         bool
 	Pie            interface{}
 	Maker          types.Maker
+	RankingTime    time.Time
 }
 
 type MakerCardData struct {

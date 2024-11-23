@@ -18,9 +18,23 @@ func (wrpr *WebsiteWrapper) HomePage(c *gin.Context) {
 		return
 	}
 
+	ro, err := wrpr.storage.GetReadonly(c)
+	if err != nil {
+		log.Error().Err(err).Msg("Error getting readonly")
+		c.AbortWithStatus(500)
+		return
+	}
+
 	topPie, err := wrpr.storage.GetTopMakerPie(c, ay)
 	if err != nil {
 		log.Error().Err(err).Msg("Error getting top maker pie")
+		c.AbortWithStatus(500)
+		return
+	}
+
+	ltstpie, ltstpiewhen, err := wrpr.storage.GetLatestPieRanking(c, ay)
+	if err != nil {
+		log.Error().Err(err).Msg("Error getting latest ranking")
 		c.AbortWithStatus(500)
 		return
 	}
@@ -71,10 +85,33 @@ func (wrpr *WebsiteWrapper) HomePage(c *gin.Context) {
 			PieLink:        fmt.Sprintf("/years/%d/brands/%s/%s", topPie.Year, topPie.MakerId, topPie.Id),
 			Maker:          mkrMap[topPie.MakerId],
 		}
+
 		vals.PageData = map[string]interface{}{
 			"MakerCards": mrks,
 			"TopPie":     tp,
 		}
+	}
+
+	if ltstpie != nil && !ro {
+		og := vals.PageData.(map[string]interface{})
+
+		pieCategoryLinks := []templater.Link{}
+		for _, ct := range ltstpie.Categories {
+			pieCategoryLinks = append(pieCategoryLinks, templater.Link{URL: fmt.Sprintf("/years/%d/categories/%s", topPie.Year, ct.Slug), Label: ct.Label})
+		}
+		lp := templater.PieCardData{
+			Pie:            *ltstpie,
+			CategoryLinks:  pieCategoryLinks,
+			ImgprssrPrefix: wrpr.config.ImgprssrPrefix,
+			HasDate:        false,
+			PieLink:        fmt.Sprintf("/years/%d/brands/%s/%s", topPie.Year, topPie.MakerId, topPie.Id),
+			Maker:          mkrMap[topPie.MakerId],
+			RankingTime:    *ltstpiewhen,
+		}
+		fmt.Println(ltstpiewhen)
+		og["LatestRanking"] = lp
+
+		vals.PageData = og
 	}
 
 	c.HTML(http.StatusOK, "page:index", vals)
