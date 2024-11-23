@@ -20,7 +20,7 @@
     <div class="media">
       <div class="media-content">
         <h1 class="title is-4">{{.Pie.DisplayName}}</h1>
-        <h2 class="subtitle is-4">Score: {{ .Pie.Average }} ({{.Pie.Count}} Votes)</h2>
+        <h2 class="subtitle is-4">Score: {{ nicefloat .Pie.Average }} ({{.Pie.Count}} Votes)</h2>
       </div>
     </div>
 
@@ -53,7 +53,7 @@
     <div class="media">
       <div class="media-content">
         <p class="title is-4">{{.Pie.DisplayName}}</p>
-        <p class="subtitle is-6">Score: {{ .Pie.Average }}</p>
+        <p class="subtitle is-6">Score: {{ nicefloat .Pie.Average }}</p>
       </div>
     </div>
 

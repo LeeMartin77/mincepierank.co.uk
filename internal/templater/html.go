@@ -11,6 +11,7 @@ import (
 	"path/filepath"
 	"slices"
 	"strings"
+	"time"
 
 	"github.com/leemartin77/mincepierank.co.uk/internal/storage/types"
 )
@@ -119,6 +120,28 @@ func getTemplates(tmpltdir string) (templates *template.Template, err error) {
 			return slices.ContainsFunc(*category_list, func(cl types.Category) bool {
 				return cl.Id == category.Id
 			})
+		},
+		"timetohuman": func(value interface{}) (string, error) {
+			tm, ok := value.(time.Time)
+			if !ok {
+				return "", fmt.Errorf("is not a time")
+			}
+			return tm.Format(time.RFC1123), nil
+		},
+		"nicefloat": func(value interface{}) (string, error) {
+			first, ok := value.(float32)
+			if !ok {
+				fint, ok := value.(float64)
+				if !ok {
+					return "", fmt.Errorf("first value not floatable")
+				}
+				first = float32(fint)
+			}
+			str := fmt.Sprintf("%.2f", first)
+			if str[len(str)-3:] == ".00" {
+				str = str[:len(str)-3]
+			}
+			return str, nil
 		},
 	}).ParseFiles(allFiles...)
 }

@@ -4,7 +4,7 @@
       {{if not .Ranking.Year }}
       <h3 class="subtitle is-6">You haven't ranked this!</h3>
       {{else}}
-      <h3 class="subtitle is-6">You ranked this on {{.Ranking.LastUpdated.Time}}</h3>
+      <h3 class="subtitle is-6">You ranked this on {{timetohuman .Ranking.LastUpdated.Time}}</h3>
       {{end}}
       {{if not .Readonly}}
         {{ if eq .ActiveYear .Pie.Year }} 

@@ -3,16 +3,16 @@
       <h2 class="title is-4">User Rankings</h2>
       <div class="columns">
         <div class="column">
-          <p><strong>Average:</strong> {{.Average}} / 5</p>
-          <p><strong>Pastry:</strong> {{.Pastry}} / 5</p>
+          <p><strong>Average:</strong> {{nicefloat .Average}} / 5</p>
+          <p><strong>Pastry:</strong> {{nicefloat .Pastry}} / 5</p>
         </div>
         <div class="column">
-          <p><strong>Filling:</strong> {{.Filling}} / 5</p>
-          <p><strong>Topping:</strong> {{.Topping}} / 5</p>
+          <p><strong>Filling:</strong> {{nicefloat .Filling}} / 5</p>
+          <p><strong>Topping:</strong> {{nicefloat .Topping}} / 5</p>
         </div>
         <div class="column">
-          <p><strong>Looks:</strong> {{.Looks}} / 5</p>
-          <p><strong>Value for Money:</strong> {{.Value}} / 5</p>
+          <p><strong>Looks:</strong> {{nicefloat .Looks}} / 5</p>
+          <p><strong>Value for Money:</strong> {{nicefloat .Value}} / 5</p>
         </div>
       </div>
     </div>
