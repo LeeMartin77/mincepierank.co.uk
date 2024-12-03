@@ -97,15 +97,15 @@ func (wrpr *WebsiteWrapper) HomePage(c *gin.Context) {
 
 		pieCategoryLinks := []templater.Link{}
 		for _, ct := range ltstpie.Categories {
-			pieCategoryLinks = append(pieCategoryLinks, templater.Link{URL: fmt.Sprintf("/years/%d/categories/%s", topPie.Year, ct.Slug), Label: ct.Label})
+			pieCategoryLinks = append(pieCategoryLinks, templater.Link{URL: fmt.Sprintf("/years/%d/categories/%s", ltstpie.Year, ct.Slug), Label: ct.Label})
 		}
 		lp := templater.PieCardData{
 			Pie:            *ltstpie,
 			CategoryLinks:  pieCategoryLinks,
 			ImgprssrPrefix: wrpr.config.ImgprssrPrefix,
 			HasDate:        false,
-			PieLink:        fmt.Sprintf("/years/%d/brands/%s/%s", topPie.Year, topPie.MakerId, topPie.Id),
-			Maker:          mkrMap[topPie.MakerId],
+			PieLink:        fmt.Sprintf("/years/%d/brands/%s/%s", ltstpie.Year, ltstpie.MakerId, ltstpie.Id),
+			Maker:          mkrMap[ltstpie.MakerId],
 			RankingTime:    *ltstpiewhen,
 		}
 		fmt.Println(ltstpiewhen)
