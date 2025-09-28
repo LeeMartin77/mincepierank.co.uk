@@ -150,7 +150,7 @@ func (ac *AuthConfig) UserIdMiddleware() gin.HandlerFunc {
 				// userid from token
 				email := decodedToken.Claims.(jwt.MapClaims)["email"]
 				if email != nil && email != "" {
-					c.Keys = map[string]any{}
+					c.Keys = map[any]any{}
 					c.Keys["userid"] = email
 					c.Keys["signedin"] = true
 					c.Next()
@@ -165,7 +165,7 @@ func (ac *AuthConfig) UserIdMiddleware() gin.HandlerFunc {
 			userid = uuid.NewString()
 			c.SetCookie("anon_user_id", userid, 34560000, "/", ac.Config.MincepierankDomain, ac.Config.MincepierankSecureDomain, !ac.Config.MincepierankSecureDomain)
 		}
-		c.Keys = map[string]any{}
+		c.Keys = map[any]any{}
 		c.Keys["userid"] = userid
 		c.Keys["signedin"] = false
 
