@@ -1,0 +1,23 @@
+issuer: http://localhost:5557
+storage:
+  type: memory
+web:
+  http: 0.0.0.0:5557
+enablePasswordDB: true
+staticClients:
+- id: testing-instance
+  redirectURIs:
+  - 'http://localhost:8080/auth/callback'
+  name: 'Local Testing Dex'
+  secret: ZXhhbXBsZS1hcHAtc2VjcmV0
+staticPasswords:
+  - email: "user1@example.com"
+    # bcrypt hash of the string "password": $(echo password | htpasswd -BinC 10 admin | cut -d: -f2)
+    hash: "$2a$10$2b2cU8CPhOTaGrs1HRQuAueS7JTT5ZHsHSzYiFPm1leZck7Mc8T4W"
+    username: "user1"
+    userID: "1234"
+  - email: "user2@example.com"
+    # bcrypt hash of the string "password": $(echo password | htpasswd -BinC 10 admin | cut -d: -f2)
+    hash: "$2a$10$2b2cU8CPhOTaGrs1HRQuAueS7JTT5ZHsHSzYiFPm1leZck7Mc8T4W"
+    username: "user2"
+    userID: "5678"

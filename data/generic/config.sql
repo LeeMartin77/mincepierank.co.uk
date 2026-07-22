@@ -3,4 +3,9 @@ insert into
 values
     ('activeYear', '2024'),
     ('customPiesEnabled', 'false'),
-    ('readonly', 'false')
+    ('readonly', 'false');
+
+insert into 
+    "public"."admins" ("id")
+values
+    ('user1@example.com')
