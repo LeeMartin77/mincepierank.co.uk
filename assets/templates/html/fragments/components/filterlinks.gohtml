@@ -1,10 +1,10 @@
 {{define "fragment:components:filterlinks"}}
-<div class="filters">
+<div class="d-flex flex-wrap justify-content-center gap-2 mb-4">
   {{ range .ActiveFilters }}
-    <a class="selected" href="{{ .URL }}"}>{{ .Label }}</a>
+  <a class="btn btn-dark" href="{{ .URL }}">{{ .Label }}</a>
   {{ end }}
   {{ range .AvailableFilters }}
-    <a href="{{ .URL }}"}>{{ .Label }}</a>
+  <a class="btn btn-outline-secondary" href="{{ .URL }}">{{ .Label }}</a>
   {{ end }}
 </div>
 {{end}}

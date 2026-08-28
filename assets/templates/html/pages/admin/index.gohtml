@@ -1,26 +1,20 @@
 {{define "page:admin:index"}}
 {{template "fragment:global:head" .Head}}
+<div class="container py-4">
+  <h1>Admin</h1>
+  <ul class="list-group mb-4">
+    <li class="list-group-item"><a href="/admin/config">Config</a></li>
+    <li class="list-group-item"><a href="/admin/makerpies">Maker Pies</a></li>
+  </ul>
 
-<div>admin page index</div>
-<div><a href="/admin/config">Config</a></div>
-<div><a href="/admin/makerpies">Maker pies</a></div>
-<form method="post" action="/admin/makerpies/bulk" enctype='multipart/form-data'>
-
-    <div class="field">
-        <label class="label" for="img">Zip file</label>
-        <div class="control">
-            <div class="file">
-                <label class="file-label">
-                    <input class="file-input" name="zipFile" type="file">
-                    <span class="file-cta">
-                        <span class="file-label">Choose a zip file…</span>
-                    </span>
-                </label>
-            </div>
-        </div>
+  <h3>Bulk Upload</h3>
+  <form method="post" action="/admin/makerpies/bulk" enctype='multipart/form-data' class="mb-4">
+    <div class="mb-3">
+      <label for="zipFile" class="form-label">Zip file</label>
+      <input class="form-control" type="file" name="zipFile" id="zipFile">
     </div>
-    <button type="submit">Bulk Upload</button>
-</form>
-
+    <button type="submit" class="btn btn-primary">Bulk Upload</button>
+  </form>
+</div>
 {{template "fragment:global:foot" .Foot}}
 {{end}}

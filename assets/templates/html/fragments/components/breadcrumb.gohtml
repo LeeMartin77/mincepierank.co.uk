@@ -1,9 +1,9 @@
 {{define "fragment:components:breadcrumb"}}
-<nav class="breadcrumb mpr-breadcrumb-container" aria-label="breadcrumbs">
-  <ul>
+<nav aria-label="breadcrumb" class="mb-3">
+  <ol class="breadcrumb">
     {{ range . }}
-        <li><a href="{{.URL}}">{{.Label}}</a></li> 
+    <li class="breadcrumb-item"><a href="{{.URL}}">{{.Label}}</a></li>
     {{ end }}
-  </ul>
+  </ol>
 </nav>
 {{end}}

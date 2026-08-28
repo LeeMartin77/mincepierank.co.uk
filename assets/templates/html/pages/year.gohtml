@@ -2,16 +2,24 @@
 {{template "fragment:global:head" .Head}}
 {{template "fragment:components:breadcrumb" .PageData.Breadcrumb}}
 
-<h2 style="text-align: center">{{.PageData.Year}} Top Pie</h2>
+<div class="container py-4">
+  <h2 class="text-center mb-4">{{.PageData.Year}} Top Pie</h2>
 
-{{ if not .PageData.TopPie }}
-{{ else }}
-{{template "fragment:components:toppielinkcard" .PageData.TopPie}}
-{{ end }}
+  {{ if .PageData.TopPie }}
+  <div class="row mb-4 justify-content-center">
+    <div class="col-md-6 col-lg-4">
+      {{template "fragment:components:toppielinkcard" .PageData.TopPie}}
+    </div>
+  </div>
+  {{ end }}
 
-<a style="margin-top: 2em; margin-bottom: 2em;" class="link-button" href="/years/{{.PageData.Year}}/all-pies">View All Pies</a>
+  <div class="text-center mb-4">
+    <a class="btn btn-primary btn-lg" href="/years/{{.PageData.Year}}/all-pies">View All Pies</a>
+  </div>
 
-{{template "fragment:components:categorylist" .PageData.Categories}}
-{{template "fragment:components:brandlist" .PageData.MakerCards}}
+  {{template "fragment:components:categorylist" .PageData.Categories}}
+  {{template "fragment:components:brandlist" .PageData.MakerCards}}
+</div>
+
 {{template "fragment:global:foot" .Foot}}
 {{end}}

@@ -2,27 +2,32 @@
 {{template "fragment:global:head" .Head}}
 {{template "fragment:components:breadcrumb" .PageData.Breadcrumb}}
 
-<h2 class="title" style="text-align: center">{{.PageData.Heading}}</h2>
+<div class="container py-4">
+  <h2 class="text-center mb-4">{{.PageData.Heading}}</h2>
 
-{{template "fragment:components:filterlinks" .PageData.FilterLinks}}
+  {{template "fragment:components:filterlinks" .PageData.FilterLinks}}
 
-<div class="pie-list" id="pie-list" style="display: flex; flex-direction: row; gap: 2em; flex-wrap: wrap; justify-content: center;">
-    
+  <div id="pie-list" class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
     {{ range .PageData.PieCards }}
-        {{template "fragment:components:pielinkcard" .}}
+    <div class="col">
+      {{template "fragment:components:pielinkcard" .}}
+    </div>
     {{ end }}
+  </div>
 
-    {{ if .PageData.ShouldLoadNextPage }}
-        <button class="nice-button" style="width: 100%; text-align: center;"
-        hx-trigger="click"
-        hx-get="{{.PageData.URL}}?page={{.PageData.NextPage}}&{{.PageData.Query}}"
-        hx-swap="outerHTML"
-        hx-select="#pie-list > .card, #pie-list > .nice-button">
-        Load More
-        </button>
-    {{ end}}
+  {{ if .PageData.ShouldLoadNextPage }}
+  <div class="text-center mt-4">
+    <button class="btn btn-outline-primary"
+      hx-trigger="click"
+      hx-get="{{.PageData.URL}}?page={{.PageData.NextPage}}&{{.PageData.Query}}"
+      hx-swap="afterend"
+      hx-select="#pie-list > .col, #pie-list > .col:last-of-type ~ *"
+      hx-include="this">
+      Load More
+    </button>
+  </div>
+  {{ end }}
 </div>
-
 
 {{template "fragment:global:foot" .Foot}}
 {{end}}

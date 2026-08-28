@@ -1,20 +1,21 @@
 {{define "fragment:components:rankingsummary"}}
-    <div class="box">
-      <h2 class="title is-4">User Rankings</h2>
-      <div class="columns">
-        <div class="column">
-          <p><strong>Average:</strong> {{nicefloat .Average}} / 5</p>
-          <p><strong>Pastry:</strong> {{nicefloat .Pastry}} / 5</p>
-        </div>
-        <div class="column">
-          <p><strong>Filling:</strong> {{nicefloat .Filling}} / 5</p>
-          <p><strong>Topping:</strong> {{nicefloat .Topping}} / 5</p>
-        </div>
-        <div class="column">
-          <p><strong>Looks:</strong> {{nicefloat .Looks}} / 5</p>
-          <p><strong>Value for Money:</strong> {{nicefloat .Value}} / 5</p>
-        </div>
+<div class="card mb-4">
+  <div class="card-body">
+    <h2 class="card-title h4">User Rankings</h2>
+    <div class="row">
+      <div class="col-md-4">
+        <p><strong>Average:</strong> {{nicefloat .Average}} / 5</p>
+        <p><strong>Pastry:</strong> {{nicefloat .Pastry}} / 5</p>
+      </div>
+      <div class="col-md-4">
+        <p><strong>Filling:</strong> {{nicefloat .Filling}} / 5</p>
+        <p><strong>Topping:</strong> {{nicefloat .Topping}} / 5</p>
+      </div>
+      <div class="col-md-4">
+        <p><strong>Looks:</strong> {{nicefloat .Looks}} / 5</p>
+        <p><strong>Value for Money:</strong> {{nicefloat .Value}} / 5</p>
       </div>
     </div>
   </div>
-  {{end}}
+</div>
+{{end}}

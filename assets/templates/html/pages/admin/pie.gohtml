@@ -1,93 +1,66 @@
 {{define "page:admin:pie"}}
 {{template "fragment:global:head" .Head}}
+<div class="container py-4">
+<h1>Update Data</h1>
+<form hx-target="body" hx-swap="body" hx-put="/admin/makerpies/{{.PageData.Pie.Oidstr}}" enctype='multipart/form-data'>
+  <div class="row g-3 mb-3">
+    <div class="col-md-4">
+      <label class="form-label" for="year">Year</label>
+      <input class="form-control" name="year" id="year" type="number" value="{{.PageData.Pie.Year}}" disabled/>
+    </div>
+    <div class="col-md-4">
+      <label class="form-label" for="makerid">Maker Id</label>
+      <input class="form-control" name="makerid" id="makerid" type="text" value="{{.PageData.Pie.Makerid}}" disabled />
+    </div>
+    <div class="col-md-4">
+      <label class="form-label" for="id">ID/Slug</label>
+      <input class="form-control" name="id" id="id" type="text" value="{{.PageData.Pie.ID}}" disabled />
+    </div>
+  </div>
 
+  <div class="form-check mb-3">
+    <input class="form-check-input" name="fresh" type="checkbox" value="true" id="fresh" {{if .PageData.Pie.Fresh.Bool }}checked{{end}}>
+    <label class="form-check-label" for="fresh">Fresh</label>
+  </div>
 
+  <div class="row g-3 mb-3">
+    <div class="col-md-6">
+      <label class="form-label" for="displayname">Display Name</label>
+      <input class="form-control" name="displayname" id="displayname" type="text" value="{{.PageData.Pie.Displayname.String}}"/>
+    </div>
+    <div class="col-md-6">
+      <label class="form-label" for="web_link">Web Link</label>
+      <input class="form-control" name="web_link" id="web_link" type="url" value="{{.PageData.Pie.WebLink.String}}" />
+    </div>
+  </div>
 
-<div class="section">
-    <h1>Update Data</h1>
-    <form hx-target="body" hx-swap="body" hx-put="/admin/makerpies/{{.PageData.Pie.Oidstr}}" enctype='multipart/form-data'>
-        <div class="field">
-            <label class="label" for="year">Year</label>
-            <div class="control">
-                <input class="input" name="year" type="number" placeholder="Enter year" value="{{.PageData.Pie.Year}}" disabled/>
-            </div>
-        </div>
+  <div class="row g-3 mb-3">
+    <div class="col-md-3">
+      <label class="form-label" for="pack_count">Pack Count</label>
+      <input class="form-control" name="pack_count" id="pack_count" type="number" value="{{.PageData.Pie.PackCount.Int32}}"/>
+    </div>
+    <div class="col-md-3">
+      <label class="form-label" for="pack_price_in_pence">Pack Price Pence</label>
+      <input class="form-control" name="pack_price_in_pence" id="pack_price_in_pence" type="number" value="{{.PageData.Pie.PackPriceInPence.Int32}}"/>
+    </div>
+  </div>
 
-        <div class="field">
-            <label class="label" for="makerid">Maker Id</label>
-            <div class="control">
-                <input class="input" name="makerid" type="text" placeholder="Enter maker id" value="{{.PageData.Pie.Makerid}}" disabled />
-            </div>
-        </div>
+  <div class="mb-3">
+    <label class="form-label" for="categories">Pie Categories</label>
+    <select class="form-select" multiple name="categories" id="categories">
+      {{ range .PageData.AllCategories }}
+        <option value="{{.Slug}}" {{if containscat . $.PageData.PieCategories}}selected{{end}}>{{.Label}}</option>
+      {{ end }}
+    </select>
+  </div>
 
-        <div class="field">
-            <label class="label" for="id">ID/Slug</label>
-            <div class="control">
-                <input class="input" name="id" type="text" placeholder="Enter ID/Slug" value="{{.PageData.Pie.ID}}" disabled />
-            </div>
-        </div>
+  <div class="form-check mb-3">
+    <input class="form-check-input" name="validated" type="checkbox" value="true" id="validated" {{if .PageData.Pie.Validated.Bool}}checked{{end}}>
+    <label class="form-check-label" for="validated">Validated</label>
+  </div>
 
-        <div class="field">
-            <label class="checkbox">
-                <input name="fresh" type="checkbox" value="true" {{if .PageData.Pie.Fresh.Bool }}checked{{end}}> Fresh
-            </label>
-        </div>
-
-        <div class="field">
-            <label class="label" for="displayname">Display Name</label>
-            <div class="control">
-                <input class="input" name="displayname" type="text" placeholder="Enter display name" value="{{.PageData.Pie.Displayname.String}}"/>
-            </div>
-        </div>
-
-        <div class="field">
-            <label class="label" for="web_link">Web Link</label>
-            <div class="control">
-                <input class="input" name="web_link" type="url" placeholder="Enter web link" value="{{.PageData.Pie.WebLink.String}}" />
-            </div>
-        </div>
-
-        <div class="field">
-            <label class="label" for="pack_count">Pack Count</label>
-            <div class="control">
-                <input class="input" name="pack_count" type="number" placeholder="Enter pack count" value="{{.PageData.Pie.PackCount.Int32}}"/>
-            </div>
-        </div>
-
-        <div class="field">
-            <label class="label" for="pack_price_in_pence">Pack Price Pence</label>
-            <div class="control">
-                <input class="input" name="pack_price_in_pence" type="number" placeholder="Enter pack price in pence" value="{{.PageData.Pie.PackPriceInPence.Int32}}"/>
-            </div>
-        </div>
-
-        <div class="field">
-            <label class="label" for="categories">Pie Categories</label>
-            <div class="control">
-                <div class="select is-multiple">
-                    <select multiple name="categories">
-                        {{ range .PageData.AllCategories }}
-                            <option value="{{.Slug}}" {{if containscat . $.PageData.PieCategories}}selected{{end}}>{{.Label}}</option>
-                        {{ end }}
-                    </select>
-                </div>
-            </div>
-            </div>
-        </div>
-
-        <div class="field">
-            <label class="checkbox">
-                <input name="validated" type="checkbox" value="true" {{if .PageData.Pie.Validated.Bool}}checked{{end}}> Validated
-            </label>
-        </div>
-
-        <div class="field is-grouped">
-            <div class="control">
-                <button class="button is-primary" type="submit">Submit</button>
-            </div>
-        </div>
-    </form>
+  <button class="btn btn-primary" type="submit">Submit</button>
+</form>
 </div>
-
 {{template "fragment:global:foot" .Foot}}
 {{end}}

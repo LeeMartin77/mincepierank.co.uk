@@ -1,53 +1,54 @@
 {{define "fragment:components:userranking"}}
-    <div class="box">
-      <h2 class="title is-4">Your Ranking</h2>
-      {{if not .Ranking.Year }}
-      <h3 class="subtitle is-6">You haven't ranked this!</h3>
+<div class="card mb-4">
+  <div class="card-body">
+    <h2 class="card-title h4">Your Ranking</h2>
+    {{if not .Ranking.Year }}
+    <h3 class="h6 text-muted">You haven't ranked this!</h3>
+    {{else}}
+    <h3 class="h6 text-muted">You ranked this on {{timetohuman .Ranking.LastUpdated.Time}}</h3>
+    {{end}}
+    {{if not .Readonly}}
+      {{ if eq .ActiveYear .Pie.Year }}
+      <form hx-put="/years/{{.Pie.Year}}/brands/{{.Pie.MakerId}}/{{.Pie.Id}}/rating" hx-swap="outerHTML" hx-select="#pie-data-container" hx-target="#pie-data-container" class="mt-3">
+        <div class="row g-3">
+          <div class="col-md-6">
+            <p><strong>Pastry:</strong> <input name="pastry" type="number" min="0" max="5" step="1" value="{{.Ranking.Pastry}}" class="form-control d-inline w-auto"/> / 5</p>
+            <p><strong>Filling:</strong> <input name="filling" type="number" min="0" max="5" step="1" value="{{.Ranking.Filling}}" class="form-control d-inline w-auto"/> / 5</p>
+          </div>
+          <div class="col-md-6">
+            <p><strong>Topping:</strong> <input name="topping" type="number" min="0" max="5" step="1" value="{{.Ranking.Topping}}" class="form-control d-inline w-auto"/> / 5</p>
+            <p><strong>Looks:</strong> <input name="looks" type="number" min="0" max="5" step="1" value="{{.Ranking.Looks}}" class="form-control d-inline w-auto"/> / 5</p>
+          </div>
+        </div>
+        <p class="mt-2"><strong>Value for Money:</strong> <input name="value" type="number" min="0" max="5" step="1" value="{{.Ranking.Value}}" class="form-control d-inline w-auto"/> / 5</p>
+        <button class="btn btn-primary mt-2">Submit</button>
+      </form>
       {{else}}
-      <h3 class="subtitle is-6">You ranked this on {{timetohuman .Ranking.LastUpdated.Time}}</h3>
+      <div class="row g-3 mt-2">
+        <div class="col-md-6">
+          <p><strong>Pastry:</strong> {{.Ranking.Pastry}} / 5</p>
+          <p><strong>Filling:</strong> {{.Ranking.Filling}} / 5</p>
+        </div>
+        <div class="col-md-6">
+          <p><strong>Topping:</strong> {{.Ranking.Topping}} / 5</p>
+          <p><strong>Looks:</strong> {{.Ranking.Looks}} / 5</p>
+        </div>
+      </div>
+      <p><strong>Value for Money:</strong> {{.Ranking.Value}} / 5</p>
       {{end}}
-      {{if not .Readonly}}
-        {{ if eq .ActiveYear .Pie.Year }} 
-        <form hx-put="/years/{{.Pie.Year}}/brands/{{.Pie.MakerId}}/{{.Pie.Id}}/rating" hx-swap="outerHTML" hx-select="#pie-data-container" hx-target="#pie-data-container">
-        <div class="columns">
-            <div class="column">
-            <p><strong>Pastry:</strong> <input name="pastry" type="number" min="0" max="5" step="1" value="{{.Ranking.Pastry}}"/> / 5</p>
-            <p><strong>Filling:</strong> <input name="filling" type="number" min="0" max="5" step="1" value="{{.Ranking.Filling}}"/>/ 5</p>
-            </div>
-            <div class="column">
-            <p><strong>Topping:</strong> <input name="topping" type="number" min="0" max="5" step="1" value="{{.Ranking.Topping}}"/> / 5</p>
-            <p><strong>Looks:</strong> <input name="looks" type="number" min="0" max="5" step="1" value="{{.Ranking.Looks}}"/> / 5</p>
-            </div>
-        </div>
-        <p><strong>Value for Money:</strong> <input name="value" type="number" min="0" max="5" step="1" value="{{.Ranking.Value}}"/> / 5</p>
-        <button class="button">Submit</button>
-        </form>
-        {{else}}
-        <div class="columns">
-            <div class="column">
-            <p><strong>Pastry:</strong> {{.Ranking.Pastry}} / 5</p>
-            <p><strong>Filling:</strong> {{.Ranking.Filling}} / 5</p>
-            </div>
-            <div class="column">
-            <p><strong>Topping:</strong> {{.Ranking.Topping}} / 5</p>
-            <p><strong>Looks:</strong> {{.Ranking.Looks}} / 5</p>
-            </div>
-        </div>
-        <p><strong>Value for Money:</strong> {{.Ranking.Value}} / 5</p>
-        {{end}}
-      {{else}}
-        <div class="columns">
-            <div class="column">
-            <p><strong>Pastry:</strong> {{.Ranking.Pastry}} / 5</p>
-            <p><strong>Filling:</strong> {{.Ranking.Filling}} / 5</p>
-            </div>
-            <div class="column">
-            <p><strong>Topping:</strong> {{.Ranking.Topping}} / 5</p>
-            <p><strong>Looks:</strong> {{.Ranking.Looks}} / 5</p>
-            </div>
-        </div>
-        <p><strong>Value for Money:</strong> {{.Ranking.Value}} / 5</p>
-      {{end}}
+    {{else}}
+    <div class="row g-3 mt-2">
+      <div class="col-md-6">
+        <p><strong>Pastry:</strong> {{.Ranking.Pastry}} / 5</p>
+        <p><strong>Filling:</strong> {{.Ranking.Filling}} / 5</p>
+      </div>
+      <div class="col-md-6">
+        <p><strong>Topping:</strong> {{.Ranking.Topping}} / 5</p>
+        <p><strong>Looks:</strong> {{.Ranking.Looks}} / 5</p>
+      </div>
     </div>
+    <p><strong>Value for Money:</strong> {{.Ranking.Value}} / 5</p>
+    {{end}}
   </div>
-  {{end}}
+</div>
+{{end}}

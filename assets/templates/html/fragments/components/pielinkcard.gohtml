@@ -1,137 +1,69 @@
 {{define "fragment:components:pielinkcard"}}
-<div class="card">
-  <div class="card-image">
-    <figure class="image with-overlay">
-        <a href="{{.PieLink}}" aria-label="{{.Pie.DisplayName}}">
-          <img
-            width="100%"
-            src="{{.ImgprssrPrefix}}{{.Pie.ImageFile}}?width=250&height=250&filter=gaussian"
-            alt="{{.Pie.DisplayName}}"
-          />
-          
-        </a>
-
-        {{ if .Maker }}
-          <h3 class="subtitle is-6">from <a href="/years/{{.Pie.Year}}/brands/{{.Maker.Id}}">{{ .Maker.Name }}</a></h3>
-        {{ end }}
-    </figure>
-  </div>
-  <div class="card-content">
-    <div class="media">
-      <div class="media-content">
-        <h1 class="title is-4">{{.Pie.DisplayName}}</h1>
-        <h2 class="subtitle is-4">Score: {{ nicefloat .Pie.Average }} ({{.Pie.Count}} Votes)</h2>
-      </div>
-    </div>
-
-    <div class="content">
-        {{ if .HasDate }}
-            <h5 style="margin-top: 0.25em; margin-bottom: 0.25em;">
-             TODO: Date on piecarddata
-            </h5>
-        {{ end }}
-      {{ if .Pie.PackPriceInPence }}
-        <h6 style="margin-top: 0.25em; margin-bottom: 0.25em;">
-          £{{printf "%.2f" (ppencediv .Pie.PackPriceInPence)}} per Pack
-        </h6>
-      {{ end }}
-
-      <div class="category-links">
+<div class="card h-100">
+  <a href="{{.PieLink}}" class="text-decoration-none text-dark">
+    <img src="{{.ImgprssrPrefix}}{{.Pie.ImageFile}}?width=250&height=250&filter=gaussian" class="card-img-top" alt="{{.Pie.DisplayName}}" style="object-fit: cover; height: 250px;">
+  </a>
+  <div class="card-body">
+    <h5 class="card-title"><a href="{{.PieLink}}" class="text-decoration-none text-dark">{{.Pie.DisplayName}}</a></h5>
+    {{ if .Maker }}
+    <p class="card-text"><small>From <a href="/years/{{.Pie.Year}}/brands/{{.Maker.Id}}">{{ .Maker.Name }}</a></small></p>
+    {{ end }}
+    <p class="card-text"><strong>Score:</strong> {{ nicefloat .Pie.Average }} ({{.Pie.Count}} Votes)</p>
+    {{ if .Pie.PackPriceInPence }}
+    <p class="card-text"><small>£{{printf "%.2f" (ppencediv .Pie.PackPriceInPence)}} per Pack</small></p>
+    {{ end }}
+    <div class="d-flex flex-wrap gap-1 mb-3">
       {{range .CategoryLinks}}
-        <a class="mini-category-link" href="{{.URL}}">{{.Label}}</a>
+      <a class="badge bg-secondary text-decoration-none" href="{{.URL}}">{{.Label}}</a>
       {{end}}
-      </div>
-      <a class="button" style="width: 100%;" href="{{.PieLink}}">{{.Pie.DisplayName}}</a>
     </div>
+    <a href="{{.PieLink}}" class="btn btn-primary w-100">{{.Pie.DisplayName}}</a>
   </div>
 </div>
 {{end}}
 
 {{define "fragment:components:toppielinkcard"}}
-<div class="card" style="max-width: 24em;">
-  <div class="card-content">
-    <div class="media">
-      <div class="media-content">
-        <p class="title is-4">{{.Pie.DisplayName}}</p>
-        <p class="subtitle is-4">Score: {{ nicefloat .Pie.Average }}</p>
-      </div>
-    </div>
-
-    <div class="content">
-         
-          <figure class="image with-overlay">
-              <a href="{{.PieLink}}" aria-label="{{.Pie.DisplayName}}">
-                <img
-                  width="100%"
-                  src="{{.ImgprssrPrefix}}{{.Pie.ImageFile}}?width=250&height=250&filter=gaussian"
-                  alt="{{.Pie.DisplayName}}"
-                />
-              </a>
-              
-              {{ if .Maker }}
-                <h3 class="subtitle is-6">from <a href="/years/{{.Pie.Year}}/brands/{{.Maker.Id}}">{{ .Maker.Name }}</a></h3>
-              {{ end }}
-          </figure>
-      <h5 style="margin-top: 0.25em; margin-bottom: 0.25em;">{{.Pie.Count}} Votes</h5>
-      {{ if .Pie.PackPriceInPence }}
-        <h6 style="margin-top: 0.25em; margin-bottom: 0.25em;">
-          £{{printf "%.2f" (ppencediv .Pie.PackPriceInPence)}} per Pack
-        </h6>
-      {{ end }}
-
-      <div class="category-links">
+<div class="card mx-auto" style="max-width: 24rem;">
+  <img src="{{.ImgprssrPrefix}}{{.Pie.ImageFile}}?width=250&height=250&filter=gaussian" class="card-img-top" alt="{{.Pie.DisplayName}}" style="object-fit: cover; height: 250px;">
+  <div class="card-body">
+    <h5 class="card-title">{{.Pie.DisplayName}}</h5>
+    <h6 class="card-subtitle mb-2 text-muted">Score: {{ nicefloat .Pie.Average }}</h6>
+    {{ if .Maker }}
+    <p class="card-text"><small>From <a href="/years/{{.Pie.Year}}/brands/{{.Maker.Id}}">{{ .Maker.Name }}</a></small></p>
+    {{ end }}
+    <p class="card-text">{{.Pie.Count}} Votes</p>
+    {{ if .Pie.PackPriceInPence }}
+    <p class="card-text"><small>£{{printf "%.2f" (ppencediv .Pie.PackPriceInPence)}} per Pack</small></p>
+    {{ end }}
+    <div class="d-flex flex-wrap gap-1 mb-3">
       {{range .CategoryLinks}}
-        <a class="mini-category-link" href="{{.URL}}">{{.Label}}</a>
+      <a class="badge bg-secondary text-decoration-none" href="{{.URL}}">{{.Label}}</a>
       {{end}}
-      </div>
-      <a class="button" style="width: 100%;" href="{{.PieLink}}">{{.Pie.DisplayName}}</a>
-      </div>
     </div>
+    <a href="{{.PieLink}}" class="btn btn-primary w-100">{{.Pie.DisplayName}}</a>
   </div>
 </div>
 {{end}}
 
 {{define "fragment:components:latestpielinkcard"}}
-<div class="card" style="max-width: 24em;">
-  <div class="card-content">
-    <div class="media">
-      <div class="media-content">
-        <h1 class="title is-4">{{.Pie.DisplayName}}</h1>
-        <h2 class="subtitle is-4">Scored {{ nicefloat .Pie.Average }}</h2>
-        <h3 class="subtitle is-6">at {{ timetohuman .RankingTime }}</h3>
-
-      </div>
-    </div>
-
-    <div class="content">
-         
-          <figure class="image with-overlay">
-              <a href="{{.PieLink}}" aria-label="{{.Pie.DisplayName}}">
-                <img
-                  width="100%"
-                  src="{{.ImgprssrPrefix}}{{.Pie.ImageFile}}?width=250&height=250&filter=gaussian"
-                  alt="{{.Pie.DisplayName}}"
-                />
-              </a>
-              
-              {{ if .Maker }}
-                <h3 class="subtitle is-6">from <a href="/years/{{.Pie.Year}}/brands/{{.Maker.Id}}">{{ .Maker.Name }}</a></h3>
-              {{ end }}
-          </figure>
-      {{ if .Pie.PackPriceInPence }}
-        <h5 style="margin-top: 0.25em; margin-bottom: 0.25em;">
-          £{{printf "%.2f" (ppencediv .Pie.PackPriceInPence)}} per Pack
-        </h5>
-      {{ end }}
-
-      <div class="category-links">
+<div class="card mx-auto" style="max-width: 24rem;">
+  <img src="{{.ImgprssrPrefix}}{{.Pie.ImageFile}}?width=250&height=250&filter=gaussian" class="card-img-top" alt="{{.Pie.DisplayName}}" style="object-fit: cover; height: 250px;">
+  <div class="card-body">
+    <h5 class="card-title">{{.Pie.DisplayName}}</h5>
+    <h6 class="card-subtitle mb-2 text-muted">Scored {{ nicefloat .Pie.Average }}</h6>
+    <p class="card-text"><small>at {{ timetohuman .RankingTime }}</small></p>
+    {{ if .Maker }}
+    <p class="card-text"><small>From <a href="/years/{{.Pie.Year}}/brands/{{.Maker.Id}}">{{ .Maker.Name }}</a></small></p>
+    {{ end }}
+    {{ if .Pie.PackPriceInPence }}
+    <p class="card-text"><small>£{{printf "%.2f" (ppencediv .Pie.PackPriceInPence)}} per Pack</small></p>
+    {{ end }}
+    <div class="d-flex flex-wrap gap-1 mb-3">
       {{range .CategoryLinks}}
-        <a class="mini-category-link" href="{{.URL}}">{{.Label}}</a>
+      <a class="badge bg-secondary text-decoration-none" href="{{.URL}}">{{.Label}}</a>
       {{end}}
-      </div>
-      <a class="button" style="width: 100%;" href="{{.PieLink}}">{{.Pie.DisplayName}}</a>
-      </div>
     </div>
+    <a href="{{.PieLink}}" class="btn btn-primary w-100">{{.Pie.DisplayName}}</a>
   </div>
 </div>
 {{end}}

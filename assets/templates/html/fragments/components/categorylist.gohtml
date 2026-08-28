@@ -1,8 +1,8 @@
 {{define "fragment:components:categorylist"}}
-<h2 class="title" style="text-align: center">Categories</h2>
-<div class="category-links">
+<h2 class="text-center mb-4">Categories</h2>
+<div class="d-flex flex-wrap justify-content-center gap-2 mb-4">
   {{ range . }}
-    <a class="category-link" href="{{ .URL }}"}>{{ .Label }}</a>
+  <a class="btn btn-outline-secondary" href="{{ .URL }}">{{ .Label }}</a>
   {{ end }}
 </div>
 {{end}}

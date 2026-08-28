@@ -1,28 +1,46 @@
 {{define "page:index"}}
 {{template "fragment:global:head" .Head}}
 
-<h2 class="title" style="text-align:center; padding-top: 2em;">{{.Head.MenuSettings.ActiveYear}}'s Top Pie</h2>
-{{ if not .PageData.TopPie }}
-{{ else }}
-<div style="display: flex; flex-direction: row; justify-content: center;">
-{{template "fragment:components:toppielinkcard" .PageData.TopPie}}
+<div class="container py-4">
+  <div class="row mb-4">
+    <div class="col-12 text-center">
+      <h2>{{.Head.MenuSettings.ActiveYear}}'s Top Pie</h2>
+    </div>
+  </div>
+
+  {{ if .PageData.TopPie }}
+  <div class="row mb-4 justify-content-center">
+    <div class="col-md-6 col-lg-4">
+      {{template "fragment:components:toppielinkcard" .PageData.TopPie}}
+    </div>
+  </div>
+  {{ end }}
+
+  {{ if .PageData.LatestRanking }}
+  <div class="row mb-4">
+    <div class="col-12 text-center">
+      <h3 class="h4">Latest Ranking</h3>
+    </div>
+  </div>
+  <div class="row mb-4 justify-content-center">
+    <div class="col-md-6 col-lg-4">
+      {{template "fragment:components:latestpielinkcard" .PageData.LatestRanking}}
+    </div>
+  </div>
+  {{ end }}
+
+  <div class="row mb-4">
+    <div class="col-12 text-center">
+      <a class="btn btn-primary btn-lg my-3" href="/years/{{.Head.MenuSettings.ActiveYear}}/all-pies">View All Pies</a>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-12">
+      {{template "fragment:components:brandlist" .PageData.MakerCards}}
+    </div>
+  </div>
 </div>
-{{ end }}
 
-{{ if not .PageData.LatestRanking }}
-{{ else }}
-<h2 class="title" style="text-align:center; padding-top: 1em;">Latest Ranking</h2>
-
-<div style="display: flex; flex-direction: row; justify-content: center;">
-{{template "fragment:components:latestpielinkcard" .PageData.LatestRanking}}
-</div>
-{{ end }}
-
-<div style="display: flex; flex-direction: row; justify-content: center;">
-<a style="margin-top: 2em; margin-bottom: 2em;" class="button" href="/years/{{.Head.MenuSettings.ActiveYear}}/all-pies">View All Pies</a>
-</div>
-
-
-{{template "fragment:components:brandlist" .PageData.MakerCards}}
 {{template "fragment:global:foot" .Foot}}
 {{end}}

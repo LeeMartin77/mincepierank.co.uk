@@ -1,18 +1,17 @@
 {{define "fragment:components:brandlist"}}
-<h2  class="title" style="text-align:center">Brands</h2>
-<div class="container"  style="display: flex; flex-direction: row; gap: 2em; flex-wrap: wrap; justify-content: center;">
+<h2 class="text-center mb-4">Brands</h2>
+<div class="row row-cols-2 row-cols-md-3 row-cols-lg-4 g-4">
   {{ range . }}
-        <div class="card" style="display: flex; flex-direction: column; gap: 2em; justify-content: center;">
-        <a class="brand-link-image" href="/years/{{.Year}}/brands/{{.Maker.Id}}">
-            <div>
-            <img
-                src="{{.ImgprssrPrefix}}{{ .Maker.Logo }}?width=200&filter=gaussian"
-                alt="{{.Maker.Name}} Logo"
-            />
-            </div>
-        </a>
-        <a class="button" style="width: 100%; margin-bottom: 0;" href="/years/{{.Year}}/brands/{{.Maker.Id}}">{{.Maker.Name}}</a>
+  <div class="col">
+    <div class="card h-100 text-center">
+      <a href="/years/{{.Year}}/brands/{{.Maker.Id}}" class="text-decoration-none text-dark">
+        <img src="{{.ImgprssrPrefix}}{{ .Maker.Logo }}?width=200&filter=gaussian" class="card-img-top p-3" alt="{{.Maker.Name}} Logo" style="max-height: 150px; object-fit: contain;">
+        <div class="card-body">
+          <h5 class="card-title">{{.Maker.Name}}</h5>
         </div>
+      </a>
+    </div>
+  </div>
   {{ end }}
 </div>
 {{end}}
