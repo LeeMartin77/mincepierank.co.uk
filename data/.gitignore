@@ -1,0 +1,8 @@
+*
+!.gitignore
+!images
+!generic
+!2024
+!piescraper
+!piescraper/*
+!piescraper/**/*
