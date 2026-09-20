@@ -71,3 +71,5 @@ function scrape() {
     download_pagetext();
     find_and_download_all_img();
 }
+
+browser.action.onClicked.addListener(scrape);

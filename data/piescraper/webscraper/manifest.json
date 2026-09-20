@@ -1,0 +1,38 @@
+{
+  "manifest_version": 3,
+  "name": "Piescraper",
+  "version": "1.0",
+
+  "description": "Scrape a page of data for mince pie collection",
+
+  "icons": {
+    "48": "icons/chart-pie-outline-48.png"
+  },
+
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "piescraper@leejohnmartin.co.uk",
+      "data_collection_permissions": {
+        "required": ["none"]
+      }
+    }
+  },
+  "action": {
+    "default_icon": "icons/chart-pie-outline-32.png",
+    "theme_icons": [
+      {
+        "light": "icons/chart-pie-outline-32.png",
+        "dark": "icons/chart-pie-outline-32.png",
+        "size": 32
+      }
+    ],
+    "default_title": "Scrape"
+  },
+
+  "content_scripts": [
+    {
+      "matches": ["*://*/*"],
+      "js": ["scraper.js"]
+    }
+  ]
+}
