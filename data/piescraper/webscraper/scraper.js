@@ -11,12 +11,14 @@ function download_image(url) {
         return
     }
     cache[urlprsd.origin + urlprsd.pathname] = true;
+
+    var page = window.location.href
     fetch(url)
         .then(response => response.blob())  
         .then(blob => {
             var a = document.createElement('a');
             a.href = URL.createObjectURL(blob);  
-            a.download = url; 
+            a.download = page + url; 
             a.style.display = 'none';  
             document.body.appendChild(a);
             a.click(); 
