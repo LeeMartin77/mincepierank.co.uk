@@ -4,7 +4,7 @@
   "version": "1.0",
 
   "description": "Scrape a page of data for mince pie collection",
-
+  "permissions": ["scripting"],
   "icons": {
     "48": "icons/chart-pie-outline-48.png"
   },
@@ -29,10 +29,9 @@
     "default_title": "Scrape"
   },
 
-  "content_scripts": [
+  "background": 
     {
-      "matches": ["*://*/*"],
-      "js": ["scraper.js"]
+      "scripts": ["background.js"]
     }
-  ]
+  
 }

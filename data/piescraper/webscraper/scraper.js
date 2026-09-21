@@ -72,4 +72,4 @@ function scrape() {
     find_and_download_all_img();
 }
 
-browser.action.onClicked.addListener(scrape);
+scrape()
