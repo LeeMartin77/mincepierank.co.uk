@@ -59,7 +59,7 @@ function download_pagetext() {
     var page = window.location.href
     var a = document.createElement('a');
     a.href = URL.createObjectURL(new Blob([extracttextrecursively(document.body)], { type: 'text/plain' }));  
-    a.download = page; 
+    a.download = page + ".txt"; 
     a.style.display = 'none';  
     document.body.appendChild(a);
     a.click(); 
