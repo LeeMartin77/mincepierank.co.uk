@@ -1,7 +1,29 @@
 {{define "fragment:components:userranking"}}
 <div class="card mb-4">
+  <style>
+    .rating-stars { overflow: hidden; display: inline-block; }
+    .rating-stars input { display: none; }
+    .rating-stars label { float: right; color: #ccc; font-size: 1.4rem; cursor: pointer; }
+    .rating-stars input:checked ~ label,
+    .rating-stars label:hover,
+    .rating-stars label:hover ~ label,
+    .rating-stars input:checked + label { color: #f5b301; }
+    .rating-stars .star-full { color: #f5b301; }
+    .rating-stars .star-empty { color: #ccc; }
+    .rating-stars .star-half { position: relative; display: inline-block; width: 0.7em; overflow: hidden; color: #f5b301; }
+  </style>
   <div class="card-body">
     <h2 class="card-title h4">Your Ranking</h2>
+    {{if .Errors}}
+    <div class="alert alert-danger" role="alert">
+      <strong>Validation errors:</strong>
+      <ul class="mb-0">
+        {{range .Errors}}
+        <li>{{.}}</li>
+        {{end}}
+      </ul>
+    </div>
+    {{end}}
     {{if not .Ranking.Year }}
     <h3 class="h6 text-muted">You haven't ranked this!</h3>
     {{else}}
@@ -12,42 +34,82 @@
       <form hx-put="/years/{{.Pie.Year}}/brands/{{.Pie.MakerId}}/{{.Pie.Id}}/rating" hx-swap="outerHTML" hx-select="#pie-data-container" hx-target="#pie-data-container" class="mt-3">
         <div class="row g-3">
           <div class="col-md-6">
-            <p><strong>Pastry:</strong> <input name="pastry" type="number" min="0" max="5" step="1" value="{{.Ranking.Pastry}}" class="form-control d-inline w-auto"/> / 5</p>
-            <p><strong>Filling:</strong> <input name="filling" type="number" min="0" max="5" step="1" value="{{.Ranking.Filling}}" class="form-control d-inline w-auto"/> / 5</p>
+            <p><strong>Pastry:</strong>
+              <span class="rating-stars">
+                <input type="radio" name="pastry" value="1" id="pastry-1" {{if eq .Ranking.Pastry 1}}checked{{end}}/><label for="pastry-1">★</label>
+                <input type="radio" name="pastry" value="2" id="pastry-2" {{if eq .Ranking.Pastry 2}}checked{{end}}/><label for="pastry-2">★</label>
+                <input type="radio" name="pastry" value="3" id="pastry-3" {{if eq .Ranking.Pastry 3}}checked{{end}}/><label for="pastry-3">★</label>
+                <input type="radio" name="pastry" value="4" id="pastry-4" {{if eq .Ranking.Pastry 4}}checked{{end}}/><label for="pastry-4">★</label>
+                <input type="radio" name="pastry" value="5" id="pastry-5" {{if eq .Ranking.Pastry 5}}checked{{end}}/><label for="pastry-5">★</label>
+              </span>
+            </p>
+            <p><strong>Filling:</strong>
+              <span class="rating-stars">
+                <input type="radio" name="filling" value="1" id="filling-1" {{if eq .Ranking.Filling 1}}checked{{end}}/><label for="filling-1">★</label>
+                <input type="radio" name="filling" value="2" id="filling-2" {{if eq .Ranking.Filling 2}}checked{{end}}/><label for="filling-2">★</label>
+                <input type="radio" name="filling" value="3" id="filling-3" {{if eq .Ranking.Filling 3}}checked{{end}}/><label for="filling-3">★</label>
+                <input type="radio" name="filling" value="4" id="filling-4" {{if eq .Ranking.Filling 4}}checked{{end}}/><label for="filling-4">★</label>
+                <input type="radio" name="filling" value="5" id="filling-5" {{if eq .Ranking.Filling 5}}checked{{end}}/><label for="filling-5">★</label>
+              </span>
+            </p>
           </div>
           <div class="col-md-6">
-            <p><strong>Topping:</strong> <input name="topping" type="number" min="0" max="5" step="1" value="{{.Ranking.Topping}}" class="form-control d-inline w-auto"/> / 5</p>
-            <p><strong>Looks:</strong> <input name="looks" type="number" min="0" max="5" step="1" value="{{.Ranking.Looks}}" class="form-control d-inline w-auto"/> / 5</p>
+            <p><strong>Topping:</strong>
+              <span class="rating-stars">
+                <input type="radio" name="topping" value="5" id="topping-5" {{if eq .Ranking.Topping 5}}checked{{end}}/><label for="topping-5">★</label>
+                <input type="radio" name="topping" value="4" id="topping-4" {{if eq .Ranking.Topping 4}}checked{{end}}/><label for="topping-4">★</label>
+                <input type="radio" name="topping" value="3" id="topping-3" {{if eq .Ranking.Topping 3}}checked{{end}}/><label for="topping-3">★</label>
+                <input type="radio" name="topping" value="2" id="topping-2" {{if eq .Ranking.Topping 2}}checked{{end}}/><label for="topping-2">★</label>
+                <input type="radio" name="topping" value="1" id="topping-1" {{if eq .Ranking.Topping 1}}checked{{end}}/><label for="topping-1">★</label>
+              </span>
+            </p>
+            <p><strong>Looks:</strong>
+              <span class="rating-stars">
+                <input type="radio" name="looks" value="5" id="looks-5" {{if eq .Ranking.Looks 5}}checked{{end}}/><label for="looks-5">★</label>
+                <input type="radio" name="looks" value="4" id="looks-4" {{if eq .Ranking.Looks 4}}checked{{end}}/><label for="looks-4">★</label>
+                <input type="radio" name="looks" value="3" id="looks-3" {{if eq .Ranking.Looks 3}}checked{{end}}/><label for="looks-3">★</label>
+                <input type="radio" name="looks" value="2" id="looks-2" {{if eq .Ranking.Looks 2}}checked{{end}}/><label for="looks-2">★</label>
+                <input type="radio" name="looks" value="1" id="looks-1" {{if eq .Ranking.Looks 1}}checked{{end}}/><label for="looks-1">★</label>
+              </span>
+            </p>
           </div>
         </div>
-        <p class="mt-2"><strong>Value for Money:</strong> <input name="value" type="number" min="0" max="5" step="1" value="{{.Ranking.Value}}" class="form-control d-inline w-auto"/> / 5</p>
+        <p class="mt-2"><strong>Value for Money:</strong>
+          <span class="rating-stars">
+            <input type="radio" name="value" value="5" id="value-5" {{if eq .Ranking.Value 5}}checked{{end}}/><label for="value-5">★</label>
+            <input type="radio" name="value" value="4" id="value-4" {{if eq .Ranking.Value 4}}checked{{end}}/><label for="value-4">★</label>
+            <input type="radio" name="value" value="3" id="value-3" {{if eq .Ranking.Value 3}}checked{{end}}/><label for="value-3">★</label>
+            <input type="radio" name="value" value="2" id="value-2" {{if eq .Ranking.Value 2}}checked{{end}}/><label for="value-2">★</label>
+            <input type="radio" name="value" value="1" id="value-1" {{if eq .Ranking.Value 1}}checked{{end}}/><label for="value-1">★</label>
+          </span>
+        </p>
         <button class="btn btn-primary mt-2">Submit</button>
       </form>
       {{else}}
       <div class="row g-3 mt-2">
         <div class="col-md-6">
-          <p><strong>Pastry:</strong> {{.Ranking.Pastry}} / 5</p>
-          <p><strong>Filling:</strong> {{.Ranking.Filling}} / 5</p>
+          <p><strong>Pastry:</strong> {{.Ranking.Pastry}} <span style="color:#f5b301;">★</span></p>
+          <p><strong>Filling:</strong> {{.Ranking.Filling}} <span style="color:#f5b301;">★</span></p>
         </div>
         <div class="col-md-6">
-          <p><strong>Topping:</strong> {{.Ranking.Topping}} / 5</p>
-          <p><strong>Looks:</strong> {{.Ranking.Looks}} / 5</p>
+          <p><strong>Topping:</strong> {{.Ranking.Topping}} <span style="color:#f5b301;">★</span></p>
+          <p><strong>Looks:</strong> {{.Ranking.Looks}} <span style="color:#f5b301;">★</span></p>
         </div>
       </div>
-      <p><strong>Value for Money:</strong> {{.Ranking.Value}} / 5</p>
+      <p><strong>Value for Money:</strong> {{.Ranking.Value}} <span style="color:#f5b301;">★</span></p>
       {{end}}
     {{else}}
     <div class="row g-3 mt-2">
       <div class="col-md-6">
-        <p><strong>Pastry:</strong> {{.Ranking.Pastry}} / 5</p>
-        <p><strong>Filling:</strong> {{.Ranking.Filling}} / 5</p>
+        <p><strong>Pastry:</strong> {{.Ranking.Pastry}} <span style="color:#f5b301;">★</span></p>
+        <p><strong>Filling:</strong> {{.Ranking.Filling}} <span style="color:#f5b301;">★</span></p>
       </div>
       <div class="col-md-6">
-        <p><strong>Topping:</strong> {{.Ranking.Topping}} / 5</p>
-        <p><strong>Looks:</strong> {{.Ranking.Looks}} / 5</p>
+        <p><strong>Topping:</strong> {{.Ranking.Topping}} <span style="color:#f5b301;">★</span></p>
+        <p><strong>Looks:</strong> {{.Ranking.Looks}} <span style="color:#f5b301;">★</span></p>
       </div>
     </div>
-    <p><strong>Value for Money:</strong> {{.Ranking.Value}} / 5</p>
+    <p><strong>Value for Money:</strong> {{.Ranking.Value}} <span style="color:#f5b301;">★</span></p>
     {{end}}
   </div>
 </div>

@@ -36,7 +36,7 @@ func (wrpr *WebsiteWrapper) YearBrandPie(ctx *gin.Context, year int64, brand str
 		return
 	}
 
-	returnSinglePiePage(wrpr, ctx, year, ay, ro, pie)
+	returnSinglePiePage(wrpr, ctx, year, ay, ro, pie, nil)
 }
 
 var rankings []string = []string{"filling", "pastry", "topping", "looks", "value"}
@@ -66,8 +66,11 @@ func (wrpr *WebsiteWrapper) RateYearBrandPie(ctx *gin.Context, year int64, brand
 		return
 	}
 
+	errors := []string{}
+
 	if pie.Year != int32(*ay) || ro {
-		ctx.AbortWithStatus(400)
+		errors = append(errors, "Rating is not open for this year or is read-only")
+		returnSinglePiePage(wrpr, ctx, year, ay, ro, pie, errors)
 		return
 	}
 
@@ -76,16 +79,25 @@ func (wrpr *WebsiteWrapper) RateYearBrandPie(ctx *gin.Context, year int64, brand
 
 	for _, k := range rankings {
 		rv := ctx.Request.FormValue(k)
+		if rv == "" {
+			errors = append(errors, fmt.Sprintf("%s is required", k))
+			continue
+		}
 		prsd, err := strconv.ParseInt(rv, 10, 32)
 		if err != nil {
-			ctx.AbortWithStatus(400)
-			return
+			errors = append(errors, fmt.Sprintf("%s must be an integer between 1 and 5", k))
+			continue
 		}
-		if prsd < 0 || prsd > 5 {
-			ctx.AbortWithStatus(400)
-			return
+		if prsd < 1 || prsd > 5 {
+			errors = append(errors, fmt.Sprintf("%s must be between 1 and 5", k))
+			continue
 		}
 		rnkingmap[k] = int32(prsd)
+	}
+
+	if len(errors) > 0 {
+		returnSinglePiePage(wrpr, ctx, year, ay, ro, pie, errors)
+		return
 	}
 
 	// rate
@@ -103,10 +115,10 @@ func (wrpr *WebsiteWrapper) RateYearBrandPie(ctx *gin.Context, year int64, brand
 		Value:   rnkingmap["value"],
 	})
 
-	returnSinglePiePage(wrpr, ctx, year, ay, ro, pie)
+	returnSinglePiePage(wrpr, ctx, year, ay, ro, pie, nil)
 }
 
-func returnSinglePiePage(wrpr *WebsiteWrapper, ctx *gin.Context, year int64, ay *int64, ro bool, pie *types.MakerPieYearly) {
+func returnSinglePiePage(wrpr *WebsiteWrapper, ctx *gin.Context, year int64, ay *int64, ro bool, pie *types.MakerPieYearly, errors []string) {
 	maker, err := wrpr.storage.GetMaker(ctx, ctx.Param("brand"))
 	if err != nil {
 		log.Error().Err(err).Msg("Error getting maker year pie")
@@ -163,6 +175,7 @@ func returnSinglePiePage(wrpr *WebsiteWrapper, ctx *gin.Context, year int64, ay 
 			"Breadcrumb":     templater.BreadcrumbsFromUrl(fmt.Sprintf("/years/%d/brands/%s/%s", pie.Year, pie.MakerId, pie.Id)),
 			"Readonly":       ro,
 			"UserRanking":    urnking,
+			"Errors":         errors,
 		},
 	}
 
