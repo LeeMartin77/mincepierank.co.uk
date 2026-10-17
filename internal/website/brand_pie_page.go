@@ -36,10 +36,41 @@ func (wrpr *WebsiteWrapper) YearBrandPie(ctx *gin.Context, year int64, brand str
 		return
 	}
 
-	returnSinglePiePage(wrpr, ctx, year, ay, ro, pie)
+	returnSinglePiePage(wrpr, ctx, year, ay, ro, pie, nil)
 }
 
 var rankings []string = []string{"filling", "pastry", "topping", "looks", "value"}
+
+var rankingLabels = map[string]string{
+	"filling": "Filling",
+	"pastry":  "Pastry",
+	"topping": "Topping",
+	"looks":   "Looks",
+	"value":   "Value for Money",
+}
+
+// parseRatings reads each ranking field via get (e.g. Request.FormValue) and
+// returns the parsed 1-5 values, plus a user-facing message for each field
+// that is missing or invalid.
+func parseRatings(get func(string) string) (map[string]int32, []string) {
+	parsed := map[string]int32{}
+	var errs []string
+	for _, k := range rankings {
+		label := rankingLabels[k]
+		rv := get(k)
+		if rv == "" {
+			errs = append(errs, fmt.Sprintf("%s is required", label))
+			continue
+		}
+		prsd, err := strconv.ParseInt(rv, 10, 32)
+		if err != nil || prsd < 1 || prsd > 5 {
+			errs = append(errs, fmt.Sprintf("%s must be a whole number from 1 to 5", label))
+			continue
+		}
+		parsed[k] = int32(prsd)
+	}
+	return parsed, errs
+}
 
 // RateYearBrandPie implements generated.ServerInterface.
 func (wrpr *WebsiteWrapper) RateYearBrandPie(ctx *gin.Context, year int64, brand string, pieParam string) {
@@ -67,25 +98,14 @@ func (wrpr *WebsiteWrapper) RateYearBrandPie(ctx *gin.Context, year int64, brand
 	}
 
 	if pie.Year != int32(*ay) || ro {
-		ctx.AbortWithStatus(400)
+		returnSinglePiePage(wrpr, ctx, year, ay, ro, pie, []string{"Rating is not open for this year or is read-only"})
 		return
 	}
 
-	// validate
-	rnkingmap := map[string]int32{}
-
-	for _, k := range rankings {
-		rv := ctx.Request.FormValue(k)
-		prsd, err := strconv.ParseInt(rv, 10, 32)
-		if err != nil {
-			ctx.AbortWithStatus(400)
-			return
-		}
-		if prsd < 0 || prsd > 5 {
-			ctx.AbortWithStatus(400)
-			return
-		}
-		rnkingmap[k] = int32(prsd)
+	rnkingmap, validationErrs := parseRatings(ctx.Request.FormValue)
+	if len(validationErrs) > 0 {
+		returnSinglePiePage(wrpr, ctx, year, ay, ro, pie, validationErrs)
+		return
 	}
 
 	// rate
@@ -103,10 +123,10 @@ func (wrpr *WebsiteWrapper) RateYearBrandPie(ctx *gin.Context, year int64, brand
 		Value:   rnkingmap["value"],
 	})
 
-	returnSinglePiePage(wrpr, ctx, year, ay, ro, pie)
+	returnSinglePiePage(wrpr, ctx, year, ay, ro, pie, nil)
 }
 
-func returnSinglePiePage(wrpr *WebsiteWrapper, ctx *gin.Context, year int64, ay *int64, ro bool, pie *types.MakerPieYearly) {
+func returnSinglePiePage(wrpr *WebsiteWrapper, ctx *gin.Context, year int64, ay *int64, ro bool, pie *types.MakerPieYearly, errs []string) {
 	maker, err := wrpr.storage.GetMaker(ctx, ctx.Param("brand"))
 	if err != nil {
 		log.Error().Err(err).Msg("Error getting maker year pie")
@@ -163,6 +183,7 @@ func returnSinglePiePage(wrpr *WebsiteWrapper, ctx *gin.Context, year int64, ay 
 			"Breadcrumb":     templater.BreadcrumbsFromUrl(fmt.Sprintf("/years/%d/brands/%s/%s", pie.Year, pie.MakerId, pie.Id)),
 			"Readonly":       ro,
 			"UserRanking":    urnking,
+			"Errors":         errs,
 		},
 	}
 
