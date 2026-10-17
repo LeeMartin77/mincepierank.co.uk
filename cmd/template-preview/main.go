@@ -2,15 +2,14 @@
 // data so UI changes can be eyeballed (and screenshotted) without Postgres,
 // Redis, Dex or imgprssr.
 //
-// It deliberately uses only the standard library so it runs with nothing but a
-// Go toolchain. The template FuncMap below mirrors internal/templater/html.go;
-// keep the two in sync when adding template functions.
+// It depends only on the standard library and internal/templatefuncs (the same
+// template functions the real templater uses), so it runs with nothing but a
+// Go toolchain.
 //
 // See README.md in this directory for usage.
 package main
 
 import (
-	"errors"
 	"flag"
 	"fmt"
 	"html/template"
@@ -22,6 +21,8 @@ import (
 	"sort"
 	"strings"
 	"time"
+
+	"github.com/leemartin77/mincepierank.co.uk/internal/templatefuncs"
 )
 
 // ---- Minimal mirrors of the shapes the templates read ----------------------
@@ -124,7 +125,7 @@ var scenarios = []scenario{
 		func() pageData { return singlePie(userRanking{}, false, nil, activeYear) }},
 	{"singlepie-errors", "Submission rejected with validation errors", "singlepie",
 		func() pageData {
-			return singlePie(userRanking{}, false, []string{"pastry is required", "value is required"}, activeYear)
+			return singlePie(userRanking{}, false, []string{"Pastry is required", "Value for Money is required"}, activeYear)
 		}},
 	{"singlepie-readonly", "Site in read-only mode - ranking shown, no form", "singlepie",
 		func() pageData { return singlePie(ranked, true, nil, activeYear) }},
@@ -134,53 +135,12 @@ var scenarios = []scenario{
 
 // ---- Templates -------------------------------------------------------------
 
-// funcMap mirrors internal/templater/html.go. Keep in sync.
-var funcMap = template.FuncMap{
-	"dict": func(values ...interface{}) (map[string]interface{}, error) {
-		if len(values)%2 != 0 {
-			return nil, errors.New("invalid dict call")
-		}
-		d := make(map[string]interface{}, len(values)/2)
-		for i := 0; i < len(values); i += 2 {
-			k, ok := values[i].(string)
-			if !ok {
-				return nil, errors.New("dict keys must be strings")
-			}
-			d[k] = values[i+1]
-		}
-		return d, nil
-	},
-	"jsonserial":  func(v interface{}) (string, error) { return fmt.Sprintf("%+v", v), nil },
-	"containscat": func(cat, catlist interface{}) bool { return false },
-	"ppencediv": func(v interface{}) (float32, error) {
-		switch n := v.(type) {
-		case float32:
-			return n / 100, nil
-		case int32:
-			return float32(n) / 100, nil
-		}
-		return 0, fmt.Errorf("first value not floatable")
-	},
-	"timetohuman": func(v interface{}) (string, error) {
-		tm, ok := v.(time.Time)
-		if !ok {
-			return "", fmt.Errorf("is not a time")
-		}
-		return tm.Format(time.RFC1123), nil
-	},
-	"nicefloat": func(v interface{}) (string, error) {
-		var f float32
-		switch n := v.(type) {
-		case float32:
-			f = n
-		case float64:
-			f = float32(n)
-		default:
-			return "", fmt.Errorf("first value not floatable")
-		}
-		s := fmt.Sprintf("%.2f", f)
-		return strings.TrimSuffix(s, ".00"), nil
-	},
+// funcMap is the shared standard-library template functions plus a stub for
+// containscat, which needs storage types (it only affects category pages).
+func funcMap() template.FuncMap {
+	f := templatefuncs.Common()
+	f["containscat"] = func(cat, catlist interface{}) bool { return false }
+	return f
 }
 
 func parseTemplates(dir string) (*template.Template, error) {
@@ -200,7 +160,7 @@ func parseTemplates(dir string) (*template.Template, error) {
 	if len(files) == 0 {
 		return nil, fmt.Errorf("no .gohtml files under %s", dir)
 	}
-	return template.New("").Funcs(funcMap).ParseFiles(files...)
+	return template.New("").Funcs(funcMap()).ParseFiles(files...)
 }
 
 func render(w io.Writer, tmplDir string, s scenario) error {

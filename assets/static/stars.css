@@ -1,0 +1,52 @@
+:root {
+  --star-on: #f5b301;
+  --star-off: #ccc;
+}
+
+/* ---- Read-only star meter: {{template "star-display" value}} ---------------
+   Two rows of five stars stacked; the gold row is clipped to value/5. */
+.star-meter {
+  position: relative;
+  display: inline-block;
+  line-height: 1;
+  font-size: 1.1rem;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+  vertical-align: -0.1em;
+}
+.star-meter-empty { color: var(--star-off); }
+.star-meter-fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  overflow: hidden;
+  color: var(--star-on);
+}
+
+/* ---- Star input: {{template "star-input" dict ...}} --------------------------
+   Radios are in natural 1..5 order (so arrow keys and screen readers match
+   what's on screen). Everything up to the checked star is gold, everything
+   after it grey; while hovering, the same applies to the hovered star. */
+.star-input {
+  display: inline-flex;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  vertical-align: middle;
+}
+.star-input label {
+  color: var(--star-off);
+  font-size: 1.6rem;
+  line-height: 1;
+  padding: 0 0.1rem;
+  cursor: pointer;
+}
+.star-input:not(:hover):has(input:checked) label { color: var(--star-on); }
+.star-input:not(:hover) input:checked + label ~ label { color: var(--star-off); }
+.star-input:hover label { color: var(--star-on); }
+.star-input:hover label:hover ~ label { color: var(--star-off); }
+
+.star-input input:focus-visible + label {
+  outline: 2px solid var(--bs-primary, #0d6efd);
+  outline-offset: 2px;
+  border-radius: 0.2rem;
+}

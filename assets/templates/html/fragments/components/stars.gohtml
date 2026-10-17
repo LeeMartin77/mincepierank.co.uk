@@ -1,5 +1,15 @@
-{{define "star-display"}}
-<span style="font-size:1.1rem; letter-spacing:-0.05em; color:#f5b301;">
-  ★★★★★
-</span>
+{{/* Read-only star meter. Takes a number 0-5 (float or int); partial values fill partially. */}}
+{{define "star-display"}}<span class="star-meter" role="img" aria-label="{{nicefloat .}} out of 5"><span class="star-meter-empty" aria-hidden="true">★★★★★</span><span class="star-meter-fill" aria-hidden="true" style="width: {{starpercent .}}%">★★★★★</span></span>{{end}}
+
+{{/* Star rating input. dict "Name" form-field "Label" text "Value" current-int32
+     Radios are emitted 1..5; stars.css fills up to the checked one. */}}
+{{define "star-input"}}
+<fieldset class="star-input">
+  <legend class="visually-hidden">{{.Label}}</legend>
+  {{$name := .Name}}{{$value := .Value}}
+  {{range $n := starvalues}}
+  <input class="visually-hidden" type="radio" name="{{$name}}" value="{{$n}}" id="{{$name}}-{{$n}}" {{if eq $value $n}}checked{{end}}/>
+  <label for="{{$name}}-{{$n}}" title="{{$n}} out of 5"><span aria-hidden="true">★</span><span class="visually-hidden">{{$n}} out of 5</span></label>
+  {{end}}
+</fieldset>
 {{end}}

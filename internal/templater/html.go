@@ -2,8 +2,6 @@ package templater
 
 import (
 	"bytes"
-	"encoding/json"
-	"errors"
 	"fmt"
 	"html/template"
 	"io"
@@ -11,9 +9,9 @@ import (
 	"path/filepath"
 	"slices"
 	"strings"
-	"time"
 
 	"github.com/leemartin77/mincepierank.co.uk/internal/storage/types"
+	"github.com/leemartin77/mincepierank.co.uk/internal/templatefuncs"
 )
 
 func NewHtmlTemplater() Templater {
@@ -73,75 +71,19 @@ func getFilesInDirAndChildren(dir string) []string {
 
 func getTemplates(tmpltdir string) (templates *template.Template, err error) {
 	allFiles := getFilesInDirAndChildren(tmpltdir)
-	return template.New("").Funcs(template.FuncMap{
-		"dict": func(values ...interface{}) (map[string]interface{}, error) {
-			if len(values)%2 != 0 {
-				return nil, errors.New("invalid dict call")
-			}
-			dict := make(map[string]interface{}, len(values)/2)
-			for i := 0; i < len(values); i += 2 {
-				key, ok := values[i].(string)
-				if !ok {
-					return nil, errors.New("dict keys must be strings")
-				}
-				dict[key] = values[i+1]
-			}
-			return dict, nil
-		},
-		"jsonserial": func(value interface{}) (string, error) {
-			b, err := json.MarshalIndent(value, "", "  ")
-			if err != nil {
-				fmt.Println(value)
-				return "Error serialising", err
-			}
-			return string(b), nil
-		},
-		"ppencediv": func(value interface{}) (float32, error) {
-			first, ok := value.(float32)
-			if !ok {
-				fint, ok := value.(int32)
-				if !ok {
-
-					return 0, fmt.Errorf("first value not floatable")
-				}
-				first = float32(fint)
-			}
-			return first / 100, nil
-		},
-		"containscat": func(cat interface{}, catlist interface{}) bool {
-			category, ok := cat.(types.Category)
-			if !ok {
-				return false
-			}
-			category_list, ok := catlist.(*[]types.Category)
-			if !ok {
-				return false
-			}
-			return slices.ContainsFunc(*category_list, func(cl types.Category) bool {
-				return cl.Id == category.Id
-			})
-		},
-		"timetohuman": func(value interface{}) (string, error) {
-			tm, ok := value.(time.Time)
-			if !ok {
-				return "", fmt.Errorf("is not a time")
-			}
-			return tm.Format(time.RFC1123), nil
-		},
-		"nicefloat": func(value interface{}) (string, error) {
-			first, ok := value.(float32)
-			if !ok {
-				fint, ok := value.(float64)
-				if !ok {
-					return "", fmt.Errorf("first value not floatable")
-				}
-				first = float32(fint)
-			}
-			str := fmt.Sprintf("%.2f", first)
-			if str[len(str)-3:] == ".00" {
-				str = str[:len(str)-3]
-			}
-			return str, nil
-		},
-	}).ParseFiles(allFiles...)
+	funcs := templatefuncs.Common()
+	funcs["containscat"] = func(cat interface{}, catlist interface{}) bool {
+		category, ok := cat.(types.Category)
+		if !ok {
+			return false
+		}
+		category_list, ok := catlist.(*[]types.Category)
+		if !ok {
+			return false
+		}
+		return slices.ContainsFunc(*category_list, func(cl types.Category) bool {
+			return cl.Id == category.Id
+		})
+	}
+	return template.New("").Funcs(funcs).ParseFiles(allFiles...)
 }

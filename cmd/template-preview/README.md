@@ -4,9 +4,9 @@ Renders the site's HTML templates with fixed sample data, so you can look at
 (and screenshot) UI changes without bringing up Postgres, Redis, Dex or
 imgprssr.
 
-It only uses the Go standard library and reads templates straight from
-`assets/templates/html`, so it works anywhere a Go toolchain does — including
-CI or sandboxes with no Docker and no module proxy.
+It depends only on the standard library and `internal/templatefuncs`, and
+reads templates straight from `assets/templates/html`, so it works anywhere a
+Go toolchain does — including CI or sandboxes with no Docker and no module proxy.
 
 ## Usage
 
@@ -85,9 +85,9 @@ passes, so copy the keys from there.
 
 - **Not the real server.** Forms render but submitting them (`hx-put` etc.)
   goes nowhere; use this for layout and visual state, not behaviour.
-- **FuncMap is a copy.** `funcMap` in `main.go` mirrors
-  `internal/templater/html.go`. If you add a template function there, add it
-  here too or rendering will fail with `function "x" not defined`.
-  `containscat` and `jsonserial` are stubs.
+- **Shared template functions.** Both this tool and `internal/templater` take
+  their functions from `internal/templatefuncs`. Put new stdlib-only template
+  functions there and both pick them up. `containscat` needs storage types, so
+  it lives in the templater and is stubbed (always false) here.
 - **Sample data only.** Structs here are minimal stand-ins with the field
   names the templates read; they don't touch `internal/storage`.
