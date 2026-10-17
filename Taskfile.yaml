@@ -23,3 +23,7 @@ tasks:
       - generate
     cmds:
       - gow run cmd/website/main.go
+  preview:
+    desc: Serve templates with sample data (no DB needed) - see cmd/template-preview/README.md
+    cmds:
+      - go run ./cmd/template-preview {{.CLI_ARGS}}
