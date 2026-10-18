@@ -316,6 +316,51 @@ func (wrpr *WebsiteWrapper) UpdateMakerPie(c *gin.Context, oid string) {
 		c.AbortWithStatus(400)
 		return
 	}
+
+	// Handle optional image upload
+	var imageFile string
+	img, header, err := c.Request.FormFile("img")
+	if err == nil {
+		defer img.Close()
+
+		// Read the uploaded file
+		byteContainer, err := io.ReadAll(img)
+		if err != nil {
+			c.AbortWithError(500, err)
+			return
+		}
+
+		// Build the image path (year/makerid/id/filename)
+		imgFilename := header.Filename
+		path := strings.Join([]string{
+			c.Request.FormValue("year"),
+			c.Request.FormValue("makerid"),
+			c.Request.FormValue("id"),
+			imgFilename,
+		}, "/")
+
+		dirpath := strings.Join([]string{
+			wrpr.config.ImgprssrDir,
+			c.Request.FormValue("year"),
+			c.Request.FormValue("makerid"),
+			c.Request.FormValue("id"),
+		}, "/")
+
+		err = os.MkdirAll(dirpath, os.ModePerm)
+		if err != nil {
+			c.AbortWithError(500, err)
+			return
+		}
+
+		err = os.WriteFile(wrpr.config.ImgprssrDir+"/"+path, byteContainer, fs.ModeAppend)
+		if err != nil {
+			c.AbortWithError(500, err)
+			return
+		}
+
+		imageFile = "/" + path
+	}
+
 	err = wrpr.storage.GetQuerier().UpdateMakerPieByOid(c, sqlcgen.UpdateMakerPieByOidParams{
 		Displayname:      c.Request.FormValue("displayname"),
 		Fresh:            mustParseBool(c.Request.FormValue("fresh")),
@@ -328,6 +373,18 @@ func (wrpr *WebsiteWrapper) UpdateMakerPie(c *gin.Context, oid string) {
 	if err != nil {
 		c.AbortWithError(500, err)
 		return
+	}
+
+	// Only update the image if one was actually uploaded
+	if imageFile != "" {
+		err = wrpr.storage.GetQuerier().UpdateMakerPieImageByOid(c, sqlcgen.UpdateMakerPieImageByOidParams{
+			ImageFile: imageFile,
+			Oid:       oid,
+		})
+		if err != nil {
+			c.AbortWithError(500, err)
+			return
+		}
 	}
 	err = wrpr.storage.SetPieCategories(c, uid, c.Request.Form["categories"])
 	if err != nil {

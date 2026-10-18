@@ -51,6 +51,11 @@ SET
     validated=sqlc.arg(validated)::boolean
 WHERE oid = uuid(sqlc.arg(oid)::text);
 
+-- name: UpdateMakerPieImageByOid :exec
+UPDATE maker_pie_yearly
+SET image_file=sqlc.arg(image_file)::text
+WHERE oid = uuid(sqlc.arg(oid)::text);
+
 -- name: GetMakerPieYears :many
 SELECT DISTINCT year
 FROM maker_pie_yearly

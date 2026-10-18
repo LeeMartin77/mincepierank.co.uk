@@ -54,6 +54,23 @@
     </select>
   </div>
 
+  <div class="mb-3">
+    <label class="form-label">Current Image</label>
+    {{ if .PageData.Pie.ImageFile.String }}
+      <div class="mb-2">
+        <img src="{{.PageData.Pie.ImageFile.String}}" alt="{{.PageData.Pie.Displayname.String}}" class="img-fluid rounded" style="max-height: 200px;" />
+      </div>
+    {{ else }}
+      <p class="text-muted">No image uploaded yet.</p>
+    {{ end }}
+  </div>
+
+  <div class="mb-3">
+    <label class="form-label" for="img">Upload New Image</label>
+    <input class="form-control" name="img" id="img" type="file" accept="image/*" />
+    <div class="form-text">Upload a new image to replace the current one. Accepted formats: JPG, PNG, GIF, WebP.</div>
+  </div>
+
   <div class="form-check mb-3">
     <input class="form-check-input" name="validated" type="checkbox" value="true" id="validated" {{if .PageData.Pie.Validated.Bool}}checked{{end}}>
     <label class="form-check-label" for="validated">Validated</label>
