@@ -45,7 +45,8 @@ func (wrpr *WebsiteWrapper) GetAdminIndex(c *gin.Context) {
 			Description: "",
 			Keywords:    "",
 			MenuSettings: templater.MenuSettings{
-				ActiveYear: ay,
+				ActiveYear:        ay,
+				UserPiesEnabled:   wrpr.config.UserPiesEnabled,
 			},
 		},
 		PageData: map[string]interface{}{
@@ -93,7 +94,8 @@ func configPage(wrpr *WebsiteWrapper, c *gin.Context) {
 			Description: "",
 			Keywords:    "",
 			MenuSettings: templater.MenuSettings{
-				ActiveYear: ay,
+				ActiveYear:        ay,
+				UserPiesEnabled:   wrpr.config.UserPiesEnabled,
 			},
 		},
 		PageData: map[string]interface{}{
@@ -178,7 +180,8 @@ func piesPage(wrpr *WebsiteWrapper, c *gin.Context) {
 			Description: "",
 			Keywords:    "",
 			MenuSettings: templater.MenuSettings{
-				ActiveYear: ay,
+				ActiveYear:        ay,
+				UserPiesEnabled:   wrpr.config.UserPiesEnabled,
 			},
 		},
 		PageData: map[string]interface{}{
@@ -221,7 +224,8 @@ func piePage(wrpr *WebsiteWrapper, c *gin.Context, oid string) {
 			Description: "",
 			Keywords:    "",
 			MenuSettings: templater.MenuSettings{
-				ActiveYear: ay,
+				ActiveYear:        ay,
+				UserPiesEnabled:   wrpr.config.UserPiesEnabled,
 			},
 		},
 		PageData: map[string]interface{}{

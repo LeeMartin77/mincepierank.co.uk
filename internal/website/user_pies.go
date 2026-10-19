@@ -48,8 +48,9 @@ func (wrpr *WebsiteWrapper) SubmitPieForm(c *gin.Context, year int64) {
 			Description: "Submit your own mince pie for ranking",
 			Keywords:    fmt.Sprintf("Mince pies, UK, ranking, %d, submit", year),
 			MenuSettings: templater.MenuSettings{
-				ActiveYear: *ay,
-				SignedIn:   sin,
+				ActiveYear:        *ay,
+				SignedIn:          sin,
+				UserPiesEnabled:   wrpr.config.UserPiesEnabled,
 			},
 		},
 		PageData: map[string]interface{}{
@@ -94,7 +95,7 @@ func (wrpr *WebsiteWrapper) SubmitPie(c *gin.Context, year int64) {
 				Title:        "Submit a pie",
 				Description:  "Submit your own mince pie for ranking",
 				Keywords:     fmt.Sprintf("Mince pies, UK, ranking, %d, submit", year),
-				MenuSettings: templater.MenuSettings{ActiveYear: *ay, SignedIn: sin},
+				MenuSettings: templater.MenuSettings{ActiveYear: *ay, SignedIn: sin, UserPiesEnabled: wrpr.config.UserPiesEnabled},
 			},
 			PageData: map[string]interface{}{
 				"Year":       year,
@@ -166,7 +167,7 @@ func (wrpr *WebsiteWrapper) SubmitPie(c *gin.Context, year int64) {
 				Title:        "Submit a pie",
 				Description:  "Submit your own mince pie for ranking",
 				Keywords:     fmt.Sprintf("Mince pies, UK, ranking, %d, submit", year),
-				MenuSettings: templater.MenuSettings{ActiveYear: *ay, SignedIn: sin},
+				MenuSettings: templater.MenuSettings{ActiveYear: *ay, SignedIn: sin, UserPiesEnabled: wrpr.config.UserPiesEnabled},
 			},
 			PageData: map[string]interface{}{
 				"Year":        year,
@@ -215,7 +216,7 @@ func (wrpr *WebsiteWrapper) SubmitPie(c *gin.Context, year int64) {
 				Title:        "Submit a pie",
 				Description:  "Submit your own mince pie for ranking",
 				Keywords:     fmt.Sprintf("Mince pies, UK, ranking, %d, submit", year),
-				MenuSettings: templater.MenuSettings{ActiveYear: *ay, SignedIn: sin},
+				MenuSettings: templater.MenuSettings{ActiveYear: *ay, SignedIn: sin, UserPiesEnabled: wrpr.config.UserPiesEnabled},
 			},
 			PageData: map[string]interface{}{
 				"Year":        year,
@@ -329,8 +330,9 @@ func (wrpr *WebsiteWrapper) ListUserPies(c *gin.Context, year int64, params gene
 			Description: fmt.Sprintf("Community-submitted mince pies for %d", year),
 			Keywords:    fmt.Sprintf("Mince pies, UK, ranking, %d, community", year),
 			MenuSettings: templater.MenuSettings{
-				ActiveYear: *ay,
-				SignedIn:   c.Keys["signedin"].(bool),
+				ActiveYear:        *ay,
+				SignedIn:          c.Keys["signedin"].(bool),
+				UserPiesEnabled:   wrpr.config.UserPiesEnabled,
 			},
 		},
 		PageData: map[string]interface{}{
@@ -481,8 +483,9 @@ func (wrpr *WebsiteWrapper) getUserPiePage(c *gin.Context, year int64, id string
 			Description: fmt.Sprintf("%s from %s — community-submitted mince pie scored %.2f/5 in %d", pie.DisplayName, pie.Maker, rankingSummary.Average, pie.Year),
 			Keywords:    fmt.Sprintf("Mince pies, UK, ranking, %d, %s, community", pie.Year, pie.DisplayName),
 			MenuSettings: templater.MenuSettings{
-				ActiveYear: *ay,
-				SignedIn:   sin,
+				ActiveYear:        *ay,
+				SignedIn:          sin,
+				UserPiesEnabled:   wrpr.config.UserPiesEnabled,
 			},
 		},
 		PageData: map[string]interface{}{

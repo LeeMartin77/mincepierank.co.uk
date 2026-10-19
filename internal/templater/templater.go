@@ -24,8 +24,9 @@ type PageDataHead struct {
 }
 
 type MenuSettings struct {
-	ActiveYear int64
-	SignedIn   bool
+	ActiveYear        int64
+	SignedIn          bool
+	UserPiesEnabled   bool
 }
 
 type Link struct {

@@ -140,8 +140,9 @@ func (wrpr *WebsiteWrapper) YearAllPies(c *gin.Context, year int64, params gener
 			Description: fmt.Sprintf("All pies for %d", year),
 			Keywords:    fmt.Sprintf("Mince pies, UK, ranking, %d", year),
 			MenuSettings: templater.MenuSettings{
-				ActiveYear: *ay,
-				SignedIn:   c.Keys["signedin"].(bool),
+				ActiveYear:        *ay,
+				SignedIn:          c.Keys["signedin"].(bool),
+				UserPiesEnabled:   wrpr.config.UserPiesEnabled,
 			},
 		},
 		PageData: map[string]interface{}{
@@ -219,8 +220,9 @@ func (wrpr *WebsiteWrapper) YearPersonalRanking(c *gin.Context, year int64, para
 			Description: fmt.Sprintf("Your rankings for %d", year),
 			Keywords:    fmt.Sprintf("Mince pies, UK, ranking, %d", year),
 			MenuSettings: templater.MenuSettings{
-				ActiveYear: *ay,
-				SignedIn:   c.Keys["signedin"].(bool),
+				ActiveYear:        *ay,
+				SignedIn:          c.Keys["signedin"].(bool),
+				UserPiesEnabled:   wrpr.config.UserPiesEnabled,
 			},
 		},
 		PageData: map[string]interface{}{
@@ -312,8 +314,9 @@ func (wrpr *WebsiteWrapper) YearBrandPies(c *gin.Context, year int64, brand stri
 			Description: fmt.Sprintf("%s for %d", maker.Name, year),
 			Keywords:    fmt.Sprintf("Mince pies, UK, ranking, %d", year),
 			MenuSettings: templater.MenuSettings{
-				ActiveYear: *ay,
-				SignedIn:   c.Keys["signedin"].(bool),
+				ActiveYear:        *ay,
+				SignedIn:          c.Keys["signedin"].(bool),
+				UserPiesEnabled:   wrpr.config.UserPiesEnabled,
 			},
 		},
 		PageData: map[string]interface{}{
@@ -398,8 +401,9 @@ func (wrpr *WebsiteWrapper) YearCategoryPies(c *gin.Context, year int64, brand s
 			Description: fmt.Sprintf("%s pies for %d", cat, year),
 			Keywords:    fmt.Sprintf("Mince pies, UK, ranking, %d", year),
 			MenuSettings: templater.MenuSettings{
-				ActiveYear: *ay,
-				SignedIn:   c.Keys["signedin"].(bool),
+				ActiveYear:        *ay,
+				SignedIn:          c.Keys["signedin"].(bool),
+				UserPiesEnabled:   wrpr.config.UserPiesEnabled,
 			},
 		},
 		PageData: map[string]interface{}{

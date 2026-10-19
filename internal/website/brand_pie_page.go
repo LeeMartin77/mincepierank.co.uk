@@ -169,8 +169,9 @@ func returnSinglePiePage(wrpr *WebsiteWrapper, ctx *gin.Context, year int64, ay 
 			Description: fmt.Sprintf("%s from %s :: scored  %.2f/5 on average in %d", pie.DisplayName, maker.Name, rankingSummary.Average, pie.Year),
 			Keywords:    fmt.Sprintf("Mince Pies, UK, Ranking, %d, %s, %s", pie.Year, maker.Name, pie.DisplayName),
 			MenuSettings: templater.MenuSettings{
-				ActiveYear: *ay,
-				SignedIn:   sin,
+				ActiveYear:        *ay,
+				SignedIn:          sin,
+				UserPiesEnabled:   wrpr.config.UserPiesEnabled,
 			},
 		},
 		PageData: map[string]interface{}{

@@ -64,8 +64,9 @@ func (wrpr *WebsiteWrapper) HomePage(c *gin.Context) {
 			Description: "Rank mince pies from major UK brands",
 			Keywords:    "Mince Pies, UK, Ranking",
 			MenuSettings: templater.MenuSettings{
-				ActiveYear: ay,
-				SignedIn:   c.Keys["signedin"].(bool),
+				ActiveYear:        ay,
+				SignedIn:          c.Keys["signedin"].(bool),
+				UserPiesEnabled:   wrpr.config.UserPiesEnabled,
 			},
 		},
 		PageData: map[string]interface{}{

@@ -114,7 +114,8 @@ func (wrpr *WebsiteWrapper) GetAdminUserPies(c *gin.Context, params generated.Ge
 			Description: "Moderate user-submitted pies",
 			Keywords:    "",
 			MenuSettings: templater.MenuSettings{
-				ActiveYear: *ay,
+				ActiveYear:        *ay,
+				UserPiesEnabled:   wrpr.config.UserPiesEnabled,
 			},
 		},
 		PageData: map[string]interface{}{
@@ -179,7 +180,8 @@ func (wrpr *WebsiteWrapper) GetAdminUserPie(c *gin.Context, year int, id string,
 			Description: "Review user-submitted pie",
 			Keywords:    "",
 			MenuSettings: templater.MenuSettings{
-				ActiveYear: *ay,
+				ActiveYear:        *ay,
+				UserPiesEnabled:   wrpr.config.UserPiesEnabled,
 			},
 		},
 		PageData: map[string]interface{}{
@@ -430,7 +432,8 @@ func (wrpr *WebsiteWrapper) GetAdminUserPieDuplicates(c *gin.Context, params gen
 			Description: "Review potential duplicate user pies",
 			Keywords:    "",
 			MenuSettings: templater.MenuSettings{
-				ActiveYear: *ay,
+				ActiveYear:        *ay,
+				UserPiesEnabled:   wrpr.config.UserPiesEnabled,
 			},
 		},
 		PageData: map[string]interface{}{

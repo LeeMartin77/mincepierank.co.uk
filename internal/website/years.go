@@ -61,8 +61,9 @@ func (wrpr *WebsiteWrapper) YearPage(c *gin.Context, year int64) {
 			Description: fmt.Sprintf("Mince pie categories and brands we have data for %d", year),
 			Keywords:    fmt.Sprintf("Mince Pies, UK, Ranking, %d", year),
 			MenuSettings: templater.MenuSettings{
-				ActiveYear: *ay,
-				SignedIn:   c.Keys["signedin"].(bool),
+				ActiveYear:        *ay,
+				SignedIn:          c.Keys["signedin"].(bool),
+				UserPiesEnabled:   wrpr.config.UserPiesEnabled,
 			},
 		},
 	}
@@ -117,8 +118,9 @@ func (wrpr *WebsiteWrapper) YearAllBrands(c *gin.Context, year int64) {
 			Description: fmt.Sprintf("All brands we loaded data for in %d", year),
 			Keywords:    fmt.Sprintf("Mince Pies, UK, Ranking, %d", year),
 			MenuSettings: templater.MenuSettings{
-				ActiveYear: *ay,
-				SignedIn:   c.Keys["signedin"].(bool),
+				ActiveYear:        *ay,
+				SignedIn:          c.Keys["signedin"].(bool),
+				UserPiesEnabled:   wrpr.config.UserPiesEnabled,
 			},
 		},
 		PageData: map[string]interface{}{
@@ -156,8 +158,9 @@ func (wrpr *WebsiteWrapper) YearAllCategories(c *gin.Context, year int64) {
 			Description: fmt.Sprintf("All categories we loaded data for in %d", year),
 			Keywords:    fmt.Sprintf("Mince Pies, UK, Ranking, %d", year),
 			MenuSettings: templater.MenuSettings{
-				ActiveYear: *ay,
-				SignedIn:   c.Keys["signedin"].(bool),
+				ActiveYear:        *ay,
+				SignedIn:          c.Keys["signedin"].(bool),
+				UserPiesEnabled:   wrpr.config.UserPiesEnabled,
 			},
 		},
 		PageData: map[string]interface{}{
@@ -192,8 +195,9 @@ func (wrpr *WebsiteWrapper) YearsPage(c *gin.Context) {
 			Description: "All the years Mince Pie Rank has data for",
 			Keywords:    "Mince Pies, UK, Ranking",
 			MenuSettings: templater.MenuSettings{
-				ActiveYear: *ay,
-				SignedIn:   c.Keys["signedin"].(bool),
+				ActiveYear:        *ay,
+				SignedIn:          c.Keys["signedin"].(bool),
+				UserPiesEnabled:   wrpr.config.UserPiesEnabled,
 			},
 		},
 		PageData: map[string]interface{}{
