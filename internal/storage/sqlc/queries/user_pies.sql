@@ -71,3 +71,102 @@ WHERE year = sqlc.arg(year)::int;
 -- name: GetUserPieCountByOwnerAndYear :one
 SELECT COUNT(*) FROM user_pie_yearly
 WHERE year = sqlc.arg(year)::int AND owner_userid = sqlc.arg(owner_userid)::text;
+
+-- name: GetUserPieByOid :one
+SELECT year, id, owner_userid, maker, location, displayname, fresh, labels,
+       image_file, web_link, pack_count, pack_price_in_pence, clean,
+       status, moderation_note, duplicate_of, promoted_maker_pie_oid,
+       submitted_by, submitted_at, moderated_by, moderated_at
+FROM user_pie_yearly
+WHERE promoted_maker_pie_oid = sqlc.arg(oid)::uuid
+   OR oid = sqlc.arg(oid)::uuid;
+
+-- name: DeleteUserPieByOid :exec
+DELETE FROM user_pie_yearly
+WHERE oid = sqlc.arg(oid)::uuid;
+
+-- name: UpdateUserPieStatusWithNote :exec
+UPDATE user_pie_yearly
+SET status = sqlc.arg(status)::text,
+    moderation_note = sqlc.arg(moderation_note)::text,
+    moderated_by = sqlc.arg(moderated_by)::text,
+    moderated_at = NOW()
+WHERE oid = sqlc.arg(oid)::uuid;
+
+-- name: UpdateUserPieDuplicateOf :exec
+UPDATE user_pie_yearly
+SET duplicate_of = sqlc.arg(duplicate_of)::text,
+    status = sqlc.arg(status)::text,
+    moderated_by = sqlc.arg(moderated_by)::text,
+    moderated_at = NOW()
+WHERE oid = sqlc.arg(oid)::uuid;
+
+-- name: UpdateUserPiePromotedMakerPieOid :exec
+UPDATE user_pie_yearly
+SET promoted_maker_pie_oid = sqlc.arg(promoted_maker_pie_oid)::uuid,
+    status = sqlc.arg(status)::text,
+    moderated_by = sqlc.arg(moderated_by)::text,
+    moderated_at = NOW()
+WHERE oid = sqlc.arg(oid)::uuid;
+
+-- name: GetUserPieAdminQueueCountByStatus :one
+SELECT COUNT(*) FROM user_pie_yearly
+WHERE year = sqlc.arg(year)::int AND status = sqlc.arg(status)::text;
+
+-- name: GetUserPieDuplicateGroups :many
+SELECT year, id, owner_userid, maker, location, displayname, fresh, labels,
+       image_file, web_link, pack_count, pack_price_in_pence, clean,
+       status, moderation_note, duplicate_of, promoted_maker_pie_oid,
+       submitted_by, submitted_at, moderated_by, moderated_at
+FROM user_pie_yearly
+WHERE year = sqlc.arg(year)::int
+  AND status IN ('pending', 'approved')
+  AND id != sqlc.arg(excludeId)::text
+  AND (
+    -- Same maker and similar displayname (normalised)
+    (maker IS NOT NULL AND maker = sqlc.arg(maker)::text
+     AND lower(regexp_replace(displayname, '[^a-z0-9]+', '', 'g')) =
+         lower(regexp_replace(sqlc.arg(displayname)::text, '[^a-z0-9]+', '', 'g')))
+    OR
+    -- Same non-empty web_link
+    (web_link IS NOT NULL AND web_link = sqlc.arg(webLink)::text
+     AND web_link != '')
+  )
+ORDER BY submitted_at ASC;
+
+-- name: GetUserPieDuplicateGroupsAll :many
+-- Find all user pies that have at least one potential duplicate
+-- (same maker and normalised displayname, or same web_link).
+-- Returns pies ordered by maker, then normalised name.
+WITH normalised AS (
+  SELECT *,
+    lower(regexp_replace(displayname, '[^a-z0-9]+', '', 'g')) AS norm_name
+  FROM user_pie_yearly
+  WHERE year = sqlc.arg(year)::int
+    AND status IN ('pending', 'approved')
+)
+SELECT a.year, a.id, a.owner_userid, a.maker, a.location, a.displayname,
+       a.fresh, a.labels, a.image_file, a.web_link, a.pack_count,
+       a.pack_price_in_pence, a.clean, a.status, a.moderation_note,
+       a.duplicate_of, a.promoted_maker_pie_oid, a.submitted_by,
+       a.submitted_at, a.moderated_by, a.moderated_at
+FROM normalised a
+JOIN normalised b
+  ON a.maker = b.maker
+  AND a.norm_name = b.norm_name
+  AND a.id != b.id
+  AND a.submitted_at <= b.submitted_at
+GROUP BY a.year, a.id, a.owner_userid, a.maker, a.location, a.displayname,
+         a.fresh, a.labels, a.image_file, a.web_link, a.pack_count,
+         a.pack_price_in_pence, a.clean, a.status, a.moderation_note,
+         a.duplicate_of, a.promoted_maker_pie_oid, a.submitted_by,
+         a.submitted_at, a.moderated_by, a.moderated_at
+ORDER BY a.maker, a.norm_name, a.submitted_at;
+
+-- name: GetExistingBrandPiesForYear :many
+SELECT year, makerid, id, displayname, fresh, labels, image_file, web_link,
+       pack_count, pack_price_in_pence, validated, oid
+FROM maker_pie_yearly
+WHERE year = sqlc.arg(year)::int
+  AND (makerid = sqlc.arg(makerid)::text OR web_link = sqlc.arg(webLink)::text)
+ORDER BY displayname;

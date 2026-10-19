@@ -48,7 +48,29 @@ func (wrpr *WebsiteWrapper) GetAdminIndex(c *gin.Context) {
 				ActiveYear: ay,
 			},
 		},
-		PageData: map[string]interface{}{},
+		PageData: map[string]interface{}{
+			"UserPiesEnabled":  wrpr.config.UserPiesEnabled,
+			"PendingCount":     0,
+			"ApprovedCount":    0,
+			"PromotedCount":    0,
+			"DuplicateCount":   0,
+			"RejectedCount":    0,
+		},
+	}
+
+	if wrpr.config.UserPiesEnabled {
+		pendingCount, _ := wrpr.storage.GetUserPieAdminQueueCountByStatus(c, int32(ay), "pending")
+		approvedCount, _ := wrpr.storage.GetUserPieAdminQueueCountByStatus(c, int32(ay), "approved")
+		promotedCount, _ := wrpr.storage.GetUserPieAdminQueueCountByStatus(c, int32(ay), "promoted")
+		duplicateCount, _ := wrpr.storage.GetUserPieAdminQueueCountByStatus(c, int32(ay), "duplicate")
+		rejectedCount, _ := wrpr.storage.GetUserPieAdminQueueCountByStatus(c, int32(ay), "rejected")
+		if pd, ok := vals.PageData.(map[string]interface{}); ok {
+			pd["PendingCount"] = pendingCount
+			pd["ApprovedCount"] = approvedCount
+			pd["PromotedCount"] = promotedCount
+			pd["DuplicateCount"] = duplicateCount
+			pd["RejectedCount"] = rejectedCount
+		}
 	}
 
 	c.HTML(http.StatusOK, "page:admin:index", vals)

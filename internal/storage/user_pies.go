@@ -5,6 +5,8 @@ import (
 	"errors"
 	"time"
 
+	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/leemartin77/mincepierank.co.uk/internal/storage/sqlcgen"
 	"github.com/leemartin77/mincepierank.co.uk/internal/storage/types"
 )
@@ -458,6 +460,204 @@ func fromSQLCUserPie(sqlc sqlcgen.UserPieYearly) *types.UserPieYearly {
 		ModeratedBy:      sqlc.ModeratedBy.String,
 		ModeratedAt:      sqlc.ModeratedAt.Time,
 	}
+}
+
+// GetUserPieByOid retrieves a user pie by its OID.
+func (o *OperationWrapper) GetUserPieByOid(c context.Context, oid uuid.UUID) (*UserPieWithOwner, error) {
+	q := o.querier
+
+	var pgOid pgtype.UUID
+	copy(pgOid.Bytes[:], oid[:])
+
+	result, err := q.GetUserPieByOid(c, pgOid)
+	if err != nil {
+		return nil, err
+	}
+	return &UserPieWithOwner{Pie: *fromSQLCUserPie(result)}, nil
+}
+
+// DeleteUserPieByOid deletes a user pie by its OID.
+func (o *OperationWrapper) DeleteUserPieByOid(c context.Context, oid uuid.UUID) error {
+	var pgOid pgtype.UUID
+	copy(pgOid.Bytes[:], oid[:])
+
+	return o.querier.DeleteUserPieByOid(c, pgOid)
+}
+
+// UpdateUserPieStatusWithNote atomically updates status, moderation note, and timestamps.
+func (o *OperationWrapper) UpdateUserPieStatusWithNote(c context.Context, oid uuid.UUID, status, moderatedBy, moderationNote string) error {
+	var pgOid pgtype.UUID
+	copy(pgOid.Bytes[:], oid[:])
+
+	return o.querier.UpdateUserPieStatusWithNote(c, sqlcgen.UpdateUserPieStatusWithNoteParams{
+		Oid:            pgOid,
+		Status:         status,
+		ModeratedBy:    moderatedBy,
+		ModerationNote: moderationNote,
+	})
+}
+
+// UpdateUserPieDuplicateOf marks a submission as a duplicate.
+func (o *OperationWrapper) UpdateUserPieDuplicateOf(c context.Context, oid uuid.UUID, duplicateOf, moderatedBy string) error {
+	var pgOid pgtype.UUID
+	copy(pgOid.Bytes[:], oid[:])
+
+	return o.querier.UpdateUserPieDuplicateOf(c, sqlcgen.UpdateUserPieDuplicateOfParams{
+		Oid:           pgOid,
+		DuplicateOf:   duplicateOf,
+		ModeratedBy:   moderatedBy,
+		Status:        string(UserPieStatusDuplicate),
+	})
+}
+
+// UpdateUserPiePromotedMakerPieOid updates the promoted brand pie OID and status.
+func (o *OperationWrapper) UpdateUserPiePromotedMakerPieOid(c context.Context, oid uuid.UUID, promotedOid uuid.UUID, moderatedBy string) error {
+	var pgOid pgtype.UUID
+	copy(pgOid.Bytes[:], oid[:])
+
+	var pgPromotedOid pgtype.UUID
+	copy(pgPromotedOid.Bytes[:], promotedOid[:])
+
+	return o.querier.UpdateUserPiePromotedMakerPieOid(c, sqlcgen.UpdateUserPiePromotedMakerPieOidParams{
+		Oid:                   pgOid,
+		PromotedMakerPieOid:   pgPromotedOid,
+		ModeratedBy:           moderatedBy,
+		Status:                string(UserPieStatusPromoted),
+	})
+}
+
+// GetUserPieAdminQueueCountByStatus returns the count of user pies for a year filtered by status.
+func (o *OperationWrapper) GetUserPieAdminQueueCountByStatus(c context.Context, year int32, status string) (int64, error) {
+	return o.querier.GetUserPieAdminQueueCountByStatus(c, sqlcgen.GetUserPieAdminQueueCountByStatusParams{
+		Year:   year,
+		Status: status,
+	})
+}
+
+// GetUserPieDuplicateGroups returns user pies that look like duplicates of the given pie.
+func (o *OperationWrapper) GetUserPieDuplicateGroups(c context.Context, year int32, excludeID, maker, displayName, webLink string) ([]types.UserPieYearly, error) {
+	query := `
+		SELECT year, id, owner_userid, maker, location, displayname, fresh, labels,
+		       image_file, web_link, pack_count, pack_price_in_pence, clean,
+		       status, moderation_note, duplicate_of, promoted_maker_pie_oid,
+		       submitted_by, submitted_at, moderated_by, moderated_at
+		FROM user_pie_yearly
+		WHERE year = $1::int
+		  AND status IN ('pending', 'approved')
+		  AND id != $2::text
+		  AND (
+		    (maker IS NOT NULL AND maker = $3::text
+		     AND lower(regexp_replace(displayname, '[^a-z0-9]+', '', 'g')) =
+		         lower(regexp_replace($4::text, '[^a-z0-9]+', '', 'g')))
+		    OR
+		    (web_link IS NOT NULL AND web_link = $5::text AND web_link != '')
+		  )
+		ORDER BY submitted_at ASC
+	`
+	rows, err := o.db.Query(c, query, year, excludeID, maker, displayName, webLink)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var pies []types.UserPieYearly
+	for rows.Next() {
+		var pie types.UserPieYearly
+		err := rows.Scan(
+			&pie.Year, &pie.Id, &pie.OwnerUserid, &pie.Maker, &pie.Location,
+			&pie.DisplayName, &pie.Fresh, &pie.Labels, &pie.ImageFile,
+			&pie.WebLink, &pie.PackCount, &pie.PackPriceInPence, &pie.Clean,
+			&pie.Status, &pie.ModerationNote, &pie.DuplicateOf,
+			&pie.PromotedMakerPieO, &pie.SubmittedBy, &pie.SubmittedAt,
+			&pie.ModeratedBy, &pie.ModeratedAt,
+		)
+		if err != nil {
+			return nil, err
+		}
+		pies = append(pies, pie)
+	}
+	return pies, rows.Err()
+}
+
+// GetUserPieDuplicateGroupsAll returns all user pies that have at least one
+// potential duplicate (same maker + normalised displayname, or same web_link).
+func (o *OperationWrapper) GetUserPieDuplicateGroupsAll(c context.Context, year int32) ([]types.UserPieYearly, error) {
+	query := `
+		WITH normalised AS (
+			SELECT *,
+				lower(regexp_replace(displayname, '[^a-z0-9]+', '', 'g')) AS norm_name
+			FROM user_pie_yearly
+			WHERE year = $1::int
+			  AND status IN ('pending', 'approved')
+		)
+		SELECT DISTINCT ON (a.maker, a.norm_name, a.displayname)
+			a.year, a.id, a.owner_userid, a.maker, a.location, a.displayname,
+			a.fresh, a.labels, a.image_file, a.web_link, a.pack_count,
+			a.pack_price_in_pence, a.clean, a.status, a.moderation_note,
+			a.duplicate_of, a.promoted_maker_pie_oid,
+			a.submitted_by, a.submitted_at, a.moderated_by, a.moderated_at
+		FROM normalised a
+		JOIN normalised b
+		  ON a.maker = b.maker
+		  AND a.norm_name = b.norm_name
+		  AND a.id != b.id
+		ORDER BY a.maker, a.norm_name, a.submitted_at ASC
+	`
+	rows, err := o.db.Query(c, query, year)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var pies []types.UserPieYearly
+	for rows.Next() {
+		var pie types.UserPieYearly
+		err := rows.Scan(
+			&pie.Year, &pie.Id, &pie.OwnerUserid, &pie.Maker, &pie.Location,
+			&pie.DisplayName, &pie.Fresh, &pie.Labels, &pie.ImageFile,
+			&pie.WebLink, &pie.PackCount, &pie.PackPriceInPence, &pie.Clean,
+			&pie.Status, &pie.ModerationNote, &pie.DuplicateOf,
+			&pie.PromotedMakerPieO, &pie.SubmittedBy, &pie.SubmittedAt,
+			&pie.ModeratedBy, &pie.ModeratedAt,
+		)
+		if err != nil {
+			return nil, err
+		}
+		pies = append(pies, pie)
+	}
+	return pies, rows.Err()
+}
+
+// GetExistingBrandPiesForYear returns existing brand pies that match the given maker or web link.
+func (o *OperationWrapper) GetExistingBrandPiesForYear(c context.Context, year int32, makerid, webLink string) ([]types.MakerPieYearly, error) {
+	query := `
+		SELECT year, makerid, id, displayname, fresh, image_file, web_link,
+		       pack_count, pack_price_in_pence, oid
+		FROM maker_pie_yearly
+		WHERE year = $1::int
+		  AND (makerid = $2::text OR web_link = $3::text)
+		ORDER BY displayname
+	`
+	rows, err := o.db.Query(c, query, year, makerid, webLink)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var pies []types.MakerPieYearly
+	for rows.Next() {
+		var pie types.MakerPieYearly
+		err := rows.Scan(
+			&pie.Year, &pie.MakerId, &pie.Id, &pie.DisplayName, &pie.Fresh,
+			&pie.ImageFile, &pie.WebLink,
+			&pie.PackCount, &pie.PackPriceInPence, &pie.OId,
+		)
+		if err != nil {
+			return nil, err
+		}
+		pies = append(pies, pie)
+	}
+	return pies, rows.Err()
 }
 
 // ErrInvalidTransition is returned when a status change is not allowed.

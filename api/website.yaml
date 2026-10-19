@@ -906,6 +906,326 @@ paths:
           $ref: "#/components/responses/NotFound"
         default:
           $ref: "#/components/responses/UnexpectedError"
+  /admin/userpies:
+    get:
+      operationId: getAdminUserPies
+      parameters:
+        - name: year
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int64
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: search
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: page
+          in: query
+          required: false
+          schema:
+            default: 1
+            type: integer
+            format: int64
+        - name: limit
+          in: query
+          required: false
+          schema:
+            default: 20
+            type: integer
+            format: int64
+      tags:
+        - admin
+      responses:
+        "200":
+          description: Admin submissions queue
+          content:
+            text/html:
+              schema:
+                type: string
+        "404":
+          $ref: "#/components/responses/NotFound"
+        default:
+          $ref: "#/components/responses/UnexpectedError"
+  /admin/userpies/duplicates:
+    get:
+      operationId: getAdminUserPieDuplicates
+      parameters:
+        - name: year
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int64
+      tags:
+        - admin
+      responses:
+        "200":
+          description: Duplicate candidate groups
+          content:
+            text/html:
+              schema:
+                type: string
+        "404":
+          $ref: "#/components/responses/NotFound"
+        default:
+          $ref: "#/components/responses/UnexpectedError"
+  /admin/userpies/{year}/{id}/{ownerid}:
+    get:
+      operationId: getAdminUserPie
+      parameters:
+        - name: year
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: ownerid
+          in: path
+          required: true
+          schema:
+            type: string
+      tags:
+        - admin
+      responses:
+        "200":
+          description: Admin submission review
+          content:
+            text/html:
+              schema:
+                type: string
+        "404":
+          $ref: "#/components/responses/NotFound"
+        default:
+          $ref: "#/components/responses/UnexpectedError"
+    delete:
+      operationId: deleteAdminUserPie
+      parameters:
+        - name: year
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: ownerid
+          in: path
+          required: true
+          schema:
+            type: string
+      tags:
+        - admin
+      responses:
+        "200":
+          description: Deleted
+          content:
+            text/html:
+              schema:
+                type: string
+        "404":
+          $ref: "#/components/responses/NotFound"
+        default:
+          $ref: "#/components/responses/UnexpectedError"
+  /admin/userpies/{year}/{id}/{ownerid}/approve:
+    post:
+      operationId: postAdminUserPieApprove
+      parameters:
+        - name: year
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: ownerid
+          in: path
+          required: true
+          schema:
+            type: string
+      tags:
+        - admin
+      responses:
+        "200":
+          description: Approved
+          content:
+            text/html:
+              schema:
+                type: string
+        "404":
+          $ref: "#/components/responses/NotFound"
+        default:
+          $ref: "#/components/responses/UnexpectedError"
+  /admin/userpies/{year}/{id}/{ownerid}/promote:
+    post:
+      operationId: postAdminUserPiePromote
+      parameters:
+        - name: year
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: ownerid
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Promotion form data
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - makerid
+                - pieid
+                - displayname
+                - fresh
+                - labels
+                - webLink
+                - packCount
+                - packPriceInPence
+                - categories
+                - validated
+              properties:
+                makerid:
+                  type: string
+                pieid:
+                  type: string
+                displayname:
+                  type: string
+                fresh:
+                  type: boolean
+                labels:
+                  type: string
+                webLink:
+                  type: string
+                categories:
+                  type: array
+                  items:
+                    type: string
+                packCount:
+                  type: number
+                  x-go-type: int32
+                packPriceInPence:
+                  type: number
+                  x-go-type: int32
+                validated:
+                  type: boolean
+      responses:
+        "200":
+          description: Promoted
+          content:
+            text/html:
+              schema:
+                type: string
+        "404":
+          $ref: "#/components/responses/NotFound"
+        default:
+          $ref: "#/components/responses/UnexpectedError"
+  /admin/userpies/{year}/{id}/{ownerid}/reject:
+    post:
+      operationId: postAdminUserPieReject
+      parameters:
+        - name: year
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: ownerid
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Reject form data
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                note:
+                  type: string
+      responses:
+        "200":
+          description: Rejected
+          content:
+            text/html:
+              schema:
+                type: string
+        "404":
+          $ref: "#/components/responses/NotFound"
+        default:
+          $ref: "#/components/responses/UnexpectedError"
+  /admin/userpies/{year}/{id}/{ownerid}/duplicate:
+    post:
+      operationId: postAdminUserPieDuplicate
+      parameters:
+        - name: year
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: ownerid
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Duplicate form data
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+                - duplicateOf
+              properties:
+                duplicateOf:
+                  type: string
+      responses:
+        "200":
+          description: Marked as duplicate
+          content:
+            text/html:
+              schema:
+                type: string
+        "404":
+          $ref: "#/components/responses/NotFound"
+        default:
+          $ref: "#/components/responses/UnexpectedError"
 components:
   parameters:
     Year:

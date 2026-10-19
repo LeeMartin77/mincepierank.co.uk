@@ -1,0 +1,38 @@
+{{define "page:admin:userpie_duplicates"}}
+{{template "fragment:global:head" .Head}}
+<div class="container py-4">
+  <h1>User Pie Duplicates - {{.PageData.Year}}</h1>
+  <p class="text-muted">Pies with matching maker + name (normalised) or same web link</p>
+
+  {{if .PageData.UserPiesEnabled}}
+  {{range .PageData.Pies}}
+  <div class="card mb-2">
+    <div class="card-body py-2">
+      <div class="row align-items-center">
+        <div class="col-md-3">
+          <strong>{{.Maker}}</strong> / {{.Id}}
+        </div>
+        <div class="col-md-4">
+          {{.DisplayName}}
+        </div>
+        <div class="col-md-3">
+          <span class="badge bg-{{if eq .Status "pending"}}warning{{else}}success{{end}}">
+            {{.Status}}
+          </span>
+          <small class="text-muted ms-1">{{.OwnerUserid}}</small>
+        </div>
+        <div class="col-md-2 text-end">
+          <a class="btn btn-sm btn-outline-info" href="/admin/userpies/{{.Year}}/{{.Id}}/{{.OwnerUserid}}">Review</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  {{else}}
+  <p class="text-muted">No potential duplicates found.</p>
+  {{end}}
+  {{else}}
+  <div class="alert alert-info">User pies are not enabled.</div>
+  {{end}}
+</div>
+{{template "fragment:global:foot" .Foot}}
+{{end}}

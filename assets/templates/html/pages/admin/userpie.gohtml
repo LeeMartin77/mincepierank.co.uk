@@ -1,0 +1,125 @@
+{{define "page:admin:userpie"}}
+{{template "fragment:global:head" .Head}}
+<div class="container py-4">
+  <h1>Review: {{.PageData.Pie.DisplayName}}</h1>
+  <p class="text-muted">Community submission · Status: <strong>{{.PageData.Status}}</strong></p>
+
+  {{if .PageData.UserPiesEnabled}}
+  <div class="row">
+    <!-- Left: Pie details -->
+    <div class="col-md-8">
+      <div class="card mb-4">
+        <div class="card-body">
+          <h5>Pie Details</h5>
+          <table class="table table-sm">
+            <tr><th>Maker</th><td>{{.PageData.Pie.Maker}}</td></tr>
+            <tr><th>Display Name</th><td>{{.PageData.Pie.DisplayName}}</td></tr>
+            <tr><th>Location</th><td>{{.PageData.Pie.Location}}</td></tr>
+            <tr><th>Labels</th><td>{{range .PageData.Pie.Labels}}{{.}} {{end}}</td></tr>
+            <tr><th>Fresh</th><td>{{if .PageData.Pie.Fresh}}Yes{{else}}No{{end}}</td></tr>
+            <tr><th>Web Link</th><td>{{if .PageData.Pie.WebLink}}<a href="{{.PageData.Pie.WebLink}}" target="_blank">{{.PageData.Pie.WebLink}}</a>{{end}}</td></tr>
+            <tr><th>Pack Count</th><td>{{.PageData.Pie.PackCount}}</td></tr>
+            <tr><th>Pack Price</th><td>{{printf "£%.2f" (divFloat (float64 .PageData.Pie.PackPriceInPence) 100.0)}}</td></tr>
+            <tr><th>Validated</th><td>{{if .PageData.Pie.Validated}}Yes{{else}}No{{end}}</td></tr>
+            <tr><th>Image</th><td>{{if .PageData.Pie.ImageFile}}<img src="{{.PageData.Pie.ImageFile}}" class="img-thumbnail" style="max-height:100px">{{else}}None{{end}}</td></tr>
+            <tr><th>Submitted By</th><td>{{.PageData.OwnerID}}</td></tr>
+            <tr><th>Submitted At</th><td>{{if .PageData.Pie.SubmittedAt}}{{.PageData.Pie.SubmittedAt.Format "2006-01-02 15:04"}}{{end}}</td></tr>
+            {{if .PageData.ModerationNote}}
+            <tr><th>Moderation Note</th><td>{{.PageData.ModerationNote}}</td></tr>
+            {{end}}
+            {{if .PageData.DuplicateOf}}
+            <tr><th>Duplicate Of</th><td>{{.PageData.DuplicateOf}}</td></tr>
+            {{end}}
+            {{if .PageData.PromotedMakerPieO}}
+            <tr><th>Promoted To</th><td>{{.PageData.PromotedMakerPieO}}</td></tr>
+            {{end}}
+          </table>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      {{if eq .PageData.Status "pending"}}
+      <div class="card mb-4">
+        <div class="card-body">
+          <h5>Actions</h5>
+          <form method="post" action="/admin/userpies/{{.PageData.Pie.Id}}/approve" class="d-inline">
+            <button class="btn btn-success" type="submit">Approve</button>
+          </form>
+          <form method="post" action="/admin/userpies/{{.PageData.Pie.Id}}/reject" class="d-inline ms-2">
+            <div class="mb-2">
+              <input class="form-control" name="note" placeholder="Rejection reason (optional)">
+            </div>
+            <button class="btn btn-danger" type="submit">Reject</button>
+          </form>
+          <form method="post" action="/admin/userpies/{{.PageData.Pie.Id}}/duplicate" class="d-inline ms-2">
+            <div class="mb-2">
+              <select name="duplicateOf" class="form-select">
+                <option value="">Mark as duplicate of...</option>
+                {{range .PageData.DupeCandidates}}
+                <option value="{{.ID}}">{{.Name}} ({{.ID}})</option>
+                {{end}}
+              </select>
+            </div>
+            <button class="btn btn-warning" type="submit">Mark Duplicate</button>
+          </form>
+          <form method="post" action="/admin/userpies/{{.PageData.Pie.Id}}/promote" class="d-inline ms-2">
+            <button class="btn btn-info" type="submit">Promote to Brand Pie</button>
+          </form>
+        </div>
+      </div>
+      {{end}}
+
+      {{if eq .PageData.Status "promoted" or eq .PageData.Status "approved"}}
+      <div class="card mb-4">
+        <div class="card-body">
+          <h5>Actions</h5>
+          <form method="post" action="/admin/userpies/{{.PageData.Pie.Id}}/promote" class="d-inline">
+            <button class="btn btn-info" type="submit">Promote to Brand Pie</button>
+          </form>
+          <form method="post" action="/admin/userpies/{{.PageData.Pie.Id}}" class="d-inline ms-2">
+            <button class="btn btn-danger" type="submit" hx-confirm="This will delete this user pie{{if eq .PageData.Status "promoted"}} and its brand pie{{end}}. Are you sure?">Delete</button>
+          </form>
+        </div>
+      </div>
+      {{end}}
+
+      <!-- Duplicate candidates -->
+      {{if .PageData.DupeCandidates}}
+      <div class="card mb-4">
+        <div class="card-body">
+          <h5>Potential Duplicates</h5>
+          <table class="table table-sm">
+            <thead><tr><th>ID</th><th>Name</th></tr></thead>
+            <tbody>
+              {{range .PageData.DupeCandidates}}
+              <tr><td>{{.ID}}</td><td>{{.Name}}</td></tr>
+              {{end}}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      {{end}}
+    </div>
+
+    <!-- Right: Quick view -->
+    <div class="col-md-4">
+      {{if .PageData.Pie.ImageFile}}
+      <div class="card mb-3">
+        <img src="{{.PageData.Pie.ImageFile}}" class="card-img-top" style="max-height:200px;object-fit:contain">
+      </div>
+      {{end}}
+      <div class="card">
+        <div class="card-body">
+          <h6>Quick Links</h6>
+          <a href="/years/{{.PageData.Year}}/community/{{.PageData.Pie.Maker}}/{{.PageData.Pie.Id}}" class="btn btn-sm btn-outline-primary w-100 mb-2">View Public Page</a>
+          <a href="/admin/userpies" class="btn btn-sm btn-outline-secondary w-100">Back to Queue</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  {{else}}
+  <div class="alert alert-info">User pies are not enabled.</div>
+  {{end}}
+</div>
+{{template "fragment:global:foot" .Foot}}
+{{end}}

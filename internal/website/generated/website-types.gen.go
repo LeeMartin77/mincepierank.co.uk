@@ -75,6 +75,44 @@ type UpdateMakerPieMultipartBody struct {
 	WebLink          string              `json:"webLink"`
 }
 
+// GetAdminUserPiesParams defines parameters for GetAdminUserPies.
+type GetAdminUserPiesParams struct {
+	Year   *int64  `form:"year,omitempty" json:"year,omitempty"`
+	Status *string `form:"status,omitempty" json:"status,omitempty"`
+	Search *string `form:"search,omitempty" json:"search,omitempty"`
+	Page   *int64  `form:"page,omitempty" json:"page,omitempty"`
+	Limit  *int64  `form:"limit,omitempty" json:"limit,omitempty"`
+}
+
+// GetAdminUserPieDuplicatesParams defines parameters for GetAdminUserPieDuplicates.
+type GetAdminUserPieDuplicatesParams struct {
+	Year *int64 `form:"year,omitempty" json:"year,omitempty"`
+}
+
+// PostAdminUserPieDuplicateFormdataBody defines parameters for PostAdminUserPieDuplicate.
+type PostAdminUserPieDuplicateFormdataBody struct {
+	DuplicateOf string `form:"duplicateOf" json:"duplicateOf"`
+}
+
+// PostAdminUserPiePromoteMultipartBody defines parameters for PostAdminUserPiePromote.
+type PostAdminUserPiePromoteMultipartBody struct {
+	Categories       []string `json:"categories"`
+	Displayname      string   `json:"displayname"`
+	Fresh            bool     `json:"fresh"`
+	Labels           string   `json:"labels"`
+	Makerid          string   `json:"makerid"`
+	PackCount        int32    `json:"packCount"`
+	PackPriceInPence int32    `json:"packPriceInPence"`
+	Pieid            string   `json:"pieid"`
+	Validated        bool     `json:"validated"`
+	WebLink          string   `json:"webLink"`
+}
+
+// PostAdminUserPieRejectFormdataBody defines parameters for PostAdminUserPieReject.
+type PostAdminUserPieRejectFormdataBody struct {
+	Note *string `form:"note,omitempty" json:"note,omitempty"`
+}
+
 // EditUserPieMultipartBody defines parameters for EditUserPie.
 type EditUserPieMultipartBody struct {
 	Displayname      string             `json:"displayname"`
@@ -175,6 +213,15 @@ type BulkCreateMakerPieAdminMultipartRequestBody BulkCreateMakerPieAdminMultipar
 
 // UpdateMakerPieMultipartRequestBody defines body for UpdateMakerPie for multipart/form-data ContentType.
 type UpdateMakerPieMultipartRequestBody UpdateMakerPieMultipartBody
+
+// PostAdminUserPieDuplicateFormdataRequestBody defines body for PostAdminUserPieDuplicate for application/x-www-form-urlencoded ContentType.
+type PostAdminUserPieDuplicateFormdataRequestBody PostAdminUserPieDuplicateFormdataBody
+
+// PostAdminUserPiePromoteMultipartRequestBody defines body for PostAdminUserPiePromote for multipart/form-data ContentType.
+type PostAdminUserPiePromoteMultipartRequestBody PostAdminUserPiePromoteMultipartBody
+
+// PostAdminUserPieRejectFormdataRequestBody defines body for PostAdminUserPieReject for application/x-www-form-urlencoded ContentType.
+type PostAdminUserPieRejectFormdataRequestBody PostAdminUserPieRejectFormdataBody
 
 // EditUserPieMultipartRequestBody defines body for EditUserPie for multipart/form-data ContentType.
 type EditUserPieMultipartRequestBody EditUserPieMultipartBody
