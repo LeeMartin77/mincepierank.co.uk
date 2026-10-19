@@ -70,9 +70,9 @@
           value="{{if .PageData.PackCount}}{{.PageData.PackCount}}{{else}}{{.PageData.Pie.PackCount}}{{end}}" />
       </div>
       <div class="col-md-4">
-        <label class="form-label" for="packPriceInPence">Pack Price (pence)</label>
-        <input class="form-control" name="packPriceInPence" id="packPriceInPence" type="number" min="0"
-          value="{{if .PageData.PackPrice}}{{.PageData.PackPrice}}{{else}}{{.PageData.Pie.PackPriceInPence}}{{end}}" />
+        <label class="form-label" for="packPrice">Pack Price (£)</label>
+        <input class="form-control" name="packPrice" id="packPrice" type="number" min="0" step="0.01"
+          value="{{if .PageData.PackPrice}}{{.PageData.PackPrice}}{{else}}{{printf "%.2f" (ppencediv .PageData.Pie.PackPriceInPence)}}{{end}}" />
       </div>
       <div class="col-md-4 d-flex align-items-end">
         <div class="form-check mb-3">

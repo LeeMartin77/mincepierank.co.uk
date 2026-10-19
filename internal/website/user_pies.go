@@ -114,7 +114,7 @@ func (wrpr *WebsiteWrapper) SubmitPie(c *gin.Context, year int64) {
 	labelsStr := c.PostForm("labels")
 	webLink := c.PostForm("webLink")
 	packCountStr := c.PostForm("packCount")
-	packPriceStr := c.PostForm("packPriceInPence")
+	packPriceStr := c.PostForm("packPrice")
 
 	var errs []string
 
@@ -152,11 +152,11 @@ func (wrpr *WebsiteWrapper) SubmitPie(c *gin.Context, year int64) {
 
 	packPriceInPence := int32(0)
 	if packPriceStr != "" {
-		pp, err := strconv.ParseInt(packPriceStr, 10, 32)
+		pp, err := strconv.ParseFloat(packPriceStr, 64)
 		if err != nil || pp < 0 {
-			errs = append(errs, "Pack price must be a non-negative number")
+			errs = append(errs, "Pack price must be a non-negative number (e.g. 3.60)")
 		} else {
-			packPriceInPence = int32(pp)
+			packPriceInPence = int32(pp*100 + 0.5) // round to nearest pence
 		}
 	}
 
