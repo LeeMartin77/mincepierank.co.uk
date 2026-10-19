@@ -10,8 +10,13 @@ import (
 
 type Querier interface {
 	CreateMakerPie(ctx context.Context, arg CreateMakerPieParams) (string, error)
+	CreateUserPie(ctx context.Context, arg CreateUserPieParams) (UserPieYearly, error)
 	DeleteConfig(ctx context.Context, key string) error
 	DeleteMakerPieByOid(ctx context.Context, oid string) error
+	DeleteUserPie(ctx context.Context, arg DeleteUserPieParams) error
+	DeleteUserPieByOwner(ctx context.Context, arg DeleteUserPieByOwnerParams) error
+	DeleteUserPieRankings(ctx context.Context, arg DeleteUserPieRankingsParams) error
+	DeleteUserPieRankingsByUser(ctx context.Context, arg DeleteUserPieRankingsByUserParams) error
 	GetActiveYear(ctx context.Context) (int64, error)
 	GetAllConfig(ctx context.Context) ([]GetAllConfigRow, error)
 	GetAllMakerPies(ctx context.Context) ([]GetAllMakerPiesRow, error)
@@ -19,12 +24,21 @@ type Querier interface {
 	GetMakerPieByOid(ctx context.Context, oid string) (GetMakerPieByOidRow, error)
 	GetMakerPieYears(ctx context.Context) ([]int32, error)
 	GetUserMakerPieRanking(ctx context.Context, arg GetUserMakerPieRankingParams) (MakerPieRankingYearly, error)
+	GetUserPie(ctx context.Context, arg GetUserPieParams) (UserPieYearly, error)
+	GetUserPieByOwner(ctx context.Context, arg GetUserPieByOwnerParams) (UserPieYearly, error)
+	GetUserPieCountByOwnerAndYear(ctx context.Context, arg GetUserPieCountByOwnerAndYearParams) (int64, error)
+	GetUserPieCountByYear(ctx context.Context, year int32) (int64, error)
+	GetUserPieRanking(ctx context.Context, arg GetUserPieRankingParams) (UserPieRankingYearly, error)
+	GetUserPieYearIDs(ctx context.Context, year int32) ([]string, error)
 	InsertConfig(ctx context.Context, arg InsertConfigParams) error
 	IsAdminId(ctx context.Context, userID string) (bool, error)
 	UpdateConfig(ctx context.Context, arg UpdateConfigParams) error
 	UpdateMakerPieByOid(ctx context.Context, arg UpdateMakerPieByOidParams) error
 	UpdateMakerPieImageByOid(ctx context.Context, arg UpdateMakerPieImageByOidParams) error
+	UpdateUserPie(ctx context.Context, arg UpdateUserPieParams) error
+	UpdateUserPieImage(ctx context.Context, arg UpdateUserPieImageParams) error
 	UpsertUserMakerPieRanking(ctx context.Context, arg UpsertUserMakerPieRankingParams) error
+	UpsertUserPieRanking(ctx context.Context, arg UpsertUserPieRankingParams) error
 }
 
 var _ Querier = (*Queries)(nil)

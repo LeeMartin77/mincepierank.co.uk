@@ -84,16 +84,25 @@ type UserPieRankingYearly struct {
 }
 
 type UserPieYearly struct {
-	Year             int32
-	ID               string
-	OwnerUserid      string
-	Maker            pgtype.Text
-	Location         pgtype.Text
-	Displayname      pgtype.Text
-	Fresh            pgtype.Bool
-	ImageFile        pgtype.Text
-	WebLink          pgtype.Text
-	PackCount        pgtype.Int4
-	PackPriceInPence pgtype.Int4
-	Clean            pgtype.Bool
+	Year                int32
+	ID                  string
+	OwnerUserid         string
+	Maker               pgtype.Text
+	Location            pgtype.Text
+	Displayname         pgtype.Text
+	Fresh               pgtype.Bool
+	Labels              []string
+	ImageFile           pgtype.Text
+	WebLink             pgtype.Text
+	PackCount           pgtype.Int4
+	PackPriceInPence    pgtype.Int4
+	Clean               pgtype.Bool
+	Status              string
+	ModerationNote      pgtype.Text
+	DuplicateOf         pgtype.Text
+	PromotedMakerPieOid pgtype.Text
+	SubmittedBy         pgtype.Text
+	SubmittedAt         pgtype.Timestamp
+	ModeratedBy         pgtype.Text
+	ModeratedAt         pgtype.Timestamp
 }

@@ -24,8 +24,16 @@ func UserPieYearlyCreate(ctx context.Context, pg *pgxpool.Pool, c types.UserPieY
 		c.PackCount,
 		c.PackPriceInPence,
 		c.Clean,
+		c.Status,
+		c.ModerationNote,
+		c.DuplicateOf,
+		c.PromotedMakerPieO,
+		c.SubmittedBy,
+		c.SubmittedAt,
+		c.ModeratedBy,
+		c.ModeratedAt,
 	}
-	sql := "INSERT INTO user_pie_yearly (year,id,owner_userid,maker,location,displayname,fresh,labels,image_file,web_link,pack_count,pack_price_in_pence,clean) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13) ON CONFLICT DO NOTHING"
+	sql := "INSERT INTO user_pie_yearly (year,id,owner_userid,maker,location,displayname,fresh,labels,image_file,web_link,pack_count,pack_price_in_pence,clean,status,moderation_note,duplicate_of,promoted_maker_pie_oid,submitted_by,submitted_at,moderated_by,moderated_at) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21) ON CONFLICT DO NOTHING"
 	_, err := pg.Exec(ctx, sql, args...)
 	if err != nil {
 		return nil, err
@@ -49,7 +57,15 @@ func UserPieYearlyUpdate(ctx context.Context, pg *pgxpool.Pool, u types.UserPieY
 	parameters = append(parameters, u.PackCount)
 	parameters = append(parameters, u.PackPriceInPence)
 	parameters = append(parameters, u.Clean)
-	sql := "UPDATE user_pie_yearly SET maker=$4,location=$5,displayname=$6,fresh=$7,labels=$8,image_file=$9,web_link=$10,pack_count=$11,pack_price_in_pence=$12,clean=$13 WHERE year=$1 AND id=$2 AND owner_userid=$3"
+	parameters = append(parameters, u.Status)
+	parameters = append(parameters, u.ModerationNote)
+	parameters = append(parameters, u.DuplicateOf)
+	parameters = append(parameters, u.PromotedMakerPieO)
+	parameters = append(parameters, u.SubmittedBy)
+	parameters = append(parameters, u.SubmittedAt)
+	parameters = append(parameters, u.ModeratedBy)
+	parameters = append(parameters, u.ModeratedAt)
+	sql := "UPDATE user_pie_yearly SET maker=$4,location=$5,displayname=$6,fresh=$7,labels=$8,image_file=$9,web_link=$10,pack_count=$11,pack_price_in_pence=$12,clean=$13,status=$14,moderation_note=$15,duplicate_of=$16,promoted_maker_pie_oid=$17,submitted_by=$18,submitted_at=$19,moderated_by=$20,moderated_at=$21 WHERE year=$1 AND id=$2 AND owner_userid=$3"
 	_, err := pg.Exec(ctx, sql, parameters...)
 	if err != nil {
 		return nil, err
@@ -64,9 +80,9 @@ func UserPieYearlyRead(ctx context.Context, pg *pgxpool.Pool, Year int32, Id str
 	identifiers = append(identifiers, Year)
 	identifiers = append(identifiers, Id)
 	identifiers = append(identifiers, OwnerUserid)
-	sql := "SELECT year, id, owner_userid, maker, location, displayname, fresh, labels, image_file, web_link, pack_count, pack_price_in_pence, clean FROM user_pie_yearly  WHERE year = $1 AND id = $2 AND owner_userid = $3"
+	sql := "SELECT year, id, owner_userid, maker, location, displayname, fresh, labels, image_file, web_link, pack_count, pack_price_in_pence, clean, status, moderation_note, duplicate_of, promoted_maker_pie_oid, submitted_by, submitted_at, moderated_by, moderated_at FROM user_pie_yearly  WHERE year = $1 AND id = $2 AND owner_userid = $3"
 	res := pg.QueryRow(ctx, sql, identifiers...)
-	err := res.Scan(&r.Year, &r.Id, &r.OwnerUserid, &r.Maker, &r.Location, &r.DisplayName, &r.Fresh, &r.Labels, &r.ImageFile, &r.WebLink, &r.PackCount, &r.PackPriceInPence, &r.Clean)
+	err := res.Scan(&r.Year, &r.Id, &r.OwnerUserid, &r.Maker, &r.Location, &r.DisplayName, &r.Fresh, &r.Labels, &r.ImageFile, &r.WebLink, &r.PackCount, &r.PackPriceInPence, &r.Clean, &r.Status, &r.ModerationNote, &r.DuplicateOf, &r.PromotedMakerPieO, &r.SubmittedBy, &r.SubmittedAt, &r.ModeratedBy, &r.ModeratedAt)
 	if err == pgx.ErrNoRows {
 		return nil, nil
 	}

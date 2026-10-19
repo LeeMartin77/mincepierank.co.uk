@@ -71,6 +71,14 @@ var migrations []string = []string{
       pack_count int,
       pack_price_in_pence int,
       clean boolean,
+      status text NOT NULL DEFAULT 'pending',
+      moderation_note text,
+      duplicate_of text,
+      promoted_maker_pie_oid text,
+      submitted_by text,
+      submitted_at timestamp,
+      moderated_by text,
+      moderated_at timestamp,
       PRIMARY KEY (year, id, owner_userid)
   );`,
 	`CREATE TABLE IF NOT EXISTS user_pie_ranking_yearly
