@@ -18,7 +18,7 @@
     <h3 class="h6 text-muted">You ranked this on {{timetohuman .Ranking.LastUpdated.Time}}</h3>
     {{end}}
     {{if and (not .Readonly) (eq .ActiveYear .Pie.Year)}}
-      <form hx-put="/years/{{.Pie.Year}}/brands/{{.Pie.MakerId}}/{{.Pie.Id}}/rating" hx-swap="outerHTML" hx-select="#pie-data-container" hx-target="#pie-data-container" class="mt-3">
+      <form hx-put="{{if .RankingFormURL}}{{.RankingFormURL}}{{else}}/years/{{.Pie.Year}}/brands/{{.Pie.MakerId}}/{{.Pie.Id}}/rating{{end}}" hx-swap="outerHTML" hx-select="#pie-data-container" hx-target="#pie-data-container" class="mt-3">
         <div class="row g-3">
           <div class="col-md-6">
             <div class="d-flex align-items-center gap-2 mb-3"><strong>Pastry:</strong> {{template "star-input" dict "Name" "pastry" "Label" "Pastry" "Value" .Ranking.Pastry}}</div>

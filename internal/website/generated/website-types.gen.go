@@ -75,6 +75,19 @@ type UpdateMakerPieMultipartBody struct {
 	WebLink          string              `json:"webLink"`
 }
 
+// EditUserPieMultipartBody defines parameters for EditUserPie.
+type EditUserPieMultipartBody struct {
+	Displayname      string             `json:"displayname"`
+	Fresh            bool               `json:"fresh"`
+	ImageFile        openapi_types.File `json:"imageFile"`
+	Labels           string             `json:"labels"`
+	Location         string             `json:"location"`
+	Maker            string             `json:"maker"`
+	PackCount        int32              `json:"packCount"`
+	PackPriceInPence int32              `json:"packPriceInPence"`
+	WebLink          string             `json:"webLink"`
+}
+
 // YearPersonalRankingParams defines parameters for YearPersonalRanking.
 type YearPersonalRankingParams struct {
 	Page  *Page  `form:"page,omitempty" json:"page,omitempty"`
@@ -120,6 +133,34 @@ type YearCategoryPiesParams struct {
 	Categories *CategoriesFilter `form:"categories,omitempty" json:"categories,omitempty"`
 }
 
+// SubmitPieMultipartBody defines parameters for SubmitPie.
+type SubmitPieMultipartBody struct {
+	Displayname      string             `json:"displayname"`
+	Fresh            bool               `json:"fresh"`
+	ImageFile        openapi_types.File `json:"imageFile"`
+	Labels           string             `json:"labels"`
+	Location         string             `json:"location"`
+	Maker            string             `json:"maker"`
+	PackCount        int32              `json:"packCount"`
+	PackPriceInPence int32              `json:"packPriceInPence"`
+	WebLink          string             `json:"webLink"`
+}
+
+// ListUserPiesParams defines parameters for ListUserPies.
+type ListUserPiesParams struct {
+	Page  *Page  `form:"page,omitempty" json:"page,omitempty"`
+	Limit *Limit `form:"limit,omitempty" json:"limit,omitempty"`
+}
+
+// RateUserPieFormdataBody defines parameters for RateUserPie.
+type RateUserPieFormdataBody struct {
+	Filling int `form:"filling" json:"filling"`
+	Looks   int `form:"looks" json:"looks"`
+	Pastry  int `form:"pastry" json:"pastry"`
+	Topping int `form:"topping" json:"topping"`
+	Value   int `form:"value" json:"value"`
+}
+
 // CreateAdminConfigFormdataRequestBody defines body for CreateAdminConfig for application/x-www-form-urlencoded ContentType.
 type CreateAdminConfigFormdataRequestBody CreateAdminConfigFormdataBody
 
@@ -135,5 +176,14 @@ type BulkCreateMakerPieAdminMultipartRequestBody BulkCreateMakerPieAdminMultipar
 // UpdateMakerPieMultipartRequestBody defines body for UpdateMakerPie for multipart/form-data ContentType.
 type UpdateMakerPieMultipartRequestBody UpdateMakerPieMultipartBody
 
+// EditUserPieMultipartRequestBody defines body for EditUserPie for multipart/form-data ContentType.
+type EditUserPieMultipartRequestBody EditUserPieMultipartBody
+
 // RateYearBrandPieFormdataRequestBody defines body for RateYearBrandPie for application/x-www-form-urlencoded ContentType.
 type RateYearBrandPieFormdataRequestBody RateYearBrandPieFormdataBody
+
+// SubmitPieMultipartRequestBody defines body for SubmitPie for multipart/form-data ContentType.
+type SubmitPieMultipartRequestBody SubmitPieMultipartBody
+
+// RateUserPieFormdataRequestBody defines body for RateUserPie for application/x-www-form-urlencoded ContentType.
+type RateUserPieFormdataRequestBody RateUserPieFormdataBody

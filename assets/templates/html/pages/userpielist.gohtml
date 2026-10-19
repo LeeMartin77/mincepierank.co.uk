@@ -1,0 +1,31 @@
+{{define "page:userpielist"}}
+{{template "fragment:global:head" .Head}}
+{{template "fragment:components:breadcrumb" .PageData.Breadcrumb}}
+
+<div class="container py-4">
+  <h2 class="text-center mb-4">{{.PageData.Heading}}</h2>
+
+  <div id="pie-list" class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+    {{ range .PageData.PieCards }}
+    <div class="col">
+      {{template "fragment:components:userpielinkcard" .}}
+    </div>
+    {{ end }}
+  </div>
+
+  {{ if .PageData.ShouldLoadNextPage }}
+  <div class="text-center mt-4">
+    <button class="btn btn-outline-primary"
+      hx-trigger="click"
+      hx-get="{{.PageData.URL}}?page={{.PageData.NextPage}}&{{.PageData.Query}}"
+      hx-swap="afterend"
+      hx-select="#pie-list > .col, #pie-list > .col:last-of-type ~ *"
+      hx-include="this">
+      Load More
+    </button>
+  </div>
+  {{ end }}
+</div>
+
+{{template "fragment:global:foot" .Foot}}
+{{end}}

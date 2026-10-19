@@ -74,6 +74,13 @@ type PieCardData struct {
 	RankingTime    time.Time
 }
 
+type UserPieCardData struct {
+	ImgprssrPrefix  string
+	PieLink         string
+	Pie             types.UserPieYearly
+	RankingSummary  types.RankingSummary
+}
+
 type MakerCardData struct {
 	ImgprssrPrefix string
 	Year           int64

@@ -1,0 +1,143 @@
+{{define "page:editpie"}}
+{{template "fragment:global:head" .Head}}
+{{template "fragment:components:breadcrumb" .PageData.Breadcrumb}}
+
+<div class="container py-4">
+  <h1 class="h2 mb-4">Edit: {{if .PageData.Pie}}{{.PageData.Pie.DisplayName}}{{end}}</h1>
+
+  {{if .PageData.Errors}}
+  <div class="alert alert-danger" role="alert">
+    <strong>Please fix the following errors:</strong>
+    <ul class="mb-0">
+      {{range .PageData.Errors}}
+      <li>{{.}}</li>
+      {{end}}
+    </ul>
+  </div>
+  {{end}}
+
+  {{if .PageData.Readonly}}
+  <div class="alert alert-warning" role="alert">
+    Edits are currently closed (read-only mode).
+  </div>
+  {{end}}
+
+  <form hx-put="/profile/pies/{{.PageData.Year}}/{{.PageData.Pie.Id}}" hx-target="body" hx-swap="outerHTML" enctype="multipart/form-data">
+    <div class="row g-3 mb-3">
+      <div class="col-md-6">
+        <label class="form-label" for="displayname">Display Name <span class="text-danger">*</span></label>
+        <input class="form-control" name="displayname" id="displayname" type="text"
+          value="{{if .PageData.DisplayName}}{{.PageData.DisplayName}}{{else}}{{.PageData.Pie.DisplayName}}{{end}}"
+          placeholder="e.g. Tesco Value Mince Pie" />
+      </div>
+      <div class="col-md-6">
+        <label class="form-label" for="maker">Maker/Brand <span class="text-danger">*</span></label>
+        <select class="form-select" name="maker" id="maker">
+          <option value="">— Select a brand —</option>
+          {{range .PageData.Makers}}
+          <option value="{{.Name}}" {{if eq $.PageData.Maker .Name}}selected{{end}}>{{.Name}}</option>
+          {{end}}
+          <option value="other" {{if eq $.PageData.Maker "other"}}selected{{end}}>Other (free text)</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="mb-3" id="other-maker-field" style="display:none;">
+      <label class="form-label" for="maker-other">Other Brand <span class="text-danger">*</span></label>
+      <input class="form-control" name="maker" id="maker-other" type="text"
+        value="{{if .PageData.Maker}}{{.PageData.Maker}}{{end}}" />
+    </div>
+
+    <div class="row g-3 mb-3">
+      <div class="col-md-6">
+        <label class="form-label" for="location">Location</label>
+        <input class="form-control" name="location" id="location" type="text"
+          value="{{if .PageData.Location}}{{.PageData.Location}}{{else}}{{.PageData.Pie.Location}}{{end}}"
+          placeholder="e.g. London, UK" />
+      </div>
+      <div class="col-md-6">
+        <label class="form-label" for="webLink">Website Link <span class="text-danger">*</span></label>
+        <input class="form-control" name="webLink" id="webLink" type="url"
+          value="{{if .PageData.WebLink}}{{.PageData.WebLink}}{{else}}{{.PageData.Pie.WebLink}}{{end}}"
+          placeholder="https://example.com/product" />
+      </div>
+    </div>
+
+    <div class="row g-3 mb-3">
+      <div class="col-md-4">
+        <label class="form-label" for="packCount">Pack Count</label>
+        <input class="form-control" name="packCount" id="packCount" type="number" min="0"
+          value="{{if .PageData.PackCount}}{{.PageData.PackCount}}{{else}}{{.PageData.Pie.PackCount}}{{end}}" />
+      </div>
+      <div class="col-md-4">
+        <label class="form-label" for="packPriceInPence">Pack Price (pence)</label>
+        <input class="form-control" name="packPriceInPence" id="packPriceInPence" type="number" min="0"
+          value="{{if .PageData.PackPrice}}{{.PageData.PackPrice}}{{else}}{{.PageData.Pie.PackPriceInPence}}{{end}}" />
+      </div>
+      <div class="col-md-4 d-flex align-items-end">
+        <div class="form-check mb-3">
+          <input class="form-check-input" name="fresh" type="checkbox" value="on" id="fresh"
+            {{if .PageData.Fresh}}checked{{else}}{{if .PageData.Pie.Fresh}}checked{{end}}{{end}}>
+          <label class="form-check-label" for="fresh">Fresh (not frozen)</label>
+        </div>
+      </div>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label" for="labels">Labels (comma-separated)</label>
+      <input class="form-control" name="labels" id="labels" type="text"
+        value="{{if .PageData.LabelsStr}}{{.PageData.LabelsStr}}{{else}}{{range $i, $l := .PageData.Pie.Labels}}{{if $i}}, {{end}}{{end}}{{end}}"
+        placeholder="organic, fairtrade, gluten-free" />
+      <div class="form-text">e.g. organic, fairtrade, gluten-free</div>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Current Image</label>
+      {{ if .PageData.Pie.ImageFile }}
+        <div class="mb-2">
+          <img src="{{.PageData.ImgprssrPrefix}}{{.PageData.Pie.ImageFile}}?width=250&height=250&filter=gaussian" class="img-fluid rounded" alt="{{.PageData.Pie.DisplayName}}" style="max-height: 200px;" />
+        </div>
+      {{ else }}
+        <p class="text-muted">No image uploaded yet.</p>
+      {{ end }}
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label" for="imageFile">Upload New Image</label>
+      <input class="form-control" name="imageFile" id="imageFile" type="file" accept="image/*" />
+      <div class="form-text">Upload a new image to replace the current one. Accepted formats: JPG, PNG, GIF, WebP.</div>
+    </div>
+
+    <button class="btn btn-primary" type="submit">Save Changes</button>
+    <a href="/profile/pies/{{.PageData.Year}}" class="btn btn-outline-secondary">Cancel</a>
+  </form>
+
+  {{if eq .PageData.Pie.Status "pending"}}
+  <div class="mt-4 pt-4 border-top">
+    <h3 class="h5 text-danger">Withdraw Submission</h3>
+    <p class="text-muted">Once withdrawn, this action cannot be undone.</p>
+    <form hx-post="/profile/pies/{{.PageData.Year}}/{{.PageData.Pie.Id}}/withdraw">
+      <button class="btn btn-outline-danger" type="submit">Withdraw this pie</button>
+    </form>
+  </div>
+  {{end}}
+</div>
+
+{{template "fragment:global:foot" .Foot}}
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const makerSelect = document.getElementById('maker');
+    const otherField = document.getElementById('other-maker-field');
+
+    function toggleOtherField() {
+      const isOther = makerSelect.value === 'other';
+      otherField.style.display = isOther ? 'block' : 'none';
+      makerSelect.disabled = isOther;
+    }
+
+    makerSelect.addEventListener('change', toggleOtherField);
+    toggleOtherField();
+  });
+</script>
+{{end}}
