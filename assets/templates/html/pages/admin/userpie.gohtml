@@ -19,7 +19,7 @@
             <tr><th>Fresh</th><td>{{if .PageData.Pie.Fresh}}Yes{{else}}No{{end}}</td></tr>
             <tr><th>Web Link</th><td>{{if .PageData.Pie.WebLink}}<a href="{{.PageData.Pie.WebLink}}" target="_blank">{{.PageData.Pie.WebLink}}</a>{{end}}</td></tr>
             <tr><th>Pack Count</th><td>{{.PageData.Pie.PackCount}}</td></tr>
-            <tr><th>Pack Price</th><td>{{printf "£%.2f" (divFloat (float64 .PageData.Pie.PackPriceInPence) 100.0)}}</td></tr>
+            <tr><th>Pack Price</th><td>£{{printf "%.2f" (ppencediv .PageData.Pie.PackPriceInPence)}}</td></tr>
             <tr><th>Validated</th><td>{{if .PageData.Pie.Validated}}Yes{{else}}No{{end}}</td></tr>
             <tr><th>Image</th><td>{{if .PageData.Pie.ImageFile}}<img src="{{.PageData.Pie.ImageFile}}" class="img-thumbnail" style="max-height:100px">{{else}}None{{end}}</td></tr>
             <tr><th>Submitted By</th><td>{{.PageData.OwnerID}}</td></tr>

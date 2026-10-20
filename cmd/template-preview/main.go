@@ -33,8 +33,9 @@ import (
 type link struct{ Label, URL string }
 
 type menuSettings struct {
-	ActiveYear int64
-	SignedIn   bool
+	ActiveYear      int64
+	SignedIn        bool
+	UserPiesEnabled bool
 }
 
 type pageHead struct {

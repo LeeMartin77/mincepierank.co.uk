@@ -15,15 +15,23 @@ import (
 // Common returns a fresh FuncMap of the standard-library-only functions.
 func Common() template.FuncMap {
 	return template.FuncMap{
+		"add":         Add,
 		"dict":        Dict,
 		"jsonserial":  JSONSerial,
 		"ppencediv":   PenceDiv,
+		"sub":         Sub,
 		"timetohuman": TimeToHuman,
 		"nicefloat":   NiceFloat,
 		"starpercent": StarPercent,
 		"starvalues":  StarValues,
 	}
 }
+
+// Add returns the sum of two integers.
+func Add(a, b int) int { return a + b }
+
+// Sub returns the difference of two integers.
+func Sub(a, b int) int { return a - b }
 
 func Dict(values ...interface{}) (map[string]interface{}, error) {
 	if len(values)%2 != 0 {
