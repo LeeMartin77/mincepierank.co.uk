@@ -256,3 +256,19 @@ func (q *Queries) UpdateMakerPieImageByOid(ctx context.Context, arg UpdateMakerP
 	_, err := q.db.Exec(ctx, updateMakerPieImageByOid, arg.ImageFile, arg.Oid)
 	return err
 }
+
+const updateMakerPieLabels = `-- name: UpdateMakerPieLabels :exec
+UPDATE maker_pie_yearly
+SET labels = $1::text[]
+WHERE oid = uuid($2::text)
+`
+
+type UpdateMakerPieLabelsParams struct {
+	Labels []string
+	Oid    string
+}
+
+func (q *Queries) UpdateMakerPieLabels(ctx context.Context, arg UpdateMakerPieLabelsParams) error {
+	_, err := q.db.Exec(ctx, updateMakerPieLabels, arg.Labels, arg.Oid)
+	return err
+}

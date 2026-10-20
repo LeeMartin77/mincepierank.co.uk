@@ -5,8 +5,6 @@ import (
 	"errors"
 	"time"
 
-	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/leemartin77/mincepierank.co.uk/internal/storage/sqlcgen"
 	"github.com/leemartin77/mincepierank.co.uk/internal/storage/types"
 )
@@ -21,27 +19,27 @@ type UserPieWithOwner struct {
 
 // AdminUserPieRow is returned by GetUserPieAdminQueue.
 type AdminUserPieRow struct {
-	Year           int32
-	ID             string
-	OwnerUserid    string
-	Maker          string
-	Location       string
-	DisplayName    string
-	Fresh          bool
-	Labels         []string
-	ImageFile      string
-	WebLink        string
-	PackCount      int32
+	Year             int32
+	ID               string
+	OwnerUserid      string
+	Maker            *string
+	Location         *string
+	DisplayName      *string
+	Fresh            bool
+	Labels           []string
+	ImageFile        *string
+	WebLink          *string
+	PackCount        int32
 	PackPriceInPence int32
-	Clean          bool
-	Status         string
-	ModerationNote string
-	DuplicateOf    string
-	PromotedMakerPieO string
-	SubmittedBy    string
-	SubmittedAt    *time.Time
-	ModeratedBy    string
-	ModeratedAt    *time.Time
+	Clean            bool
+	Status           string
+	ModerationNote   *string
+	DuplicateOf      *string
+	PromotedMakerPieO *string
+	SubmittedBy      *string
+	SubmittedAt      *time.Time
+	ModeratedBy      *string
+	ModeratedAt      *time.Time
 }
 
 // CreateUserPie creates a new user pie submission and returns it.
@@ -181,6 +179,119 @@ func (o *OperationWrapper) SetUserPieStatus(c context.Context, year int32, id st
 	}()
 
 	result, err := tx.Exec(c, query, year, id, fromStatus, toStatus)
+	if err != nil {
+		return err
+	}
+
+	if result.RowsAffected() == 0 {
+		return ErrInvalidTransition
+	}
+
+	return tx.Commit(c)
+}
+
+// SetUserPieStatusWithNote atomically transitions a user pie's status and sets
+// a moderation note. Returns ErrInvalidTransition when the transition is not
+// allowed.
+func (o *OperationWrapper) SetUserPieStatusWithNote(c context.Context, year int32, id string, fromStatus, toStatus UserPieStatus, note, moderatedBy string) error {
+	if !fromStatus.CanTransitionTo(toStatus) {
+		return ErrInvalidTransition
+	}
+
+	query := `
+		UPDATE user_pie_yearly
+		SET status = $5,
+		    moderation_note = $6,
+		    moderated_by = $7,
+		    moderated_at = NOW()
+		WHERE year = $1::int
+		  AND id = $2::text
+		  AND status = $3::text
+	`
+	tx, err := o.db.Begin(c)
+	if err != nil {
+		return err
+	}
+	defer func() {
+		_ = tx.Rollback(c)
+	}()
+
+	result, err := tx.Exec(c, query, year, id, fromStatus, toStatus, note, moderatedBy)
+	if err != nil {
+		return err
+	}
+
+	if result.RowsAffected() == 0 {
+		return ErrInvalidTransition
+	}
+
+	return tx.Commit(c)
+}
+
+// SetUserPieDuplicateOf marks a user pie as duplicate and sets the reference.
+// Returns ErrInvalidTransition when the transition is not allowed.
+func (o *OperationWrapper) SetUserPieDuplicateOf(c context.Context, year int32, id string, fromStatus UserPieStatus, duplicateOf, moderatedBy string) error {
+	if !fromStatus.CanTransitionTo(UserPieStatusDuplicate) {
+		return ErrInvalidTransition
+	}
+
+	query := `
+		UPDATE user_pie_yearly
+		SET duplicate_of = $4,
+		    status = $5,
+		    moderated_by = $6,
+		    moderated_at = NOW()
+		WHERE year = $1::int
+		  AND id = $2::text
+		  AND status = $3::text
+	`
+	tx, err := o.db.Begin(c)
+	if err != nil {
+		return err
+	}
+	defer func() {
+		_ = tx.Rollback(c)
+	}()
+
+	result, err := tx.Exec(c, query, year, id, fromStatus, duplicateOf, moderatedBy)
+	if err != nil {
+		return err
+	}
+
+	if result.RowsAffected() == 0 {
+		return ErrInvalidTransition
+	}
+
+	return tx.Commit(c)
+}
+
+// SetUserPiePromotedMakerPieOid marks a user pie as promoted and stores the
+// reference to the promoted brand pie. Returns ErrInvalidTransition when the
+// transition is not allowed.
+func (o *OperationWrapper) SetUserPiePromotedMakerPieOid(c context.Context, year int32, id string, fromStatus UserPieStatus, promotedMakerPieOid, moderatedBy string) error {
+	if !fromStatus.CanTransitionTo(UserPieStatusPromoted) {
+		return ErrInvalidTransition
+	}
+
+	query := `
+		UPDATE user_pie_yearly
+		SET promoted_maker_pie_oid = $4,
+		    status = $5,
+		    moderated_by = $6,
+		    moderated_at = NOW()
+		WHERE year = $1::int
+		  AND id = $2::text
+		  AND status = $3::text
+	`
+	tx, err := o.db.Begin(c)
+	if err != nil {
+		return err
+	}
+	defer func() {
+		_ = tx.Rollback(c)
+	}()
+
+	result, err := tx.Exec(c, query, year, id, fromStatus, promotedMakerPieOid, moderatedBy)
 	if err != nil {
 		return err
 	}
@@ -462,35 +573,34 @@ func fromSQLCUserPie(sqlc sqlcgen.UserPieYearly) *types.UserPieYearly {
 	}
 }
 
-// GetUserPieByOid retrieves a user pie by its OID.
-func (o *OperationWrapper) GetUserPieByOid(c context.Context, oid uuid.UUID) (*UserPieWithOwner, error) {
+// GetUserPieByOid retrieves a user pie by promoted maker pie OID or by composite key.
+func (o *OperationWrapper) GetUserPieByOid(c context.Context, year int32, id string, promotedMakerPieOid string) (*UserPieWithOwner, error) {
 	q := o.querier
 
-	var pgOid pgtype.UUID
-	copy(pgOid.Bytes[:], oid[:])
-
-	result, err := q.GetUserPieByOid(c, pgOid)
+	result, err := q.GetUserPieByOid(c, sqlcgen.GetUserPieByOidParams{
+		Year:                year,
+		ID:                  id,
+		Promotedmakerpieoid: promotedMakerPieOid,
+	})
 	if err != nil {
 		return nil, err
 	}
 	return &UserPieWithOwner{Pie: *fromSQLCUserPie(result)}, nil
 }
 
-// DeleteUserPieByOid deletes a user pie by its OID.
-func (o *OperationWrapper) DeleteUserPieByOid(c context.Context, oid uuid.UUID) error {
-	var pgOid pgtype.UUID
-	copy(pgOid.Bytes[:], oid[:])
-
-	return o.querier.DeleteUserPieByOid(c, pgOid)
+// DeleteUserPieByOid deletes a user pie by composite key.
+func (o *OperationWrapper) DeleteUserPieByOid(c context.Context, year int32, id string) error {
+	return o.querier.DeleteUserPieByOid(c, sqlcgen.DeleteUserPieByOidParams{
+		Year: year,
+		ID:   id,
+	})
 }
 
 // UpdateUserPieStatusWithNote atomically updates status, moderation note, and timestamps.
-func (o *OperationWrapper) UpdateUserPieStatusWithNote(c context.Context, oid uuid.UUID, status, moderatedBy, moderationNote string) error {
-	var pgOid pgtype.UUID
-	copy(pgOid.Bytes[:], oid[:])
-
+func (o *OperationWrapper) UpdateUserPieStatusWithNote(c context.Context, year int32, id string, status, moderatedBy, moderationNote string) error {
 	return o.querier.UpdateUserPieStatusWithNote(c, sqlcgen.UpdateUserPieStatusWithNoteParams{
-		Oid:            pgOid,
+		Year:           year,
+		ID:             id,
 		Status:         status,
 		ModeratedBy:    moderatedBy,
 		ModerationNote: moderationNote,
@@ -498,31 +608,24 @@ func (o *OperationWrapper) UpdateUserPieStatusWithNote(c context.Context, oid uu
 }
 
 // UpdateUserPieDuplicateOf marks a submission as a duplicate.
-func (o *OperationWrapper) UpdateUserPieDuplicateOf(c context.Context, oid uuid.UUID, duplicateOf, moderatedBy string) error {
-	var pgOid pgtype.UUID
-	copy(pgOid.Bytes[:], oid[:])
-
+func (o *OperationWrapper) UpdateUserPieDuplicateOf(c context.Context, year int32, id string, duplicateOf, moderatedBy string) error {
 	return o.querier.UpdateUserPieDuplicateOf(c, sqlcgen.UpdateUserPieDuplicateOfParams{
-		Oid:           pgOid,
-		DuplicateOf:   duplicateOf,
-		ModeratedBy:   moderatedBy,
-		Status:        string(UserPieStatusDuplicate),
+		Year:        year,
+		ID:          id,
+		DuplicateOf: duplicateOf,
+		ModeratedBy: moderatedBy,
+		Status:      string(UserPieStatusDuplicate),
 	})
 }
 
 // UpdateUserPiePromotedMakerPieOid updates the promoted brand pie OID and status.
-func (o *OperationWrapper) UpdateUserPiePromotedMakerPieOid(c context.Context, oid uuid.UUID, promotedOid uuid.UUID, moderatedBy string) error {
-	var pgOid pgtype.UUID
-	copy(pgOid.Bytes[:], oid[:])
-
-	var pgPromotedOid pgtype.UUID
-	copy(pgPromotedOid.Bytes[:], promotedOid[:])
-
+func (o *OperationWrapper) UpdateUserPiePromotedMakerPieOid(c context.Context, year int32, id string, promotedOid string, moderatedBy string) error {
 	return o.querier.UpdateUserPiePromotedMakerPieOid(c, sqlcgen.UpdateUserPiePromotedMakerPieOidParams{
-		Oid:                   pgOid,
-		PromotedMakerPieOid:   pgPromotedOid,
-		ModeratedBy:           moderatedBy,
-		Status:                string(UserPieStatusPromoted),
+		Year:                year,
+		ID:                  id,
+		Promotedmakerpieoid: promotedOid,
+		ModeratedBy:         moderatedBy,
+		Status:              string(UserPieStatusPromoted),
 	})
 }
 

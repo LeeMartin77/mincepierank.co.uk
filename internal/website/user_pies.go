@@ -159,24 +159,29 @@ func (wrpr *WebsiteWrapper) SubmitPie(c *gin.Context, year int64) {
 		return
 	}
 
-	// Handle image upload
+	// Handle image upload (max 500KB)
+	const maxImageSize = 500 * 1024
 	imageFile := ""
 	imgFile, imgHdr, imgErr := c.Request.FormFile("imageFile")
 	if imgErr == nil && imgFile != nil {
 		defer imgFile.Close()
-		ext := strings.ToLower(imgHdr.Filename[strings.LastIndex(imgHdr.Filename, "."):])
-		newFilename := uuid.NewString() + ext
-		destPath := fmt.Sprintf("%s/%s", wrpr.config.ImgprssrDir, newFilename)
-		outFile, err := os.Create(destPath)
-		if err != nil {
-			errs = append(errs, "Failed to save image")
+		if imgHdr.Size > maxImageSize {
+			errs = append(errs, "Image must be 500KB or smaller")
 		} else {
-			defer outFile.Close()
-			_, err = outFile.ReadFrom(imgFile)
+			ext := strings.ToLower(imgHdr.Filename[strings.LastIndex(imgHdr.Filename, "."):])
+			newFilename := uuid.NewString() + ext
+			destPath := fmt.Sprintf("%s/%s", wrpr.config.ImgprssrDir, newFilename)
+			outFile, err := os.Create(destPath)
 			if err != nil {
 				errs = append(errs, "Failed to save image")
 			} else {
-				imageFile = newFilename
+				defer outFile.Close()
+				_, err = outFile.ReadFrom(imgFile)
+				if err != nil {
+					errs = append(errs, "Failed to save image")
+				} else {
+					imageFile = newFilename
+				}
 			}
 		}
 	}
@@ -234,7 +239,7 @@ func (wrpr *WebsiteWrapper) SubmitPie(c *gin.Context, year int64) {
 		return
 	}
 
-	c.Redirect(http.StatusSeeOther, fmt.Sprintf("/years/%d/user-pies/%s", year, pie.Id))
+	c.Redirect(http.StatusSeeOther, fmt.Sprintf("/years/%d/user-pies", year))
 }
 
 // listUserPies implements generated.ServerInterface.

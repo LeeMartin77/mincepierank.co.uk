@@ -110,11 +110,16 @@ func (q *Queries) DeleteUserPie(ctx context.Context, arg DeleteUserPieParams) er
 
 const deleteUserPieByOid = `-- name: DeleteUserPieByOid :exec
 DELETE FROM user_pie_yearly
-WHERE oid = $1::uuid
+WHERE year = $1::int AND id = $2::text
 `
 
-func (q *Queries) DeleteUserPieByOid(ctx context.Context, oid pgtype.UUID) error {
-	_, err := q.db.Exec(ctx, deleteUserPieByOid, oid)
+type DeleteUserPieByOidParams struct {
+	Year int32
+	ID   string
+}
+
+func (q *Queries) DeleteUserPieByOid(ctx context.Context, arg DeleteUserPieByOidParams) error {
+	_, err := q.db.Exec(ctx, deleteUserPieByOid, arg.Year, arg.ID)
 	return err
 }
 
@@ -249,12 +254,18 @@ SELECT year, id, owner_userid, maker, location, displayname, fresh, labels,
        status, moderation_note, duplicate_of, promoted_maker_pie_oid,
        submitted_by, submitted_at, moderated_by, moderated_at
 FROM user_pie_yearly
-WHERE promoted_maker_pie_oid = $1::uuid
-   OR oid = $1::uuid
+WHERE promoted_maker_pie_oid = $1::text
+   OR (year = $2::int AND id = $3::text)
 `
 
-func (q *Queries) GetUserPieByOid(ctx context.Context, oid pgtype.UUID) (UserPieYearly, error) {
-	row := q.db.QueryRow(ctx, getUserPieByOid, oid)
+type GetUserPieByOidParams struct {
+	Promotedmakerpieoid string
+	Year                int32
+	ID                  string
+}
+
+func (q *Queries) GetUserPieByOid(ctx context.Context, arg GetUserPieByOidParams) (UserPieYearly, error) {
+	row := q.db.QueryRow(ctx, getUserPieByOid, arg.Promotedmakerpieoid, arg.Year, arg.ID)
 	var i UserPieYearly
 	err := row.Scan(
 		&i.Year,
@@ -606,14 +617,15 @@ SET duplicate_of = $1::text,
     status = $2::text,
     moderated_by = $3::text,
     moderated_at = NOW()
-WHERE oid = $4::uuid
+WHERE year = $4::int AND id = $5::text
 `
 
 type UpdateUserPieDuplicateOfParams struct {
 	DuplicateOf string
 	Status      string
 	ModeratedBy string
-	Oid         pgtype.UUID
+	Year        int32
+	ID          string
 }
 
 func (q *Queries) UpdateUserPieDuplicateOf(ctx context.Context, arg UpdateUserPieDuplicateOfParams) error {
@@ -621,7 +633,8 @@ func (q *Queries) UpdateUserPieDuplicateOf(ctx context.Context, arg UpdateUserPi
 		arg.DuplicateOf,
 		arg.Status,
 		arg.ModeratedBy,
-		arg.Oid,
+		arg.Year,
+		arg.ID,
 	)
 	return err
 }
@@ -645,26 +658,28 @@ func (q *Queries) UpdateUserPieImage(ctx context.Context, arg UpdateUserPieImage
 
 const updateUserPiePromotedMakerPieOid = `-- name: UpdateUserPiePromotedMakerPieOid :exec
 UPDATE user_pie_yearly
-SET promoted_maker_pie_oid = $1::uuid,
+SET promoted_maker_pie_oid = $1::text,
     status = $2::text,
     moderated_by = $3::text,
     moderated_at = NOW()
-WHERE oid = $4::uuid
+WHERE year = $4::int AND id = $5::text
 `
 
 type UpdateUserPiePromotedMakerPieOidParams struct {
-	PromotedMakerPieOid pgtype.UUID
+	Promotedmakerpieoid string
 	Status              string
 	ModeratedBy         string
-	Oid                 pgtype.UUID
+	Year                int32
+	ID                  string
 }
 
 func (q *Queries) UpdateUserPiePromotedMakerPieOid(ctx context.Context, arg UpdateUserPiePromotedMakerPieOidParams) error {
 	_, err := q.db.Exec(ctx, updateUserPiePromotedMakerPieOid,
-		arg.PromotedMakerPieOid,
+		arg.Promotedmakerpieoid,
 		arg.Status,
 		arg.ModeratedBy,
-		arg.Oid,
+		arg.Year,
+		arg.ID,
 	)
 	return err
 }
@@ -675,14 +690,15 @@ SET status = $1::text,
     moderation_note = $2::text,
     moderated_by = $3::text,
     moderated_at = NOW()
-WHERE oid = $4::uuid
+WHERE year = $4::int AND id = $5::text
 `
 
 type UpdateUserPieStatusWithNoteParams struct {
 	Status         string
 	ModerationNote string
 	ModeratedBy    string
-	Oid            pgtype.UUID
+	Year           int32
+	ID             string
 }
 
 func (q *Queries) UpdateUserPieStatusWithNote(ctx context.Context, arg UpdateUserPieStatusWithNoteParams) error {
@@ -690,7 +706,8 @@ func (q *Queries) UpdateUserPieStatusWithNote(ctx context.Context, arg UpdateUse
 		arg.Status,
 		arg.ModerationNote,
 		arg.ModeratedBy,
-		arg.Oid,
+		arg.Year,
+		arg.ID,
 	)
 	return err
 }

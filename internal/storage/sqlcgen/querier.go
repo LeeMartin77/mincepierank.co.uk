@@ -6,8 +6,6 @@ package sqlcgen
 
 import (
 	"context"
-
-	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type Querier interface {
@@ -16,7 +14,7 @@ type Querier interface {
 	DeleteConfig(ctx context.Context, key string) error
 	DeleteMakerPieByOid(ctx context.Context, oid string) error
 	DeleteUserPie(ctx context.Context, arg DeleteUserPieParams) error
-	DeleteUserPieByOid(ctx context.Context, oid pgtype.UUID) error
+	DeleteUserPieByOid(ctx context.Context, arg DeleteUserPieByOidParams) error
 	DeleteUserPieByOwner(ctx context.Context, arg DeleteUserPieByOwnerParams) error
 	DeleteUserPieRankings(ctx context.Context, arg DeleteUserPieRankingsParams) error
 	DeleteUserPieRankingsByUser(ctx context.Context, arg DeleteUserPieRankingsByUserParams) error
@@ -30,7 +28,7 @@ type Querier interface {
 	GetUserMakerPieRanking(ctx context.Context, arg GetUserMakerPieRankingParams) (MakerPieRankingYearly, error)
 	GetUserPie(ctx context.Context, arg GetUserPieParams) (UserPieYearly, error)
 	GetUserPieAdminQueueCountByStatus(ctx context.Context, arg GetUserPieAdminQueueCountByStatusParams) (int64, error)
-	GetUserPieByOid(ctx context.Context, oid pgtype.UUID) (UserPieYearly, error)
+	GetUserPieByOid(ctx context.Context, arg GetUserPieByOidParams) (UserPieYearly, error)
 	GetUserPieByOwner(ctx context.Context, arg GetUserPieByOwnerParams) (UserPieYearly, error)
 	GetUserPieCountByOwnerAndYear(ctx context.Context, arg GetUserPieCountByOwnerAndYearParams) (int64, error)
 	GetUserPieCountByYear(ctx context.Context, year int32) (int64, error)
@@ -46,6 +44,7 @@ type Querier interface {
 	UpdateConfig(ctx context.Context, arg UpdateConfigParams) error
 	UpdateMakerPieByOid(ctx context.Context, arg UpdateMakerPieByOidParams) error
 	UpdateMakerPieImageByOid(ctx context.Context, arg UpdateMakerPieImageByOidParams) error
+	UpdateMakerPieLabels(ctx context.Context, arg UpdateMakerPieLabelsParams) error
 	UpdateUserPie(ctx context.Context, arg UpdateUserPieParams) error
 	UpdateUserPieDuplicateOf(ctx context.Context, arg UpdateUserPieDuplicateOfParams) error
 	UpdateUserPieImage(ctx context.Context, arg UpdateUserPieImageParams) error

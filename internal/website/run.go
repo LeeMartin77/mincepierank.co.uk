@@ -12,6 +12,7 @@ import (
 
 	"github.com/gabriel-vasile/mimetype"
 	"github.com/gin-gonic/gin"
+	"github.com/leemartin77/mincepierank.co.uk/assets"
 	generated "github.com/leemartin77/mincepierank.co.uk/internal/website/generated"
 
 	"github.com/rs/zerolog/log"
@@ -25,41 +26,28 @@ var (
 )
 
 func handleStatic(w http.ResponseWriter, r *http.Request) {
-	pth := filepath.Join("assets", "static", strings.TrimPrefix(r.URL.Path, "/static"))
-	file, err := os.Open(pth)
+	pth := filepath.Join("static", strings.TrimPrefix(r.URL.Path, "/static"))
+	data, err := assets.StaticFS.ReadFile(pth)
 	if err != nil {
 		http.Error(w, "No file found", http.StatusNotFound)
 		return
 	}
-	defer file.Close()
-	fileInfo, err := file.Stat()
-	if err != nil {
-		http.Error(w, "Error reading file", http.StatusInternalServerError)
-		return
+	mtype := mimetype.Lookup(filepath.Ext(pth))
+	if mtype == nil {
+		mtype = mimetype.Detect(data)
 	}
-	mtype, err := mimetype.DetectReader(file)
-	if err != nil {
-		http.Error(w, "Error reading file", http.StatusInternalServerError)
-		return
-	}
-	http.ServeContent(w, r, fileInfo.Name(), fileInfo.ModTime(), file)
 	w.Header().Set("content-type", mtype.String())
+	w.Write(data)
 }
 
 func handleFavicon(w http.ResponseWriter, r *http.Request) {
-	pth := filepath.Join("assets", "static", "favicon.ico")
-	file, err := os.Open(pth)
+	data, err := assets.StaticFS.ReadFile("static/favicon.ico")
 	if err != nil {
 		http.Error(w, "No file found", http.StatusNotFound)
 		return
 	}
-	defer file.Close()
-	fileInfo, err := file.Stat()
-	if err != nil {
-		http.Error(w, "Error reading file", http.StatusInternalServerError)
-		return
-	}
-	http.ServeContent(w, r, fileInfo.Name(), fileInfo.ModTime(), file)
+	w.Header().Set("content-type", "image/x-icon")
+	w.Write(data)
 }
 
 func (api Website) Run() error {
@@ -92,8 +80,12 @@ func (api Website) Run() error {
 	generated.RegisterHandlers(r, api.serverInterface)
 
 	// Run the server
+	port := os.Getenv("MINCEPIERANK_PORT")
+	if port == "" {
+		port = "8080"
+	}
 	srv := &http.Server{
-		Addr:    fmt.Sprintf(":%s", "8080"),
+		Addr:    fmt.Sprintf(":%s", port),
 		Handler: r,
 	}
 

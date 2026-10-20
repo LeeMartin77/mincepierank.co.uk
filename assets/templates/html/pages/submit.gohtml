@@ -22,7 +22,7 @@
   </div>
   {{end}}
 
-  <form hx-post="/years/{{.PageData.Year}}/submit" hx-target="body" hx-swap="outerHTML" enctype="multipart/form-data">
+  <form hx-post="/years/{{.PageData.Year}}/submit" hx-target="body" hx-swap="outerHTML" enctype="multipart/form-data" {{if .PageData.Readonly}}disabled{{end}}>
     <div class="row g-3 mb-3">
       <div class="col-md-6">
         <label class="form-label" for="displayname">Display Name <span class="text-danger">*</span></label>

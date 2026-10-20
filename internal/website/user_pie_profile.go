@@ -250,23 +250,33 @@ func (wrpr *WebsiteWrapper) EditUserPie(c *gin.Context, year int64, id string) {
 	}
 
 	// Handle image upload (optional — keep existing if no new image)
+	const maxImageSize = 500 * 1024
 	imageFile := pie.ImageFile
 	imgFile, imgHdr, imgErr := c.Request.FormFile("imageFile")
 	if imgErr == nil && imgFile != nil {
 		defer imgFile.Close()
-		ext := strings.ToLower(imgHdr.Filename[strings.LastIndex(imgHdr.Filename, "."):])
-		newFilename := uuid.NewString() + ext
-		destPath := fmt.Sprintf("%s/%s", wrpr.config.ImgprssrDir, newFilename)
-		outFile, err := os.Create(destPath)
-		if err != nil {
-			errs = append(errs, "Failed to save image")
+		if imgHdr.Size > maxImageSize {
+			errs = append(errs, "Image must be 500KB or smaller")
 		} else {
-			defer outFile.Close()
-			_, err = outFile.ReadFrom(imgFile)
+			// Delete old image if we're replacing it
+			if pie.ImageFile != "" {
+				oldPath := fmt.Sprintf("%s/%s", wrpr.config.ImgprssrDir, pie.ImageFile)
+				_ = os.Remove(oldPath)
+			}
+			ext := strings.ToLower(imgHdr.Filename[strings.LastIndex(imgHdr.Filename, "."):])
+			newFilename := uuid.NewString() + ext
+			destPath := fmt.Sprintf("%s/%s", wrpr.config.ImgprssrDir, newFilename)
+			outFile, err := os.Create(destPath)
 			if err != nil {
 				errs = append(errs, "Failed to save image")
 			} else {
-				imageFile = newFilename
+				defer outFile.Close()
+				_, err = outFile.ReadFrom(imgFile)
+				if err != nil {
+					errs = append(errs, "Failed to save image")
+				} else {
+					imageFile = newFilename
+				}
 			}
 		}
 	}
@@ -364,6 +374,14 @@ func (wrpr *WebsiteWrapper) WithdrawUserPie(c *gin.Context, year int64, id strin
 		Pieid: pie.Id,
 	})
 	wrpr.storage.DeleteUserPieByOwner(c, pie.Year, pie.Id, uid)
+
+	// Delete the stored image file
+	if pie.ImageFile != "" {
+		imgPath := fmt.Sprintf("%s/%s", wrpr.config.ImgprssrDir, pie.ImageFile)
+		if delErr := os.Remove(imgPath); delErr != nil {
+			log.Error().Err(delErr).Str("imagePath", imgPath).Msg("Error deleting user pie image on withdraw")
+		}
+	}
 
 	c.Redirect(http.StatusSeeOther, fmt.Sprintf("/profile/pies/%d", year))
 }

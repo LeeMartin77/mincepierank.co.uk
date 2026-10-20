@@ -3,6 +3,7 @@ package website
 import (
 	"fmt"
 	"net/http"
+	"os"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -86,8 +87,16 @@ func (wrpr *WebsiteWrapper) GetAdminUserPies(c *gin.Context, params generated.Ge
 		s := strings.ToLower(searchFilter)
 		var filtered []storage.AdminUserPieRow
 		for _, row := range rows {
-			if strings.Contains(strings.ToLower(row.DisplayName), s) ||
-				strings.Contains(strings.ToLower(row.Maker), s) ||
+			displayName := ""
+			if row.DisplayName != nil {
+				displayName = *row.DisplayName
+			}
+			maker := ""
+			if row.Maker != nil {
+				maker = *row.Maker
+			}
+			if strings.Contains(strings.ToLower(displayName), s) ||
+				strings.Contains(strings.ToLower(maker), s) ||
 				strings.Contains(row.ID, s) ||
 				strings.Contains(strings.ToLower(row.OwnerUserid), s) {
 				filtered = append(filtered, row)
@@ -240,19 +249,11 @@ func (wrpr *WebsiteWrapper) PostAdminUserPieReject(c *gin.Context, year int, id 
 
 	note := c.Request.FormValue("note")
 	userId := c.Keys["userid"].(string)
-	err = wrpr.storage.SetUserPieStatus(c, int32(year), id, storage.UserPieStatus(pieWithOwner.Pie.Status), storage.UserPieStatusRejected)
+	err = wrpr.storage.SetUserPieStatusWithNote(c, int32(year), id, storage.UserPieStatus(pieWithOwner.Pie.Status), storage.UserPieStatusRejected, note, userId)
 	if err != nil {
 		log.Error().Err(err).Msg("Error rejecting user pie")
 		c.AbortWithStatus(500)
 		return
-	}
-
-	// Store moderation note via raw SQL
-	if note != "" {
-		_, updateErr := wrpr.storage.GetDatabase().Exec(c,
-			"UPDATE user_pie_yearly SET moderation_note = $1::text, moderated_at = NOW() WHERE year = $2::int AND id = $3::text",
-			note, int32(year), id)
-		_ = updateErr
 	}
 
 	log.Info().Str("year", fmt.Sprintf("%d", year)).Str("id", id).Str("note", note).Str("moderatedBy", userId).Msg("Rejected user pie")
@@ -278,17 +279,12 @@ func (wrpr *WebsiteWrapper) PostAdminUserPieDuplicate(c *gin.Context, year int, 
 	}
 
 	userId := c.Keys["userid"].(string)
-	err = wrpr.storage.SetUserPieStatus(c, int32(year), id, storage.UserPieStatus(pieWithOwner.Pie.Status), storage.UserPieStatusDuplicate)
+	err = wrpr.storage.SetUserPieDuplicateOf(c, int32(year), id, storage.UserPieStatus(pieWithOwner.Pie.Status), duplicateOf, userId)
 	if err != nil {
 		log.Error().Err(err).Msg("Error marking user pie as duplicate")
 		c.AbortWithStatus(500)
 		return
 	}
-
-	// Store duplicate_of reference via raw SQL
-	_, _ = wrpr.storage.GetDatabase().Exec(c,
-		"UPDATE user_pie_yearly SET duplicate_of = $1::uuid, moderated_at = NOW() WHERE year = $2::int AND id = $3::text",
-		duplicateOf, int32(year), id)
 
 	log.Info().Str("year", fmt.Sprintf("%d", year)).Str("id", id).Str("duplicateOf", duplicateOf).Str("moderatedBy", userId).Msg("Marked user pie as duplicate")
 	c.Redirect(302, fmt.Sprintf("/admin/userpies/%d/%s/%s", year, id, ownerid))
@@ -377,25 +373,19 @@ func (wrpr *WebsiteWrapper) PostAdminUserPiePromote(c *gin.Context, year int, id
 		wrpr.storage.SetPieCategories(c, parsedOid, categories)
 	}
 
-	// Update labels via raw SQL (labels are a text[] column)
+	// Update labels (labels are a text[] column)
 	if len(labels) > 0 {
-		_, _ = wrpr.storage.GetDatabase().Exec(c,
-			"UPDATE maker_pie_yearly SET labels = $1::text[] WHERE year = $2::int AND makerid = $3::text AND id = $4::text",
-			labels, pie.Year, makerid, pieid)
+		parsedOid, _ := uuid.Parse(newOid)
+		_ = wrpr.storage.UpdateMakerPieLabels(c, parsedOid, labels)
 	}
 
 	// Mark user pie as promoted
 	userId := c.Keys["userid"].(string)
-	err = wrpr.storage.SetUserPieStatus(c, int32(year), id, storage.UserPieStatus(pie.Status), storage.UserPieStatusPromoted)
+	parsedNewOid, _ := uuid.Parse(newOid)
+	err = wrpr.storage.SetUserPiePromotedMakerPieOid(c, int32(year), id, storage.UserPieStatus(pie.Status), parsedNewOid.String(), userId)
 	if err != nil {
 		log.Error().Err(err).Msg("Error marking user pie as promoted")
 	}
-
-	// Store promoted maker pie oid reference via raw SQL
-	parsedNewOid, _ := uuid.Parse(newOid)
-	_, _ = wrpr.storage.GetDatabase().Exec(c,
-		"UPDATE user_pie_yearly SET promoted_maker_pie_oid = $1::uuid, moderated_at = NOW() WHERE year = $2::int AND id = $3::text",
-		parsedNewOid, int32(year), id)
 
 	log.Info().Str("userYear", fmt.Sprintf("%d", year)).Str("userId", id).Str("brandOid", newOid).Str("moderatedBy", userId).Msg("Promoted user pie to brand pie")
 	c.Redirect(302, "/admin/makerpies/"+newOid)
@@ -480,6 +470,14 @@ func (wrpr *WebsiteWrapper) DeleteAdminUserPie(c *gin.Context, year int, id stri
 		log.Error().Err(err).Msg("Error deleting user pie")
 		c.AbortWithStatus(500)
 		return
+	}
+
+	// Delete the stored image file
+	if pie.ImageFile != "" {
+		imgPath := fmt.Sprintf("%s/%s", wrpr.config.ImgprssrDir, pie.ImageFile)
+		if delErr := os.Remove(imgPath); delErr != nil {
+			log.Error().Err(delErr).Str("imagePath", imgPath).Msg("Error deleting user pie image")
+		}
 	}
 
 	log.Info().Str("year", fmt.Sprintf("%d", year)).Str("id", id).Str("status", string(status)).Msg("Deleted user pie")

@@ -78,12 +78,12 @@ SELECT year, id, owner_userid, maker, location, displayname, fresh, labels,
        status, moderation_note, duplicate_of, promoted_maker_pie_oid,
        submitted_by, submitted_at, moderated_by, moderated_at
 FROM user_pie_yearly
-WHERE promoted_maker_pie_oid = sqlc.arg(oid)::uuid
-   OR oid = sqlc.arg(oid)::uuid;
+WHERE promoted_maker_pie_oid = sqlc.arg(promotedMakerPieOid)::text
+   OR (year = sqlc.arg(year)::int AND id = sqlc.arg(id)::text);
 
 -- name: DeleteUserPieByOid :exec
 DELETE FROM user_pie_yearly
-WHERE oid = sqlc.arg(oid)::uuid;
+WHERE year = sqlc.arg(year)::int AND id = sqlc.arg(id)::text;
 
 -- name: UpdateUserPieStatusWithNote :exec
 UPDATE user_pie_yearly
@@ -91,7 +91,7 @@ SET status = sqlc.arg(status)::text,
     moderation_note = sqlc.arg(moderation_note)::text,
     moderated_by = sqlc.arg(moderated_by)::text,
     moderated_at = NOW()
-WHERE oid = sqlc.arg(oid)::uuid;
+WHERE year = sqlc.arg(year)::int AND id = sqlc.arg(id)::text;
 
 -- name: UpdateUserPieDuplicateOf :exec
 UPDATE user_pie_yearly
@@ -99,15 +99,15 @@ SET duplicate_of = sqlc.arg(duplicate_of)::text,
     status = sqlc.arg(status)::text,
     moderated_by = sqlc.arg(moderated_by)::text,
     moderated_at = NOW()
-WHERE oid = sqlc.arg(oid)::uuid;
+WHERE year = sqlc.arg(year)::int AND id = sqlc.arg(id)::text;
 
 -- name: UpdateUserPiePromotedMakerPieOid :exec
 UPDATE user_pie_yearly
-SET promoted_maker_pie_oid = sqlc.arg(promoted_maker_pie_oid)::uuid,
+SET promoted_maker_pie_oid = sqlc.arg(promotedMakerPieOid)::text,
     status = sqlc.arg(status)::text,
     moderated_by = sqlc.arg(moderated_by)::text,
     moderated_at = NOW()
-WHERE oid = sqlc.arg(oid)::uuid;
+WHERE year = sqlc.arg(year)::int AND id = sqlc.arg(id)::text;
 
 -- name: GetUserPieAdminQueueCountByStatus :one
 SELECT COUNT(*) FROM user_pie_yearly

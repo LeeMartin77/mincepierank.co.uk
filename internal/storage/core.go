@@ -48,24 +48,28 @@ type Operations interface {
 	GetMakerPieCategories(ctx context.Context) (*[]types.Category, error)
 	SetPieCategories(ctx context.Context, oid uuid.UUID, category_keys []string) error
 	SetPieCategoriesTx(ctx context.Context, tx pgx.Tx, oid uuid.UUID, category_keys []string) error
+	UpdateMakerPieLabels(ctx context.Context, oid uuid.UUID, labels []string) error
 
 	// User pie operations
 	CreateUserPie(c context.Context, pie types.UserPieYearly) (*types.UserPieYearly, error)
 	GetUserPie(c context.Context, year int32, id string) (*UserPieWithOwner, error)
 	GetUserPieByOwner(c context.Context, year int32, id, ownerID string) (*types.UserPieYearly, error)
-	GetUserPieByOid(c context.Context, oid uuid.UUID) (*UserPieWithOwner, error)
+	GetUserPieByOid(c context.Context, year int32, id string, promotedMakerPieOid string) (*UserPieWithOwner, error)
 	UpdateUserPie(c context.Context, pie types.UserPieYearly) error
 	UpdateUserPieImage(c context.Context, year int32, id, imageFile string) error
 	DeleteUserPie(c context.Context, year int32, id string) error
 	DeleteUserPieByOwner(c context.Context, year int32, id, ownerID string) error
-	DeleteUserPieByOid(c context.Context, oid uuid.UUID) error
+	DeleteUserPieByOid(c context.Context, year int32, id string) error
 	GetUserPieYearIDs(c context.Context, year int32) ([]string, error)
 	GetUserPieCountByYear(c context.Context, year int32) (int64, error)
 	GetUserPieCountByOwnerAndYear(c context.Context, year int32, ownerID string) (int64, error)
 	SetUserPieStatus(c context.Context, year int32, id string, fromStatus, toStatus UserPieStatus) error
-	UpdateUserPieStatusWithNote(c context.Context, oid uuid.UUID, status, moderatedBy, moderationNote string) error
-	UpdateUserPieDuplicateOf(c context.Context, oid uuid.UUID, duplicateOf, moderatedBy string) error
-	UpdateUserPiePromotedMakerPieOid(c context.Context, oid uuid.UUID, promotedOid uuid.UUID, moderatedBy string) error
+	SetUserPieStatusWithNote(c context.Context, year int32, id string, fromStatus, toStatus UserPieStatus, note, moderatedBy string) error
+	SetUserPieDuplicateOf(c context.Context, year int32, id string, fromStatus UserPieStatus, duplicateOf, moderatedBy string) error
+	SetUserPiePromotedMakerPieOid(c context.Context, year int32, id string, fromStatus UserPieStatus, promotedMakerPieOid, moderatedBy string) error
+	UpdateUserPieStatusWithNote(c context.Context, year int32, id string, status, moderatedBy, moderationNote string) error
+	UpdateUserPieDuplicateOf(c context.Context, year int32, id string, duplicateOf, moderatedBy string) error
+	UpdateUserPiePromotedMakerPieOid(c context.Context, year int32, id string, promotedOid string, moderatedBy string) error
 	GetUserPieAdminQueue(c context.Context, year int32, limit int, idx int) ([]AdminUserPieRow, error)
 	GetUserPieAdminQueueCount(c context.Context, year int32) (int64, error)
 	GetUserPieAdminQueueCountByStatus(c context.Context, year int32, status string) (int64, error)

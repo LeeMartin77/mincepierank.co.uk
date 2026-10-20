@@ -22,7 +22,7 @@
   </div>
   {{end}}
 
-  <form hx-put="/profile/pies/{{.PageData.Year}}/{{.PageData.Pie.Id}}" hx-target="body" hx-swap="outerHTML" enctype="multipart/form-data">
+  <form hx-put="/profile/pies/{{.PageData.Year}}/{{.PageData.Pie.Id}}" hx-target="body" hx-swap="outerHTML" enctype="multipart/form-data" {{if .PageData.Readonly}}disabled{{end}}>
     <div class="row g-3 mb-3">
       <div class="col-md-6">
         <label class="form-label" for="displayname">Display Name <span class="text-danger">*</span></label>
