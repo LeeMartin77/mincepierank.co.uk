@@ -2,4 +2,5 @@ dist
 .DS_Store
 .env
 .localimages
-!.localimages/.gitkeepscreenshots/
+!.localimages/.gitkeep
+screenshots/
