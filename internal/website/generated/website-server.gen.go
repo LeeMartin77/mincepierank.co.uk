@@ -66,6 +66,42 @@ type ServerInterface interface {
 	// (PUT /admin/makerpies/{oid})
 	UpdateMakerPie(c *gin.Context, oid string)
 
+	// (GET /admin/userpies)
+	GetAdminUserPies(c *gin.Context, params GetAdminUserPiesParams)
+
+	// (GET /admin/userpies/duplicates)
+	GetAdminUserPieDuplicates(c *gin.Context, params GetAdminUserPieDuplicatesParams)
+
+	// (DELETE /admin/userpies/{year}/{id}/{ownerid})
+	DeleteAdminUserPie(c *gin.Context, year int, id string, ownerid string)
+
+	// (GET /admin/userpies/{year}/{id}/{ownerid})
+	GetAdminUserPie(c *gin.Context, year int, id string, ownerid string)
+
+	// (POST /admin/userpies/{year}/{id}/{ownerid}/approve)
+	PostAdminUserPieApprove(c *gin.Context, year int, id string, ownerid string)
+
+	// (POST /admin/userpies/{year}/{id}/{ownerid}/duplicate)
+	PostAdminUserPieDuplicate(c *gin.Context, year int, id string, ownerid string)
+
+	// (POST /admin/userpies/{year}/{id}/{ownerid}/promote)
+	PostAdminUserPiePromote(c *gin.Context, year int, id string, ownerid string)
+
+	// (POST /admin/userpies/{year}/{id}/{ownerid}/reject)
+	PostAdminUserPieReject(c *gin.Context, year int, id string, ownerid string)
+
+	// (GET /profile/pies/{year})
+	MyUserPies(c *gin.Context, year Year)
+
+	// (DELETE /profile/pies/{year}/{id})
+	WithdrawUserPie(c *gin.Context, year Year, id string)
+
+	// (GET /profile/pies/{year}/{id})
+	EditUserPieForm(c *gin.Context, year Year, id string)
+
+	// (PUT /profile/pies/{year}/{id})
+	EditUserPie(c *gin.Context, year Year, id string)
+
 	// (GET /profile/rankings/{year})
 	YearPersonalRanking(c *gin.Context, year Year, params YearPersonalRankingParams)
 
@@ -95,6 +131,21 @@ type ServerInterface interface {
 
 	// (GET /years/{year}/categories/{category})
 	YearCategoryPies(c *gin.Context, year Year, category string, params YearCategoryPiesParams)
+
+	// (GET /years/{year}/submit)
+	SubmitPieForm(c *gin.Context, year Year)
+
+	// (POST /years/{year}/submit)
+	SubmitPie(c *gin.Context, year Year)
+
+	// (GET /years/{year}/user-pies)
+	ListUserPies(c *gin.Context, year Year, params ListUserPiesParams)
+
+	// (GET /years/{year}/user-pies/{id})
+	GetUserPie(c *gin.Context, year Year, id string)
+
+	// (PUT /years/{year}/user-pies/{id}/rating)
+	RateUserPie(c *gin.Context, year Year, id string)
 }
 
 // ServerInterfaceWrapper converts contexts to parameters.
@@ -359,6 +410,477 @@ func (siw *ServerInterfaceWrapper) UpdateMakerPie(c *gin.Context) {
 	}
 
 	siw.Handler.UpdateMakerPie(c, oid)
+}
+
+// GetAdminUserPies operation middleware
+func (siw *ServerInterfaceWrapper) GetAdminUserPies(c *gin.Context) {
+
+	var err error
+	_ = err
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params GetAdminUserPiesParams
+
+	// ------------- Optional query parameter "year" -------------
+
+	err = runtime.BindQueryParameterWithOptions("form", true, false, "year", c.Request.URL.Query(), &params.Year, runtime.BindQueryParameterOptions{Type: "integer", Format: "int64"})
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter year: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	// ------------- Optional query parameter "status" -------------
+
+	err = runtime.BindQueryParameterWithOptions("form", true, false, "status", c.Request.URL.Query(), &params.Status, runtime.BindQueryParameterOptions{Type: "string", Format: ""})
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter status: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	// ------------- Optional query parameter "search" -------------
+
+	err = runtime.BindQueryParameterWithOptions("form", true, false, "search", c.Request.URL.Query(), &params.Search, runtime.BindQueryParameterOptions{Type: "string", Format: ""})
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter search: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	// ------------- Optional query parameter "page" -------------
+
+	err = runtime.BindQueryParameterWithOptions("form", true, false, "page", c.Request.URL.Query(), &params.Page, runtime.BindQueryParameterOptions{Type: "integer", Format: "int64"})
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter page: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	// ------------- Optional query parameter "limit" -------------
+
+	err = runtime.BindQueryParameterWithOptions("form", true, false, "limit", c.Request.URL.Query(), &params.Limit, runtime.BindQueryParameterOptions{Type: "integer", Format: "int64"})
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter limit: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.GetAdminUserPies(c, params)
+}
+
+// GetAdminUserPieDuplicates operation middleware
+func (siw *ServerInterfaceWrapper) GetAdminUserPieDuplicates(c *gin.Context) {
+
+	var err error
+	_ = err
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params GetAdminUserPieDuplicatesParams
+
+	// ------------- Optional query parameter "year" -------------
+
+	err = runtime.BindQueryParameterWithOptions("form", true, false, "year", c.Request.URL.Query(), &params.Year, runtime.BindQueryParameterOptions{Type: "integer", Format: "int64"})
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter year: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.GetAdminUserPieDuplicates(c, params)
+}
+
+// DeleteAdminUserPie operation middleware
+func (siw *ServerInterfaceWrapper) DeleteAdminUserPie(c *gin.Context) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "year" -------------
+	var year int
+
+	err = runtime.BindStyledParameterWithOptions("simple", "year", c.Param("year"), &year, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "integer", Format: "", ValueIsUnescaped: true})
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter year: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	// ------------- Path parameter "id" -------------
+	var id string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "id", c.Param("id"), &id, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: true})
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter id: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	// ------------- Path parameter "ownerid" -------------
+	var ownerid string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "ownerid", c.Param("ownerid"), &ownerid, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: true})
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter ownerid: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.DeleteAdminUserPie(c, year, id, ownerid)
+}
+
+// GetAdminUserPie operation middleware
+func (siw *ServerInterfaceWrapper) GetAdminUserPie(c *gin.Context) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "year" -------------
+	var year int
+
+	err = runtime.BindStyledParameterWithOptions("simple", "year", c.Param("year"), &year, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "integer", Format: "", ValueIsUnescaped: true})
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter year: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	// ------------- Path parameter "id" -------------
+	var id string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "id", c.Param("id"), &id, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: true})
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter id: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	// ------------- Path parameter "ownerid" -------------
+	var ownerid string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "ownerid", c.Param("ownerid"), &ownerid, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: true})
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter ownerid: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.GetAdminUserPie(c, year, id, ownerid)
+}
+
+// PostAdminUserPieApprove operation middleware
+func (siw *ServerInterfaceWrapper) PostAdminUserPieApprove(c *gin.Context) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "year" -------------
+	var year int
+
+	err = runtime.BindStyledParameterWithOptions("simple", "year", c.Param("year"), &year, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "integer", Format: "", ValueIsUnescaped: true})
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter year: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	// ------------- Path parameter "id" -------------
+	var id string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "id", c.Param("id"), &id, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: true})
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter id: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	// ------------- Path parameter "ownerid" -------------
+	var ownerid string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "ownerid", c.Param("ownerid"), &ownerid, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: true})
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter ownerid: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.PostAdminUserPieApprove(c, year, id, ownerid)
+}
+
+// PostAdminUserPieDuplicate operation middleware
+func (siw *ServerInterfaceWrapper) PostAdminUserPieDuplicate(c *gin.Context) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "year" -------------
+	var year int
+
+	err = runtime.BindStyledParameterWithOptions("simple", "year", c.Param("year"), &year, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "integer", Format: "", ValueIsUnescaped: true})
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter year: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	// ------------- Path parameter "id" -------------
+	var id string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "id", c.Param("id"), &id, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: true})
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter id: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	// ------------- Path parameter "ownerid" -------------
+	var ownerid string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "ownerid", c.Param("ownerid"), &ownerid, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: true})
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter ownerid: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.PostAdminUserPieDuplicate(c, year, id, ownerid)
+}
+
+// PostAdminUserPiePromote operation middleware
+func (siw *ServerInterfaceWrapper) PostAdminUserPiePromote(c *gin.Context) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "year" -------------
+	var year int
+
+	err = runtime.BindStyledParameterWithOptions("simple", "year", c.Param("year"), &year, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "integer", Format: "", ValueIsUnescaped: true})
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter year: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	// ------------- Path parameter "id" -------------
+	var id string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "id", c.Param("id"), &id, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: true})
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter id: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	// ------------- Path parameter "ownerid" -------------
+	var ownerid string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "ownerid", c.Param("ownerid"), &ownerid, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: true})
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter ownerid: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.PostAdminUserPiePromote(c, year, id, ownerid)
+}
+
+// PostAdminUserPieReject operation middleware
+func (siw *ServerInterfaceWrapper) PostAdminUserPieReject(c *gin.Context) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "year" -------------
+	var year int
+
+	err = runtime.BindStyledParameterWithOptions("simple", "year", c.Param("year"), &year, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "integer", Format: "", ValueIsUnescaped: true})
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter year: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	// ------------- Path parameter "id" -------------
+	var id string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "id", c.Param("id"), &id, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: true})
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter id: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	// ------------- Path parameter "ownerid" -------------
+	var ownerid string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "ownerid", c.Param("ownerid"), &ownerid, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: true})
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter ownerid: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.PostAdminUserPieReject(c, year, id, ownerid)
+}
+
+// MyUserPies operation middleware
+func (siw *ServerInterfaceWrapper) MyUserPies(c *gin.Context) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "year" -------------
+	var year Year
+
+	err = runtime.BindStyledParameterWithOptions("simple", "year", c.Param("year"), &year, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "integer", Format: "int64", ValueIsUnescaped: true})
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter year: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.MyUserPies(c, year)
+}
+
+// WithdrawUserPie operation middleware
+func (siw *ServerInterfaceWrapper) WithdrawUserPie(c *gin.Context) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "year" -------------
+	var year Year
+
+	err = runtime.BindStyledParameterWithOptions("simple", "year", c.Param("year"), &year, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "integer", Format: "int64", ValueIsUnescaped: true})
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter year: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	// ------------- Path parameter "id" -------------
+	var id string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "id", c.Param("id"), &id, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: true})
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter id: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.WithdrawUserPie(c, year, id)
+}
+
+// EditUserPieForm operation middleware
+func (siw *ServerInterfaceWrapper) EditUserPieForm(c *gin.Context) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "year" -------------
+	var year Year
+
+	err = runtime.BindStyledParameterWithOptions("simple", "year", c.Param("year"), &year, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "integer", Format: "int64", ValueIsUnescaped: true})
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter year: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	// ------------- Path parameter "id" -------------
+	var id string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "id", c.Param("id"), &id, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: true})
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter id: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.EditUserPieForm(c, year, id)
+}
+
+// EditUserPie operation middleware
+func (siw *ServerInterfaceWrapper) EditUserPie(c *gin.Context) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "year" -------------
+	var year Year
+
+	err = runtime.BindStyledParameterWithOptions("simple", "year", c.Param("year"), &year, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "integer", Format: "int64", ValueIsUnescaped: true})
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter year: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	// ------------- Path parameter "id" -------------
+	var id string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "id", c.Param("id"), &id, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: true})
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter id: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.EditUserPie(c, year, id)
 }
 
 // YearPersonalRanking operation middleware
@@ -761,6 +1283,168 @@ func (siw *ServerInterfaceWrapper) YearCategoryPies(c *gin.Context) {
 	siw.Handler.YearCategoryPies(c, year, category, params)
 }
 
+// SubmitPieForm operation middleware
+func (siw *ServerInterfaceWrapper) SubmitPieForm(c *gin.Context) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "year" -------------
+	var year Year
+
+	err = runtime.BindStyledParameterWithOptions("simple", "year", c.Param("year"), &year, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "integer", Format: "int64", ValueIsUnescaped: true})
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter year: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.SubmitPieForm(c, year)
+}
+
+// SubmitPie operation middleware
+func (siw *ServerInterfaceWrapper) SubmitPie(c *gin.Context) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "year" -------------
+	var year Year
+
+	err = runtime.BindStyledParameterWithOptions("simple", "year", c.Param("year"), &year, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "integer", Format: "int64", ValueIsUnescaped: true})
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter year: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.SubmitPie(c, year)
+}
+
+// ListUserPies operation middleware
+func (siw *ServerInterfaceWrapper) ListUserPies(c *gin.Context) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "year" -------------
+	var year Year
+
+	err = runtime.BindStyledParameterWithOptions("simple", "year", c.Param("year"), &year, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "integer", Format: "int64", ValueIsUnescaped: true})
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter year: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params ListUserPiesParams
+
+	// ------------- Optional query parameter "page" -------------
+
+	err = runtime.BindQueryParameterWithOptions("form", true, false, "page", c.Request.URL.Query(), &params.Page, runtime.BindQueryParameterOptions{Type: "integer", Format: "int64"})
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter page: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	// ------------- Optional query parameter "limit" -------------
+
+	err = runtime.BindQueryParameterWithOptions("form", true, false, "limit", c.Request.URL.Query(), &params.Limit, runtime.BindQueryParameterOptions{Type: "integer", Format: "int64"})
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter limit: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.ListUserPies(c, year, params)
+}
+
+// GetUserPie operation middleware
+func (siw *ServerInterfaceWrapper) GetUserPie(c *gin.Context) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "year" -------------
+	var year Year
+
+	err = runtime.BindStyledParameterWithOptions("simple", "year", c.Param("year"), &year, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "integer", Format: "int64", ValueIsUnescaped: true})
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter year: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	// ------------- Path parameter "id" -------------
+	var id string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "id", c.Param("id"), &id, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: true})
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter id: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.GetUserPie(c, year, id)
+}
+
+// RateUserPie operation middleware
+func (siw *ServerInterfaceWrapper) RateUserPie(c *gin.Context) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "year" -------------
+	var year Year
+
+	err = runtime.BindStyledParameterWithOptions("simple", "year", c.Param("year"), &year, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "integer", Format: "int64", ValueIsUnescaped: true})
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter year: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	// ------------- Path parameter "id" -------------
+	var id string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "id", c.Param("id"), &id, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: true})
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter id: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.RateUserPie(c, year, id)
+}
+
 // GinServerOptions provides options for the Gin server.
 type GinServerOptions struct {
 	BaseURL      string
@@ -802,6 +1486,15 @@ func RegisterHandlersWithOptions(router gin.IRouter, si ServerInterface, options
 	router.GET(options.BaseURL+"/years/:year/brands/:brand/:pie", wrapper.YearBrandPie)
 	router.PUT(options.BaseURL+"/years/:year/brands/:brand/:pie/rating", wrapper.RateYearBrandPie)
 	router.GET(options.BaseURL+"/profile/rankings/:year", wrapper.YearPersonalRanking)
+	router.GET(options.BaseURL+"/years/:year/submit", wrapper.SubmitPieForm)
+	router.POST(options.BaseURL+"/years/:year/submit", wrapper.SubmitPie)
+	router.GET(options.BaseURL+"/years/:year/user-pies", wrapper.ListUserPies)
+	router.GET(options.BaseURL+"/years/:year/user-pies/:id", wrapper.GetUserPie)
+	router.PUT(options.BaseURL+"/years/:year/user-pies/:id/rating", wrapper.RateUserPie)
+	router.GET(options.BaseURL+"/profile/pies/:year", wrapper.MyUserPies)
+	router.DELETE(options.BaseURL+"/profile/pies/:year/:id", wrapper.WithdrawUserPie)
+	router.GET(options.BaseURL+"/profile/pies/:year/:id", wrapper.EditUserPieForm)
+	router.PUT(options.BaseURL+"/profile/pies/:year/:id", wrapper.EditUserPie)
 	router.GET(options.BaseURL+"/admin", wrapper.GetAdminIndex)
 	router.GET(options.BaseURL+"/admin/config", wrapper.GetAdminConfig)
 	router.POST(options.BaseURL+"/admin/config", wrapper.CreateAdminConfig)
@@ -813,6 +1506,14 @@ func RegisterHandlersWithOptions(router gin.IRouter, si ServerInterface, options
 	router.DELETE(options.BaseURL+"/admin/makerpies/:oid", wrapper.DeleteMakerPie)
 	router.GET(options.BaseURL+"/admin/makerpies/:oid", wrapper.GetMakerPieAdmin)
 	router.PUT(options.BaseURL+"/admin/makerpies/:oid", wrapper.UpdateMakerPie)
+	router.GET(options.BaseURL+"/admin/userpies", wrapper.GetAdminUserPies)
+	router.GET(options.BaseURL+"/admin/userpies/duplicates", wrapper.GetAdminUserPieDuplicates)
+	router.DELETE(options.BaseURL+"/admin/userpies/:year/:id/:ownerid", wrapper.DeleteAdminUserPie)
+	router.GET(options.BaseURL+"/admin/userpies/:year/:id/:ownerid", wrapper.GetAdminUserPie)
+	router.POST(options.BaseURL+"/admin/userpies/:year/:id/:ownerid/approve", wrapper.PostAdminUserPieApprove)
+	router.POST(options.BaseURL+"/admin/userpies/:year/:id/:ownerid/promote", wrapper.PostAdminUserPiePromote)
+	router.POST(options.BaseURL+"/admin/userpies/:year/:id/:ownerid/reject", wrapper.PostAdminUserPieReject)
+	router.POST(options.BaseURL+"/admin/userpies/:year/:id/:ownerid/duplicate", wrapper.PostAdminUserPieDuplicate)
 }
 
 // Base64 encoded, compressed with deflate, json marshaled OpenAPI spec.
@@ -820,31 +1521,42 @@ func RegisterHandlersWithOptions(router gin.IRouter, si ServerInterface, options
 // const string: with thousands of chunks the chained `+` fold is several
 // times slower for the Go compiler than parsing a slice literal.
 var swaggerSpec = []string{
-	"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",
+	"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",
 }
 
 // decodeSpec returns the embedded OpenAPI spec as raw JSON bytes,

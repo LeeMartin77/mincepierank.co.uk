@@ -39,16 +39,39 @@ func (wrpr *WebsiteWrapper) GetAdminIndex(c *gin.Context) {
 		c.AbortWithError(500, err)
 		return
 	}
+	piesEnabled, _ := wrpr.storage.GetUserPiesEnabled(c)
 	vals := templater.PageData{
 		Head: templater.PageDataHead{
 			Title:       "Admin Index",
 			Description: "",
 			Keywords:    "",
 			MenuSettings: templater.MenuSettings{
-				ActiveYear: ay,
+				ActiveYear:      ay,
+				UserPiesEnabled: piesEnabled,
 			},
 		},
-		PageData: map[string]interface{}{},
+		PageData: map[string]interface{}{
+			"PendingCount":     0,
+			"ApprovedCount":    0,
+			"PromotedCount":    0,
+			"DuplicateCount":   0,
+			"RejectedCount":    0,
+		},
+	}
+
+	if piesEnabled {
+		pendingCount, _ := wrpr.storage.GetUserPieAdminQueueCountByStatus(c, int32(ay), "pending")
+		approvedCount, _ := wrpr.storage.GetUserPieAdminQueueCountByStatus(c, int32(ay), "approved")
+		promotedCount, _ := wrpr.storage.GetUserPieAdminQueueCountByStatus(c, int32(ay), "promoted")
+		duplicateCount, _ := wrpr.storage.GetUserPieAdminQueueCountByStatus(c, int32(ay), "duplicate")
+		rejectedCount, _ := wrpr.storage.GetUserPieAdminQueueCountByStatus(c, int32(ay), "rejected")
+		if pd, ok := vals.PageData.(map[string]interface{}); ok {
+			pd["PendingCount"] = pendingCount
+			pd["ApprovedCount"] = approvedCount
+			pd["PromotedCount"] = promotedCount
+			pd["DuplicateCount"] = duplicateCount
+			pd["RejectedCount"] = rejectedCount
+		}
 	}
 
 	c.HTML(http.StatusOK, "page:admin:index", vals)
@@ -65,13 +88,15 @@ func configPage(wrpr *WebsiteWrapper, c *gin.Context) {
 		c.AbortWithError(500, err)
 		return
 	}
+	piesEnabled, _ := wrpr.storage.GetUserPiesEnabled(c)
 	vals := templater.PageData{
 		Head: templater.PageDataHead{
 			Title:       "Admin Config",
 			Description: "",
 			Keywords:    "",
 			MenuSettings: templater.MenuSettings{
-				ActiveYear: ay,
+				ActiveYear:      ay,
+				UserPiesEnabled: piesEnabled,
 			},
 		},
 		PageData: map[string]interface{}{
@@ -150,13 +175,15 @@ func piesPage(wrpr *WebsiteWrapper, c *gin.Context) {
 		c.AbortWithError(500, err)
 		return
 	}
+	piesEnabled, _ := wrpr.storage.GetUserPiesEnabled(c)
 	vals := templater.PageData{
 		Head: templater.PageDataHead{
 			Title:       "Admin Pies",
 			Description: "",
 			Keywords:    "",
 			MenuSettings: templater.MenuSettings{
-				ActiveYear: ay,
+				ActiveYear:      ay,
+				UserPiesEnabled: piesEnabled,
 			},
 		},
 		PageData: map[string]interface{}{
@@ -193,13 +220,15 @@ func piePage(wrpr *WebsiteWrapper, c *gin.Context, oid string) {
 		c.AbortWithError(500, err)
 		return
 	}
+	piesEnabled, _ := wrpr.storage.GetUserPiesEnabled(c)
 	vals := templater.PageData{
 		Head: templater.PageDataHead{
 			Title:       "Admin Pie",
 			Description: "",
 			Keywords:    "",
 			MenuSettings: templater.MenuSettings{
-				ActiveYear: ay,
+				ActiveYear:      ay,
+				UserPiesEnabled: piesEnabled,
 			},
 		},
 		PageData: map[string]interface{}{

@@ -11,7 +11,6 @@ RUN GOOS=linux GOARCH=$(echo $TARGETPLATFORM | sed 's/linux\///') \
 FROM docker.io/debian:stable-slim AS runner
 RUN apt-get update -y && apt-get install -y ca-certificates
 WORKDIR /app
-COPY assets assets
 COPY --from=server-builder /usr/src/app/dist /app
 EXPOSE 8080
 CMD ["/app/main"]

@@ -5,24 +5,63 @@ import (
 	"fmt"
 	"html/template"
 	"io"
+	"io/fs"
 	"os"
-	"path/filepath"
 	"slices"
 	"strings"
 
+	"github.com/leemartin77/mincepierank.co.uk/assets"
 	"github.com/leemartin77/mincepierank.co.uk/internal/storage/types"
 	"github.com/leemartin77/mincepierank.co.uk/internal/templatefuncs"
 )
 
+func getTemplatesFromFS() (*template.Template, error) {
+	funcs := templatefuncs.Common()
+	funcs["containscat"] = func(cat interface{}, catlist interface{}) bool {
+		category, ok := cat.(types.Category)
+		if !ok {
+			return false
+		}
+		category_list, ok := catlist.(*[]types.Category)
+		if !ok {
+			return false
+		}
+		return slices.ContainsFunc(*category_list, func(cl types.Category) bool {
+			return cl.Id == category.Id
+		})
+	}
+
+	t := template.New("").Funcs(funcs)
+
+	err := fs.WalkDir(assets.TemplatesFS, "templates/html", func(path string, d fs.DirEntry, err error) error {
+		if err != nil || d.IsDir() {
+			return err
+		}
+		if !strings.HasSuffix(path, ".gohtml") {
+			return nil
+		}
+		content, err := assets.TemplatesFS.ReadFile(path)
+		if err != nil {
+			return err
+		}
+		_, err = t.Parse(string(content))
+		return err
+	})
+	if err != nil {
+		return nil, err
+	}
+	return t, nil
+}
+
 func NewHtmlTemplater() Templater {
 
-	tmplts, err := getTemplates("assets/templates/html")
+	embedded, err := getTemplatesFromFS()
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println(tmplts.DefinedTemplates())
+	fmt.Println(embedded.DefinedTemplates())
 	tmpltr := HtmlTemplaterWrapper{
-		Templates: tmplts,
+		Templates: embedded,
 	}
 	return &tmpltr
 }
@@ -51,39 +90,4 @@ func (wrp *HtmlTemplaterWrapper) GenerateTemplate(template string, data interfac
 
 func (wrp *HtmlTemplaterWrapper) GetTemplater() *template.Template {
 	return wrp.Templates
-}
-
-func getFilesInDirAndChildren(dir string) []string {
-	var allFiles []string
-	files, _ := os.ReadDir(dir)
-	for _, file := range files {
-		filename := file.Name()
-		if file.IsDir() {
-			filePath := filepath.Join(dir, filename)
-			allFiles = append(allFiles, getFilesInDirAndChildren(filePath)...)
-		} else if strings.HasSuffix(filename, ".gohtml") {
-			filePath := filepath.Join(dir, filename)
-			allFiles = append(allFiles, filePath)
-		}
-	}
-	return allFiles
-}
-
-func getTemplates(tmpltdir string) (templates *template.Template, err error) {
-	allFiles := getFilesInDirAndChildren(tmpltdir)
-	funcs := templatefuncs.Common()
-	funcs["containscat"] = func(cat interface{}, catlist interface{}) bool {
-		category, ok := cat.(types.Category)
-		if !ok {
-			return false
-		}
-		category_list, ok := catlist.(*[]types.Category)
-		if !ok {
-			return false
-		}
-		return slices.ContainsFunc(*category_list, func(cl types.Category) bool {
-			return cl.Id == category.Id
-		})
-	}
-	return template.New("").Funcs(funcs).ParseFiles(allFiles...)
 }

@@ -15,13 +15,16 @@ func (wrpr *WebsiteWrapper) AboutPage(c *gin.Context) {
 		return
 	}
 
+	piesEnabled, _ := wrpr.storage.GetUserPiesEnabled(c)
+
 	vals := templater.PageData{
 		Head: templater.PageDataHead{
 			Title:       "About",
 			Description: "All about what Mince Pie Rank is",
 			MenuSettings: templater.MenuSettings{
-				ActiveYear: *ay,
-				SignedIn:   c.Keys["signedin"].(bool),
+				ActiveYear:      *ay,
+				SignedIn:        c.Keys["signedin"].(bool),
+				UserPiesEnabled: piesEnabled,
 			},
 		},
 	}
@@ -38,13 +41,16 @@ func (wrpr *WebsiteWrapper) CookiePage(c *gin.Context) {
 		return
 	}
 
+	piesEnabled, _ := wrpr.storage.GetUserPiesEnabled(c)
+
 	vals := templater.PageData{
 		Head: templater.PageDataHead{
 			Title:       "Cookies",
 			Description: "Mince Pie Rank cookie policy",
 			MenuSettings: templater.MenuSettings{
-				ActiveYear: *ay,
-				SignedIn:   c.Keys["signedin"].(bool),
+				ActiveYear:      *ay,
+				SignedIn:        c.Keys["signedin"].(bool),
+				UserPiesEnabled: piesEnabled,
 			},
 		},
 	}
@@ -61,13 +67,16 @@ func (wrpr *WebsiteWrapper) PrivacyPage(c *gin.Context) {
 		return
 	}
 
+	piesEnabled, _ := wrpr.storage.GetUserPiesEnabled(c)
+
 	vals := templater.PageData{
 		Head: templater.PageDataHead{
 			Title:       "Privacy",
 			Description: "Mince Pie Rank's privacy policy",
 			MenuSettings: templater.MenuSettings{
-				ActiveYear: *ay,
-				SignedIn:   c.Keys["signedin"].(bool),
+				ActiveYear:      *ay,
+				SignedIn:        c.Keys["signedin"].(bool),
+				UserPiesEnabled: piesEnabled,
 			},
 		},
 	}

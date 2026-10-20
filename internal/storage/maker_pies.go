@@ -8,6 +8,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
+	"github.com/leemartin77/mincepierank.co.uk/internal/storage/sqlcgen"
 	"github.com/leemartin77/mincepierank.co.uk/internal/storage/types"
 	"github.com/rs/zerolog/log"
 )
@@ -589,4 +590,12 @@ func (o *OperationWrapper) SetPieCategoriesTx(ctx context.Context, tx pgx.Tx, oi
 		return err
 	}
 	return nil
+}
+
+// UpdateMakerPieLabels updates the labels array for a maker pie by oid.
+func (o *OperationWrapper) UpdateMakerPieLabels(ctx context.Context, oid uuid.UUID, labels []string) error {
+	return o.querier.UpdateMakerPieLabels(ctx, sqlcgen.UpdateMakerPieLabelsParams{
+		Oid:    oid.String(),
+		Labels: labels,
+	})
 }

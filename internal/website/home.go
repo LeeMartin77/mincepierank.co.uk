@@ -58,14 +58,17 @@ func (wrpr *WebsiteWrapper) HomePage(c *gin.Context) {
 		mkrMap[mkr.Id] = mkr
 	}
 
+	piesEnabled, _ := wrpr.storage.GetUserPiesEnabled(c)
+
 	vals := templater.PageData{
 		Head: templater.PageDataHead{
 			Title:       "Home Page",
 			Description: "Rank mince pies from major UK brands",
 			Keywords:    "Mince Pies, UK, Ranking",
 			MenuSettings: templater.MenuSettings{
-				ActiveYear: ay,
-				SignedIn:   c.Keys["signedin"].(bool),
+				ActiveYear:      ay,
+				SignedIn:        c.Keys["signedin"].(bool),
+				UserPiesEnabled: piesEnabled,
 			},
 		},
 		PageData: map[string]interface{}{

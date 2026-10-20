@@ -1,0 +1,122 @@
+{{define "page:submit"}}
+{{template "fragment:global:head" .Head}}
+{{template "fragment:components:breadcrumb" .PageData.Breadcrumb}}
+
+<div class="container py-4">
+  <h1 class="h2 mb-4">Submit a Mince Pie for {{.PageData.Year}}</h1>
+
+  {{if .PageData.Errors}}
+  <div class="alert alert-danger" role="alert">
+    <strong>Please fix the following errors:</strong>
+    <ul class="mb-0">
+      {{range .PageData.Errors}}
+      <li>{{.}}</li>
+      {{end}}
+    </ul>
+  </div>
+  {{end}}
+
+  {{if .PageData.Readonly}}
+  <div class="alert alert-warning" role="alert">
+    Submissions are currently closed (read-only mode).
+  </div>
+  {{end}}
+
+  <form hx-post="/years/{{.PageData.Year}}/submit" hx-target="body" hx-swap="outerHTML" enctype="multipart/form-data" {{if .PageData.Readonly}}disabled{{end}}>
+    <div class="row g-3 mb-3">
+      <div class="col-md-6">
+        <label class="form-label" for="displayname">Display Name <span class="text-danger">*</span></label>
+        <input class="form-control" name="displayname" id="displayname" type="text"
+          value="{{if .PageData.DisplayName}}{{.PageData.DisplayName}}{{end}}"
+          placeholder="e.g. Tesco Value Mince Pie" />
+      </div>
+      <div class="col-md-6">
+        <label class="form-label" for="maker">Maker/Brand <span class="text-danger">*</span></label>
+        <select class="form-select" name="maker" id="maker">
+          <option value="">— Select a brand —</option>
+          {{range .PageData.Makers}}
+          <option value="{{.Name}}" {{if eq $.PageData.Maker .Name}}selected{{end}}>{{.Name}}</option>
+          {{end}}
+          <option value="other" {{if eq $.PageData.Maker "other"}}selected{{end}}>Other (free text)</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="mb-3" id="other-maker-field" style="display:none;">
+      <label class="form-label" for="maker-other">Other Brand <span class="text-danger">*</span></label>
+      <input class="form-control" name="maker" id="maker-other" type="text"
+        value="{{if .PageData.Maker}}{{.PageData.Maker}}{{end}}" />
+    </div>
+
+    <div class="row g-3 mb-3">
+      <div class="col-md-6">
+        <label class="form-label" for="location">Location</label>
+        <input class="form-control" name="location" id="location" type="text"
+          value="{{if .PageData.Location}}{{.PageData.Location}}{{end}}"
+          placeholder="e.g. London, UK" />
+      </div>
+      <div class="col-md-6">
+        <label class="form-label" for="webLink">Website Link <span class="text-danger">*</span></label>
+        <input class="form-control" name="webLink" id="webLink" type="url"
+          value="{{if .PageData.WebLink}}{{.PageData.WebLink}}{{end}}"
+          placeholder="https://example.com/product" />
+      </div>
+    </div>
+
+    <div class="row g-3 mb-3">
+      <div class="col-md-4">
+        <label class="form-label" for="packCount">Pack Count</label>
+        <input class="form-control" name="packCount" id="packCount" type="number" min="0"
+          value="{{if .PageData.PackCount}}{{.PageData.PackCount}}{{end}}" />
+      </div>
+      <div class="col-md-4">
+        <label class="form-label" for="packPrice">Pack Price (£)</label>
+        <input class="form-control" name="packPrice" id="packPrice" type="number" min="0" step="0.01"
+          value="{{if .PageData.PackPrice}}{{.PageData.PackPrice}}{{end}}" />
+      </div>
+      <div class="col-md-4 d-flex align-items-end">
+        <div class="form-check mb-3">
+          <input class="form-check-input" name="fresh" type="checkbox" value="on" id="fresh"
+            {{if .PageData.Fresh}}checked{{end}}>
+          <label class="form-check-label" for="fresh">Fresh (not frozen)</label>
+        </div>
+      </div>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label" for="labels">Labels (comma-separated)</label>
+      <input class="form-control" name="labels" id="labels" type="text"
+        value="{{if .PageData.LabelsStr}}{{.PageData.LabelsStr}}{{end}}"
+        placeholder="organic, fairtrade, gluten-free" />
+      <div class="form-text">e.g. organic, fairtrade, gluten-free</div>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label" for="imageFile">Image</label>
+      <input class="form-control" name="imageFile" id="imageFile" type="file" accept="image/*" />
+      <div class="form-text">Upload a photo of your pie. Accepted formats: JPG, PNG, GIF, WebP.</div>
+    </div>
+
+    <button class="btn btn-primary" type="submit">Submit Pie</button>
+  </form>
+</div>
+
+{{template "fragment:global:foot" .Foot}}
+
+<script>
+  // Show/hide the "Other" brand text input and disable the select when "Other" is chosen
+  document.addEventListener('DOMContentLoaded', function() {
+    const makerSelect = document.getElementById('maker');
+    const otherField = document.getElementById('other-maker-field');
+
+    function toggleOtherField() {
+      const isOther = makerSelect.value === 'other';
+      otherField.style.display = isOther ? 'block' : 'none';
+      makerSelect.disabled = isOther;
+    }
+
+    makerSelect.addEventListener('change', toggleOtherField);
+    toggleOtherField();
+  });
+</script>
+{{end}}

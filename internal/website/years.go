@@ -55,14 +55,16 @@ func (wrpr *WebsiteWrapper) YearPage(c *gin.Context, year int64) {
 		"Categories": categoryLinks,
 		"Breadcrumb": templater.BreadcrumbsFromUrl(fmt.Sprintf("/years/%d", year)),
 	}
+	piesEnabled, _ := wrpr.storage.GetUserPiesEnabled(c)
 	vals := templater.PageData{
 		Head: templater.PageDataHead{
 			Title:       fmt.Sprintf("%d Pies", year),
 			Description: fmt.Sprintf("Mince pie categories and brands we have data for %d", year),
 			Keywords:    fmt.Sprintf("Mince Pies, UK, Ranking, %d", year),
 			MenuSettings: templater.MenuSettings{
-				ActiveYear: *ay,
-				SignedIn:   c.Keys["signedin"].(bool),
+				ActiveYear:      *ay,
+				SignedIn:        c.Keys["signedin"].(bool),
+				UserPiesEnabled: piesEnabled,
 			},
 		},
 	}
@@ -111,14 +113,17 @@ func (wrpr *WebsiteWrapper) YearAllBrands(c *gin.Context, year int64) {
 		})
 	}
 
+	piesEnabled, _ := wrpr.storage.GetUserPiesEnabled(c)
+
 	vals := templater.PageData{
 		Head: templater.PageDataHead{
 			Title:       fmt.Sprintf("%d Brands", year),
 			Description: fmt.Sprintf("All brands we loaded data for in %d", year),
 			Keywords:    fmt.Sprintf("Mince Pies, UK, Ranking, %d", year),
 			MenuSettings: templater.MenuSettings{
-				ActiveYear: *ay,
-				SignedIn:   c.Keys["signedin"].(bool),
+				ActiveYear:      *ay,
+				SignedIn:        c.Keys["signedin"].(bool),
+				UserPiesEnabled: piesEnabled,
 			},
 		},
 		PageData: map[string]interface{}{
@@ -150,14 +155,16 @@ func (wrpr *WebsiteWrapper) YearAllCategories(c *gin.Context, year int64) {
 	for _, ct := range *cats {
 		categoryLinks = append(categoryLinks, templater.Link{URL: fmt.Sprintf("/years/%d/categories/%s", year, ct.Slug), Label: ct.Label})
 	}
+	piesEnabled, _ := wrpr.storage.GetUserPiesEnabled(c)
 	vals := templater.PageData{
 		Head: templater.PageDataHead{
 			Title:       fmt.Sprintf("%d Categories", year),
 			Description: fmt.Sprintf("All categories we loaded data for in %d", year),
 			Keywords:    fmt.Sprintf("Mince Pies, UK, Ranking, %d", year),
 			MenuSettings: templater.MenuSettings{
-				ActiveYear: *ay,
-				SignedIn:   c.Keys["signedin"].(bool),
+				ActiveYear:      *ay,
+				SignedIn:        c.Keys["signedin"].(bool),
+				UserPiesEnabled: piesEnabled,
 			},
 		},
 		PageData: map[string]interface{}{
@@ -186,14 +193,16 @@ func (wrpr *WebsiteWrapper) YearsPage(c *gin.Context) {
 	}
 	slices.Sort(yrs)
 	slices.Reverse(yrs)
+	piesEnabled, _ := wrpr.storage.GetUserPiesEnabled(c)
 	vals := templater.PageData{
 		Head: templater.PageDataHead{
 			Title:       "Available Years",
 			Description: "All the years Mince Pie Rank has data for",
 			Keywords:    "Mince Pies, UK, Ranking",
 			MenuSettings: templater.MenuSettings{
-				ActiveYear: *ay,
-				SignedIn:   c.Keys["signedin"].(bool),
+				ActiveYear:      *ay,
+				SignedIn:        c.Keys["signedin"].(bool),
+				UserPiesEnabled: piesEnabled,
 			},
 		},
 		PageData: map[string]interface{}{

@@ -1,0 +1,39 @@
+{{define "fragment:components:userpielinkcard"}}
+<div class="card h-100">
+  <a href="{{.PieLink}}" class="text-decoration-none text-dark">
+    <img src="{{.ImgprssrPrefix}}{{.Pie.ImageFile}}?width=250&height=250&filter=gaussian" class="card-img-top" alt="{{.Pie.DisplayName}}" style="object-fit: cover; height: 250px;">
+  </a>
+  <div class="card-body">
+    <h5 class="card-title"><a href="{{.PieLink}}" class="text-decoration-none text-dark">{{.Pie.DisplayName}}</a></h5>
+    <p class="card-text"><small>From <a href="/years/{{.Pie.Year}}/brands/{{.Pie.Maker}}">{{ .Pie.Maker }}</a></small></p>
+    <p class="card-text"><strong>Score:</strong> {{ nicefloat .RankingSummary.Average }} ({{.RankingSummary.Count}} Votes)</p>
+    {{ if .Pie.PackPriceInPence }}
+    <p class="card-text"><small>£{{printf "%.2f" (ppencediv .Pie.PackPriceInPence)}} per Pack</small></p>
+    {{ end }}
+    <a href="{{.PieLink}}" class="btn btn-primary w-100">{{.Pie.DisplayName}}</a>
+  </div>
+</div>
+{{end}}
+
+{{define "fragment:components:profilepielinkcard"}}
+<div class="card h-100">
+  <a href="{{.PieLink}}" class="text-decoration-none text-dark">
+    <img src="{{.ImgprssrPrefix}}{{.Pie.ImageFile}}?width=250&height=250&filter=gaussian" class="card-img-top" alt="{{.Pie.DisplayName}}" style="object-fit: cover; height: 250px;">
+  </a>
+  <div class="card-body">
+    <h5 class="card-title"><a href="{{.PieLink}}" class="text-decoration-none text-dark">{{.Pie.DisplayName}}</a></h5>
+    <p class="card-text"><small>From <a href="/years/{{.Pie.Year}}/brands/{{.Pie.Maker}}">{{ .Pie.Maker }}</a></small></p>
+    <p class="card-text"><strong>Score:</strong> {{ nicefloat .RankingSummary.Average }} ({{.RankingSummary.Count}} Votes)</p>
+    {{ if .Pie.PackPriceInPence }}
+    <p class="card-text"><small>£{{printf "%.2f" (ppencediv .Pie.PackPriceInPence)}} per Pack</small></p>
+    {{ end }}
+    {{if .Status}}
+    <span class="badge bg-secondary">{{.Status}}</span>
+    {{end}}
+    {{if .ModerationNote}}
+    <p class="card-text text-muted mt-2"><small>{{.ModerationNote}}</small></p>
+    {{end}}
+    <a href="{{.PieLink}}" class="btn btn-primary w-100 mt-2">{{.Pie.DisplayName}}</a>
+  </div>
+</div>
+{{end}}

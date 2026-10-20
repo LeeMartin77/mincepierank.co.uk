@@ -24,8 +24,9 @@ type PageDataHead struct {
 }
 
 type MenuSettings struct {
-	ActiveYear int64
-	SignedIn   bool
+	ActiveYear        int64
+	SignedIn          bool
+	UserPiesEnabled   bool
 }
 
 type Link struct {
@@ -72,6 +73,13 @@ type PieCardData struct {
 	Pie            interface{}
 	Maker          types.Maker
 	RankingTime    time.Time
+}
+
+type UserPieCardData struct {
+	ImgprssrPrefix  string
+	PieLink         string
+	Pie             types.UserPieYearly
+	RankingSummary  types.RankingSummary
 }
 
 type MakerCardData struct {

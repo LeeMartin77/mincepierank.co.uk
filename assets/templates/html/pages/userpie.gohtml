@@ -1,0 +1,87 @@
+{{define "page:userpie"}}
+{{template "fragment:global:head" .Head}}
+{{template "fragment:components:breadcrumb" .PageData.Breadcrumb}}
+
+<section class="container py-4" id="pie-data-container">
+  <div class="row mb-4">
+    <div class="col-12">
+      <h1 class="h2">{{.PageData.Pie.DisplayName}} <span class="h6 text-muted">(Community)</span></h1>
+      <h2 class="h5 text-muted">Made by: {{.PageData.Pie.Maker}}</h2>
+      {{if .PageData.Status}}
+      <span class="badge bg-secondary">{{.PageData.Status}}</span>
+      {{end}}
+    </div>
+  </div>
+
+  {{if .PageData.PromotedToBrand}}
+  <div class="alert alert-info" role="alert">
+    This pie has been promoted to a brand pie!
+    <a href="{{.PageData.PromotedToBrand}}">View the brand pie page →</a>
+  </div>
+  {{end}}
+
+  <div class="row mb-4 align-items-center">
+    {{if .PageData.Pie.ImageFile}}
+    <div class="col-md-4 mb-3 mb-md-0">
+      <img src="{{.PageData.ImgprssrPrefix}}{{.PageData.Pie.ImageFile}}?filter=gaussian&width=250" class="img-fluid rounded" alt="{{.PageData.Pie.DisplayName}}">
+    </div>
+    {{end}}
+    <div class="col-md-{{if .PageData.Pie.ImageFile}}8{{else}}12{{end}}">
+      {{if .PageData.Pie.WebLink}}
+      <a href="{{.PageData.Pie.WebLink}}" class="btn btn-outline-primary" target="_blank" rel="noopener">Link to Website</a>
+      {{end}}
+    </div>
+  </div>
+
+  <div class="row mb-4">
+    <div class="col-md-6">
+      <p><strong>Pack Count:</strong> {{.PageData.Pie.PackCount}}</p>
+    </div>
+    <div class="col-md-6">
+      <p><strong>Pack Price:</strong> £{{printf "%.2f" (ppencediv .PageData.Pie.PackPriceInPence)}}</p>
+    </div>
+  </div>
+
+  {{if .PageData.Pie.Fresh}}
+  <div class="mb-3">
+    <span class="badge bg-success">Fresh</span>
+  </div>
+  {{end}}
+
+  {{if .PageData.Pie.Labels}}
+  <div class="mb-3">
+    <div class="d-flex flex-wrap gap-1">
+      {{range .PageData.Pie.Labels}}
+      <span class="badge bg-info">{{.}}</span>
+      {{end}}
+    </div>
+  </div>
+  {{end}}
+
+  {{if .PageData.Pie.Location}}
+  <div class="mb-3">
+    <p><strong>Location:</strong> {{.PageData.Pie.Location}}</p>
+  </div>
+  {{end}}
+
+  <div class="row mb-4">
+    <div class="col-12">
+      {{template "fragment:components:rankingsummary" .PageData.RankingSummary}}
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-12">
+      {{template "fragment:components:userranking" dict "Ranking" .PageData.UserRanking "Readonly" .PageData.Readonly "Pie" .PageData.Pie "ActiveYear" .Head.MenuSettings.ActiveYear "Errors" .PageData.Errors "RankingFormURL" .PageData.RankingFormURL}}
+    </div>
+  </div>
+
+  {{if .PageData.IsOwner}}
+  <div class="mt-4">
+    <a href="/profile/pies/{{.PageData.Pie.Year}}/{{.PageData.Pie.Id}}" class="btn btn-outline-secondary">Edit this pie</a>
+  </div>
+  {{end}}
+</section>
+
+{{template "fragment:global:foot" .Foot}}
+{{end}}

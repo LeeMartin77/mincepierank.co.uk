@@ -3,3 +3,4 @@ dist
 .env
 .localimages
 !.localimages/.gitkeep
+screenshots/

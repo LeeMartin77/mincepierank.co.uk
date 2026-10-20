@@ -82,7 +82,16 @@ type UserPieYearly struct {
 	PackCount        int32    `json:"pack_count,omitempty" col:"pack_count"`
 	PackPriceInPence int32    `json:"pack_price_in_pence,omitempty" col:"pack_price_in_pence"`
 
-	Clean bool `json:"clean,omitempty" col:"clean"`
+	Clean             bool   `json:"clean,omitempty" col:"clean"`
+	Status            string `json:"status,omitempty" col:"status"`
+	ModerationNote    string `json:"moderation_note,omitempty" col:"moderation_note"`
+	DuplicateOf       string `json:"duplicate_of,omitempty" col:"duplicate_of"`
+	PromotedMakerPieO string `json:"promoted_maker_pie_oid,omitempty" col:"promoted_maker_pie_oid"`
+
+	SubmittedBy string    `json:"submitted_by,omitempty" col:"submitted_by"`
+	SubmittedAt time.Time `json:"submitted_at,omitempty" col:"submitted_at"`
+	ModeratedBy string    `json:"moderated_by,omitempty" col:"moderated_by"`
+	ModeratedAt time.Time `json:"moderated_at,omitempty" col:"moderated_at"`
 }
 
 type UserPieRankingYearly struct {
@@ -98,6 +107,17 @@ type UserPieRankingYearly struct {
 
 	Notes       string    `json:"notes" col:"notes"`
 	LastUpdated time.Time `json:"last_updated" col:"last_updated"`
+}
+
+// RankingSummary is the aggregated summary returned by the ranking summary query.
+type RankingSummary struct {
+	Pastry  float64
+	Filling float64
+	Topping float64
+	Looks   float64
+	Value   float64
+	Average float64
+	Count   int64
 }
 
 type Config struct {
