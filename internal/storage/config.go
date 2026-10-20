@@ -38,3 +38,18 @@ func (o *OperationWrapper) GetReadonly(c context.Context) (bool, error) {
 	}
 	return ay, nil
 }
+
+// GetUserPiesEnabled implements Operations.
+func (o *OperationWrapper) GetUserPiesEnabled(c context.Context) (bool, error) {
+	cfg, err := generated.ConfigRead(c, o.db, "userPiesEnabled")
+	if err != nil {
+		// Missing key means disabled — fail closed, not an error.
+		return false, nil
+	}
+	val, err := strconv.ParseBool(cfg.Value)
+	if err != nil {
+		// Unparseable value means disabled.
+		return false, nil
+	}
+	return val, nil
+}

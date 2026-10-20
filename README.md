@@ -36,6 +36,22 @@ to run the application with gow
 then, login as user1 from the dex config, go to /admin, and bulk upload the file at data/2024/bulk/bulk.zip
 
 congrats, you have mincepierank setup for local dev with 2024 as the year, and 2024 data.
+
+### User-Submittable Pies
+
+Users can submit, rate, and manage their own mince pie entries. The feature is controlled via the `config` database table:
+
+```sql
+INSERT INTO config (key, value) VALUES ('userPiesEnabled', 'true');
+```
+
+Set to `'false'` (or omit the key) to disable. The system fails closed when the key is missing or unparseable.
+
+Admin moderation routes:
+- `/admin/userpies` — list all user pies
+- `/admin/userpies/{year}/{id}/{ownerid}` — view/edit a single pie
+- `/admin/userpies/duplicates` — find duplicate submissions
+
 ### Previewing templates without the stack
 
 For template/UI work you can skip all of the above:

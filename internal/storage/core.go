@@ -30,6 +30,7 @@ type Operations interface {
 	GetActiveYear(c context.Context) (*int64, error)
 
 	GetReadonly(c context.Context) (bool, error)
+	GetUserPiesEnabled(c context.Context) (bool, error)
 
 	GetTopMakerPie(c context.Context, activeYear int64) (*MakerPieYearlyWithRankings, error)
 	GetLatestPieRanking(c context.Context, activeYear int64) (*MakerPieYearlyWithRankings, *time.Time, error)

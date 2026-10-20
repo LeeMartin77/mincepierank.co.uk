@@ -14,5 +14,4 @@ type WebsiteConfiguration struct {
 	AuthClientSecret string `env:"AUTH_CLIENT_SECRET, required"`
 	AuthRedirectUrl  string `env:"AUTH_REDIRECT_URL, required"`
 	JwtSigningKey    string `env:"JWT_SIGNING_KEY, required"`
-	UserPiesEnabled  bool   `env:"USER_PIES_ENABLED, default=false"`
 }

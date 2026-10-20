@@ -150,6 +150,7 @@ func returnSinglePiePage(wrpr *WebsiteWrapper, ctx *gin.Context, year int64, ay 
 
 	uid, _ := ctx.Keys["userid"].(string)
 	sin, _ := ctx.Keys["signedin"].(bool)
+	piesEnabled, _ := wrpr.storage.GetUserPiesEnabled(ctx)
 
 	urnking, _ := wrpr.storage.GetQuerier().GetUserMakerPieRanking(ctx, sqlcgen.GetUserMakerPieRankingParams{
 		Userid:  uid,
@@ -169,9 +170,9 @@ func returnSinglePiePage(wrpr *WebsiteWrapper, ctx *gin.Context, year int64, ay 
 			Description: fmt.Sprintf("%s from %s :: scored  %.2f/5 on average in %d", pie.DisplayName, maker.Name, rankingSummary.Average, pie.Year),
 			Keywords:    fmt.Sprintf("Mince Pies, UK, Ranking, %d, %s, %s", pie.Year, maker.Name, pie.DisplayName),
 			MenuSettings: templater.MenuSettings{
-				ActiveYear:        *ay,
-				SignedIn:          sin,
-				UserPiesEnabled:   wrpr.config.UserPiesEnabled,
+				ActiveYear:      *ay,
+				SignedIn:        sin,
+				UserPiesEnabled: piesEnabled,
 			},
 		},
 		PageData: map[string]interface{}{

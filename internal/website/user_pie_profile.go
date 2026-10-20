@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net/http"
 	"os"
-	"strconv"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -25,7 +24,8 @@ func (wrpr *WebsiteWrapper) MyUserPies(c *gin.Context, year int64) {
 		return
 	}
 
-	if !wrpr.config.UserPiesEnabled {
+	piesEnabled, _ := wrpr.storage.GetUserPiesEnabled(c)
+	if !piesEnabled {
 		c.AbortWithStatus(404)
 		return
 	}
@@ -73,9 +73,9 @@ func (wrpr *WebsiteWrapper) MyUserPies(c *gin.Context, year int64) {
 			Description: "Manage your community-submitted mince pies",
 			Keywords:    fmt.Sprintf("Mince pies, UK, ranking, %d, my pies", year),
 			MenuSettings: templater.MenuSettings{
-				ActiveYear:        *ay,
-				SignedIn:          sin,
-				UserPiesEnabled:   wrpr.config.UserPiesEnabled,
+				ActiveYear:      *ay,
+				SignedIn:        sin,
+				UserPiesEnabled: piesEnabled,
 			},
 		},
 		PageData: map[string]interface{}{
@@ -98,7 +98,8 @@ func (wrpr *WebsiteWrapper) EditUserPieForm(c *gin.Context, year int64, id strin
 		return
 	}
 
-	if !wrpr.config.UserPiesEnabled {
+	piesEnabled, _ := wrpr.storage.GetUserPiesEnabled(c)
+	if !piesEnabled {
 		c.AbortWithStatus(404)
 		return
 	}
@@ -140,9 +141,9 @@ func (wrpr *WebsiteWrapper) EditUserPieForm(c *gin.Context, year int64, id strin
 			Description: "Edit your community-submitted mince pie",
 			Keywords:    fmt.Sprintf("Mince pies, UK, ranking, %d, edit", year),
 			MenuSettings: templater.MenuSettings{
-				ActiveYear:        *ay,
-				SignedIn:          sin,
-				UserPiesEnabled:   wrpr.config.UserPiesEnabled,
+				ActiveYear:      *ay,
+				SignedIn:        sin,
+				UserPiesEnabled: piesEnabled,
 			},
 		},
 		PageData: map[string]interface{}{
@@ -171,7 +172,8 @@ func (wrpr *WebsiteWrapper) EditUserPie(c *gin.Context, year int64, id string) {
 		log.Error().Err(err).Msg("Error getting readonly - fails closed")
 	}
 
-	if !wrpr.config.UserPiesEnabled {
+	piesEnabled, _ := wrpr.storage.GetUserPiesEnabled(c)
+	if !piesEnabled {
 		c.AbortWithStatus(404)
 		return
 	}
@@ -212,7 +214,7 @@ func (wrpr *WebsiteWrapper) EditUserPie(c *gin.Context, year int64, id string) {
 				Title:        "Edit pie",
 				Description:  "Edit your community-submitted mince pie",
 				Keywords:     fmt.Sprintf("Mince pies, UK, ranking, %d, edit", year),
-				MenuSettings: templater.MenuSettings{ActiveYear: *ay, SignedIn: sin, UserPiesEnabled: wrpr.config.UserPiesEnabled},
+				MenuSettings: templater.MenuSettings{ActiveYear: *ay, SignedIn: sin, UserPiesEnabled: piesEnabled},
 			},
 			PageData: map[string]interface{}{
 				"Year":       year,
@@ -229,53 +231,22 @@ func (wrpr *WebsiteWrapper) EditUserPie(c *gin.Context, year int64, id string) {
 	maker := c.PostForm("maker")
 	location := c.PostForm("location")
 	freshStr := c.PostForm("fresh")
-	labelsStr := c.PostForm("labels")
 	webLink := c.PostForm("webLink")
 	packCountStr := c.PostForm("packCount")
 	packPriceStr := c.PostForm("packPrice")
 
-	var errs []string
+	errs, labels := validateUserPieForm(c.Request.FormValue)
 
-	if displayName == "" {
-		errs = append(errs, "Display name is required")
-	}
-	if maker == "" {
-		errs = append(errs, "Maker/brand is required")
-	}
-	if webLink == "" {
-		errs = append(errs, "Website link is required")
+	fresh := isFresh(freshStr)
+
+	packCount, pcErr := parsePackCount(packCountStr)
+	if pcErr != nil {
+		errs = append(errs, pcErr.Error())
 	}
 
-	fresh := freshStr == "on" || freshStr == "true"
-
-	labels := []string{}
-	if labelsStr != "" {
-		for _, l := range strings.Split(labelsStr, ",") {
-			trimmed := strings.TrimSpace(l)
-			if trimmed != "" {
-				labels = append(labels, trimmed)
-			}
-		}
-	}
-
-	packCount := int32(0)
-	if packCountStr != "" {
-		pc, err := strconv.ParseInt(packCountStr, 10, 32)
-		if err != nil || pc < 0 {
-			errs = append(errs, "Pack count must be a non-negative number")
-		} else {
-			packCount = int32(pc)
-		}
-	}
-
-	packPriceInPence := int32(0)
-	if packPriceStr != "" {
-		pp, err := strconv.ParseFloat(packPriceStr, 64)
-		if err != nil || pp < 0 {
-			errs = append(errs, "Pack price must be a non-negative number (e.g. 3.60)")
-		} else {
-			packPriceInPence = int32(pp*100 + 0.5) // round to nearest pence
-		}
+	packPriceInPence, ppErr := parsePackPrice(packPriceStr)
+	if ppErr != nil {
+		errs = append(errs, ppErr.Error())
 	}
 
 	// Handle image upload (optional — keep existing if no new image)
@@ -306,7 +277,7 @@ func (wrpr *WebsiteWrapper) EditUserPie(c *gin.Context, year int64, id string) {
 				Title:        "Edit pie",
 				Description:  "Edit your community-submitted mince pie",
 				Keywords:     fmt.Sprintf("Mince pies, UK, ranking, %d, edit", year),
-				MenuSettings: templater.MenuSettings{ActiveYear: *ay, SignedIn: sin, UserPiesEnabled: wrpr.config.UserPiesEnabled},
+				MenuSettings: templater.MenuSettings{ActiveYear: *ay, SignedIn: sin, UserPiesEnabled: piesEnabled},
 			},
 			PageData: map[string]interface{}{
 				"Year":        year,
@@ -318,7 +289,7 @@ func (wrpr *WebsiteWrapper) EditUserPie(c *gin.Context, year int64, id string) {
 				"Maker":       maker,
 				"Location":    location,
 				"Fresh":       fresh,
-				"LabelsStr":   labelsStr,
+				"LabelsStr":   c.PostForm("labels"),
 				"WebLink":     webLink,
 				"PackCount":   packCountStr,
 				"PackPrice":   packPriceStr,
@@ -351,7 +322,8 @@ func (wrpr *WebsiteWrapper) EditUserPie(c *gin.Context, year int64, id string) {
 
 // withdrawUserPie implements generated.ServerInterface.
 func (wrpr *WebsiteWrapper) WithdrawUserPie(c *gin.Context, year int64, id string) {
-	if !wrpr.config.UserPiesEnabled {
+	piesEnabled, _ := wrpr.storage.GetUserPiesEnabled(c)
+	if !piesEnabled {
 		c.AbortWithStatus(404)
 		return
 	}

@@ -108,14 +108,15 @@ func (wrpr *WebsiteWrapper) GetAdminUserPies(c *gin.Context, params generated.Ge
 	}
 
 	ay, _ := wrpr.storage.GetActiveYear(c)
+	piesEnabled, _ := wrpr.storage.GetUserPiesEnabled(c)
 	vals := templater.PageData{
 		Head: templater.PageDataHead{
 			Title:       fmt.Sprintf("Admin User Pies - %d", year),
 			Description: "Moderate user-submitted pies",
 			Keywords:    "",
 			MenuSettings: templater.MenuSettings{
-				ActiveYear:        *ay,
-				UserPiesEnabled:   wrpr.config.UserPiesEnabled,
+				ActiveYear:      *ay,
+				UserPiesEnabled: piesEnabled,
 			},
 		},
 		PageData: map[string]interface{}{
@@ -133,7 +134,7 @@ func (wrpr *WebsiteWrapper) GetAdminUserPies(c *gin.Context, params generated.Ge
 			"DuplicateCount":   duplicateCount,
 			"RejectedCount":    rejectedCount,
 			"ShouldLoadNext":   int64(len(rows)) == limit,
-			"UserPiesEnabled":  wrpr.config.UserPiesEnabled,
+			"UserPiesEnabled":  piesEnabled,
 		},
 	}
 
@@ -174,14 +175,15 @@ func (wrpr *WebsiteWrapper) GetAdminUserPie(c *gin.Context, year int, id string,
 	}
 
 	ay, _ := wrpr.storage.GetActiveYear(c)
+	piesEnabled, _ := wrpr.storage.GetUserPiesEnabled(c)
 	vals := templater.PageData{
 		Head: templater.PageDataHead{
 			Title:       fmt.Sprintf("Review: %s (Community) :: Admin", pie.DisplayName),
 			Description: "Review user-submitted pie",
 			Keywords:    "",
 			MenuSettings: templater.MenuSettings{
-				ActiveYear:        *ay,
-				UserPiesEnabled:   wrpr.config.UserPiesEnabled,
+				ActiveYear:      *ay,
+				UserPiesEnabled: piesEnabled,
 			},
 		},
 		PageData: map[string]interface{}{
@@ -193,7 +195,7 @@ func (wrpr *WebsiteWrapper) GetAdminUserPie(c *gin.Context, year int, id string,
 			"ModerationNote":    pie.ModerationNote,
 			"DupeCandidates":    dupeCandidatesToPieList(dupes),
 			"Year":              pie.Year,
-			"UserPiesEnabled":   wrpr.config.UserPiesEnabled,
+			"UserPiesEnabled":   piesEnabled,
 		},
 	}
 
@@ -426,20 +428,21 @@ func (wrpr *WebsiteWrapper) GetAdminUserPieDuplicates(c *gin.Context, params gen
 	}
 
 	ay, _ := wrpr.storage.GetActiveYear(c)
+	piesEnabled, _ := wrpr.storage.GetUserPiesEnabled(c)
 	vals := templater.PageData{
 		Head: templater.PageDataHead{
 			Title:       fmt.Sprintf("User Pie Duplicates - %d", year),
 			Description: "Review potential duplicate user pies",
 			Keywords:    "",
 			MenuSettings: templater.MenuSettings{
-				ActiveYear:        *ay,
-				UserPiesEnabled:   wrpr.config.UserPiesEnabled,
+				ActiveYear:      *ay,
+				UserPiesEnabled: piesEnabled,
 			},
 		},
 		PageData: map[string]interface{}{
 			"Pies":            groups,
 			"Year":            year,
-			"UserPiesEnabled": wrpr.config.UserPiesEnabled,
+			"UserPiesEnabled": piesEnabled,
 		},
 	}
 
