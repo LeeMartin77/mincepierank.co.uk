@@ -115,7 +115,7 @@ func TestUserPiesE2E(t *testing.T) {
 		"JWT_SIGNING_KEY=test-signing-key-for-e2e",
 		"IMGPRSSR_PREFIX=http://localhost:3000",
 		"IMGPRSSR_DIR=/tmp/imgprssr-e2e",
-		"MINCEPIERANK_PORT=8888",
+		"MPR_PORT=8888",
 	)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr

@@ -80,7 +80,7 @@ func (api Website) Run() error {
 	generated.RegisterHandlers(r, api.serverInterface)
 
 	// Run the server
-	port := os.Getenv("MINCEPIERANK_PORT")
+	port := os.Getenv("MPR_PORT")
 	if port == "" {
 		port = "8080"
 	}
