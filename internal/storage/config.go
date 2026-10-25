@@ -11,7 +11,7 @@ import (
 func (o *OperationWrapper) GetActiveYear(c context.Context) (*int64, error) {
 	cfg, err := generated.ConfigRead(c, o.db, "activeYear")
 
-	if err != nil {
+	if err != nil || cfg == nil {
 		log.Error().Err(err).Msg("Query failed")
 		return nil, err
 	}
@@ -26,7 +26,7 @@ func (o *OperationWrapper) GetActiveYear(c context.Context) (*int64, error) {
 // GetReadonly implements Operations.
 func (o *OperationWrapper) GetReadonly(c context.Context) (bool, error) {
 	cfg, err := generated.ConfigRead(c, o.db, "readonly")
-	if err != nil {
+	if err != nil || cfg == nil {
 		// Missing key means not read-only — fail closed, not an error.
 		return false, nil
 	}
@@ -44,7 +44,7 @@ func (o *OperationWrapper) GetReadonly(c context.Context) (bool, error) {
 // GetUserPiesEnabled implements Operations.
 func (o *OperationWrapper) GetUserPiesEnabled(c context.Context) (bool, error) {
 	cfg, err := generated.ConfigRead(c, o.db, "userPiesEnabled")
-	if err != nil {
+	if err != nil || cfg == nil {
 		// Missing key means disabled — fail closed, not an error.
 		return false, nil
 	}
