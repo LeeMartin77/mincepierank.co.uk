@@ -26,7 +26,7 @@ var (
 )
 
 func handleStatic(w http.ResponseWriter, r *http.Request) {
-	pth := filepath.Join("static", strings.TrimPrefix(r.URL.Path, "/static"))
+	pth := "static" + strings.TrimPrefix(r.URL.Path, "/static")
 	data, err := assets.StaticFS.ReadFile(pth)
 	if err != nil {
 		http.Error(w, "No file found", http.StatusNotFound)
