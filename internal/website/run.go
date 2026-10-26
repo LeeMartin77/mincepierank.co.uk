@@ -3,6 +3,7 @@ package website
 import (
 	"errors"
 	"fmt"
+	"mime"
 	"net/http"
 	"os"
 	"os/signal"
@@ -32,11 +33,11 @@ func handleStatic(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "No file found", http.StatusNotFound)
 		return
 	}
-	mtype := mimetype.Lookup(filepath.Ext(pth))
-	if mtype == nil {
-		mtype = mimetype.Detect(data)
+	ctype := mime.TypeByExtension(filepath.Ext(pth))
+	if ctype == "" {
+		ctype = mimetype.Detect(data).String()
 	}
-	w.Header().Set("content-type", mtype.String())
+	w.Header().Set("content-type", ctype)
 	w.Write(data)
 }
 
