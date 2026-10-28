@@ -6,7 +6,7 @@ dotenv: ['.env']
 tasks:
   generate:
     cmds:
-      - cd internal/storage && sqlc generate
+      - cd internal/storage && go run github.com/sqlc-dev/sqlc/cmd/sqlc generate
       - go generate ./...
   build:
     deps:
