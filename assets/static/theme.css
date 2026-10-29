@@ -32,3 +32,134 @@ body.mpr-public {
     border: var(--mpr-frost-border);
     box-shadow: var(--mpr-shadow-panel);
 }
+
+/* ---------- Navigation (public pages) ---------- */
+
+/* the drawer: full-height frosted overlay, slid up from the bottom until
+   opened. at desktop widths the transform/visibility below is overridden and
+   the state classes have no visual effect. */
+.mpr-menu {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100dvh;
+    color: var(--mpr-ink);
+    border: none;
+    border-right: var(--mpr-frost-border);
+    transform: translateY(100%);
+    visibility: hidden;
+    transition: transform 0.2s ease-out, visibility 0.2s;
+}
+
+.mpr-menu.is-open {
+    transform: translateX(0);
+    visibility: visible;
+}
+
+.mpr-menu-links {
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+}
+
+.mpr-menu-brand {
+    padding: 1em;
+    font-size: 1.25em;
+    font-weight: bold;
+    text-decoration: none;
+    color: var(--mpr-ink);
+}
+
+.mpr-menu-links a {
+    padding: 1em;
+    font-weight: bold;
+    text-decoration: none;
+    color: var(--mpr-ink);
+}
+
+.mpr-menu-links a:hover,
+.mpr-menu-footer a:hover {
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.mpr-menu-footer {
+    margin-top: auto;
+    display: flex;
+    flex-direction: column;
+    border-top: var(--mpr-frost-border);
+}
+
+.mpr-menu-footer a {
+    padding: 1em;
+    font-weight: bold;
+    text-decoration: none;
+    color: var(--mpr-ink);
+}
+
+.mpr-menu-close {
+    padding: 1em;
+    font-weight: bold;
+    color: var(--mpr-ink);
+    background-color: rgba(255, 255, 255, 0.3);
+    border: none;
+    cursor: pointer;
+}
+
+.mpr-menu-close:hover {
+    background-color: rgba(255, 255, 255, 0.8);
+}
+
+/* the bottom pill that opens the drawer (mobile only) */
+.mpr-menu-pill {
+    position: fixed;
+    bottom: 1em;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 101;
+    width: 8em;
+    border: none;
+    border-radius: 2em;
+    padding: 0.75em 1em;
+    font-weight: bold;
+    color: var(--mpr-ink);
+    cursor: pointer;
+}
+
+/* page content never scrolls behind an open overlay; the pill hides itself
+   behind the overlay like the old design, the drawer's Close button (or Esc)
+   closes it again */
+@media (max-width: 991.98px) {
+    body.mpr-public.mpr-menu-open {
+        overflow: hidden;
+    }
+
+    body.mpr-public.mpr-menu-open .mpr-menu-pill {
+        display: none;
+    }
+}
+
+/* desktop: the drawer becomes a permanent left-mounted rail */
+@media (min-width: 992px) {
+    .mpr-menu {
+        width: 320px;
+        transform: none;
+        visibility: visible;
+    }
+
+    .mpr-menu-pill {
+        display: none;
+    }
+
+    /* nothing to close on the static rail */
+    .mpr-menu-close {
+        display: none;
+    }
+
+    body.mpr-public .mpr-main {
+        margin-left: 320px;
+    }
+}

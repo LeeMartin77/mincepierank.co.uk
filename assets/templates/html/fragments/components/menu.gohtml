@@ -1,4 +1,34 @@
 {{define "fragment:components:menu"}}
+<aside class="mpr-menu mpr-frost" id="mpr-menu" aria-label="Main menu">
+  <div class="mpr-menu-links">
+    <a class="mpr-menu-brand" href="/">Mince Pie Rank</a>
+    <a href="/">Home</a>
+    <a href="/years/{{.ActiveYear}}/all-pies">All Pies</a>
+    <a href="/years/{{.ActiveYear}}/brands">Brands</a>
+    <a href="/years/{{.ActiveYear}}/categories">Categories</a>
+    <a href="/about">About</a>
+    <a href="/profile/rankings/{{.ActiveYear}}">My Rankings</a>
+    {{ if and .UserPiesEnabled .SignedIn }}
+    <a href="/years/{{.ActiveYear}}/user-pies">Community Pies</a>
+    <a href="/years/{{.ActiveYear}}/user-pies/submit">Submit a Pie</a>
+    <a href="/profile/pies/{{.ActiveYear}}">My Pies</a>
+    {{ else if .UserPiesEnabled }}
+    <a href="/years/{{.ActiveYear}}/user-pies">Community Pies</a>
+    {{ end }}
+  </div>
+  <div class="mpr-menu-footer">
+    {{ if .SignedIn }}
+    <a hx-boost="false" href="/auth/signout">Log Out</a>
+    {{ else }}
+    <a hx-boost="false" href="/auth/signin">Sign In</a>
+    {{ end }}
+    <button class="mpr-menu-close" type="button">Close Menu</button>
+  </div>
+</aside>
+<button class="mpr-menu-pill mpr-frost" id="mpr-menu-pill" type="button" aria-controls="mpr-menu" aria-expanded="false">Menu</button>
+{{end}}
+
+{{define "fragment:components:menu:admin"}}
 <nav class="navbar navbar-expand-lg navbar-light bg-light sticky-top mb-3">
   <div class="container">
     <a class="navbar-brand" href="/">Mince Pie Rank</a>

@@ -43,3 +43,63 @@ func TestHeadIncludesThemeStylesheet(t *testing.T) {
 		t.Errorf("head should link the theme stylesheet, got:\n%s", out)
 	}
 }
+
+func TestHeadPublicUsesDrawer(t *testing.T) {
+	out := renderHead(t, PageDataHead{
+		Title:        "Home",
+		MenuSettings: MenuSettings{ActiveYear: 2026},
+	})
+	if !strings.Contains(out, `id="mpr-menu-pill"`) || !strings.Contains(out, `id="mpr-menu"`) {
+		t.Errorf("public head should render the drawer nav, got:\n%s", out)
+	}
+	if strings.Contains(out, "navbar-toggler") {
+		t.Errorf("public head should not render the bootstrap navbar, got:\n%s", out)
+	}
+	for _, want := range []string{"All Pies", "Brands", "Categories", "About", "My Rankings", "/years/2026/all-pies"} {
+		if !strings.Contains(out, want) {
+			t.Errorf("public drawer is missing nav item %q", want)
+		}
+	}
+}
+
+func TestHeadAdminUsesNavbar(t *testing.T) {
+	out := renderHead(t, PageDataHead{
+		Title:        "Admin",
+		IsAdminPage:  true,
+		MenuSettings: MenuSettings{ActiveYear: 2026, SignedIn: true},
+	})
+	if !strings.Contains(out, "navbar-toggler") {
+		t.Errorf("admin head should keep the bootstrap navbar, got:\n%s", out)
+	}
+	if strings.Contains(out, "mpr-menu-pill") {
+		t.Errorf("admin head should not render the drawer pill, got:\n%s", out)
+	}
+}
+
+func TestHeadConditionalNavItems(t *testing.T) {
+	cases := []struct {
+		name       string
+		settings   MenuSettings
+		mustHave   []string
+		mustNotHas []string
+	}{
+		{"pies disabled", MenuSettings{ActiveYear: 2026}, nil, []string{"Community Pies", "Submit a Pie", "My Pies"}},
+		{"enabled, signed out", MenuSettings{ActiveYear: 2026, UserPiesEnabled: true}, []string{"Community Pies"}, []string{"Submit a Pie", "My Pies"}},
+		{"enabled, signed in", MenuSettings{ActiveYear: 2026, UserPiesEnabled: true, SignedIn: true}, []string{"Community Pies", "Submit a Pie", "My Pies", "Log Out"}, []string{"Sign In"}},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			out := renderHead(t, PageDataHead{Title: "Home", MenuSettings: tc.settings})
+			for _, want := range tc.mustHave {
+				if !strings.Contains(out, want) {
+					t.Errorf("expected nav to contain %q, got:\n%s", want, out)
+				}
+			}
+			for _, notWant := range tc.mustNotHas {
+				if strings.Contains(out, notWant) {
+					t.Errorf("expected nav NOT to contain %q, got:\n%s", notWant, out)
+				}
+			}
+		})
+	}
+}
