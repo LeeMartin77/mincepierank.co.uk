@@ -13,6 +13,7 @@
     <meta name="keywords" content="{{.Keywords}}" />
 </head>
 <body class="{{ if .IsAdminPage }}mpr-admin{{ else }}mpr-public{{ end }}" hx-boost="true">
+    {{ if and .Snow (not .IsAdminPage) }}<canvas id="canvas" aria-hidden="true"></canvas>{{ end }}
     <main class="mpr-main">
     {{ if .IsAdminPage }}
         {{template "fragment:components:menu:admin" .MenuSettings }}

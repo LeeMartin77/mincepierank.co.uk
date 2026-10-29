@@ -62,6 +62,7 @@ func (wrpr *WebsiteWrapper) HomePage(c *gin.Context) {
 
 	vals := templater.PageData{
 		Head: templater.PageDataHead{
+			Snow:        wrpr.snowing(c),
 			Title:       "Home Page",
 			Description: "Rank mince pies from major UK brands",
 			Keywords:    "Mince Pies, UK, Ranking",

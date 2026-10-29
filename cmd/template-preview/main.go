@@ -44,6 +44,7 @@ type pageHead struct {
 	Notice                                            string
 	ShowBreadcrumb                                    bool
 	IsAdminPage                                       bool
+	Snow                                              bool
 	MenuSettings                                      menuSettings
 	Breadcrumbs                                       []link
 }
@@ -94,9 +95,9 @@ type userPie struct {
 }
 
 type userPieRanking struct {
-	Year        int32
+	Year                                   int32
 	Pastry, Filling, Topping, Looks, Value int32
-	LastUpdated timestamp
+	LastUpdated                            timestamp
 }
 
 type userPieCard struct {
@@ -131,6 +132,7 @@ func singlePie(ranking userRanking, readonly bool, errs []string, pieYear int32)
 	}
 	return pageData{
 		Head: pageHead{
+			Snow:         true,
 			Title:        "Classic Mince Pie from Greggs :: 3.21/5",
 			MenuSettings: menuSettings{ActiveYear: activeYear, SignedIn: true},
 		},
@@ -173,6 +175,7 @@ var scenarios = []scenario{
 		func() pageData {
 			return pageData{
 				Head: pageHead{
+					Snow:         true,
 					Title:        "Submit a pie for 2026",
 					MenuSettings: menuSettings{ActiveYear: activeYear, SignedIn: true},
 				},
@@ -193,6 +196,7 @@ var scenarios = []scenario{
 			}
 			return pageData{
 				Head: pageHead{
+					Snow:         true,
 					Title:        "Value Mince Pie (Community) :: 3.50/5",
 					MenuSettings: menuSettings{ActiveYear: activeYear, SignedIn: true},
 				},
@@ -219,6 +223,7 @@ var scenarios = []scenario{
 			}
 			return pageData{
 				Head: pageHead{
+					Snow:         true,
 					Title:        "Premium Mince Pie (Community) :: 4.20/5",
 					MenuSettings: menuSettings{ActiveYear: activeYear, SignedIn: true},
 				},
@@ -245,6 +250,7 @@ var scenarios = []scenario{
 			}
 			return pageData{
 				Head: pageHead{
+					Snow:         true,
 					Title:        "Community Pies for 2026",
 					MenuSettings: menuSettings{ActiveYear: activeYear, SignedIn: true},
 				},
@@ -269,6 +275,7 @@ var scenarios = []scenario{
 			}
 			return pageData{
 				Head: pageHead{
+					Snow:         true,
 					Title:        "My Community Pies for 2026",
 					MenuSettings: menuSettings{ActiveYear: activeYear, SignedIn: true},
 				},
@@ -285,6 +292,7 @@ var scenarios = []scenario{
 			p := userPie{Year: activeYear, Id: "def456", Maker: "M&S", DisplayName: "Premium Mince Pie", ImageFile: "ms/premium-mince.jpg", WebLink: "#", PackCount: 6, PackPriceInPence: 360, Fresh: true, Location: "Manchester, UK", Labels: []string{"Premium", "Free-range"}, Status: "pending"}
 			return pageData{
 				Head: pageHead{
+					Snow:         true,
 					Title:        "Edit pie",
 					MenuSettings: menuSettings{ActiveYear: activeYear, SignedIn: true},
 				},

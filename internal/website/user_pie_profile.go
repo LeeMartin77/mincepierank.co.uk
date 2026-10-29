@@ -69,6 +69,7 @@ func (wrpr *WebsiteWrapper) MyUserPies(c *gin.Context, year int64) {
 
 	vals := templater.PageData{
 		Head: templater.PageDataHead{
+			Snow:        wrpr.snowing(c),
 			Title:       fmt.Sprintf("My Community Pies for %d", year),
 			Description: "Manage your community-submitted mince pies",
 			Keywords:    fmt.Sprintf("Mince pies, UK, ranking, %d, my pies", year),
@@ -137,6 +138,7 @@ func (wrpr *WebsiteWrapper) EditUserPieForm(c *gin.Context, year int64, id strin
 
 	vals := templater.PageData{
 		Head: templater.PageDataHead{
+			Snow:        wrpr.snowing(c),
 			Title:       fmt.Sprintf("Edit: %s", pie.DisplayName),
 			Description: "Edit your community-submitted mince pie",
 			Keywords:    fmt.Sprintf("Mince pies, UK, ranking, %d, edit", year),
@@ -211,6 +213,7 @@ func (wrpr *WebsiteWrapper) EditUserPie(c *gin.Context, year int64, id string) {
 	if ro {
 		c.HTML(http.StatusOK, "page:editpie", templater.PageData{
 			Head: templater.PageDataHead{
+				Snow:         wrpr.snowing(c),
 				Title:        "Edit pie",
 				Description:  "Edit your community-submitted mince pie",
 				Keywords:     fmt.Sprintf("Mince pies, UK, ranking, %d, edit", year),
@@ -284,6 +287,7 @@ func (wrpr *WebsiteWrapper) EditUserPie(c *gin.Context, year int64, id string) {
 	if len(errs) > 0 {
 		c.HTML(http.StatusOK, "page:editpie", templater.PageData{
 			Head: templater.PageDataHead{
+				Snow:         wrpr.snowing(c),
 				Title:        "Edit pie",
 				Description:  "Edit your community-submitted mince pie",
 				Keywords:     fmt.Sprintf("Mince pies, UK, ranking, %d, edit", year),
@@ -370,7 +374,7 @@ func (wrpr *WebsiteWrapper) WithdrawUserPie(c *gin.Context, year int64, id strin
 
 	// Delete the pie and its rankings
 	wrpr.storage.GetQuerier().DeleteUserPieRankings(c, sqlcgen.DeleteUserPieRankingsParams{
-		Year: pie.Year,
+		Year:  pie.Year,
 		Pieid: pie.Id,
 	})
 	wrpr.storage.DeleteUserPieByOwner(c, pie.Year, pie.Id, uid)

@@ -25,6 +25,18 @@ body.mpr-public {
     --bs-secondary-color: #444;
 }
 
+/* the snow layer (rendered server-side only on public pages while the
+   year is active): behind every surface, above the flat background, and
+   carrying the old sky gradient the snowflakes fall against */
+#canvas {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    width: 100%;
+    height: 100%;
+    background-image: linear-gradient(to top, #c0e1ff 0%, #8ec8ff 84%);
+}
+
 /* reusable frosted surface; components pick it up in later phases */
 .mpr-frost {
     background: var(--mpr-frost-bg);

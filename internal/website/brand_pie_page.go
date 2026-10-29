@@ -166,6 +166,7 @@ func returnSinglePiePage(wrpr *WebsiteWrapper, ctx *gin.Context, year int64, ay 
 
 	vals := templater.PageData{
 		Head: templater.PageDataHead{
+			Snow:        wrpr.snowing(ctx),
 			Title:       fmt.Sprintf("%s from %s :: %.2f/5", pie.DisplayName, maker.Name, rankingSummary.Average),
 			Description: fmt.Sprintf("%s from %s :: scored  %.2f/5 on average in %d", pie.DisplayName, maker.Name, rankingSummary.Average, pie.Year),
 			Keywords:    fmt.Sprintf("Mince Pies, UK, Ranking, %d, %s, %s", pie.Year, maker.Name, pie.DisplayName),

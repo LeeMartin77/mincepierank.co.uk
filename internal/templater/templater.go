@@ -20,14 +20,15 @@ type PageDataHead struct {
 	Notice           string
 	ShowBreadcrumb   bool
 	IsAdminPage      bool
+	Snow             bool
 	MenuSettings     MenuSettings
 	Breadcrumbs      []Link
 }
 
 type MenuSettings struct {
-	ActiveYear        int64
-	SignedIn          bool
-	UserPiesEnabled   bool
+	ActiveYear      int64
+	SignedIn        bool
+	UserPiesEnabled bool
 }
 
 type Link struct {
@@ -77,10 +78,10 @@ type PieCardData struct {
 }
 
 type UserPieCardData struct {
-	ImgprssrPrefix  string
-	PieLink         string
-	Pie             types.UserPieYearly
-	RankingSummary  types.RankingSummary
+	ImgprssrPrefix string
+	PieLink        string
+	Pie            types.UserPieYearly
+	RankingSummary types.RankingSummary
 }
 
 type MakerCardData struct {

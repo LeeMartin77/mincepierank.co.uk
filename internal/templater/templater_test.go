@@ -62,6 +62,23 @@ func TestHeadPublicUsesDrawer(t *testing.T) {
 	}
 }
 
+func TestHeadSnowCanvas(t *testing.T) {
+	out := renderHead(t, PageDataHead{Title: "Home", Snow: true, MenuSettings: MenuSettings{ActiveYear: 2026}})
+	if !strings.Contains(out, `<canvas id="canvas"`) {
+		t.Errorf("snowing public head should render the canvas, got:\n%s", out)
+	}
+
+	off := renderHead(t, PageDataHead{Title: "Home", MenuSettings: MenuSettings{ActiveYear: 2026}})
+	if strings.Contains(off, "<canvas") {
+		t.Errorf("non-snowing public head should not render the canvas, got:\n%s", off)
+	}
+
+	admin := renderHead(t, PageDataHead{Title: "Admin", IsAdminPage: true, Snow: true})
+	if strings.Contains(admin, "<canvas") {
+		t.Errorf("admin head should never render the canvas, got:\n%s", admin)
+	}
+}
+
 func TestHeadAdminUsesNavbar(t *testing.T) {
 	out := renderHead(t, PageDataHead{
 		Title:        "Admin",

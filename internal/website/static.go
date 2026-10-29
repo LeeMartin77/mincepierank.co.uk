@@ -19,6 +19,7 @@ func (wrpr *WebsiteWrapper) AboutPage(c *gin.Context) {
 
 	vals := templater.PageData{
 		Head: templater.PageDataHead{
+			Snow:        wrpr.snowing(c),
 			Title:       "About",
 			Description: "All about what Mince Pie Rank is",
 			MenuSettings: templater.MenuSettings{
@@ -45,6 +46,7 @@ func (wrpr *WebsiteWrapper) CookiePage(c *gin.Context) {
 
 	vals := templater.PageData{
 		Head: templater.PageDataHead{
+			Snow:        wrpr.snowing(c),
 			Title:       "Cookies",
 			Description: "Mince Pie Rank cookie policy",
 			MenuSettings: templater.MenuSettings{
@@ -71,6 +73,7 @@ func (wrpr *WebsiteWrapper) PrivacyPage(c *gin.Context) {
 
 	vals := templater.PageData{
 		Head: templater.PageDataHead{
+			Snow:        wrpr.snowing(c),
 			Title:       "Privacy",
 			Description: "Mince Pie Rank's privacy policy",
 			MenuSettings: templater.MenuSettings{
