@@ -9,10 +9,25 @@
 
     /* frosted glass recipe */
     --mpr-frost-bg: rgba(255, 255, 255, 0.2);
+    --mpr-frost-panel: rgba(255, 255, 255, 0.3);
+    --mpr-frost-active: rgba(255, 255, 255, 0.35);
+    --mpr-frost-chip: rgba(255, 255, 255, 0.4);
     --mpr-frost-border: 1px solid rgba(255, 255, 255, 0.3);
     --mpr-frost-blur: blur(5px);
     --mpr-shadow-panel: 0 4px 30px rgba(0, 0, 0, 0.1);
     --mpr-shadow-card: 0.2em 0.1em 0.5em rgba(0, 0, 0, 0.1);
+}
+
+/* no backdrop-filter (older Firefox/Safari, effects disabled): frosted
+   panels can't blur what is behind them, so they get more opaque instead
+   of translucent, keeping text legible without the blur */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    :root {
+        --mpr-frost-bg: rgba(255, 255, 255, 0.75);
+        --mpr-frost-panel: rgba(255, 255, 255, 0.85);
+        --mpr-frost-active: rgba(255, 255, 255, 0.85);
+        --mpr-frost-chip: rgba(255, 255, 255, 0.9);
+    }
 }
 
 /* light blue page background and ink, public pages only */
@@ -69,7 +84,7 @@ body.mpr-public {
 }
 
 .mpr-menu.is-open {
-    transform: translateX(0);
+    transform: translateY(0);
     visibility: visible;
 }
 
@@ -77,6 +92,9 @@ body.mpr-public {
     display: flex;
     flex-direction: column;
     overflow-y: auto;
+    /* let the flex child actually shrink so the scroll ever kicks in
+       on long link lists / short viewports (matters in the old design too) */
+    min-height: 0;
 }
 
 .mpr-menu-brand {
@@ -256,7 +274,7 @@ body.mpr-public {
 }
 
 .mpr-public .btn-dark {
-    background: rgba(255, 255, 255, 0.35);
+    background: var(--mpr-frost-active);
     border: 1px solid #111;
     border-radius: 0.5em;
 }
@@ -269,7 +287,7 @@ body.mpr-public {
 
 /* category chips inside pie cards: the old mini-category-link pills */
 .mpr-public .badge.bg-secondary {
-    background: rgba(255, 255, 255, 0.4);
+    background: var(--mpr-frost-chip);
     border: 1px solid rgba(17, 17, 17, 0.15);
     border-radius: 1em;
     color: var(--mpr-ink);
@@ -279,7 +297,7 @@ body.mpr-public {
 
 /* whole-form panels (submit/edit) sit slightly stronger so inputs read well */
 .mpr-public .mpr-form-panel {
-    background: rgba(255, 255, 255, 0.3);
+    background: var(--mpr-frost-panel);
     backdrop-filter: var(--mpr-frost-blur);
     -webkit-backdrop-filter: var(--mpr-frost-blur);
     border: var(--mpr-frost-border);
