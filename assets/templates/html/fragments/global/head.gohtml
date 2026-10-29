@@ -5,13 +5,14 @@
     <meta charset="UTF-8" />
     <link href="/static/bootstrap@5.3.8.min.css" rel="stylesheet"/>
     <link href="/static/stars.css" rel="stylesheet"/>
+    <link href="/static/theme.css" rel="stylesheet"/>
     <script src="/static/htmx.org@2.0.1.min.js" type="application/javascript"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{.Title}} :: Mince Pie Rank</title>
     <meta name="description" content="{{.Description}}" />
     <meta name="keywords" content="{{.Keywords}}" />
 </head>
-<body hx-boost="true">
+<body class="{{ if .IsAdminPage }}mpr-admin{{ else }}mpr-public{{ end }}" hx-boost="true">
     <div class="container">
     {{template "fragment:components:menu" .MenuSettings }}
     {{ if .ShowBreadcrumb }}

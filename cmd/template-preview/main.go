@@ -43,6 +43,7 @@ type pageHead struct {
 	ShowCookieNotice, ShowNotice, ReadOnly, HasNotice bool
 	Notice                                            string
 	ShowBreadcrumb                                    bool
+	IsAdminPage                                       bool
 	MenuSettings                                      menuSettings
 	Breadcrumbs                                       []link
 }

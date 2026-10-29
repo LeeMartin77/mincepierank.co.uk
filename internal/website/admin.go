@@ -42,6 +42,7 @@ func (wrpr *WebsiteWrapper) GetAdminIndex(c *gin.Context) {
 	piesEnabled, _ := wrpr.storage.GetUserPiesEnabled(c)
 	vals := templater.PageData{
 		Head: templater.PageDataHead{
+			IsAdminPage: true,
 			Title:       "Admin Index",
 			Description: "",
 			Keywords:    "",
@@ -91,6 +92,7 @@ func configPage(wrpr *WebsiteWrapper, c *gin.Context) {
 	piesEnabled, _ := wrpr.storage.GetUserPiesEnabled(c)
 	vals := templater.PageData{
 		Head: templater.PageDataHead{
+			IsAdminPage: true,
 			Title:       "Admin Config",
 			Description: "",
 			Keywords:    "",
@@ -178,6 +180,7 @@ func piesPage(wrpr *WebsiteWrapper, c *gin.Context) {
 	piesEnabled, _ := wrpr.storage.GetUserPiesEnabled(c)
 	vals := templater.PageData{
 		Head: templater.PageDataHead{
+			IsAdminPage: true,
 			Title:       "Admin Pies",
 			Description: "",
 			Keywords:    "",
@@ -223,6 +226,7 @@ func piePage(wrpr *WebsiteWrapper, c *gin.Context, oid string) {
 	piesEnabled, _ := wrpr.storage.GetUserPiesEnabled(c)
 	vals := templater.PageData{
 		Head: templater.PageDataHead{
+			IsAdminPage: true,
 			Title:       "Admin Pie",
 			Description: "",
 			Keywords:    "",

@@ -1,0 +1,34 @@
+/* Mince Pie Rank theme - layered over Bootstrap 5.3.
+   Public pages (body.mpr-public) get the frosted-glass look;
+   admin pages (body.mpr-admin) are left on stock Bootstrap. */
+
+:root {
+    --mpr-bg: #c0e1ff;
+    --mpr-ink: #111;
+    --mpr-ink-soft: #222;
+
+    /* frosted glass recipe */
+    --mpr-frost-bg: rgba(255, 255, 255, 0.2);
+    --mpr-frost-border: 1px solid rgba(255, 255, 255, 0.3);
+    --mpr-frost-blur: blur(5px);
+    --mpr-shadow-panel: 0 4px 30px rgba(0, 0, 0, 0.1);
+    --mpr-shadow-card: 0.2em 0.1em 0.5em rgba(0, 0, 0, 0.1);
+}
+
+/* light blue page background and ink, public pages only */
+body.mpr-public {
+    --bs-body-bg: var(--mpr-bg);
+    --bs-body-color: var(--mpr-ink);
+    --bs-emphasis-color: var(--mpr-ink);
+    --bs-link-color: var(--mpr-ink);
+    --bs-link-hover-color: #000;
+}
+
+/* reusable frosted surface; components pick it up in later phases */
+.mpr-frost {
+    background: var(--mpr-frost-bg);
+    backdrop-filter: var(--mpr-frost-blur);
+    -webkit-backdrop-filter: var(--mpr-frost-blur);
+    border: var(--mpr-frost-border);
+    box-shadow: var(--mpr-shadow-panel);
+}

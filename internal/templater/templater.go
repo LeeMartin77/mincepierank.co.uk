@@ -19,6 +19,7 @@ type PageDataHead struct {
 	HasNotice        bool
 	Notice           string
 	ShowBreadcrumb   bool
+	IsAdminPage      bool
 	MenuSettings     MenuSettings
 	Breadcrumbs      []Link
 }
