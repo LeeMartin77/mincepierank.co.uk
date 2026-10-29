@@ -22,6 +22,7 @@ body.mpr-public {
     --bs-emphasis-color: var(--mpr-ink);
     --bs-link-color: var(--mpr-ink);
     --bs-link-hover-color: #000;
+    --bs-secondary-color: #444;
 }
 
 /* reusable frosted surface; components pick it up in later phases */
@@ -162,4 +163,135 @@ body.mpr-public {
     body.mpr-public .mpr-main {
         margin-left: 320px;
     }
+}
+
+/* ---------- Surfaces (public pages) ---------- */
+
+/* cards are frosted panels with a softer shadow than the nav */
+.mpr-public .card {
+    --bs-card-border-radius: 1em;
+    background: var(--mpr-frost-bg);
+    backdrop-filter: var(--mpr-frost-blur);
+    -webkit-backdrop-filter: var(--mpr-frost-blur);
+    border: var(--mpr-frost-border);
+    box-shadow: var(--mpr-shadow-card);
+}
+
+/* pie-card CTA sits at the bottom of the card so the buttons form a clean
+   line across the grid, regardless of how much text each card carries */
+.mpr-public .card-body {
+    display: flex;
+    flex-direction: column;
+}
+
+.mpr-public .card-body > .btn {
+    margin-top: auto;
+}
+
+/* breadcrumb: a frosted bar with the old wrap/gap layout */
+.mpr-public .breadcrumb {
+    --bs-breadcrumb-divider-color: rgba(17, 17, 17, 0.5);
+    background: var(--mpr-frost-bg);
+    backdrop-filter: var(--mpr-frost-blur);
+    -webkit-backdrop-filter: var(--mpr-frost-blur);
+    border: var(--mpr-frost-border);
+    box-shadow: var(--mpr-shadow-panel);
+    border-radius: 0.5em;
+    padding: 0.75em 1em;
+    flex-wrap: wrap;
+}
+
+.mpr-public .breadcrumb-item a {
+    color: var(--mpr-ink);
+    font-weight: bold;
+}
+
+/* buttons: frosted everywhere, border weight communicates the variant.
+   active filter chips (btn-dark) read like the old .filters a.selected */
+.mpr-public .btn {
+    color: var(--mpr-ink);
+    font-weight: bold;
+    background: var(--mpr-frost-bg);
+    backdrop-filter: var(--mpr-frost-blur);
+    -webkit-backdrop-filter: var(--mpr-frost-blur);
+}
+
+.mpr-public .btn-primary {
+    border: 1px solid rgba(17, 17, 17, 0.3);
+    border-radius: 1em;
+}
+
+.mpr-public .btn-primary:hover,
+.mpr-public .btn-primary:focus-visible {
+    background: rgba(255, 255, 255, 0.55);
+    border-color: #111;
+    color: #111;
+}
+
+.mpr-public .btn-outline-secondary,
+.mpr-public .btn-outline-primary {
+    border: 1px dotted #666;
+    border-radius: 0.5em;
+}
+
+.mpr-public .btn-outline-secondary:hover,
+.mpr-public .btn-outline-secondary:focus-visible,
+.mpr-public .btn-outline-primary:hover,
+.mpr-public .btn-outline-primary:focus-visible {
+    background: rgba(0, 0, 0, 0.1);
+    border: 1px solid #111;
+    color: #111;
+}
+
+.mpr-public .btn-dark {
+    background: rgba(255, 255, 255, 0.35);
+    border: 1px solid #111;
+    border-radius: 0.5em;
+}
+
+.mpr-public .btn-dark:hover,
+.mpr-public .btn-dark:focus-visible {
+    background: rgba(255, 255, 255, 0.55);
+    color: #111;
+}
+
+/* category chips inside pie cards: the old mini-category-link pills */
+.mpr-public .badge.bg-secondary {
+    background: rgba(255, 255, 255, 0.4);
+    border: 1px solid rgba(17, 17, 17, 0.15);
+    border-radius: 1em;
+    color: var(--mpr-ink);
+    font-weight: bold;
+    padding: 0.4em 0.8em;
+}
+
+/* whole-form panels (submit/edit) sit slightly stronger so inputs read well */
+.mpr-public .mpr-form-panel {
+    background: rgba(255, 255, 255, 0.3);
+    backdrop-filter: var(--mpr-frost-blur);
+    -webkit-backdrop-filter: var(--mpr-frost-blur);
+    border: var(--mpr-frost-border);
+    box-shadow: var(--mpr-shadow-panel);
+    border-radius: 1em;
+    padding: 1.5em;
+}
+
+.mpr-public .form-control,
+.mpr-public .form-select {
+    background-color: rgba(255, 255, 255, 0.7);
+    border: 1px solid rgba(17, 17, 17, 0.25);
+    border-radius: 0.5em;
+    color: var(--mpr-ink);
+}
+
+.mpr-public .form-control:focus,
+.mpr-public .form-select:focus {
+    background-color: #fff;
+    border-color: #111;
+    box-shadow: 0 0 0 0.2rem rgba(255, 255, 255, 0.5);
+}
+
+.mpr-public .form-label {
+    color: var(--mpr-ink);
+    font-weight: bold;
 }
