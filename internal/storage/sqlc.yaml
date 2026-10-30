@@ -9,12 +9,6 @@ sql:
         sql_package: "pgx/v5"
         out: "sqlcgen"
         emit_interface: true
-        # Scoped to the one column that needs it, per
-        # https://docs.sqlc.dev/en/latest/reference/datatypes.html#json.
-        # maker_pie_yearly_categories.categories is a jsonb_agg of
-        # {"id","slug","label"} objects that the storage layer scans into
-        # types.Categories. A db_type-wide jsonb override would silently
-        # apply to any new jsonb column, so it is not used.
         overrides:
           - column: "maker_pie_yearly_categories.categories"
             go_type:
