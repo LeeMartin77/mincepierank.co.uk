@@ -968,6 +968,147 @@ paths:
           $ref: "#/components/responses/NotFound"
         default:
           $ref: "#/components/responses/UnexpectedError"
+  /admin/rankings:
+    get:
+      operationId: getAdminRankings
+      tags:
+        - admin
+      parameters:
+        - name: year
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Admin rankings picker — pies and their rating counts
+          content:
+            text/html:
+              schema:
+                type: string
+        "404":
+          $ref: "#/components/responses/NotFound"
+        default:
+          $ref: "#/components/responses/UnexpectedError"
+  /admin/rankings/brands/{brand}/{pie}:
+    parameters:
+      - name: brand
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: pie
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      operationId: getAdminBrandPieRankings
+      tags:
+        - admin
+      parameters:
+        - name: year
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Admin ranking review screen for a brand pie
+          content:
+            text/html:
+              schema:
+                type: string
+        "404":
+          $ref: "#/components/responses/NotFound"
+        default:
+          $ref: "#/components/responses/UnexpectedError"
+  /admin/rankings/brands/{brand}/{pie}/users/{userid}:
+    parameters:
+      - name: brand
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: pie
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: userid
+        in: path
+        required: true
+        schema:
+          type: string
+    delete:
+      operationId: deleteAdminBrandPieRanking
+      tags:
+        - admin
+      parameters:
+        - name: year
+          in: query
+          schema:
+            type: integer
+      responses:
+        "303":
+          description: Success — redirect back to the review screen
+        "404":
+          $ref: "#/components/responses/NotFound"
+        default:
+          $ref: "#/components/responses/UnexpectedError"
+  /admin/rankings/userpies/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      operationId: getAdminUserPieRankings
+      tags:
+        - admin
+      parameters:
+        - name: year
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Admin ranking review screen for a user pie
+          content:
+            text/html:
+              schema:
+                type: string
+        "404":
+          $ref: "#/components/responses/NotFound"
+        default:
+          $ref: "#/components/responses/UnexpectedError"
+  /admin/rankings/userpies/{id}/users/{userid}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: userid
+        in: path
+        required: true
+        schema:
+          type: string
+    delete:
+      operationId: deleteAdminUserPieRanking
+      tags:
+        - admin
+      parameters:
+        - name: year
+          in: query
+          schema:
+            type: integer
+      responses:
+        "303":
+          description: Success — redirect back to the review screen
+        "404":
+          $ref: "#/components/responses/NotFound"
+        default:
+          $ref: "#/components/responses/UnexpectedError"
   /admin/makerpies:
     get:
       operationId: getMakerPiesAdmin

@@ -1,0 +1,120 @@
+{{define "page:admin:rankings"}}
+{{template "fragment:global:head" .Head}}
+<div class="container py-4">
+<h1>Admin Rankings</h1>
+
+{{if .PageData.PageErrors}}
+<div class="alert alert-danger">{{range .PageData.PageErrors}}<div>{{.}}</div>{{end}}</div>
+{{end}}
+
+<h4 class="mt-4">Brand Pies ({{.PageData.Year}})</h4>
+<div class="table-responsive mb-5">
+<table class="table table-striped table-hover">
+  <thead>
+    <tr>
+      <th>Brand</th>
+      <th>Pie</th>
+      <th>Ratings</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {{range .PageData.BrandPies}}
+    <tr>
+      <td>{{if .Makername.Valid}}{{.Makername.String}}{{else}}{{.Makerid}}{{end}}</td>
+      <td>{{if .Displayname.Valid}}{{.Displayname.String}}{{else}}{{.Pieid}}{{end}}</td>
+      <td>{{.RankingCount}}</td>
+      <td><a class="btn btn-sm btn-outline-info" href="/admin/rankings/brands/{{.Makerid}}/{{.Pieid}}?year={{$.PageData.Year}}">Review</a></td>
+    </tr>
+    {{else}}
+    <tr><td colspan="4">No brand pies for {{.PageData.Year}}.</td></tr>
+    {{end}}
+  </tbody>
+</table>
+</div>
+
+{{if .PageData.UserPies}}
+<h4>User Pies ({{.PageData.Year}})</h4>
+<div class="table-responsive mb-5">
+<table class="table table-striped table-hover">
+  <thead>
+    <tr>
+      <th>Pie</th>
+      <th>Maker (as submitted)</th>
+      <th>Ratings</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {{range .PageData.UserPies}}
+    <tr>
+      <td>{{if .Displayname}}{{.Displayname}}{{else}}{{.Pieid}}{{end}}</td>
+      <td>{{if .Maker}}{{.Maker}}{{else}}&mdash;{{end}}</td>
+      <td>{{.RankingCount}}</td>
+      <td><a class="btn btn-sm btn-outline-info" href="/admin/rankings/userpies/{{.Pieid}}?year={{$.PageData.Year}}">Review</a></td>
+    </tr>
+    {{end}}
+  </tbody>
+</table>
+</div>
+{{end}}
+
+<p><a href="/admin">Back to admin</a></p>
+</div>
+{{template "fragment:global:foot" .Foot}}
+{{end}}
+
+{{define "page:admin:rankreview"}}
+{{template "fragment:global:head" .Head}}
+<div class="container py-4">
+<h1>Rankings: {{.PageData.PieName}}</h1>
+<p class="text-muted">{{.PageData.PieSub}} &middot; {{.PageData.Year}}</p>
+
+{{if .PageData.PageErrors}}
+<div class="alert alert-danger">{{range .PageData.PageErrors}}<div>{{.}}</div>{{end}}</div>
+{{end}}
+
+<div class="table-responsive mb-4">
+<table class="table table-striped table-hover">
+  <thead>
+    <tr>
+      <th>User</th>
+      <th>Pastry</th>
+      <th>Filling</th>
+      <th>Topping</th>
+      <th>Looks</th>
+      <th>Value</th>
+      <th>Notes</th>
+      <th>Updated</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {{range .PageData.Rankings}}
+    <tr>
+      <td><code>{{.Userid}}</code></td>
+      <td>{{.Pastry}}</td>
+      <td>{{.Filling}}</td>
+      <td>{{.Topping}}</td>
+      <td>{{.Looks}}</td>
+      <td>{{.Value}}</td>
+      <td>{{if .Notes}}{{.Notes}}{{else}}&mdash;{{end}}</td>
+      <td>{{.LastUpdated}}</td>
+      <td>
+        <button class="btn btn-sm btn-outline-danger" type="button"
+          hx-delete="{{.DeleteURL}}"
+          hx-confirm="Delete rating by {{.Userid}} for this pie? This cannot be undone.">Delete</button>
+      </td>
+    </tr>
+    {{else}}
+    <tr><td colspan="9">Nobody has rated this pie yet.</td></tr>
+    {{end}}
+  </tbody>
+</table>
+</div>
+
+<p class="text-muted mb-3">Notes are admin-only: they are never shown on public pages.</p>
+<p><a href="{{.PageData.BackURL}}">Back to rankings</a> &middot; <a href="/admin">Back to admin</a></p>
+</div>
+{{template "fragment:global:foot" .Foot}}
+{{end}}

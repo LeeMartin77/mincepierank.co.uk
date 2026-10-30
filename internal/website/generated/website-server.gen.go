@@ -102,6 +102,21 @@ type ServerInterface interface {
 	// (PUT /admin/makerpies/{oid})
 	UpdateMakerPie(c *gin.Context, oid string)
 
+	// (GET /admin/rankings)
+	GetAdminRankings(c *gin.Context, params GetAdminRankingsParams)
+
+	// (GET /admin/rankings/brands/{brand}/{pie})
+	GetAdminBrandPieRankings(c *gin.Context, brand string, pie string, params GetAdminBrandPieRankingsParams)
+
+	// (DELETE /admin/rankings/brands/{brand}/{pie}/users/{userid})
+	DeleteAdminBrandPieRanking(c *gin.Context, brand string, pie string, userid string, params DeleteAdminBrandPieRankingParams)
+
+	// (GET /admin/rankings/userpies/{id})
+	GetAdminUserPieRankings(c *gin.Context, id string, params GetAdminUserPieRankingsParams)
+
+	// (DELETE /admin/rankings/userpies/{id}/users/{userid})
+	DeleteAdminUserPieRanking(c *gin.Context, id string, userid string, params DeleteAdminUserPieRankingParams)
+
 	// (GET /admin/userpies)
 	GetAdminUserPies(c *gin.Context, params GetAdminUserPiesParams)
 
@@ -674,6 +689,213 @@ func (siw *ServerInterfaceWrapper) UpdateMakerPie(c *gin.Context) {
 	}
 
 	siw.Handler.UpdateMakerPie(c, oid)
+}
+
+// GetAdminRankings operation middleware
+func (siw *ServerInterfaceWrapper) GetAdminRankings(c *gin.Context) {
+
+	var err error
+	_ = err
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params GetAdminRankingsParams
+
+	// ------------- Optional query parameter "year" -------------
+
+	err = runtime.BindQueryParameterWithOptions("form", true, false, "year", c.Request.URL.Query(), &params.Year, runtime.BindQueryParameterOptions{Type: "integer", Format: ""})
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter year: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.GetAdminRankings(c, params)
+}
+
+// GetAdminBrandPieRankings operation middleware
+func (siw *ServerInterfaceWrapper) GetAdminBrandPieRankings(c *gin.Context) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "brand" -------------
+	var brand string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "brand", c.Param("brand"), &brand, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: true})
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter brand: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	// ------------- Path parameter "pie" -------------
+	var pie string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "pie", c.Param("pie"), &pie, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: true})
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter pie: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params GetAdminBrandPieRankingsParams
+
+	// ------------- Optional query parameter "year" -------------
+
+	err = runtime.BindQueryParameterWithOptions("form", true, false, "year", c.Request.URL.Query(), &params.Year, runtime.BindQueryParameterOptions{Type: "integer", Format: ""})
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter year: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.GetAdminBrandPieRankings(c, brand, pie, params)
+}
+
+// DeleteAdminBrandPieRanking operation middleware
+func (siw *ServerInterfaceWrapper) DeleteAdminBrandPieRanking(c *gin.Context) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "brand" -------------
+	var brand string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "brand", c.Param("brand"), &brand, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: true})
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter brand: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	// ------------- Path parameter "pie" -------------
+	var pie string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "pie", c.Param("pie"), &pie, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: true})
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter pie: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	// ------------- Path parameter "userid" -------------
+	var userid string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "userid", c.Param("userid"), &userid, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: true})
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter userid: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params DeleteAdminBrandPieRankingParams
+
+	// ------------- Optional query parameter "year" -------------
+
+	err = runtime.BindQueryParameterWithOptions("form", true, false, "year", c.Request.URL.Query(), &params.Year, runtime.BindQueryParameterOptions{Type: "integer", Format: ""})
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter year: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.DeleteAdminBrandPieRanking(c, brand, pie, userid, params)
+}
+
+// GetAdminUserPieRankings operation middleware
+func (siw *ServerInterfaceWrapper) GetAdminUserPieRankings(c *gin.Context) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "id" -------------
+	var id string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "id", c.Param("id"), &id, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: true})
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter id: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params GetAdminUserPieRankingsParams
+
+	// ------------- Optional query parameter "year" -------------
+
+	err = runtime.BindQueryParameterWithOptions("form", true, false, "year", c.Request.URL.Query(), &params.Year, runtime.BindQueryParameterOptions{Type: "integer", Format: ""})
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter year: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.GetAdminUserPieRankings(c, id, params)
+}
+
+// DeleteAdminUserPieRanking operation middleware
+func (siw *ServerInterfaceWrapper) DeleteAdminUserPieRanking(c *gin.Context) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "id" -------------
+	var id string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "id", c.Param("id"), &id, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: true})
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter id: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	// ------------- Path parameter "userid" -------------
+	var userid string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "userid", c.Param("userid"), &userid, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: true})
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter userid: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params DeleteAdminUserPieRankingParams
+
+	// ------------- Optional query parameter "year" -------------
+
+	err = runtime.BindQueryParameterWithOptions("form", true, false, "year", c.Request.URL.Query(), &params.Year, runtime.BindQueryParameterOptions{Type: "integer", Format: ""})
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter year: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.DeleteAdminUserPieRanking(c, id, userid, params)
 }
 
 // GetAdminUserPies operation middleware
@@ -1776,6 +1998,11 @@ func RegisterHandlersWithOptions(router gin.IRouter, si ServerInterface, options
 	router.DELETE(options.BaseURL+"/admin/categories/:id", wrapper.DeleteAdminCategory)
 	router.GET(options.BaseURL+"/admin/categories/:id", wrapper.GetAdminCategory)
 	router.PUT(options.BaseURL+"/admin/categories/:id", wrapper.UpdateAdminCategory)
+	router.GET(options.BaseURL+"/admin/rankings", wrapper.GetAdminRankings)
+	router.GET(options.BaseURL+"/admin/rankings/brands/:brand/:pie", wrapper.GetAdminBrandPieRankings)
+	router.DELETE(options.BaseURL+"/admin/rankings/brands/:brand/:pie/users/:userid", wrapper.DeleteAdminBrandPieRanking)
+	router.GET(options.BaseURL+"/admin/rankings/userpies/:id", wrapper.GetAdminUserPieRankings)
+	router.DELETE(options.BaseURL+"/admin/rankings/userpies/:id/users/:userid", wrapper.DeleteAdminUserPieRanking)
 	router.GET(options.BaseURL+"/admin/makerpies", wrapper.GetMakerPiesAdmin)
 	router.POST(options.BaseURL+"/admin/makerpies", wrapper.CreateMakerPieAdmin)
 	router.POST(options.BaseURL+"/admin/makerpies/bulk", wrapper.BulkCreateMakerPieAdmin)
@@ -1797,46 +2024,49 @@ func RegisterHandlersWithOptions(router gin.IRouter, si ServerInterface, options
 // const string: with thousands of chunks the chained `+` fold is several
 // times slower for the Go compiler than parsing a slice literal.
 var swaggerSpec = []string{
-	"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",
+	"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",
+	"fZWtQqVp/xgA",
 }
 
 // decodeSpec returns the embedded OpenAPI spec as raw JSON bytes,

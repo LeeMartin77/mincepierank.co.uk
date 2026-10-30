@@ -7,7 +7,34 @@ package sqlcgen
 
 import (
 	"context"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
+
+const deleteMakerPieRanking = `-- name: DeleteMakerPieRanking :exec
+DELETE FROM maker_pie_ranking_yearly
+WHERE year = $1::int
+    AND makerid = $2::text
+    AND pieid = $3::text
+    AND userid = $4::text
+`
+
+type DeleteMakerPieRankingParams struct {
+	Year    int32
+	Makerid string
+	Pieid   string
+	Userid  string
+}
+
+func (q *Queries) DeleteMakerPieRanking(ctx context.Context, arg DeleteMakerPieRankingParams) error {
+	_, err := q.db.Exec(ctx, deleteMakerPieRanking,
+		arg.Year,
+		arg.Makerid,
+		arg.Pieid,
+		arg.Userid,
+	)
+	return err
+}
 
 const getUserMakerPieRanking = `-- name: GetUserMakerPieRanking :one
 SELECT mpry.year, mpry.makerid, mpry.pieid, mpry.userid, mpry.pastry, mpry.filling, mpry.topping, mpry.looks, mpry.value, mpry.notes, mpry.last_updated 
@@ -48,6 +75,105 @@ func (q *Queries) GetUserMakerPieRanking(ctx context.Context, arg GetUserMakerPi
 		&i.LastUpdated,
 	)
 	return i, err
+}
+
+const listMakerPieRankingSummaries = `-- name: ListMakerPieRankingSummaries :many
+SELECT mpy.year,
+       mpy.makerid,
+       mpy.id AS pieid,
+       mpy.displayname,
+       m.name AS makername,
+       count(mpry.userid)::bigint AS ranking_count
+FROM maker_pie_yearly mpy
+JOIN maker m ON m.id = mpy.makerid
+LEFT JOIN maker_pie_ranking_yearly mpry
+    ON mpry.year = mpy.year AND mpry.makerid = mpy.makerid AND mpry.pieid = mpy.id
+WHERE mpy.year = $1::int
+GROUP BY mpy.year, mpy.makerid, mpy.id, mpy.displayname, m.name
+ORDER BY m.name, mpy.displayname
+`
+
+type ListMakerPieRankingSummariesRow struct {
+	Year         int32
+	Makerid      string
+	Pieid        string
+	Displayname  pgtype.Text
+	Makername    pgtype.Text
+	RankingCount int64
+}
+
+func (q *Queries) ListMakerPieRankingSummaries(ctx context.Context, year int32) ([]ListMakerPieRankingSummariesRow, error) {
+	rows, err := q.db.Query(ctx, listMakerPieRankingSummaries, year)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ListMakerPieRankingSummariesRow
+	for rows.Next() {
+		var i ListMakerPieRankingSummariesRow
+		if err := rows.Scan(
+			&i.Year,
+			&i.Makerid,
+			&i.Pieid,
+			&i.Displayname,
+			&i.Makername,
+			&i.RankingCount,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listMakerPieRankingsForPie = `-- name: ListMakerPieRankingsForPie :many
+SELECT year, makerid, pieid, userid, pastry, filling, topping, looks, value, notes, last_updated
+FROM maker_pie_ranking_yearly
+WHERE year = $1::int
+    AND makerid = $2::text
+    AND pieid = $3::text
+ORDER BY userid
+`
+
+type ListMakerPieRankingsForPieParams struct {
+	Year    int32
+	Makerid string
+	Pieid   string
+}
+
+func (q *Queries) ListMakerPieRankingsForPie(ctx context.Context, arg ListMakerPieRankingsForPieParams) ([]MakerPieRankingYearly, error) {
+	rows, err := q.db.Query(ctx, listMakerPieRankingsForPie, arg.Year, arg.Makerid, arg.Pieid)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []MakerPieRankingYearly
+	for rows.Next() {
+		var i MakerPieRankingYearly
+		if err := rows.Scan(
+			&i.Year,
+			&i.Makerid,
+			&i.Pieid,
+			&i.Userid,
+			&i.Pastry,
+			&i.Filling,
+			&i.Topping,
+			&i.Looks,
+			&i.Value,
+			&i.Notes,
+			&i.LastUpdated,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const upsertUserMakerPieRanking = `-- name: UpsertUserMakerPieRanking :exec

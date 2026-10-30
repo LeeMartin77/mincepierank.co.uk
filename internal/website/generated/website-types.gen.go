@@ -101,6 +101,31 @@ type UpdateMakerPieMultipartBody struct {
 	WebLink          string              `json:"webLink"`
 }
 
+// GetAdminRankingsParams defines parameters for GetAdminRankings.
+type GetAdminRankingsParams struct {
+	Year *int `form:"year,omitempty" json:"year,omitempty"`
+}
+
+// GetAdminBrandPieRankingsParams defines parameters for GetAdminBrandPieRankings.
+type GetAdminBrandPieRankingsParams struct {
+	Year *int `form:"year,omitempty" json:"year,omitempty"`
+}
+
+// DeleteAdminBrandPieRankingParams defines parameters for DeleteAdminBrandPieRanking.
+type DeleteAdminBrandPieRankingParams struct {
+	Year *int `form:"year,omitempty" json:"year,omitempty"`
+}
+
+// GetAdminUserPieRankingsParams defines parameters for GetAdminUserPieRankings.
+type GetAdminUserPieRankingsParams struct {
+	Year *int `form:"year,omitempty" json:"year,omitempty"`
+}
+
+// DeleteAdminUserPieRankingParams defines parameters for DeleteAdminUserPieRanking.
+type DeleteAdminUserPieRankingParams struct {
+	Year *int `form:"year,omitempty" json:"year,omitempty"`
+}
+
 // GetAdminUserPiesParams defines parameters for GetAdminUserPies.
 type GetAdminUserPiesParams struct {
 	Year   *int64  `form:"year,omitempty" json:"year,omitempty"`

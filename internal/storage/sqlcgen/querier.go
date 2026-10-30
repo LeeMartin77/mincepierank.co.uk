@@ -13,9 +13,11 @@ type Querier interface {
 	CreateUserPie(ctx context.Context, arg CreateUserPieParams) (UserPieYearly, error)
 	DeleteConfig(ctx context.Context, key string) error
 	DeleteMakerPieByOid(ctx context.Context, oid string) error
+	DeleteMakerPieRanking(ctx context.Context, arg DeleteMakerPieRankingParams) error
 	DeleteUserPie(ctx context.Context, arg DeleteUserPieParams) error
 	DeleteUserPieByOid(ctx context.Context, arg DeleteUserPieByOidParams) error
 	DeleteUserPieByOwner(ctx context.Context, arg DeleteUserPieByOwnerParams) error
+	DeleteUserPieRanking(ctx context.Context, arg DeleteUserPieRankingParams) error
 	DeleteUserPieRankings(ctx context.Context, arg DeleteUserPieRankingsParams) error
 	DeleteUserPieRankingsByUser(ctx context.Context, arg DeleteUserPieRankingsByUserParams) error
 	GetActiveYear(ctx context.Context) (int64, error)
@@ -41,6 +43,10 @@ type Querier interface {
 	GetUserPieYearIDs(ctx context.Context, year int32) ([]string, error)
 	InsertConfig(ctx context.Context, arg InsertConfigParams) error
 	IsAdminId(ctx context.Context, userID string) (bool, error)
+	ListMakerPieRankingSummaries(ctx context.Context, year int32) ([]ListMakerPieRankingSummariesRow, error)
+	ListMakerPieRankingsForPie(ctx context.Context, arg ListMakerPieRankingsForPieParams) ([]MakerPieRankingYearly, error)
+	ListUserPieRankingSummaries(ctx context.Context, year int32) ([]ListUserPieRankingSummariesRow, error)
+	ListUserPieRankingsForPie(ctx context.Context, arg ListUserPieRankingsForPieParams) ([]UserPieRankingYearly, error)
 	UpdateConfig(ctx context.Context, arg UpdateConfigParams) error
 	UpdateMakerPieByOid(ctx context.Context, arg UpdateMakerPieByOidParams) error
 	UpdateMakerPieImageByOid(ctx context.Context, arg UpdateMakerPieImageByOidParams) error
