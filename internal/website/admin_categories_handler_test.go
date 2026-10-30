@@ -176,8 +176,8 @@ func TestAdminCategoryCreate(t *testing.T) {
 	store.querier.isAdmin, store.querier.activeYe = true, 2026
 	r := newCategoryTestRouter(t, store)
 
-	// slug is derived from the label and we redirect to the edit page
-	w := postCategoryForm(r, "POST", "/admin/categories", url.Values{"label": {"Vegan Options"}})
+	// the supplied slug is kept and we redirect to the edit page
+	w := postCategoryForm(r, "POST", "/admin/categories", url.Values{"label": {"Vegan Options"}, "slug": {"vegan-options"}})
 	if w.Code != http.StatusSeeOther || !strings.HasPrefix(w.Header().Get("Location"), "/admin/categories/") {
 		t.Fatalf("create should redirect to the new category, got %d %q", w.Code, w.Header().Get("Location"))
 	}
@@ -188,7 +188,13 @@ func TestAdminCategoryCreate(t *testing.T) {
 		}
 	}
 	if created == nil {
-		t.Fatalf("category not persisted with derived slug: %v", store.cats)
+		t.Fatalf("category not persisted with supplied slug: %v", store.cats)
+	}
+
+	// missing slug is rejected, never derived from the label
+	w = postCategoryForm(r, "POST", "/admin/categories", url.Values{"label": {"Gluten Free"}})
+	if w.Code != http.StatusBadRequest || !strings.Contains(w.Body.String(), "Category slug is required") {
+		t.Errorf("missing slug = %d, want 400 with required-slug message", w.Code)
 	}
 
 	// missing label is rejected with the form re-rendered

@@ -58,8 +58,8 @@
           <input class="form-control" name="label" id="label" type="text" value="{{.PageData.Form.label}}" required>
         </div>
         <div class="col-md-4">
-          <label class="form-label" for="slug">Slug (optional)</label>
-          <input class="form-control" name="slug" id="slug" type="text" value="{{.PageData.Form.slug}}" placeholder="derived from the label">
+          <label class="form-label" for="slug">Slug</label>
+          <input class="form-control" name="slug" id="slug" type="text" placeholder="short lowercase slug, e.g. vegetarian" value="{{.PageData.Form.slug}}" required pattern="[a-z0-9][a-z0-9-]{0,63}" title="lowercase letters, numbers and dashes">
         </div>
       </div>
 

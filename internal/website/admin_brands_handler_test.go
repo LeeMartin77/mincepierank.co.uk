@@ -155,17 +155,26 @@ func TestAdminBrandCreate(t *testing.T) {
 	store.querier.isAdmin, store.querier.activeYe = true, 2026
 	r := newBrandTestRouter(t, store)
 
-	form := url.Values{"name": {"Bramwell's"}, "website": {"https://bramwells.example"}}
+	form := url.Values{"name": {"Bramwell's"}, "id": {"bramwell-s"}, "website": {"https://bramwells.example"}}
 	w := httptest.NewRecorder()
 	req := httptest.NewRequest("POST", "/admin/brands", strings.NewReader(form.Encode()))
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	r.ServeHTTP(w, req)
 
 	if w.Code != http.StatusSeeOther || w.Header().Get("Location") != "/admin/brands/bramwell-s" {
-		t.Fatalf("create should redirect to the derived id, got %d %q", w.Code, w.Header().Get("Location"))
+		t.Fatalf("create should redirect to the supplied id, got %d %q", w.Code, w.Header().Get("Location"))
 	}
 	if _, ok := store.brands["bramwell-s"]; !ok {
 		t.Errorf("brand not persisted: %v", store.brands)
+	}
+
+	// missing id is rejected, never derived from the name
+	w = httptest.NewRecorder()
+	req = httptest.NewRequest("POST", "/admin/brands", strings.NewReader(url.Values{"name": {"Bramwell's Other"}}.Encode()))
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	r.ServeHTTP(w, req)
+	if w.Code != http.StatusBadRequest || !strings.Contains(w.Body.String(), "Brand id is required") {
+		t.Errorf("missing id = %d, want 400 with required-id message", w.Code)
 	}
 
 	// missing name is rejected with the form re-rendered

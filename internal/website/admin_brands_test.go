@@ -5,31 +5,6 @@ import (
 	"testing"
 )
 
-func TestBrandIDFromName(t *testing.T) {
-	tests := []struct {
-		name string
-		in   string
-		want string
-	}{
-		{"simple", "Bramwell", "bramwell"},
-		{"spaces to dashes", "Mrs Smith Pies", "mrs-smith-pies"},
-		{"apostrophes stripped", "Bramwell's", "bramwell-s"},
-		{"punctuation collapsed", "Co-op!! Cakes", "co-op-cakes"},
-		{"trims dashes", "  --Greggs--  ", "greggs"},
-		{"already slugged", "bramwell-pies", "bramwell-pies"},
-		{"numbers kept", "9 Lives Pies", "9-lives-pies"},
-		{"no alphanumerics", "!!!", ""},
-		{"empty", "", ""},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := brandIDFromName(tt.in); got != tt.want {
-				t.Errorf("brandIDFromName(%q) = %q, want %q", tt.in, got, tt.want)
-			}
-		})
-	}
-}
-
 func TestValidateBrandForm(t *testing.T) {
 	tests := []struct {
 		name     string
@@ -38,9 +13,13 @@ func TestValidateBrandForm(t *testing.T) {
 		wantID   string
 		wantErrs int
 	}{
-		{"id derived from name", "Bramwell's", "", "bramwell-s", 0},
 		{"explicit id kept", "Bramwell's", "bramwells", "bramwells", 0},
 		{"explicit valid id", "Anything", "a1-2", "a1-2", 0},
+		{
+			name:     "missing id is rejected, never derived",
+			formName: "Bramwell's", formID: "",
+			wantErrs: 1,
+		},
 		{
 			name:     "name required",
 			formName: "", formID: "x",
@@ -67,7 +46,7 @@ func TestValidateBrandForm(t *testing.T) {
 			wantErrs: 1,
 		},
 		{
-			name:     "name with no alphanumerics cannot derive an id",
+			name:     "missing id rejected even when name is unusable",
 			formName: "!!!", formID: "",
 			wantErrs: 1,
 		},

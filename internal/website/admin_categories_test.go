@@ -13,17 +13,21 @@ func TestValidateCategoryForm(t *testing.T) {
 		wantSlug  string
 		wantErrs  int
 	}{
-		{"slug derived from label", "Gluten Free", "", "Gluten Free", "gluten-free", 0},
+		{
+			name:      "missing slug rejected, never derived",
+			formLabel: "Gluten Free",
+			wantLabel: "Gluten Free", wantErrs: 1,
+		},
 		{"explicit slug kept", "Dairy Free", "nofreefrom", "Dairy Free", "nofreefrom", 0},
 		{"explicit valid slug", "Anything", "a1-2", "Anything", "a1-2", 0},
-		{"label is trimmed", "  Vegan  ", "", "Vegan", "vegan", 0},
+		{"label is trimmed", "  Vegan  ", "vegan", "Vegan", "vegan", 0},
 		{
 			name:     "label required",
 			formSlug: "x", wantSlug: "x",
 			wantErrs: 1,
 		},
 		{
-			name:      "slug not derivable",
+			name:      "missing slug rejected even when label is unusable",
 			formLabel: "!!!", wantLabel: "!!!",
 			wantErrs: 1,
 		},

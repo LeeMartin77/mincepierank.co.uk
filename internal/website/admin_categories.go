@@ -13,9 +13,9 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-// validateCategoryForm checks the label and derives a slug from it (or takes
-// an explicit slug) using the same convention as the brands: lowercase,
-// spaces to dashes.
+// validateCategoryForm checks the label and slug. The slug is entirely user
+// controlled — it is used in public category URLs, so the user must supply a
+// suitable one instead of having one derived from the label.
 func validateCategoryForm(label, slug string) (string, string, []string) {
 	errs := []string{}
 	label = strings.TrimSpace(label)
@@ -25,12 +25,8 @@ func validateCategoryForm(label, slug string) (string, string, []string) {
 
 	slug = strings.TrimSpace(slug)
 	if slug == "" {
-		slug = brandIDFromName(label)
-		if slug == "" {
-			errs = append(errs, "Category slug could not be derived from the label — supply one")
-		}
-	}
-	if slug != "" && !brandIDPattern.MatchString(slug) {
+		errs = append(errs, "Category slug is required — pick a short lowercase slug such as \"vegetarian\"")
+	} else if !brandIDPattern.MatchString(slug) {
 		errs = append(errs, "Category slug must be lowercase letters, numbers and dashes (e.g. \"vegetarian\")")
 	}
 	return label, slug, errs

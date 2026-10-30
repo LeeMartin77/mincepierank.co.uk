@@ -34,7 +34,7 @@ type UnexpectedError = Error
 // CreateAdminBrandMultipartBody defines parameters for CreateAdminBrand.
 type CreateAdminBrandMultipartBody struct {
 	CsrfToken *string             `json:"csrf_token,omitempty"`
-	Id        *string             `json:"id,omitempty"`
+	Id        string              `json:"id"`
 	Logo      *openapi_types.File `json:"logo,omitempty"`
 	Name      string              `json:"name"`
 	Website   *string             `json:"website,omitempty"`
@@ -51,7 +51,7 @@ type UpdateAdminBrandMultipartBody struct {
 type CreateAdminCategoryFormdataBody struct {
 	CsrfToken *string `form:"csrf_token,omitempty" json:"csrf_token,omitempty"`
 	Label     string  `form:"label" json:"label"`
-	Slug      *string `form:"slug,omitempty" json:"slug,omitempty"`
+	Slug      string  `form:"slug" json:"slug"`
 }
 
 // UpdateAdminCategoryFormdataBody defines parameters for UpdateAdminCategory.

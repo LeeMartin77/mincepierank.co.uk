@@ -60,8 +60,8 @@
           <input class="form-control" name="name" id="name" type="text" placeholder="e.g. Bramwell's" value="{{with .PageData.Form}}{{.name}}{{end}}" required>
         </div>
         <div class="col-md-4">
-          <label class="form-label" for="id">Id / slug <small class="text-muted">(optional — derived from name)</small></label>
-          <input class="form-control" name="id" id="id" type="text" placeholder="lowercase letters, numbers, dashes" value="{{with .PageData.Form}}{{.id}}{{end}}">
+          <label class="form-label" for="id">Id / slug</label>
+          <input class="form-control" name="id" id="id" type="text" placeholder="short lowercase slug, e.g. bramwell" value="{{with .PageData.Form}}{{.id}}{{end}}" required pattern="[a-z0-9][a-z0-9-]{0,63}" title="lowercase letters, numbers and dashes">
         </div>
         <div class="col-md-4">
           <label class="form-label" for="website">Website</label>

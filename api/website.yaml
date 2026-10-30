@@ -725,6 +725,7 @@ paths:
               type: object
               required:
                 - name
+                - id
               properties:
                 id:
                   type: string
@@ -868,6 +869,7 @@ paths:
               type: object
               required:
                 - label
+                - slug
               properties:
                 label:
                   type: string

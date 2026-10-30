@@ -19,17 +19,10 @@ import (
 // paths under ImgprssrDir (/brands/{id}/{filename}), so keep them path-safe.
 var brandIDPattern = regexp.MustCompile(`^[a-z0-9][a-z0-9-]{0,63}$`)
 
-// brandIDFromName derives a brand id from a display name using the same
-// convention as the category seed migration: lowercase, spaces to dashes.
-func brandIDFromName(name string) string {
-	id := strings.ToLower(strings.TrimSpace(name))
-	id = regexp.MustCompile(`[^a-z0-9]+`).ReplaceAllString(id, "-")
-	id = strings.Trim(id, "-")
-	return id
-}
-
-// validateBrandForm resolves and checks the id for a brand create, returning
-// the id and any validation errors.
+// validateBrandForm checks the name and id for a brand create, returning
+// the id and any validation errors. The id is entirely user controlled —
+// it is used in URLs and filesystem paths, so the user must supply a
+// suitable one instead of having one derived from the name.
 func validateBrandForm(name, id string) (string, []string) {
 	errs := []string{}
 	name = strings.TrimSpace(name)
@@ -39,12 +32,8 @@ func validateBrandForm(name, id string) (string, []string) {
 
 	id = strings.TrimSpace(id)
 	if id == "" {
-		id = brandIDFromName(name)
-		if id == "" {
-			errs = append(errs, "Brand id could not be derived from the name — supply one")
-		}
-	}
-	if id != "" && !brandIDPattern.MatchString(id) {
+		errs = append(errs, "Brand id is required — pick a short lowercase slug such as \"bramwell\"")
+	} else if !brandIDPattern.MatchString(id) {
 		errs = append(errs, "Brand id must be lowercase letters, numbers and dashes (e.g. \"bramwell\")")
 	}
 	return id, errs
