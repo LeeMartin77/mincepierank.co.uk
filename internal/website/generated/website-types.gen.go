@@ -33,10 +33,11 @@ type UnexpectedError = Error
 
 // CreateAdminBrandMultipartBody defines parameters for CreateAdminBrand.
 type CreateAdminBrandMultipartBody struct {
-	Id      *string             `json:"id,omitempty"`
-	Logo    *openapi_types.File `json:"logo,omitempty"`
-	Name    string              `json:"name"`
-	Website *string             `json:"website,omitempty"`
+	CsrfToken *string             `json:"csrf_token,omitempty"`
+	Id        *string             `json:"id,omitempty"`
+	Logo      *openapi_types.File `json:"logo,omitempty"`
+	Name      string              `json:"name"`
+	Website   *string             `json:"website,omitempty"`
 }
 
 // UpdateAdminBrandMultipartBody defines parameters for UpdateAdminBrand.
@@ -48,8 +49,9 @@ type UpdateAdminBrandMultipartBody struct {
 
 // CreateAdminCategoryFormdataBody defines parameters for CreateAdminCategory.
 type CreateAdminCategoryFormdataBody struct {
-	Label string  `form:"label" json:"label"`
-	Slug  *string `form:"slug,omitempty" json:"slug,omitempty"`
+	CsrfToken *string `form:"csrf_token,omitempty" json:"csrf_token,omitempty"`
+	Label     string  `form:"label" json:"label"`
+	Slug      *string `form:"slug,omitempty" json:"slug,omitempty"`
 }
 
 // UpdateAdminCategoryFormdataBody defines parameters for UpdateAdminCategory.
@@ -70,35 +72,36 @@ type UpdateAdminConfigFormdataBody struct {
 
 // CreateMakerPieAdminMultipartBody defines parameters for CreateMakerPieAdmin.
 type CreateMakerPieAdminMultipartBody struct {
+	CsrfToken        *string            `json:"csrf_token,omitempty"`
 	Displayname      string             `json:"displayname"`
 	Fresh            bool               `json:"fresh"`
 	Id               string             `json:"id"`
-	ImageFile        openapi_types.File `json:"imageFile"`
-	Labels           string             `json:"labels"`
+	Img              openapi_types.File `json:"img"`
 	Makerid          string             `json:"makerid"`
-	PackCount        int32              `json:"packCount"`
-	PackPriceInPence int32              `json:"packPriceInPence"`
+	PackCount        int32              `json:"pack_count"`
+	PackPriceInPence int32              `json:"pack_price_in_pence"`
 	Validated        bool               `json:"validated"`
-	WebLink          string             `json:"webLink"`
+	WebLink          string             `json:"web_link"`
 	Year             int32              `json:"year"`
 }
 
 // BulkCreateMakerPieAdminMultipartBody defines parameters for BulkCreateMakerPieAdmin.
 type BulkCreateMakerPieAdminMultipartBody struct {
-	ZipFile openapi_types.File `json:"zipFile"`
+	CsrfToken *string            `json:"csrf_token,omitempty"`
+	ZipFile   openapi_types.File `json:"zipFile"`
 }
 
 // UpdateMakerPieMultipartBody defines parameters for UpdateMakerPie.
 type UpdateMakerPieMultipartBody struct {
 	Categories       []string            `json:"categories"`
+	CsrfToken        *string             `json:"csrf_token,omitempty"`
 	Displayname      string              `json:"displayname"`
 	Fresh            bool                `json:"fresh"`
-	ImageFile        *openapi_types.File `json:"imageFile,omitempty"`
-	Labels           string              `json:"labels"`
-	PackCount        int32               `json:"packCount"`
-	PackPriceInPence int32               `json:"packPriceInPence"`
+	Img              *openapi_types.File `json:"img,omitempty"`
+	PackCount        int32               `json:"pack_count"`
+	PackPriceInPence int32               `json:"pack_price_in_pence"`
 	Validated        bool                `json:"validated"`
-	WebLink          string              `json:"webLink"`
+	WebLink          string              `json:"web_link"`
 }
 
 // GetAdminRankingsParams defines parameters for GetAdminRankings.
@@ -140,14 +143,21 @@ type GetAdminUserPieDuplicatesParams struct {
 	Year *int64 `form:"year,omitempty" json:"year,omitempty"`
 }
 
+// PostAdminUserPieApproveFormdataBody defines parameters for PostAdminUserPieApprove.
+type PostAdminUserPieApproveFormdataBody struct {
+	CsrfToken *string `form:"csrf_token,omitempty" json:"csrf_token,omitempty"`
+}
+
 // PostAdminUserPieDuplicateFormdataBody defines parameters for PostAdminUserPieDuplicate.
 type PostAdminUserPieDuplicateFormdataBody struct {
-	DuplicateOf string `form:"duplicateOf" json:"duplicateOf"`
+	CsrfToken   *string `form:"csrf_token,omitempty" json:"csrf_token,omitempty"`
+	DuplicateOf string  `form:"duplicateOf" json:"duplicateOf"`
 }
 
 // PostAdminUserPiePromoteMultipartBody defines parameters for PostAdminUserPiePromote.
 type PostAdminUserPiePromoteMultipartBody struct {
 	Categories       []string `json:"categories"`
+	CsrfToken        *string  `json:"csrf_token,omitempty"`
 	Displayname      string   `json:"displayname"`
 	Fresh            bool     `json:"fresh"`
 	Labels           string   `json:"labels"`
@@ -161,20 +171,21 @@ type PostAdminUserPiePromoteMultipartBody struct {
 
 // PostAdminUserPieRejectFormdataBody defines parameters for PostAdminUserPieReject.
 type PostAdminUserPieRejectFormdataBody struct {
-	Note *string `form:"note,omitempty" json:"note,omitempty"`
+	CsrfToken *string `form:"csrf_token,omitempty" json:"csrf_token,omitempty"`
+	Note      *string `form:"note,omitempty" json:"note,omitempty"`
 }
 
 // EditUserPieMultipartBody defines parameters for EditUserPie.
 type EditUserPieMultipartBody struct {
-	Displayname      string             `json:"displayname"`
-	Fresh            bool               `json:"fresh"`
-	ImageFile        openapi_types.File `json:"imageFile"`
-	Labels           string             `json:"labels"`
-	Location         string             `json:"location"`
-	Maker            string             `json:"maker"`
-	PackCount        int32              `json:"packCount"`
-	PackPriceInPence int32              `json:"packPriceInPence"`
-	WebLink          string             `json:"webLink"`
+	Displayname string             `json:"displayname"`
+	Fresh       bool               `json:"fresh"`
+	ImageFile   openapi_types.File `json:"imageFile"`
+	Labels      string             `json:"labels"`
+	Location    string             `json:"location"`
+	Maker       string             `json:"maker"`
+	PackCount   int32              `json:"packCount"`
+	PackPrice   int32              `json:"packPrice"`
+	WebLink     string             `json:"webLink"`
 }
 
 // YearPersonalRankingParams defines parameters for YearPersonalRanking.
@@ -224,15 +235,15 @@ type YearCategoryPiesParams struct {
 
 // SubmitPieMultipartBody defines parameters for SubmitPie.
 type SubmitPieMultipartBody struct {
-	Displayname      string             `json:"displayname"`
-	Fresh            bool               `json:"fresh"`
-	ImageFile        openapi_types.File `json:"imageFile"`
-	Labels           string             `json:"labels"`
-	Location         string             `json:"location"`
-	Maker            string             `json:"maker"`
-	PackCount        int32              `json:"packCount"`
-	PackPriceInPence int32              `json:"packPriceInPence"`
-	WebLink          string             `json:"webLink"`
+	Displayname string             `json:"displayname"`
+	Fresh       bool               `json:"fresh"`
+	ImageFile   openapi_types.File `json:"imageFile"`
+	Labels      string             `json:"labels"`
+	Location    string             `json:"location"`
+	Maker       string             `json:"maker"`
+	PackCount   int32              `json:"packCount"`
+	PackPrice   int32              `json:"packPrice"`
+	WebLink     string             `json:"webLink"`
 }
 
 // ListUserPiesParams defines parameters for ListUserPies.
@@ -276,6 +287,9 @@ type BulkCreateMakerPieAdminMultipartRequestBody BulkCreateMakerPieAdminMultipar
 
 // UpdateMakerPieMultipartRequestBody defines body for UpdateMakerPie for multipart/form-data ContentType.
 type UpdateMakerPieMultipartRequestBody UpdateMakerPieMultipartBody
+
+// PostAdminUserPieApproveFormdataRequestBody defines body for PostAdminUserPieApprove for application/x-www-form-urlencoded ContentType.
+type PostAdminUserPieApproveFormdataRequestBody PostAdminUserPieApproveFormdataBody
 
 // PostAdminUserPieDuplicateFormdataRequestBody defines body for PostAdminUserPieDuplicate for application/x-www-form-urlencoded ContentType.
 type PostAdminUserPieDuplicateFormdataRequestBody PostAdminUserPieDuplicateFormdataBody

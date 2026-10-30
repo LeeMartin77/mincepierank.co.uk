@@ -78,7 +78,7 @@ func (wrpr *WebsiteWrapper) GetAdminRankings(c *gin.Context, params generated.Ge
 			"PageErrors": []string{},
 		},
 	}
-	c.HTML(http.StatusOK, "page:admin:rankings", vals)
+	wrpr.html(c, http.StatusOK, "page:admin:rankings", vals)
 }
 
 // GetAdminBrandPieRankings implements generated.ServerInterface. The review
@@ -155,7 +155,7 @@ func (wrpr *WebsiteWrapper) GetAdminBrandPieRankings(c *gin.Context, brand strin
 			"PageErrors": []string{},
 		},
 	}
-	c.HTML(http.StatusOK, "page:admin:rankreview", vals)
+	wrpr.html(c, http.StatusOK, "page:admin:rankreview", vals)
 }
 
 // DeleteAdminBrandPieRanking implements generated.ServerInterface.
@@ -259,7 +259,7 @@ func (wrpr *WebsiteWrapper) GetAdminUserPieRankings(c *gin.Context, id string, p
 			"PageErrors": []string{},
 		},
 	}
-	c.HTML(http.StatusOK, "page:admin:rankreview", vals)
+	wrpr.html(c, http.StatusOK, "page:admin:rankreview", vals)
 }
 
 // DeleteAdminUserPieRanking implements generated.ServerInterface.

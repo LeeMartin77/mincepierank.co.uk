@@ -148,7 +148,7 @@ func (wrpr *WebsiteWrapper) GetAdminUserPies(c *gin.Context, params generated.Ge
 		},
 	}
 
-	c.HTML(http.StatusOK, "page:admin:userpies", vals)
+	wrpr.html(c, http.StatusOK, "page:admin:userpies", vals)
 }
 
 // GetAdminUserPie implements generated.ServerInterface.
@@ -229,7 +229,7 @@ func userPieReviewPage(wrpr *WebsiteWrapper, c *gin.Context, status int, pieWith
 		},
 	}
 
-	c.HTML(status, "page:admin:userpie", vals)
+	wrpr.html(c, status, "page:admin:userpie", vals)
 }
 
 // PostAdminUserPieApprove implements generated.ServerInterface.
@@ -467,7 +467,7 @@ func (wrpr *WebsiteWrapper) GetAdminUserPieDuplicates(c *gin.Context, params gen
 		},
 	}
 
-	c.HTML(http.StatusOK, "page:admin:userpie_duplicates", vals)
+	wrpr.html(c, http.StatusOK, "page:admin:userpie_duplicates", vals)
 }
 
 // DeleteAdminUserPie implements generated.ServerInterface.

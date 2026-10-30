@@ -51,6 +51,7 @@
 <div class="card mb-4">
   <div class="card-body">
     <form method="post" action="/admin/categories">
+        <input type="hidden" name="csrf_token" value="{{$.Head.CsrfToken}}">
       <div class="row g-3">
         <div class="col-md-4">
           <label class="form-label" for="label">Label</label>

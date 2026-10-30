@@ -337,7 +337,7 @@ paths:
                 - imageFile
                 - webLink
                 - packCount
-                - packPriceInPence
+                - packPrice
               properties:
                 displayname:
                   type: string
@@ -357,7 +357,7 @@ paths:
                 packCount:
                   type: number
                   x-go-type: int32
-                packPriceInPence:
+                packPrice:
                   type: number
                   x-go-type: int32
       responses:
@@ -532,7 +532,7 @@ paths:
                 - imageFile
                 - webLink
                 - packCount
-                - packPriceInPence
+                - packPrice
               properties:
                 displayname:
                   type: string
@@ -552,7 +552,7 @@ paths:
                 packCount:
                   type: number
                   x-go-type: int32
-                packPriceInPence:
+                packPrice:
                   type: number
                   x-go-type: int32
       responses:
@@ -735,6 +735,8 @@ paths:
                 logo:
                   type: string
                   format: binary
+                csrf_token:
+                  type: string
       responses:
         "303":
           description: Success — redirect to brand edit page
@@ -870,6 +872,8 @@ paths:
                 label:
                   type: string
                 slug:
+                  type: string
+                csrf_token:
                   type: string
       responses:
         "303":
@@ -1142,11 +1146,10 @@ paths:
                 - id
                 - displayname
                 - fresh
-                - labels
-                - imageFile
-                - webLink
-                - packCount
-                - packPriceInPence
+                - img
+                - web_link
+                - pack_count
+                - pack_price_in_pence
                 - validated
               properties:
                 year:
@@ -1160,21 +1163,21 @@ paths:
                   type: string
                 fresh:
                   type: boolean
-                labels:
-                  type: string
-                imageFile:
+                img:
                   type: string
                   format: binary
-                webLink:
+                web_link:
                   type: string
-                packCount:
+                pack_count:
                   type: number
                   x-go-type: int32
-                packPriceInPence:
+                pack_price_in_pence:
                   type: number
                   x-go-type: int32
                 validated:
                   type: boolean
+                csrf_token:
+                  type: string
       responses:
         "200":
           description: Admin config
@@ -1204,6 +1207,8 @@ paths:
                 zipFile:
                   type: string
                   format: binary
+                csrf_token:
+                  type: string
       responses:
         "303":
           description: Success! Redirect to admin pies page
@@ -1278,10 +1283,9 @@ paths:
               required:
                 - displayname
                 - fresh
-                - labels
-                - webLink
-                - packCount
-                - packPriceInPence
+                - web_link
+                - pack_count
+                - pack_price_in_pence
                 - categories
                 - validated
               properties:
@@ -1289,25 +1293,25 @@ paths:
                   type: string
                 fresh:
                   type: boolean
-                labels:
-                  type: string
-                imageFile:
+                img:
                   type: string
                   format: binary
-                webLink:
+                web_link:
                   type: string
                 categories:
                   type: array
                   items: 
                     type: string
-                packCount:
+                pack_count:
                   type: number
                   x-go-type: int32
-                packPriceInPence:
+                pack_price_in_pence:
                   type: number
                   x-go-type: int32
                 validated:
                   type: boolean
+                csrf_token:
+                  type: string
       responses:
         "200":
           description: Admin config
@@ -1473,6 +1477,16 @@ paths:
             type: string
       tags:
         - admin
+      requestBody:
+        description: Approve form data
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                csrf_token:
+                  type: string
       responses:
         "200":
           description: Approved
@@ -1546,6 +1560,8 @@ paths:
                   x-go-type: int32
                 validated:
                   type: boolean
+                csrf_token:
+                  type: string
       responses:
         "200":
           description: Promoted
@@ -1585,6 +1601,8 @@ paths:
               type: object
               properties:
                 note:
+                  type: string
+                csrf_token:
                   type: string
       responses:
         "200":
@@ -1627,6 +1645,8 @@ paths:
                 - duplicateOf
               properties:
                 duplicateOf:
+                  type: string
+                csrf_token:
                   type: string
       responses:
         "200":

@@ -11,6 +11,7 @@ import (
 
 type Website struct {
 	auth            AuthHandler
+	csrf            *csrfHandler
 	serverInterface generated.ServerInterface
 	htmlTemplater   templater.Templater
 }
@@ -43,6 +44,7 @@ func NewWebsite(cfg WebsiteConfiguration) (*Website, error) {
 	return &Website{
 
 		auth:            ac,
+		csrf:            newCsrfHandler(client, cfg),
 		htmlTemplater:   tmpltr,
 		serverInterface: fsi,
 	}, nil

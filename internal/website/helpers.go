@@ -11,8 +11,18 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/leemartin77/mincepierank.co.uk/internal/storage/types"
+	"github.com/leemartin77/mincepierank.co.uk/internal/templater"
 	"github.com/rs/zerolog/log"
 )
+
+// html renders a page template, filling in the per-session CSRF token that
+// csrf.Middleware stashed on the request so templates can echo it back.
+func (wrpr *WebsiteWrapper) html(c *gin.Context, code int, page string, vals templater.PageData) {
+	if vals.Head.CsrfToken == "" {
+		vals.Head.CsrfToken, _ = c.Keys["csrf_token"].(string)
+	}
+	c.HTML(code, page, vals)
+}
 
 // saveUploadedFile writes the multipart file from formField to
 // imgprssrDir/<pathParts...>/<filename> and returns the public path (with

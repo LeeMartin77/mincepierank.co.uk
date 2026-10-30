@@ -87,7 +87,7 @@ func (wrpr *WebsiteWrapper) MyUserPies(c *gin.Context, year int64) {
 		},
 	}
 
-	c.HTML(http.StatusOK, "page:profilepies", vals)
+	wrpr.html(c, http.StatusOK, "page:profilepies", vals)
 }
 
 // editUserPieForm implements generated.ServerInterface.
@@ -157,7 +157,7 @@ func (wrpr *WebsiteWrapper) EditUserPieForm(c *gin.Context, year int64, id strin
 		},
 	}
 
-	c.HTML(http.StatusOK, "page:editpie", vals)
+	wrpr.html(c, http.StatusOK, "page:editpie", vals)
 }
 
 // editUserPie implements generated.ServerInterface.
@@ -211,7 +211,7 @@ func (wrpr *WebsiteWrapper) EditUserPie(c *gin.Context, year int64, id string) {
 	}
 
 	if ro {
-		c.HTML(http.StatusOK, "page:editpie", templater.PageData{
+		wrpr.html(c, http.StatusOK, "page:editpie", templater.PageData{
 			Head: templater.PageDataHead{
 				Snow:         wrpr.snowing(c),
 				Title:        "Edit pie",
@@ -285,7 +285,7 @@ func (wrpr *WebsiteWrapper) EditUserPie(c *gin.Context, year int64, id string) {
 	}
 
 	if len(errs) > 0 {
-		c.HTML(http.StatusOK, "page:editpie", templater.PageData{
+		wrpr.html(c, http.StatusOK, "page:editpie", templater.PageData{
 			Head: templater.PageDataHead{
 				Snow:         wrpr.snowing(c),
 				Title:        "Edit pie",

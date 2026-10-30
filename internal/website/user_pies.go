@@ -63,7 +63,7 @@ func (wrpr *WebsiteWrapper) SubmitPieForm(c *gin.Context, year int64) {
 		},
 	}
 
-	c.HTML(http.StatusOK, "page:submit", vals)
+	wrpr.html(c, http.StatusOK, "page:submit", vals)
 }
 
 // submitPie implements generated.ServerInterface.
@@ -93,7 +93,7 @@ func (wrpr *WebsiteWrapper) SubmitPie(c *gin.Context, year int64) {
 	}
 
 	if ro {
-		c.HTML(http.StatusOK, "page:submit", templater.PageData{
+		wrpr.html(c, http.StatusOK, "page:submit", templater.PageData{
 			Head: templater.PageDataHead{
 				Snow:         wrpr.snowing(c),
 				Title:        "Submit a pie",
@@ -135,7 +135,7 @@ func (wrpr *WebsiteWrapper) SubmitPie(c *gin.Context, year int64) {
 	}
 
 	if len(errs) > 0 {
-		c.HTML(http.StatusOK, "page:submit", templater.PageData{
+		wrpr.html(c, http.StatusOK, "page:submit", templater.PageData{
 			Head: templater.PageDataHead{
 				Snow:         wrpr.snowing(c),
 				Title:        "Submit a pie",
@@ -190,7 +190,7 @@ func (wrpr *WebsiteWrapper) SubmitPie(c *gin.Context, year int64) {
 	}
 
 	if len(errs) > 0 {
-		c.HTML(http.StatusOK, "page:submit", templater.PageData{
+		wrpr.html(c, http.StatusOK, "page:submit", templater.PageData{
 			Head: templater.PageDataHead{
 				Snow:         wrpr.snowing(c),
 				Title:        "Submit a pie",
@@ -329,7 +329,7 @@ func (wrpr *WebsiteWrapper) ListUserPies(c *gin.Context, year int64, params gene
 		},
 	}
 
-	c.HTML(http.StatusOK, "page:userpielist", vals)
+	wrpr.html(c, http.StatusOK, "page:userpielist", vals)
 }
 
 // getUserPie implements generated.ServerInterface.
@@ -489,7 +489,7 @@ func (wrpr *WebsiteWrapper) getUserPiePage(c *gin.Context, year int64, id string
 		},
 	}
 
-	c.HTML(http.StatusOK, "page:userpie", vals)
+	wrpr.html(c, http.StatusOK, "page:userpie", vals)
 }
 
 // getMakersForYear is a helper to fetch makers for the dropdown.

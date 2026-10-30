@@ -118,5 +118,5 @@ func (wrpr *WebsiteWrapper) HomePage(c *gin.Context) {
 		vals.PageData = og
 	}
 
-	c.HTML(http.StatusOK, "page:index", vals)
+	wrpr.html(c, http.StatusOK, "page:index", vals)
 }

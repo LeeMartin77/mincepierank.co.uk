@@ -75,7 +75,7 @@ func (wrpr *WebsiteWrapper) GetAdminIndex(c *gin.Context) {
 		}
 	}
 
-	c.HTML(http.StatusOK, "page:admin:index", vals)
+	wrpr.html(c, http.StatusOK, "page:admin:index", vals)
 }
 
 func configPage(wrpr *WebsiteWrapper, c *gin.Context) {
@@ -106,7 +106,7 @@ func configPage(wrpr *WebsiteWrapper, c *gin.Context) {
 		},
 	}
 
-	c.HTML(http.StatusOK, "page:admin:config", vals)
+	wrpr.html(c, http.StatusOK, "page:admin:config", vals)
 }
 
 // GetAdminConfig implements generated.ServerInterface.
@@ -201,7 +201,7 @@ func piesPage(wrpr *WebsiteWrapper, c *gin.Context, pageErrs ...string) {
 		},
 	}
 
-	c.HTML(http.StatusOK, "page:admin:pies", vals)
+	wrpr.html(c, http.StatusOK, "page:admin:pies", vals)
 }
 
 // brandExists reports whether a maker row exists for the id, so creates and
@@ -263,7 +263,7 @@ func piePage(wrpr *WebsiteWrapper, c *gin.Context, oid string, pageErrs ...strin
 		},
 	}
 
-	c.HTML(http.StatusOK, "page:admin:pie", vals)
+	wrpr.html(c, http.StatusOK, "page:admin:pie", vals)
 }
 
 // GetMakerPie implements generated.ServerInterface.

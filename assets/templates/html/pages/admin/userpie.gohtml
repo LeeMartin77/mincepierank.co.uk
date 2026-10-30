@@ -47,15 +47,18 @@
         <div class="card-body">
           <h5>Actions</h5>
           <form method="post" action="/admin/userpies/{{.PageData.Year}}/{{.PageData.Pie.Id}}/{{.PageData.OwnerID}}/approve" class="d-inline">
+        <input type="hidden" name="csrf_token" value="{{$.Head.CsrfToken}}">
             <button class="btn btn-success" type="submit">Approve</button>
           </form>
           <form method="post" action="/admin/userpies/{{.PageData.Year}}/{{.PageData.Pie.Id}}/{{.PageData.OwnerID}}/reject" class="d-inline ms-2">
+        <input type="hidden" name="csrf_token" value="{{$.Head.CsrfToken}}">
             <div class="mb-2">
               <input class="form-control" name="note" placeholder="Rejection reason (optional)">
             </div>
             <button class="btn btn-danger" type="submit">Reject</button>
           </form>
           <form method="post" action="/admin/userpies/{{.PageData.Year}}/{{.PageData.Pie.Id}}/{{.PageData.OwnerID}}/duplicate" class="d-inline ms-2">
+        <input type="hidden" name="csrf_token" value="{{$.Head.CsrfToken}}">
             <div class="mb-2">
               <select name="duplicateOf" class="form-select">
                 <option value="">Mark as duplicate of...</option>
@@ -67,6 +70,7 @@
             <button class="btn btn-warning" type="submit">Mark Duplicate</button>
           </form>
           <form method="post" action="/admin/userpies/{{.PageData.Year}}/{{.PageData.Pie.Id}}/{{.PageData.OwnerID}}/promote" class="d-inline ms-2">
+        <input type="hidden" name="csrf_token" value="{{$.Head.CsrfToken}}">
             <div class="mb-2">
               <select name="makerid" class="form-select" required>
                 <option value="">Promote to brand...</option>
@@ -87,6 +91,7 @@
           <h5>Actions</h5>
           {{if ne .PageData.Status "promoted"}}
           <form method="post" action="/admin/userpies/{{.PageData.Year}}/{{.PageData.Pie.Id}}/{{.PageData.OwnerID}}/promote" class="d-inline">
+        <input type="hidden" name="csrf_token" value="{{$.Head.CsrfToken}}">
             <div class="mb-2">
               <select name="makerid" class="form-select" required>
                 <option value="">Promote to brand...</option>
@@ -99,6 +104,7 @@
           </form>
           {{end}}
           <form method="post" action="/admin/userpies/{{.PageData.Year}}/{{.PageData.Pie.Id}}/{{.PageData.OwnerID}}" class="d-inline ms-2">
+        <input type="hidden" name="csrf_token" value="{{$.Head.CsrfToken}}">
             <button class="btn btn-danger" type="submit" hx-confirm="This will delete this user pie{{if eq .PageData.Status "promoted"}} and its brand pie{{end}}. Are you sure?">Delete</button>
           </form>
         </div>

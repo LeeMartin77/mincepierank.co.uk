@@ -67,7 +67,7 @@ func categoryListPage(wrpr *WebsiteWrapper, c *gin.Context, pageErrs ...string) 
 		},
 	}
 
-	c.HTML(http.StatusOK, "page:admin:categories", vals)
+	wrpr.html(c, http.StatusOK, "page:admin:categories", vals)
 }
 
 // categoryNewPage renders the category create form, keeping entered values on
@@ -96,7 +96,7 @@ func categoryNewPage(wrpr *WebsiteWrapper, c *gin.Context, status int, form map[
 		},
 	}
 
-	c.HTML(status, "page:admin:categorynew", vals)
+	wrpr.html(c, status, "page:admin:categorynew", vals)
 }
 
 // categoryEditPage renders the category edit form. The slug is shown but not
@@ -127,7 +127,7 @@ func categoryEditPage(wrpr *WebsiteWrapper, c *gin.Context, status int, cat *typ
 		},
 	}
 
-	c.HTML(status, "page:admin:category", vals)
+	wrpr.html(c, status, "page:admin:category", vals)
 }
 
 // GetAdminCategories implements generated.ServerInterface.

@@ -15,6 +15,7 @@
 
   <h3>Bulk Upload</h3>
   <form method="post" action="/admin/makerpies/bulk" enctype='multipart/form-data' class="mb-4">
+        <input type="hidden" name="csrf_token" value="{{$.Head.CsrfToken}}">
     <div class="mb-3">
       <label for="zipFile" class="form-label">Zip file</label>
       <input class="form-control" type="file" name="zipFile" id="zipFile">

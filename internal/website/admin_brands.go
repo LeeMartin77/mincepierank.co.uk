@@ -80,7 +80,7 @@ func brandListPage(wrpr *WebsiteWrapper, c *gin.Context, pageErrs ...string) {
 		},
 	}
 
-	c.HTML(http.StatusOK, "page:admin:brands", vals)
+	wrpr.html(c, http.StatusOK, "page:admin:brands", vals)
 }
 
 // brandNewPage renders the brand create form, keeping entered values on error.
@@ -108,7 +108,7 @@ func brandNewPage(wrpr *WebsiteWrapper, c *gin.Context, status int, form map[str
 		},
 	}
 
-	c.HTML(status, "page:admin:brandnew", vals)
+	wrpr.html(c, status, "page:admin:brandnew", vals)
 }
 
 // brandEditPage renders the brand edit form.
@@ -137,7 +137,7 @@ func brandEditPage(wrpr *WebsiteWrapper, c *gin.Context, status int, maker *type
 		},
 	}
 
-	c.HTML(status, "page:admin:brand", vals)
+	wrpr.html(c, status, "page:admin:brand", vals)
 }
 
 // GetAdminBrands implements generated.ServerInterface.

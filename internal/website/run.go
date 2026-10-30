@@ -63,6 +63,7 @@ func (api Website) Run() error {
 	})
 
 	r.Use(api.auth.UserIdMiddleware())
+	r.Use(api.csrf.Middleware())
 
 	r.GET("/auth/signin", func(c *gin.Context) {
 		api.auth.HandleSignin(c, c.Writer, c.Request)

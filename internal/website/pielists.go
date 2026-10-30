@@ -159,7 +159,7 @@ func (wrpr *WebsiteWrapper) YearAllPies(c *gin.Context, year int64, params gener
 		},
 	}
 
-	c.HTML(200, "page:pielist", vals)
+	wrpr.html(c, 200, "page:pielist", vals)
 }
 
 func (wrpr *WebsiteWrapper) YearPersonalRanking(c *gin.Context, year int64, params generated.YearPersonalRankingParams) {
@@ -241,7 +241,7 @@ func (wrpr *WebsiteWrapper) YearPersonalRanking(c *gin.Context, year int64, para
 		},
 	}
 
-	c.HTML(200, "page:pielist", vals)
+	wrpr.html(c, 200, "page:pielist", vals)
 }
 
 // YearBrandPies implements generated.StrictServerInterface.
@@ -337,7 +337,7 @@ func (wrpr *WebsiteWrapper) YearBrandPies(c *gin.Context, year int64, brand stri
 		},
 	}
 
-	c.HTML(200, "page:pielist", vals)
+	wrpr.html(c, 200, "page:pielist", vals)
 }
 
 // YearCategoryPies implements generated.StrictServerInterface.
@@ -426,5 +426,5 @@ func (wrpr *WebsiteWrapper) YearCategoryPies(c *gin.Context, year int64, brand s
 		},
 	}
 
-	c.HTML(200, "page:pielist", vals)
+	wrpr.html(c, 200, "page:pielist", vals)
 }
