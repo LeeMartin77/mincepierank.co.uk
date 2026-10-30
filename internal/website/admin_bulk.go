@@ -9,41 +9,41 @@ import (
 	"io"
 	"io/fs"
 	"mime/multipart"
+	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
 
-	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/leemartin77/mincepierank.co.uk/internal/storage"
 	"github.com/leemartin77/mincepierank.co.uk/internal/storage/sqlcgen"
 )
 
 // BulkCreateMakerPieAdmin implements generated.ServerInterface.
-func (wrpr *WebsiteWrapper) BulkCreateMakerPieAdmin(c *gin.Context) {
-	if !validateAdmin(wrpr, c) {
+func (wrpr *WebsiteWrapper) BulkCreateMakerPieAdmin(w http.ResponseWriter, r *http.Request) {
+	if !validateAdmin(wrpr, w, r) {
 		return
 	}
 
-	tx, err := wrpr.storage.GetTransaction(c)
+	tx, err := wrpr.storage.GetTransaction(r.Context())
 	if err != nil {
-		c.AbortWithError(500, err)
+		abortErr(w, 500, err)
 		return
 	}
 	defer func() {
-		tx.Rollback(c)
+		tx.Rollback(r.Context())
 	}()
 	q := wrpr.storage.GetQuerierWithTx(tx)
 
 	dest := "/tmp/" + uuid.NewString()
-	hdr, err := c.FormFile("zipFile")
+	_, hdr, err := r.FormFile("zipFile")
 	if err != nil {
-		c.AbortWithError(400, err)
+		abortErr(w, 400, err)
 		return
 	}
 	err = unzip(hdr, dest)
 	if err != nil {
-		c.AbortWithError(400, err)
+		abortErr(w, 400, err)
 		return
 	}
 
@@ -54,7 +54,7 @@ func (wrpr *WebsiteWrapper) BulkCreateMakerPieAdmin(c *gin.Context) {
 
 	headers, err := csvReader.Read()
 	if err != nil {
-		c.AbortWithError(400, err)
+		abortErr(w, 400, err)
 		return
 	}
 
@@ -64,7 +64,7 @@ func (wrpr *WebsiteWrapper) BulkCreateMakerPieAdmin(c *gin.Context) {
 			break
 		}
 		if err != nil {
-			c.AbortWithError(400, err)
+			abortErr(w, 400, err)
 			return
 		}
 		if nxt != nil {
@@ -76,7 +76,7 @@ func (wrpr *WebsiteWrapper) BulkCreateMakerPieAdmin(c *gin.Context) {
 			for i, hdr := range headers {
 				if i > len(nxt)-1 {
 
-					c.AbortWithError(400, err)
+					abortErr(w, 400, err)
 					return
 				}
 				mp[hdr] = nxt[i]
@@ -92,7 +92,7 @@ func (wrpr *WebsiteWrapper) BulkCreateMakerPieAdmin(c *gin.Context) {
 		packCount, packCountErr := parseFormInt("Pack count", pie["pack_count"])
 		packPrice, packPriceErr := parseFormInt("Pack price in pence", pie["pack_price_in_pence"])
 		if errs := formFieldErrors(yearErr, packCountErr, packPriceErr); len(errs) > 0 {
-			piesPage(wrpr, c, rowLabel+strings.Join(errs, "; "))
+			piesPage(wrpr, w, r, rowLabel+strings.Join(errs, "; "))
 			return
 		}
 
@@ -106,7 +106,7 @@ func (wrpr *WebsiteWrapper) BulkCreateMakerPieAdmin(c *gin.Context) {
 		img, err := os.Open(dest + "/" + pie["image_file"])
 		if err != nil {
 
-			c.AbortWithError(400, err)
+			abortErr(w, 400, err)
 			return
 		}
 		defer img.Close()
@@ -114,7 +114,7 @@ func (wrpr *WebsiteWrapper) BulkCreateMakerPieAdmin(c *gin.Context) {
 		rf, err := os.ReadFile(dest + "/" + pie["image_file"])
 		if err != nil {
 
-			c.AbortWithError(400, err)
+			abortErr(w, 400, err)
 			return
 		}
 
@@ -128,7 +128,7 @@ func (wrpr *WebsiteWrapper) BulkCreateMakerPieAdmin(c *gin.Context) {
 
 		fresh := pie["fresh"] == "yes"
 
-		oid, err := q.CreateMakerPie(c, sqlcgen.CreateMakerPieParams{
+		oid, err := q.CreateMakerPie(r.Context(), sqlcgen.CreateMakerPieParams{
 			Year:    year,
 			Makerid: pie["makerid"],
 			ID:      pie["id"],
@@ -142,35 +142,35 @@ func (wrpr *WebsiteWrapper) BulkCreateMakerPieAdmin(c *gin.Context) {
 			Validated:        true,
 		})
 		if err != nil {
-			c.AbortWithError(400, err)
+			abortErr(w, 400, err)
 			return
 		}
-		err = wrpr.storage.SetPieCategoriesTx(c, tx, uuid.MustParse(oid), strings.Split(pie["category_slugs"], ","))
+		err = wrpr.storage.SetPieCategoriesTx(r.Context(), tx, uuid.MustParse(oid), strings.Split(pie["category_slugs"], ","))
 		if errors.Is(err, storage.ErrUnknownCategories) {
-			piesPage(wrpr, c, "Pie "+pie["year"]+"/"+pie["makerid"]+"/"+pie["id"]+": "+err.Error())
+			piesPage(wrpr, w, r, "Pie "+pie["year"]+"/"+pie["makerid"]+"/"+pie["id"]+": "+err.Error())
 			return
 		}
 		if err != nil {
-			c.AbortWithError(400, err)
+			abortErr(w, 400, err)
 			return
 		}
 
 		err = os.MkdirAll(dirpath, os.ModePerm)
 		if err != nil {
-			c.AbortWithError(500, err)
+			abortErr(w, 500, err)
 			return
 		}
 
 		err = os.WriteFile(wrpr.config.ImgprssrDir+"/"+path, rf, fs.ModeAppend)
 		if err != nil {
-			c.AbortWithError(500, err)
+			abortErr(w, 500, err)
 			return
 		}
 
 	}
-	tx.Commit(c)
+	tx.Commit(r.Context())
 
-	c.Redirect(303, "/admin/makerpies/")
+	http.Redirect(w, r, "/admin/makerpies/", 303)
 }
 
 // Unzip function extracts a ZIP archive to a target directory

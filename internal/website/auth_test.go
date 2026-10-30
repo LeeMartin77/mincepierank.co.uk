@@ -4,13 +4,9 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
-
-	"github.com/gin-gonic/gin"
 )
 
 func TestRequireSignIn(t *testing.T) {
-	gin.SetMode(gin.TestMode)
-
 	tests := []struct {
 		name string
 		uri  string
@@ -23,10 +19,9 @@ func TestRequireSignIn(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			w := httptest.NewRecorder()
-			c, _ := gin.CreateTestContext(w)
-			c.Request = httptest.NewRequest(http.MethodGet, tt.uri, nil)
+			req := httptest.NewRequest(http.MethodGet, tt.uri, nil)
 
-			requireSignIn(c)
+			requireSignIn(w, req)
 
 			if w.Code != http.StatusSeeOther {
 				t.Errorf("status = %d, want %d", w.Code, http.StatusSeeOther)

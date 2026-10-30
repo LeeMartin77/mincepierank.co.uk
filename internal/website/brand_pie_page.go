@@ -5,38 +5,37 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/gin-gonic/gin"
 	"github.com/leemartin77/mincepierank.co.uk/internal/storage/sqlcgen"
 	"github.com/leemartin77/mincepierank.co.uk/internal/storage/types"
 	"github.com/leemartin77/mincepierank.co.uk/internal/templater"
 	"github.com/rs/zerolog/log"
 )
 
-func (wrpr *WebsiteWrapper) YearBrandPie(ctx *gin.Context, year int64, brand string, pieParam string) {
-	ay, err := wrpr.storage.GetActiveYear(ctx)
+func (wrpr *WebsiteWrapper) YearBrandPie(w http.ResponseWriter, r *http.Request, year int64, brand string, pieParam string) {
+	ay, err := wrpr.storage.GetActiveYear(r.Context())
 	if err != nil {
 		log.Error().Err(err).Msg("Error getting active year")
-		ctx.AbortWithStatus(500)
+		abortStatus(w, 500)
 		return
 	}
 
-	ro, err := wrpr.storage.GetReadonly(ctx)
+	ro, err := wrpr.storage.GetReadonly(r.Context())
 	if err != nil {
 		log.Error().Err(err).Msg("Error getting readonly - fails closed")
 	}
 
-	pie, err := wrpr.storage.GetMakerPieYearly(ctx, int32(year), ctx.Param("brand"), ctx.Param("pie"))
+	pie, err := wrpr.storage.GetMakerPieYearly(r.Context(), int32(year), brand, pieParam)
 	if err != nil {
 		log.Error().Err(err).Msg("Error getting maker year pie")
-		ctx.AbortWithStatus(500)
+		abortStatus(w, 500)
 		return
 	}
 	if pie == nil {
-		ctx.AbortWithStatus(404)
+		abortStatus(w, 404)
 		return
 	}
 
-	returnSinglePiePage(wrpr, ctx, year, ay, ro, pie, nil)
+	returnSinglePiePage(wrpr, w, r, year, brand, pieParam, ay, ro, pie, nil)
 }
 
 var rankings []string = []string{"filling", "pastry", "topping", "looks", "value"}
@@ -73,45 +72,45 @@ func parseRatings(get func(string) string) (map[string]int32, []string) {
 }
 
 // RateYearBrandPie implements generated.ServerInterface.
-func (wrpr *WebsiteWrapper) RateYearBrandPie(ctx *gin.Context, year int64, brand string, pieParam string) {
-	ay, err := wrpr.storage.GetActiveYear(ctx)
+func (wrpr *WebsiteWrapper) RateYearBrandPie(w http.ResponseWriter, r *http.Request, year int64, brand string, pieParam string) {
+	ay, err := wrpr.storage.GetActiveYear(r.Context())
 	if err != nil {
 		log.Error().Err(err).Msg("Error getting active year")
-		ctx.AbortWithStatus(500)
+		abortStatus(w, 500)
 		return
 	}
 
-	ro, err := wrpr.storage.GetReadonly(ctx)
+	ro, err := wrpr.storage.GetReadonly(r.Context())
 	if err != nil {
 		log.Error().Err(err).Msg("Error getting readonly - fails closed")
 	}
 
-	pie, err := wrpr.storage.GetMakerPieYearly(ctx, int32(year), ctx.Param("brand"), ctx.Param("pie"))
+	pie, err := wrpr.storage.GetMakerPieYearly(r.Context(), int32(year), brand, pieParam)
 	if err != nil {
 		log.Error().Err(err).Msg("Error getting maker year pie")
-		ctx.AbortWithStatus(500)
+		abortStatus(w, 500)
 		return
 	}
 	if pie == nil {
-		ctx.AbortWithStatus(404)
+		abortStatus(w, 404)
 		return
 	}
 
 	if pie.Year != int32(*ay) || ro {
-		returnSinglePiePage(wrpr, ctx, year, ay, ro, pie, []string{"Rating is not open for this year or is read-only"})
-		return
-	}
-
-	rnkingmap, validationErrs := parseRatings(ctx.Request.FormValue)
-	if len(validationErrs) > 0 {
-		returnSinglePiePage(wrpr, ctx, year, ay, ro, pie, validationErrs)
+		returnSinglePiePage(wrpr, w, r, year, brand, pieParam, ay, ro, pie, []string{"Rating is not open for this year or is read-only"})
 		return
 	}
 
 	// rate
 
-	uid, _ := ctx.Keys["userid"].(string)
-	wrpr.storage.GetQuerier().UpsertUserMakerPieRanking(ctx, sqlcgen.UpsertUserMakerPieRankingParams{
+	rnkingmap, validationErrs := parseRatings(r.FormValue)
+	if len(validationErrs) > 0 {
+		returnSinglePiePage(wrpr, w, r, year, brand, pieParam, ay, ro, pie, validationErrs)
+		return
+	}
+
+	uid := userIDFrom(r)
+	wrpr.storage.GetQuerier().UpsertUserMakerPieRanking(r.Context(), sqlcgen.UpsertUserMakerPieRankingParams{
 		Year:    int32(year),
 		Makerid: brand,
 		Pieid:   pieParam,
@@ -123,36 +122,36 @@ func (wrpr *WebsiteWrapper) RateYearBrandPie(ctx *gin.Context, year int64, brand
 		Value:   rnkingmap["value"],
 	})
 
-	returnSinglePiePage(wrpr, ctx, year, ay, ro, pie, nil)
+	returnSinglePiePage(wrpr, w, r, year, brand, pieParam, ay, ro, pie, nil)
 }
 
-func returnSinglePiePage(wrpr *WebsiteWrapper, ctx *gin.Context, year int64, ay *int64, ro bool, pie *types.MakerPieYearly, errs []string) {
-	maker, err := wrpr.storage.GetMaker(ctx, ctx.Param("brand"))
+func returnSinglePiePage(wrpr *WebsiteWrapper, w http.ResponseWriter, r *http.Request, year int64, brand string, pieParam string, ay *int64, ro bool, pie *types.MakerPieYearly, errs []string) {
+	maker, err := wrpr.storage.GetMaker(r.Context(), brand)
 	if err != nil {
 		log.Error().Err(err).Msg("Error getting maker year pie")
-		ctx.AbortWithStatus(500)
+		abortStatus(w, 500)
 		return
 	}
 
-	rankingSummary, err := wrpr.storage.GetMakerPieYearlyRankingSummary(ctx, int32(year), ctx.Param("brand"), ctx.Param("pie"))
+	rankingSummary, err := wrpr.storage.GetMakerPieYearlyRankingSummary(r.Context(), int32(year), brand, pieParam)
 	if err != nil {
 		log.Error().Err(err).Msg("Error getting maker year pie rank summary")
-		ctx.AbortWithStatus(500)
+		abortStatus(w, 500)
 		return
 	}
 
-	cats, err := wrpr.storage.GetMakerPieCategoriesForMakerPieOid(ctx, pie.OId)
+	cats, err := wrpr.storage.GetMakerPieCategoriesForMakerPieOid(r.Context(), pie.OId)
 	if err != nil {
 		log.Error().Err(err).Msg("Error getting maker year pie rank categories")
-		ctx.AbortWithStatus(500)
+		abortStatus(w, 500)
 		return
 	}
 
-	uid, _ := ctx.Keys["userid"].(string)
-	sin, _ := ctx.Keys["signedin"].(bool)
-	piesEnabled, _ := wrpr.storage.GetUserPiesEnabled(ctx)
+	uid := userIDFrom(r)
+	sin := signedInFrom(r)
+	piesEnabled, _ := wrpr.storage.GetUserPiesEnabled(r.Context())
 
-	urnking, _ := wrpr.storage.GetQuerier().GetUserMakerPieRanking(ctx, sqlcgen.GetUserMakerPieRankingParams{
+	urnking, _ := wrpr.storage.GetQuerier().GetUserMakerPieRanking(r.Context(), sqlcgen.GetUserMakerPieRankingParams{
 		Userid:  uid,
 		Year:    pie.Year,
 		Makerid: pie.MakerId,
@@ -166,7 +165,7 @@ func returnSinglePiePage(wrpr *WebsiteWrapper, ctx *gin.Context, year int64, ay 
 
 	vals := templater.PageData{
 		Head: templater.PageDataHead{
-			Snow:        wrpr.snowing(ctx),
+			Snow:        wrpr.snowing(r.Context()),
 			Title:       fmt.Sprintf("%s from %s :: %.2f/5", pie.DisplayName, maker.Name, rankingSummary.Average),
 			Description: fmt.Sprintf("%s from %s :: scored  %.2f/5 on average in %d", pie.DisplayName, maker.Name, rankingSummary.Average, pie.Year),
 			Keywords:    fmt.Sprintf("Mince Pies, UK, Ranking, %d, %s, %s", pie.Year, maker.Name, pie.DisplayName),
@@ -192,5 +191,5 @@ func returnSinglePiePage(wrpr *WebsiteWrapper, ctx *gin.Context, year int64, ay 
 		},
 	}
 
-	ctx.HTML(http.StatusOK, "page:singlepie", vals)
+	wrpr.renderPage(w, http.StatusOK, "singlepie", vals)
 }

@@ -7,7 +7,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/leemartin77/mincepierank.co.uk/internal/storage"
 	"github.com/leemartin77/mincepierank.co.uk/internal/storage/sqlcgen"
@@ -18,34 +17,34 @@ import (
 )
 
 // submitPieForm implements generated.ServerInterface.
-func (wrpr *WebsiteWrapper) SubmitPieForm(c *gin.Context, year int64) {
-	ay, err := wrpr.storage.GetActiveYear(c)
+func (wrpr *WebsiteWrapper) SubmitPieForm(w http.ResponseWriter, r *http.Request, year int64) {
+	ay, err := wrpr.storage.GetActiveYear(r.Context())
 	if err != nil {
 		log.Error().Err(err).Msg("Error getting active year")
-		c.AbortWithStatus(500)
+		abortStatus(w, 500)
 		return
 	}
 
-	ro, err := wrpr.storage.GetReadonly(c)
+	ro, err := wrpr.storage.GetReadonly(r.Context())
 	if err != nil {
 		log.Error().Err(err).Msg("Error getting readonly - fails closed")
 	}
 
-	piesEnabled, _ := wrpr.storage.GetUserPiesEnabled(c)
+	piesEnabled, _ := wrpr.storage.GetUserPiesEnabled(r.Context())
 	if !piesEnabled {
-		c.AbortWithStatus(404)
+		abortStatus(w, 404)
 		return
 	}
 
-	sin, _ := c.Keys["signedin"].(bool)
+	sin := signedInFrom(r)
 	if !sin {
-		requireSignIn(c)
+		requireSignIn(w, r)
 		return
 	}
 
 	vals := templater.PageData{
 		Head: templater.PageDataHead{
-			Snow:        wrpr.snowing(c),
+			Snow:        wrpr.snowing(r.Context()),
 			Title:       fmt.Sprintf("Submit a pie for %d", year),
 			Description: "Submit your own mince pie for ranking",
 			Keywords:    fmt.Sprintf("Mince pies, UK, ranking, %d, submit", year),
@@ -59,43 +58,43 @@ func (wrpr *WebsiteWrapper) SubmitPieForm(c *gin.Context, year int64) {
 			"Year":       year,
 			"Breadcrumb": templater.BreadcrumbsFromUrl(fmt.Sprintf("/years/%d/submit", year)),
 			"Readonly":   ro,
-			"Makers":     getMakersForYear(c, wrpr.storage, year),
+			"Makers":     getMakersForYear(w, r, wrpr.storage, year),
 		},
 	}
 
-	c.HTML(http.StatusOK, "page:submit", vals)
+	wrpr.renderPage(w, http.StatusOK, "submit", vals)
 }
 
 // submitPie implements generated.ServerInterface.
-func (wrpr *WebsiteWrapper) SubmitPie(c *gin.Context, year int64) {
-	ay, err := wrpr.storage.GetActiveYear(c)
+func (wrpr *WebsiteWrapper) SubmitPie(w http.ResponseWriter, r *http.Request, year int64) {
+	ay, err := wrpr.storage.GetActiveYear(r.Context())
 	if err != nil {
 		log.Error().Err(err).Msg("Error getting active year")
-		c.AbortWithStatus(500)
+		abortStatus(w, 500)
 		return
 	}
 
-	ro, err := wrpr.storage.GetReadonly(c)
+	ro, err := wrpr.storage.GetReadonly(r.Context())
 	if err != nil {
 		log.Error().Err(err).Msg("Error getting readonly - fails closed")
 	}
 
-	piesEnabled, _ := wrpr.storage.GetUserPiesEnabled(c)
+	piesEnabled, _ := wrpr.storage.GetUserPiesEnabled(r.Context())
 	if !piesEnabled {
-		c.AbortWithStatus(404)
+		abortStatus(w, 404)
 		return
 	}
 
-	sin, _ := c.Keys["signedin"].(bool)
+	sin := signedInFrom(r)
 	if !sin {
-		requireSignIn(c)
+		requireSignIn(w, r)
 		return
 	}
 
 	if ro {
-		c.HTML(http.StatusOK, "page:submit", templater.PageData{
+		wrpr.renderPage(w, http.StatusOK, "submit", templater.PageData{
 			Head: templater.PageDataHead{
-				Snow:         wrpr.snowing(c),
+				Snow:         wrpr.snowing(r.Context()),
 				Title:        "Submit a pie",
 				Description:  "Submit your own mince pie for ranking",
 				Keywords:     fmt.Sprintf("Mince pies, UK, ranking, %d, submit", year),
@@ -105,22 +104,22 @@ func (wrpr *WebsiteWrapper) SubmitPie(c *gin.Context, year int64) {
 				"Year":       year,
 				"Breadcrumb": templater.BreadcrumbsFromUrl(fmt.Sprintf("/years/%d/submit", year)),
 				"Readonly":   true,
-				"Makers":     getMakersForYear(c, wrpr.storage, year),
+				"Makers":     getMakersForYear(w, r, wrpr.storage, year),
 				"Errors":     []string{"Site is in read-only mode"},
 			},
 		})
 		return
 	}
 
-	displayName := c.PostForm("displayname")
-	maker := c.PostForm("maker")
-	location := c.PostForm("location")
-	freshStr := c.PostForm("fresh")
-	webLink := c.PostForm("webLink")
-	packCountStr := c.PostForm("packCount")
-	packPriceStr := c.PostForm("packPrice")
+	displayName := r.PostFormValue("displayname")
+	maker := r.PostFormValue("maker")
+	location := r.PostFormValue("location")
+	freshStr := r.PostFormValue("fresh")
+	webLink := r.PostFormValue("webLink")
+	packCountStr := r.PostFormValue("packCount")
+	packPriceStr := r.PostFormValue("packPrice")
 
-	errs, labels := validateUserPieForm(c.Request.FormValue)
+	errs, labels := validateUserPieForm(r.FormValue)
 
 	fresh := isFresh(freshStr)
 
@@ -135,9 +134,9 @@ func (wrpr *WebsiteWrapper) SubmitPie(c *gin.Context, year int64) {
 	}
 
 	if len(errs) > 0 {
-		c.HTML(http.StatusOK, "page:submit", templater.PageData{
+		wrpr.renderPage(w, http.StatusOK, "submit", templater.PageData{
 			Head: templater.PageDataHead{
-				Snow:         wrpr.snowing(c),
+				Snow:         wrpr.snowing(r.Context()),
 				Title:        "Submit a pie",
 				Description:  "Submit your own mince pie for ranking",
 				Keywords:     fmt.Sprintf("Mince pies, UK, ranking, %d, submit", year),
@@ -147,13 +146,13 @@ func (wrpr *WebsiteWrapper) SubmitPie(c *gin.Context, year int64) {
 				"Year":        year,
 				"Breadcrumb":  templater.BreadcrumbsFromUrl(fmt.Sprintf("/years/%d/submit", year)),
 				"Readonly":    false,
-				"Makers":      getMakersForYear(c, wrpr.storage, year),
+				"Makers":      getMakersForYear(w, r, wrpr.storage, year),
 				"Errors":      errs,
 				"DisplayName": displayName,
 				"Maker":       maker,
 				"Location":    location,
 				"Fresh":       fresh,
-				"LabelsStr":   c.PostForm("labels"),
+				"LabelsStr":   r.PostFormValue("labels"),
 				"WebLink":     webLink,
 				"PackCount":   packCountStr,
 				"PackPrice":   packPriceStr,
@@ -165,7 +164,7 @@ func (wrpr *WebsiteWrapper) SubmitPie(c *gin.Context, year int64) {
 	// Handle image upload (max 500KB)
 	const maxImageSize = 500 * 1024
 	imageFile := ""
-	imgFile, imgHdr, imgErr := c.Request.FormFile("imageFile")
+	imgFile, imgHdr, imgErr := r.FormFile("imageFile")
 	if imgErr == nil && imgFile != nil {
 		defer imgFile.Close()
 		if imgHdr.Size > maxImageSize {
@@ -190,9 +189,9 @@ func (wrpr *WebsiteWrapper) SubmitPie(c *gin.Context, year int64) {
 	}
 
 	if len(errs) > 0 {
-		c.HTML(http.StatusOK, "page:submit", templater.PageData{
+		wrpr.renderPage(w, http.StatusOK, "submit", templater.PageData{
 			Head: templater.PageDataHead{
-				Snow:         wrpr.snowing(c),
+				Snow:         wrpr.snowing(r.Context()),
 				Title:        "Submit a pie",
 				Description:  "Submit your own mince pie for ranking",
 				Keywords:     fmt.Sprintf("Mince pies, UK, ranking, %d, submit", year),
@@ -202,13 +201,13 @@ func (wrpr *WebsiteWrapper) SubmitPie(c *gin.Context, year int64) {
 				"Year":        year,
 				"Breadcrumb":  templater.BreadcrumbsFromUrl(fmt.Sprintf("/years/%d/submit", year)),
 				"Readonly":    false,
-				"Makers":      getMakersForYear(c, wrpr.storage, year),
+				"Makers":      getMakersForYear(w, r, wrpr.storage, year),
 				"Errors":      errs,
 				"DisplayName": displayName,
 				"Maker":       maker,
 				"Location":    location,
 				"Fresh":       fresh,
-				"LabelsStr":   c.PostForm("labels"),
+				"LabelsStr":   r.PostFormValue("labels"),
 				"WebLink":     webLink,
 				"PackCount":   packCountStr,
 				"PackPrice":   packPriceStr,
@@ -218,7 +217,7 @@ func (wrpr *WebsiteWrapper) SubmitPie(c *gin.Context, year int64) {
 	}
 
 	// Create the user pie
-	uid := c.Keys["userid"].(string)
+	uid := userIDFrom(r)
 	pie := types.UserPieYearly{
 		Year:             int32(year),
 		Id:               uuid.NewString(),
@@ -236,28 +235,28 @@ func (wrpr *WebsiteWrapper) SubmitPie(c *gin.Context, year int64) {
 		Status:           string(storage.UserPieStatusPending),
 	}
 
-	_, err = wrpr.storage.CreateUserPie(c, pie)
+	_, err = wrpr.storage.CreateUserPie(r.Context(), pie)
 	if err != nil {
 		log.Error().Err(err).Msg("Error creating user pie")
-		c.AbortWithStatus(500)
+		abortStatus(w, 500)
 		return
 	}
 
-	c.Redirect(http.StatusSeeOther, fmt.Sprintf("/years/%d/user-pies", year))
+	http.Redirect(w, r, fmt.Sprintf("/years/%d/user-pies", year), http.StatusSeeOther)
 }
 
 // listUserPies implements generated.ServerInterface.
-func (wrpr *WebsiteWrapper) ListUserPies(c *gin.Context, year int64, params generated.ListUserPiesParams) {
-	ay, err := wrpr.storage.GetActiveYear(c)
+func (wrpr *WebsiteWrapper) ListUserPies(w http.ResponseWriter, r *http.Request, year int64, params generated.ListUserPiesParams) {
+	ay, err := wrpr.storage.GetActiveYear(r.Context())
 	if err != nil {
 		log.Error().Err(err).Msg("Error getting active year")
-		c.AbortWithStatus(500)
+		abortStatus(w, 500)
 		return
 	}
 
-	piesEnabled, _ := wrpr.storage.GetUserPiesEnabled(c)
+	piesEnabled, _ := wrpr.storage.GetUserPiesEnabled(r.Context())
 	if !piesEnabled {
-		c.AbortWithStatus(404)
+		abortStatus(w, 404)
 		return
 	}
 
@@ -277,23 +276,23 @@ func (wrpr *WebsiteWrapper) ListUserPies(c *gin.Context, year int64, params gene
 		}
 	}
 
-	pies, err := wrpr.storage.GetAllApprovedUserPies(c, int32(year), int(limit), int(pageZeroIdx*limit))
+	pies, err := wrpr.storage.GetAllApprovedUserPies(r.Context(), int32(year), int(limit), int(pageZeroIdx*limit))
 	if err != nil {
 		log.Error().Err(err).Msg("Error getting approved user pies")
-		c.AbortWithStatus(500)
+		abortStatus(w, 500)
 		return
 	}
 
-	count, err := wrpr.storage.GetUserPieCountByYear(c, int32(year))
+	count, err := wrpr.storage.GetUserPieCountByYear(r.Context(), int32(year))
 	if err != nil {
 		log.Error().Err(err).Msg("Error getting user pie count")
-		c.AbortWithStatus(500)
+		abortStatus(w, 500)
 		return
 	}
 
 	pieCards := []templater.UserPieCardData{}
 	for _, pie := range pies {
-		rs, err := wrpr.storage.GetUserPieRankingSummary(c, pie.Year, pie.Id)
+		rs, err := wrpr.storage.GetUserPieRankingSummary(r.Context(), pie.Year, pie.Id)
 		if err != nil {
 			log.Error().Err(err).Msg("Error getting user pie ranking summary")
 			rs = &types.RankingSummary{}
@@ -307,13 +306,13 @@ func (wrpr *WebsiteWrapper) ListUserPies(c *gin.Context, year int64, params gene
 
 	vals := templater.PageData{
 		Head: templater.PageDataHead{
-			Snow:        wrpr.snowing(c),
+			Snow:        wrpr.snowing(r.Context()),
 			Title:       fmt.Sprintf("Community Pies for %d", year),
 			Description: fmt.Sprintf("Community-submitted mince pies for %d", year),
 			Keywords:    fmt.Sprintf("Mince pies, UK, ranking, %d, community", year),
 			MenuSettings: templater.MenuSettings{
 				ActiveYear:      *ay,
-				SignedIn:        c.Keys["signedin"].(bool),
+				SignedIn:        signedInFrom(r),
 				UserPiesEnabled: piesEnabled,
 			},
 		},
@@ -329,65 +328,65 @@ func (wrpr *WebsiteWrapper) ListUserPies(c *gin.Context, year int64, params gene
 		},
 	}
 
-	c.HTML(http.StatusOK, "page:userpielist", vals)
+	wrpr.renderPage(w, http.StatusOK, "userpielist", vals)
 }
 
 // getUserPie implements generated.ServerInterface.
-func (wrpr *WebsiteWrapper) GetUserPie(c *gin.Context, year int64, id string) {
-	wrpr.getUserPiePage(c, year, id, nil)
+func (wrpr *WebsiteWrapper) GetUserPie(w http.ResponseWriter, r *http.Request, year int64, id string) {
+	wrpr.getUserPiePage(w, r, year, id, nil)
 }
 
 // rateUserPie implements generated.ServerInterface.
-func (wrpr *WebsiteWrapper) RateUserPie(c *gin.Context, year int64, id string) {
-	ay, err := wrpr.storage.GetActiveYear(c)
+func (wrpr *WebsiteWrapper) RateUserPie(w http.ResponseWriter, r *http.Request, year int64, id string) {
+	ay, err := wrpr.storage.GetActiveYear(r.Context())
 	if err != nil {
 		log.Error().Err(err).Msg("Error getting active year")
-		c.AbortWithStatus(500)
+		abortStatus(w, 500)
 		return
 	}
 
-	ro, err := wrpr.storage.GetReadonly(c)
+	ro, err := wrpr.storage.GetReadonly(r.Context())
 	if err != nil {
 		log.Error().Err(err).Msg("Error getting readonly - fails closed")
 	}
 
-	piesEnabled, _ := wrpr.storage.GetUserPiesEnabled(c)
+	piesEnabled, _ := wrpr.storage.GetUserPiesEnabled(r.Context())
 	if !piesEnabled {
-		c.AbortWithStatus(404)
+		abortStatus(w, 404)
 		return
 	}
 
-	pieWithOwner, err := wrpr.storage.GetUserPie(c, int32(year), id)
+	pieWithOwner, err := wrpr.storage.GetUserPie(r.Context(), int32(year), id)
 	if err != nil {
 		log.Error().Err(err).Msg("Error getting user pie")
-		c.AbortWithStatus(500)
+		abortStatus(w, 500)
 		return
 	}
 	if pieWithOwner.Pie.Id == "" {
-		c.AbortWithStatus(404)
+		abortStatus(w, 404)
 		return
 	}
 
 	pie := &pieWithOwner.Pie
 	status := storage.UserPieStatus(pie.Status)
 	if !status.IsRankable() {
-		wrpr.getUserPiePage(c, year, id, []string{"This pie is not yet available for ranking"})
+		wrpr.getUserPiePage(w, r, year, id, []string{"This pie is not yet available for ranking"})
 		return
 	}
 
 	if pie.Year != int32(*ay) || ro {
-		wrpr.getUserPiePage(c, year, id, []string{"Rating is not open for this year or is read-only"})
+		wrpr.getUserPiePage(w, r, year, id, []string{"Rating is not open for this year or is read-only"})
 		return
 	}
 
-	rnkingmap, validationErrs := parseRatings(c.Request.FormValue)
+	rnkingmap, validationErrs := parseRatings(r.FormValue)
 	if len(validationErrs) > 0 {
-		wrpr.getUserPiePage(c, year, id, validationErrs)
+		wrpr.getUserPiePage(w, r, year, id, validationErrs)
 		return
 	}
 
-	uid := c.Keys["userid"].(string)
-	wrpr.storage.GetQuerier().UpsertUserPieRanking(c, sqlcgen.UpsertUserPieRankingParams{
+	uid := userIDFrom(r)
+	wrpr.storage.GetQuerier().UpsertUserPieRanking(r.Context(), sqlcgen.UpsertUserPieRankingParams{
 		Year:    pie.Year,
 		Pieid:   pie.Id,
 		Userid:  uid,
@@ -398,37 +397,37 @@ func (wrpr *WebsiteWrapper) RateUserPie(c *gin.Context, year int64, id string) {
 		Value:   rnkingmap["value"],
 	})
 
-	wrpr.getUserPiePage(c, year, id, nil)
+	wrpr.getUserPiePage(w, r, year, id, nil)
 }
 
 // getUserPiePage renders the user pie detail page with optional errors.
-func (wrpr *WebsiteWrapper) getUserPiePage(c *gin.Context, year int64, id string, errs []string) {
-	ay, err := wrpr.storage.GetActiveYear(c)
+func (wrpr *WebsiteWrapper) getUserPiePage(w http.ResponseWriter, r *http.Request, year int64, id string, errs []string) {
+	ay, err := wrpr.storage.GetActiveYear(r.Context())
 	if err != nil {
 		log.Error().Err(err).Msg("Error getting active year")
-		c.AbortWithStatus(500)
+		abortStatus(w, 500)
 		return
 	}
 
-	ro, err := wrpr.storage.GetReadonly(c)
+	ro, err := wrpr.storage.GetReadonly(r.Context())
 	if err != nil {
 		log.Error().Err(err).Msg("Error getting readonly - fails closed")
 	}
 
-	piesEnabled, _ := wrpr.storage.GetUserPiesEnabled(c)
+	piesEnabled, _ := wrpr.storage.GetUserPiesEnabled(r.Context())
 	if !piesEnabled {
-		c.AbortWithStatus(404)
+		abortStatus(w, 404)
 		return
 	}
 
-	pieWithOwner, err := wrpr.storage.GetUserPie(c, int32(year), id)
+	pieWithOwner, err := wrpr.storage.GetUserPie(r.Context(), int32(year), id)
 	if err != nil {
 		log.Error().Err(err).Msg("Error getting user pie")
-		c.AbortWithStatus(500)
+		abortStatus(w, 500)
 		return
 	}
 	if pieWithOwner.Pie.Id == "" {
-		c.AbortWithStatus(404)
+		abortStatus(w, 404)
 		return
 	}
 
@@ -437,23 +436,23 @@ func (wrpr *WebsiteWrapper) getUserPiePage(c *gin.Context, year int64, id string
 	// Check if pie is approved/promoted (publicly visible)
 	status := storage.UserPieStatus(pie.Status)
 	if !status.IsPublic() && errs == nil {
-		c.AbortWithStatus(404)
+		abortStatus(w, 404)
 		return
 	}
 
-	rankingSummary, err := wrpr.storage.GetUserPieRankingSummary(c, pie.Year, pie.Id)
+	rankingSummary, err := wrpr.storage.GetUserPieRankingSummary(r.Context(), pie.Year, pie.Id)
 	if err != nil {
 		log.Error().Err(err).Msg("Error getting user pie ranking summary")
-		c.AbortWithStatus(500)
+		abortStatus(w, 500)
 		return
 	}
 
-	uid, _ := c.Keys["userid"].(string)
-	sin, _ := c.Keys["signedin"].(bool)
+	uid := userIDFrom(r)
+	sin := signedInFrom(r)
 
 	var userRanking *types.UserPieRankingYearly
 	if sin {
-		ur, err := wrpr.storage.GetUserPieRanking(c, pie.Year, pie.Id, uid)
+		ur, err := wrpr.storage.GetUserPieRanking(r.Context(), pie.Year, pie.Id, uid)
 		if err == nil && ur != nil {
 			userRanking = ur
 		}
@@ -463,7 +462,7 @@ func (wrpr *WebsiteWrapper) getUserPiePage(c *gin.Context, year int64, id string
 
 	vals := templater.PageData{
 		Head: templater.PageDataHead{
-			Snow:        wrpr.snowing(c),
+			Snow:        wrpr.snowing(r.Context()),
 			Title:       fmt.Sprintf("%s (Community) :: %.2f/5", pie.DisplayName, rankingSummary.Average),
 			Description: fmt.Sprintf("%s from %s — community-submitted mince pie scored %.2f/5 in %d", pie.DisplayName, pie.Maker, rankingSummary.Average, pie.Year),
 			Keywords:    fmt.Sprintf("Mince pies, UK, ranking, %d, %s, community", pie.Year, pie.DisplayName),
@@ -489,12 +488,12 @@ func (wrpr *WebsiteWrapper) getUserPiePage(c *gin.Context, year int64, id string
 		},
 	}
 
-	c.HTML(http.StatusOK, "page:userpie", vals)
+	wrpr.renderPage(w, http.StatusOK, "userpie", vals)
 }
 
 // getMakersForYear is a helper to fetch makers for the dropdown.
-func getMakersForYear(c *gin.Context, storage storage.Operations, year int64) *[]types.Maker {
-	makers, err := storage.GetMakersForYear(c, year)
+func getMakersForYear(w http.ResponseWriter, r *http.Request, storage storage.Operations, year int64) *[]types.Maker {
+	makers, err := storage.GetMakersForYear(r.Context(), year)
 	if err != nil {
 		log.Error().Err(err).Msg("Error getting makers for year")
 		return nil
@@ -503,7 +502,7 @@ func getMakersForYear(c *gin.Context, storage storage.Operations, year int64) *[
 }
 
 // validateUserPieForm validates the core required fields and parses labels.
-// form is a getter function (e.g. c.Request.FormValue or url.Values.Get).
+// form is a getter function (e.g. r.FormValue or url.Values.Get).
 // Returns (errors, labels).
 func validateUserPieForm(form func(string) string) ([]string, []string) {
 	var errs []string

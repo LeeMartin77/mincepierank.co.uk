@@ -6,7 +6,6 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/gin-gonic/gin"
 	"github.com/leemartin77/mincepierank.co.uk/internal/storage/sqlcgen"
 	"github.com/leemartin77/mincepierank.co.uk/internal/templater"
 	generated "github.com/leemartin77/mincepierank.co.uk/internal/website/generated"
@@ -15,13 +14,13 @@ import (
 
 // rankingYear resolves the optional ?year= query parameter, falling back to
 // the active year. The generated wrapper already rejects non-numeric years.
-func rankingYear(wrpr *WebsiteWrapper, c *gin.Context, paramYear *int) (int32, bool) {
+func rankingYear(wrpr *WebsiteWrapper, w http.ResponseWriter, r *http.Request, paramYear *int) (int32, bool) {
 	if paramYear != nil {
 		return int32(*paramYear), true
 	}
-	ay, err := wrpr.storage.GetQuerier().GetActiveYear(c)
+	ay, err := wrpr.storage.GetQuerier().GetActiveYear(r.Context())
 	if err != nil {
-		c.AbortWithError(500, err)
+		abortErr(w, 500, err)
 		return 0, false
 	}
 	return int32(ay), true
@@ -30,34 +29,34 @@ func rankingYear(wrpr *WebsiteWrapper, c *gin.Context, paramYear *int) (int32, b
 // GetAdminRankings implements generated.ServerInterface. The picker lists
 // every brand pie (and, when user pies are on, every public user pie) for the
 // chosen year with a rating count, so admins can drill into a review screen.
-func (wrpr *WebsiteWrapper) GetAdminRankings(c *gin.Context, params generated.GetAdminRankingsParams) {
-	if !validateAdmin(wrpr, c) {
+func (wrpr *WebsiteWrapper) GetAdminRankings(w http.ResponseWriter, r *http.Request, params generated.GetAdminRankingsParams) {
+	if !validateAdmin(wrpr, w, r) {
 		return
 	}
-	year, ok := rankingYear(wrpr, c, params.Year)
+	year, ok := rankingYear(wrpr, w, r, params.Year)
 	if !ok {
 		return
 	}
 
-	brandPies, err := wrpr.storage.GetQuerier().ListMakerPieRankingSummaries(c, year)
+	brandPies, err := wrpr.storage.GetQuerier().ListMakerPieRankingSummaries(r.Context(), year)
 	if err != nil {
-		c.AbortWithError(500, err)
+		abortErr(w, 500, err)
 		return
 	}
 
-	piesEnabled, _ := wrpr.storage.GetUserPiesEnabled(c)
+	piesEnabled, _ := wrpr.storage.GetUserPiesEnabled(r.Context())
 	userPies := []sqlcgen.ListUserPieRankingSummariesRow{}
 	if piesEnabled {
-		userPies, err = wrpr.storage.GetQuerier().ListUserPieRankingSummaries(c, year)
+		userPies, err = wrpr.storage.GetQuerier().ListUserPieRankingSummaries(r.Context(), year)
 		if err != nil {
-			c.AbortWithError(500, err)
+			abortErr(w, 500, err)
 			return
 		}
 	}
 
-	ay, err := wrpr.storage.GetQuerier().GetActiveYear(c)
+	ay, err := wrpr.storage.GetQuerier().GetActiveYear(r.Context())
 	if err != nil {
-		c.AbortWithError(500, err)
+		abortErr(w, 500, err)
 		return
 	}
 	vals := templater.PageData{
@@ -78,38 +77,38 @@ func (wrpr *WebsiteWrapper) GetAdminRankings(c *gin.Context, params generated.Ge
 			"PageErrors": []string{},
 		},
 	}
-	c.HTML(http.StatusOK, "page:admin:rankings", vals)
+	wrpr.renderPage(w, http.StatusOK, "admin:rankings", vals)
 }
 
 // GetAdminBrandPieRankings implements generated.ServerInterface. The review
 // screen lists each rating one user gave this brand pie, including the notes
 // that are collected but never shown publicly.
-func (wrpr *WebsiteWrapper) GetAdminBrandPieRankings(c *gin.Context, brand string, pie string, params generated.GetAdminBrandPieRankingsParams) {
-	if !validateAdmin(wrpr, c) {
+func (wrpr *WebsiteWrapper) GetAdminBrandPieRankings(w http.ResponseWriter, r *http.Request, brand string, pie string, params generated.GetAdminBrandPieRankingsParams) {
+	if !validateAdmin(wrpr, w, r) {
 		return
 	}
-	year, ok := rankingYear(wrpr, c, params.Year)
+	year, ok := rankingYear(wrpr, w, r, params.Year)
 	if !ok {
 		return
 	}
 
-	pieYearly, err := wrpr.storage.GetMakerPieYearly(c, year, brand, pie)
+	pieYearly, err := wrpr.storage.GetMakerPieYearly(r.Context(), year, brand, pie)
 	if err != nil {
-		c.AbortWithError(500, err)
+		abortErr(w, 500, err)
 		return
 	}
 	if pieYearly == nil {
-		c.AbortWithStatus(http.StatusNotFound)
+		abortStatus(w, http.StatusNotFound)
 		return
 	}
 
-	rankings, err := wrpr.storage.GetQuerier().ListMakerPieRankingsForPie(c, sqlcgen.ListMakerPieRankingsForPieParams{
+	rankings, err := wrpr.storage.GetQuerier().ListMakerPieRankingsForPie(r.Context(), sqlcgen.ListMakerPieRankingsForPieParams{
 		Year:    year,
 		Makerid: brand,
 		Pieid:   pie,
 	})
 	if err != nil {
-		c.AbortWithError(500, err)
+		abortErr(w, 500, err)
 		return
 	}
 
@@ -129,12 +128,12 @@ func (wrpr *WebsiteWrapper) GetAdminBrandPieRankings(c *gin.Context, brand strin
 		})
 	}
 
-	ay, err := wrpr.storage.GetQuerier().GetActiveYear(c)
+	ay, err := wrpr.storage.GetQuerier().GetActiveYear(r.Context())
 	if err != nil {
-		c.AbortWithError(500, err)
+		abortErr(w, 500, err)
 		return
 	}
-	piesEnabled, _ := wrpr.storage.GetUserPiesEnabled(c)
+	piesEnabled, _ := wrpr.storage.GetUserPiesEnabled(r.Context())
 	vals := templater.PageData{
 		Head: templater.PageDataHead{
 			IsAdminPage: true,
@@ -155,66 +154,66 @@ func (wrpr *WebsiteWrapper) GetAdminBrandPieRankings(c *gin.Context, brand strin
 			"PageErrors": []string{},
 		},
 	}
-	c.HTML(http.StatusOK, "page:admin:rankreview", vals)
+	wrpr.renderPage(w, http.StatusOK, "admin:rankreview", vals)
 }
 
 // DeleteAdminBrandPieRanking implements generated.ServerInterface.
-func (wrpr *WebsiteWrapper) DeleteAdminBrandPieRanking(c *gin.Context, brand string, pie string, userid string, params generated.DeleteAdminBrandPieRankingParams) {
-	if !validateAdmin(wrpr, c) {
+func (wrpr *WebsiteWrapper) DeleteAdminBrandPieRanking(w http.ResponseWriter, r *http.Request, brand string, pie string, userid string, params generated.DeleteAdminBrandPieRankingParams) {
+	if !validateAdmin(wrpr, w, r) {
 		return
 	}
-	year, ok := rankingYear(wrpr, c, params.Year)
+	year, ok := rankingYear(wrpr, w, r, params.Year)
 	if !ok {
 		return
 	}
 
-	if err := wrpr.storage.GetQuerier().DeleteMakerPieRanking(c, sqlcgen.DeleteMakerPieRankingParams{
+	if err := wrpr.storage.GetQuerier().DeleteMakerPieRanking(r.Context(), sqlcgen.DeleteMakerPieRankingParams{
 		Year:    year,
 		Makerid: brand,
 		Pieid:   pie,
 		Userid:  userid,
 	}); err != nil {
-		c.AbortWithError(500, err)
+		abortErr(w, 500, err)
 		return
 	}
 
-	adminId := c.Keys["userid"].(string)
+	adminId := userIDFrom(r)
 	log.Info().Str("pie", brand+"/"+pie).Str("rated_by", userid).Str("by", adminId).Msg("Deleted brand pie ranking")
-	c.Redirect(http.StatusSeeOther, rankingReviewPath("brands/"+url.PathEscape(brand)+"/"+url.PathEscape(pie), year))
+	http.Redirect(w, r, rankingReviewPath("brands/"+url.PathEscape(brand)+"/"+url.PathEscape(pie), year), http.StatusSeeOther)
 }
 
 // GetAdminUserPieRankings implements generated.ServerInterface.
-func (wrpr *WebsiteWrapper) GetAdminUserPieRankings(c *gin.Context, id string, params generated.GetAdminUserPieRankingsParams) {
-	if !validateAdmin(wrpr, c) {
+func (wrpr *WebsiteWrapper) GetAdminUserPieRankings(w http.ResponseWriter, r *http.Request, id string, params generated.GetAdminUserPieRankingsParams) {
+	if !validateAdmin(wrpr, w, r) {
 		return
 	}
-	year, ok := rankingYear(wrpr, c, params.Year)
+	year, ok := rankingYear(wrpr, w, r, params.Year)
 	if !ok {
 		return
 	}
 
-	piesEnabled, _ := wrpr.storage.GetUserPiesEnabled(c)
+	piesEnabled, _ := wrpr.storage.GetUserPiesEnabled(r.Context())
 	if !piesEnabled {
-		c.AbortWithStatus(http.StatusNotFound)
+		abortStatus(w, http.StatusNotFound)
 		return
 	}
 
-	pieWithOwner, err := wrpr.storage.GetUserPie(c, year, id)
+	pieWithOwner, err := wrpr.storage.GetUserPie(r.Context(), year, id)
 	if err != nil {
-		c.AbortWithError(500, err)
+		abortErr(w, 500, err)
 		return
 	}
 	if pieWithOwner == nil || pieWithOwner.Pie.Id == "" {
-		c.AbortWithStatus(http.StatusNotFound)
+		abortStatus(w, http.StatusNotFound)
 		return
 	}
 
-	rankings, err := wrpr.storage.GetQuerier().ListUserPieRankingsForPie(c, sqlcgen.ListUserPieRankingsForPieParams{
+	rankings, err := wrpr.storage.GetQuerier().ListUserPieRankingsForPie(r.Context(), sqlcgen.ListUserPieRankingsForPieParams{
 		Year:  year,
 		Pieid: id,
 	})
 	if err != nil {
-		c.AbortWithError(500, err)
+		abortErr(w, 500, err)
 		return
 	}
 
@@ -234,9 +233,9 @@ func (wrpr *WebsiteWrapper) GetAdminUserPieRankings(c *gin.Context, id string, p
 		})
 	}
 
-	ay, err := wrpr.storage.GetQuerier().GetActiveYear(c)
+	ay, err := wrpr.storage.GetQuerier().GetActiveYear(r.Context())
 	if err != nil {
-		c.AbortWithError(500, err)
+		abortErr(w, 500, err)
 		return
 	}
 	vals := templater.PageData{
@@ -259,31 +258,31 @@ func (wrpr *WebsiteWrapper) GetAdminUserPieRankings(c *gin.Context, id string, p
 			"PageErrors": []string{},
 		},
 	}
-	c.HTML(http.StatusOK, "page:admin:rankreview", vals)
+	wrpr.renderPage(w, http.StatusOK, "admin:rankreview", vals)
 }
 
 // DeleteAdminUserPieRanking implements generated.ServerInterface.
-func (wrpr *WebsiteWrapper) DeleteAdminUserPieRanking(c *gin.Context, id string, userid string, params generated.DeleteAdminUserPieRankingParams) {
-	if !validateAdmin(wrpr, c) {
+func (wrpr *WebsiteWrapper) DeleteAdminUserPieRanking(w http.ResponseWriter, r *http.Request, id string, userid string, params generated.DeleteAdminUserPieRankingParams) {
+	if !validateAdmin(wrpr, w, r) {
 		return
 	}
-	year, ok := rankingYear(wrpr, c, params.Year)
+	year, ok := rankingYear(wrpr, w, r, params.Year)
 	if !ok {
 		return
 	}
 
-	if err := wrpr.storage.GetQuerier().DeleteUserPieRanking(c, sqlcgen.DeleteUserPieRankingParams{
+	if err := wrpr.storage.GetQuerier().DeleteUserPieRanking(r.Context(), sqlcgen.DeleteUserPieRankingParams{
 		Year:   year,
 		Pieid:  id,
 		Userid: userid,
 	}); err != nil {
-		c.AbortWithError(500, err)
+		abortErr(w, 500, err)
 		return
 	}
 
-	adminId := c.Keys["userid"].(string)
+	adminId := userIDFrom(r)
 	log.Info().Str("pie", id).Str("rated_by", userid).Str("by", adminId).Msg("Deleted user pie ranking")
-	c.Redirect(http.StatusSeeOther, rankingReviewPath("userpies/"+url.PathEscape(id), year))
+	http.Redirect(w, r, rankingReviewPath("userpies/"+url.PathEscape(id), year), http.StatusSeeOther)
 }
 
 // rankingReviewPath builds the review-screen redirect target, keeping the

@@ -37,9 +37,9 @@ func NewWebsite(cfg WebsiteConfiguration) (*Website, error) {
 	if err != nil {
 		return nil, err
 	}
-	fsi := NewWebsiteWrapper(ops, cfg)
-
 	tmpltr := templater.NewHtmlTemplater()
+	fsi := NewWebsiteWrapper(ops, cfg, tmpltr)
+
 	return &Website{
 
 		auth:            ac,
@@ -49,13 +49,15 @@ func NewWebsite(cfg WebsiteConfiguration) (*Website, error) {
 }
 
 type WebsiteWrapper struct {
-	storage storage.Operations
-	config  WebsiteConfiguration
+	storage       storage.Operations
+	config        WebsiteConfiguration
+	htmlTemplater templater.Templater
 }
 
-func NewWebsiteWrapper(storage storage.Operations, cfg WebsiteConfiguration) generated.ServerInterface {
+func NewWebsiteWrapper(storage storage.Operations, cfg WebsiteConfiguration, tmpltr templater.Templater) generated.ServerInterface {
 	return &WebsiteWrapper{
-		storage: storage,
-		config:  cfg,
+		storage:       storage,
+		config:        cfg,
+		htmlTemplater: tmpltr,
 	}
 }

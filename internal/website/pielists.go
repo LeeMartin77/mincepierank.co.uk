@@ -3,11 +3,11 @@ package website
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"net/url"
 	"slices"
 	"strconv"
 
-	"github.com/gin-gonic/gin"
 	"github.com/leemartin77/mincepierank.co.uk/internal/storage"
 	"github.com/leemartin77/mincepierank.co.uk/internal/templater"
 	generated "github.com/leemartin77/mincepierank.co.uk/internal/website/generated"
@@ -62,16 +62,16 @@ func getFilterLinks(wrpr *WebsiteWrapper, c context.Context, year int64, activeF
 	return &flinks, &activeQueries, err
 }
 
-func getLimitAndIdx(c *gin.Context) (int64, int64) {
+func getLimitAndIdx(w http.ResponseWriter, r *http.Request) (int64, int64) {
 	limit := int64(20)
 	pageZeroIdx := int64(0)
 
-	prsdLimit, err := strconv.ParseInt(c.Query("limit"), 10, 64)
+	prsdLimit, err := strconv.ParseInt(r.URL.Query().Get("limit"), 10, 64)
 
 	if err == nil && prsdLimit > 0 && prsdLimit < 101 {
 		limit = prsdLimit
 	}
-	prsdIdx, err := strconv.ParseInt(c.Query("page"), 10, 64)
+	prsdIdx, err := strconv.ParseInt(r.URL.Query().Get("page"), 10, 64)
 
 	if err == nil && prsdIdx > 0 {
 		pageZeroIdx = prsdIdx - 1
@@ -80,38 +80,38 @@ func getLimitAndIdx(c *gin.Context) (int64, int64) {
 }
 
 // YearAllPies implements generated.StrictServerInterface.
-func (wrpr *WebsiteWrapper) YearAllPies(c *gin.Context, year int64, params generated.YearAllPiesParams) {
-	ay, err := wrpr.storage.GetActiveYear(c)
+func (wrpr *WebsiteWrapper) YearAllPies(w http.ResponseWriter, r *http.Request, year int64, params generated.YearAllPiesParams) {
+	ay, err := wrpr.storage.GetActiveYear(r.Context())
 	if err != nil {
 		log.Error().Err(err).Msg("Error getting active year")
-		c.AbortWithStatus(500)
+		abortStatus(w, 500)
 		return
 	}
 
-	limit, pageZeroIdx := getLimitAndIdx(c)
+	limit, pageZeroIdx := getLimitAndIdx(w, r)
 
-	catFilters := c.QueryArray("categories")
+	catFilters := r.URL.Query()["categories"]
 
-	flinks, activequery, err := getFilterLinks(wrpr, c, year, catFilters, fmt.Sprintf("/years/%d/all-pies", year), nil, nil)
+	flinks, activequery, err := getFilterLinks(wrpr, r.Context(), year, catFilters, fmt.Sprintf("/years/%d/all-pies", year), nil, nil)
 	if err != nil {
 		log.Error().Err(err).Msg("Error getting filter links")
-		c.AbortWithStatus(500)
+		abortStatus(w, 500)
 		return
 	}
 
-	pies, err := wrpr.storage.GetFilterableMakerPies(c, year, limit, pageZeroIdx, storage.PieFilters{
+	pies, err := wrpr.storage.GetFilterableMakerPies(r.Context(), year, limit, pageZeroIdx, storage.PieFilters{
 		CategorySlugs: catFilters,
 	})
 	if err != nil {
 		log.Error().Err(err).Msg("Error getting maker pies")
-		c.AbortWithStatus(500)
+		abortStatus(w, 500)
 		return
 	}
 
-	mmap, err := wrpr.getMakerMap(c, year)
+	mmap, err := wrpr.getMakerMap(r.Context(), year)
 	if err != nil {
 		log.Error().Err(err).Msg("Error getting maker pies")
-		c.AbortWithStatus(500)
+		abortStatus(w, 500)
 		return
 	}
 
@@ -134,16 +134,16 @@ func (wrpr *WebsiteWrapper) YearAllPies(c *gin.Context, year int64, params gener
 		})
 	}
 
-	piesEnabled, _ := wrpr.storage.GetUserPiesEnabled(c)
+	piesEnabled, _ := wrpr.storage.GetUserPiesEnabled(r.Context())
 	vals := templater.PageData{
 		Head: templater.PageDataHead{
-			Snow:        wrpr.snowing(c),
+			Snow:        wrpr.snowing(r.Context()),
 			Title:       fmt.Sprintf("All pies for %d", year),
 			Description: fmt.Sprintf("All pies for %d", year),
 			Keywords:    fmt.Sprintf("Mince pies, UK, ranking, %d", year),
 			MenuSettings: templater.MenuSettings{
 				ActiveYear:      *ay,
-				SignedIn:        c.Keys["signedin"].(bool),
+				SignedIn:        signedInFrom(r),
 				UserPiesEnabled: piesEnabled,
 			},
 		},
@@ -159,41 +159,41 @@ func (wrpr *WebsiteWrapper) YearAllPies(c *gin.Context, year int64, params gener
 		},
 	}
 
-	c.HTML(200, "page:pielist", vals)
+	wrpr.renderPage(w, 200, "pielist", vals)
 }
 
-func (wrpr *WebsiteWrapper) YearPersonalRanking(c *gin.Context, year int64, params generated.YearPersonalRankingParams) {
-	ay, err := wrpr.storage.GetActiveYear(c)
+func (wrpr *WebsiteWrapper) YearPersonalRanking(w http.ResponseWriter, r *http.Request, year int64, params generated.YearPersonalRankingParams) {
+	ay, err := wrpr.storage.GetActiveYear(r.Context())
 	if err != nil {
 		log.Error().Err(err).Msg("Error getting active year")
-		c.AbortWithStatus(500)
+		abortStatus(w, 500)
 		return
 	}
 
-	limit, pageZeroIdx := getLimitAndIdx(c)
+	limit, pageZeroIdx := getLimitAndIdx(w, r)
 
-	catFilters := c.QueryArray("categories")
+	catFilters := r.URL.Query()["categories"]
 
-	flinks, activequery, err := getFilterLinks(wrpr, c, year, catFilters, fmt.Sprintf("/years/%d/all-pies", year), nil, nil)
+	flinks, activequery, err := getFilterLinks(wrpr, r.Context(), year, catFilters, fmt.Sprintf("/years/%d/all-pies", year), nil, nil)
 	if err != nil {
 		log.Error().Err(err).Msg("Error getting filter links")
-		c.AbortWithStatus(500)
+		abortStatus(w, 500)
 		return
 	}
 
-	pies, err := wrpr.storage.GetFilterableMakerPiesForUser(c, year, c.Keys["userid"].(string), limit, pageZeroIdx, storage.PieFilters{
+	pies, err := wrpr.storage.GetFilterableMakerPiesForUser(r.Context(), year, userIDFrom(r), limit, pageZeroIdx, storage.PieFilters{
 		CategorySlugs: catFilters,
 	})
 	if err != nil {
 		log.Error().Err(err).Msg("Error getting user rankings")
-		c.AbortWithStatus(500)
+		abortStatus(w, 500)
 		return
 	}
 
-	mmap, err := wrpr.getMakerMap(c, year)
+	mmap, err := wrpr.getMakerMap(r.Context(), year)
 	if err != nil {
 		log.Error().Err(err).Msg("Error getting maker pies")
-		c.AbortWithStatus(500)
+		abortStatus(w, 500)
 		return
 	}
 
@@ -216,16 +216,16 @@ func (wrpr *WebsiteWrapper) YearPersonalRanking(c *gin.Context, year int64, para
 		})
 	}
 
-	piesEnabled, _ := wrpr.storage.GetUserPiesEnabled(c)
+	piesEnabled, _ := wrpr.storage.GetUserPiesEnabled(r.Context())
 	vals := templater.PageData{
 		Head: templater.PageDataHead{
-			Snow:        wrpr.snowing(c),
+			Snow:        wrpr.snowing(r.Context()),
 			Title:       fmt.Sprintf("Your rankings for %d", year),
 			Description: fmt.Sprintf("Your rankings for %d", year),
 			Keywords:    fmt.Sprintf("Mince pies, UK, ranking, %d", year),
 			MenuSettings: templater.MenuSettings{
 				ActiveYear:      *ay,
-				SignedIn:        c.Keys["signedin"].(bool),
+				SignedIn:        signedInFrom(r),
 				UserPiesEnabled: piesEnabled,
 			},
 		},
@@ -241,32 +241,32 @@ func (wrpr *WebsiteWrapper) YearPersonalRanking(c *gin.Context, year int64, para
 		},
 	}
 
-	c.HTML(200, "page:pielist", vals)
+	wrpr.renderPage(w, 200, "pielist", vals)
 }
 
 // YearBrandPies implements generated.StrictServerInterface.
-func (wrpr *WebsiteWrapper) YearBrandPies(c *gin.Context, year int64, brand string, params generated.YearBrandPiesParams) {
-	ay, err := wrpr.storage.GetActiveYear(c)
+func (wrpr *WebsiteWrapper) YearBrandPies(w http.ResponseWriter, r *http.Request, year int64, brand string, params generated.YearBrandPiesParams) {
+	ay, err := wrpr.storage.GetActiveYear(r.Context())
 	if err != nil {
 		log.Error().Err(err).Msg("Error getting active year")
-		c.AbortWithStatus(500)
+		abortStatus(w, 500)
 		return
 	}
 
-	maker, err := wrpr.storage.GetMaker(c, c.Param("brand"))
+	maker, err := wrpr.storage.GetMaker(r.Context(), brand)
 	if err != nil {
 		log.Error().Err(err).Msg("Error getting brand")
-		c.AbortWithStatus(500)
+		abortStatus(w, 500)
 		return
 	}
 	if maker == nil {
-		c.AbortWithStatus(404)
+		abortStatus(w, 404)
 		return
 	}
 
-	limit, pageZeroIdx := getLimitAndIdx(c)
+	limit, pageZeroIdx := getLimitAndIdx(w, r)
 
-	catFilters := c.QueryArray("categories")
+	catFilters := r.URL.Query()["categories"]
 	unescapedCatFilters := []string{}
 	for _, cf := range catFilters {
 		ue, err := url.QueryUnescape(cf)
@@ -276,20 +276,20 @@ func (wrpr *WebsiteWrapper) YearBrandPies(c *gin.Context, year int64, brand stri
 		unescapedCatFilters = append(unescapedCatFilters, ue)
 	}
 
-	flinks, activequery, err := getFilterLinks(wrpr, c, year, catFilters, fmt.Sprintf("/years/%d/brands/%s", year, maker.Id), nil, &maker.Id)
+	flinks, activequery, err := getFilterLinks(wrpr, r.Context(), year, catFilters, fmt.Sprintf("/years/%d/brands/%s", year, maker.Id), nil, &maker.Id)
 	if err != nil {
 		log.Error().Err(err).Msg("Error getting filter links")
-		c.AbortWithStatus(500)
+		abortStatus(w, 500)
 		return
 	}
 
-	pies, err := wrpr.storage.GetFilterableMakerPies(c, year, limit, pageZeroIdx, storage.PieFilters{
+	pies, err := wrpr.storage.GetFilterableMakerPies(r.Context(), year, limit, pageZeroIdx, storage.PieFilters{
 		BrandIds:      []string{maker.Id},
 		CategorySlugs: unescapedCatFilters,
 	})
 	if err != nil {
 		log.Error().Err(err).Msg("Error getting pies")
-		c.AbortWithStatus(500)
+		abortStatus(w, 500)
 		return
 	}
 
@@ -312,16 +312,16 @@ func (wrpr *WebsiteWrapper) YearBrandPies(c *gin.Context, year int64, brand stri
 		})
 	}
 
-	piesEnabled, _ := wrpr.storage.GetUserPiesEnabled(c)
+	piesEnabled, _ := wrpr.storage.GetUserPiesEnabled(r.Context())
 	vals := templater.PageData{
 		Head: templater.PageDataHead{
-			Snow:        wrpr.snowing(c),
+			Snow:        wrpr.snowing(r.Context()),
 			Title:       fmt.Sprintf("%s pies for %d", maker.Name, year),
 			Description: fmt.Sprintf("%s for %d", maker.Name, year),
 			Keywords:    fmt.Sprintf("Mince pies, UK, ranking, %d", year),
 			MenuSettings: templater.MenuSettings{
 				ActiveYear:      *ay,
-				SignedIn:        c.Keys["signedin"].(bool),
+				SignedIn:        signedInFrom(r),
 				UserPiesEnabled: piesEnabled,
 			},
 		},
@@ -337,48 +337,48 @@ func (wrpr *WebsiteWrapper) YearBrandPies(c *gin.Context, year int64, brand stri
 		},
 	}
 
-	c.HTML(200, "page:pielist", vals)
+	wrpr.renderPage(w, 200, "pielist", vals)
 }
 
 // YearCategoryPies implements generated.StrictServerInterface.
-func (wrpr *WebsiteWrapper) YearCategoryPies(c *gin.Context, year int64, brand string, params generated.YearCategoryPiesParams) {
-	ay, err := wrpr.storage.GetActiveYear(c)
+func (wrpr *WebsiteWrapper) YearCategoryPies(w http.ResponseWriter, r *http.Request, year int64, category string, params generated.YearCategoryPiesParams) {
+	ay, err := wrpr.storage.GetActiveYear(r.Context())
 	if err != nil {
 		log.Error().Err(err).Msg("Error getting active year")
-		c.AbortWithStatus(500)
+		abortStatus(w, 500)
 		return
 	}
-	cat, err := url.QueryUnescape(c.Param("category"))
+	cat, err := url.QueryUnescape(category)
 	if err != nil {
-		c.AbortWithStatus(400)
+		abortStatus(w, 400)
 		return
 	}
 
-	limit, pageZeroIdx := getLimitAndIdx(c)
+	limit, pageZeroIdx := getLimitAndIdx(w, r)
 
-	catFilters := c.QueryArray("categories")
+	catFilters := r.URL.Query()["categories"]
 
-	flinks, activequery, err := getFilterLinks(wrpr, c, year, catFilters, fmt.Sprintf("/years/%d/categories/%s", year, url.QueryEscape(c.Param("category"))), &cat, nil)
+	flinks, activequery, err := getFilterLinks(wrpr, r.Context(), year, catFilters, fmt.Sprintf("/years/%d/categories/%s", year, url.QueryEscape(category)), &cat, nil)
 	if err != nil {
 		log.Error().Err(err).Msg("Error getting filter links")
-		c.AbortWithStatus(500)
+		abortStatus(w, 500)
 		return
 	}
 
 	catFilters = append(catFilters, cat)
-	pies, err := wrpr.storage.GetFilterableMakerPies(c, year, limit, pageZeroIdx, storage.PieFilters{
+	pies, err := wrpr.storage.GetFilterableMakerPies(r.Context(), year, limit, pageZeroIdx, storage.PieFilters{
 		CategorySlugs: catFilters,
 	})
 	if err != nil {
 		log.Error().Err(err).Msg("Error getting maker pies")
-		c.AbortWithStatus(500)
+		abortStatus(w, 500)
 		return
 	}
 
-	mmap, err := wrpr.getMakerMap(c, year)
+	mmap, err := wrpr.getMakerMap(r.Context(), year)
 	if err != nil {
 		log.Error().Err(err).Msg("Error getting maker pies")
-		c.AbortWithStatus(500)
+		abortStatus(w, 500)
 		return
 	}
 
@@ -401,30 +401,30 @@ func (wrpr *WebsiteWrapper) YearCategoryPies(c *gin.Context, year int64, brand s
 		})
 	}
 
-	piesEnabled, _ := wrpr.storage.GetUserPiesEnabled(c)
+	piesEnabled, _ := wrpr.storage.GetUserPiesEnabled(r.Context())
 	vals := templater.PageData{
 		Head: templater.PageDataHead{
-			Snow:        wrpr.snowing(c),
+			Snow:        wrpr.snowing(r.Context()),
 			Title:       fmt.Sprintf("%s pies for %d", cat, year),
 			Description: fmt.Sprintf("%s pies for %d", cat, year),
 			Keywords:    fmt.Sprintf("Mince pies, UK, ranking, %d", year),
 			MenuSettings: templater.MenuSettings{
 				ActiveYear:      *ay,
-				SignedIn:        c.Keys["signedin"].(bool),
+				SignedIn:        signedInFrom(r),
 				UserPiesEnabled: piesEnabled,
 			},
 		},
 		PageData: map[string]interface{}{
 			"Heading":            fmt.Sprintf("%s pies for %d", cat, year),
-			"Breadcrumb":         templater.BreadcrumbsFromUrl(fmt.Sprintf("/years/%d/categories/%s", year, c.Param("category"))),
+			"Breadcrumb":         templater.BreadcrumbsFromUrl(fmt.Sprintf("/years/%d/categories/%s", year, category)),
 			"PieCards":           pieCards,
 			"FilterLinks":        *flinks,
 			"NextPage":           pageZeroIdx + 2,
 			"ShouldLoadNextPage": len(pieCards) == int(limit),
-			"URL":                fmt.Sprintf("/years/%d/categories/%s", year, c.Param("category")),
+			"URL":                fmt.Sprintf("/years/%d/categories/%s", year, category),
 			"Query":              activequery.Encode(),
 		},
 	}
 
-	c.HTML(200, "page:pielist", vals)
+	wrpr.renderPage(w, 200, "pielist", vals)
 }

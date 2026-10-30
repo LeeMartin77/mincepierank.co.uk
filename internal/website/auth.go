@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/coreos/go-oidc"
-	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"
@@ -27,9 +26,9 @@ type AuthConfig struct {
 
 type AuthHandler interface {
 	HandleSignin(ctx context.Context, w http.ResponseWriter, r *http.Request)
-	HandleSignout(ctx *gin.Context)
-	HandleOAuth2Callback(ctx *gin.Context)
-	UserIdMiddleware() gin.HandlerFunc
+	HandleSignout(w http.ResponseWriter, r *http.Request)
+	HandleOAuth2Callback(w http.ResponseWriter, r *http.Request)
+	UserIdMiddleware() func(http.Handler) http.Handler
 }
 
 func NewAuthHandler(redis *redis.Client, config WebsiteConfiguration) (AuthHandler, error) {
@@ -60,6 +59,44 @@ func NewAuthHandler(redis *redis.Client, config WebsiteConfiguration) (AuthHandl
 	}, nil
 }
 
+type contextKey int
+
+const (
+	contextKeyUserID contextKey = iota
+	contextKeySignedIn
+)
+
+// userIDFrom returns the id of the user attached to the request by
+// UserIdMiddleware - their email when signed in, an anonymous id otherwise.
+// It is empty if the middleware did not run.
+func userIDFrom(r *http.Request) string {
+	v, _ := r.Context().Value(contextKeyUserID).(string)
+	return v
+}
+
+// signedInFrom reports whether the request carries a verified sign-in, as
+// attached by UserIdMiddleware.
+func signedInFrom(r *http.Request) bool {
+	v, _ := r.Context().Value(contextKeySignedIn).(bool)
+	return v
+}
+
+// setSessionCookie writes (or, when maxAge < 0, clears) one of the auth
+// cookies. Secure domains get Secure cookies; HttpOnly mirrors the old gin
+// behaviour, which set HttpOnly to the inverse of the secure flag.
+func (ac *AuthConfig) setSessionCookie(w http.ResponseWriter, name, value string, maxAge int) {
+	secure := ac.Config.MincepierankSecureDomain
+	http.SetCookie(w, &http.Cookie{
+		Name:     name,
+		Value:    value,
+		MaxAge:   maxAge,
+		Path:     "/",
+		Domain:   ac.Config.MincepierankDomain,
+		Secure:   secure,
+		HttpOnly: !secure,
+	})
+}
+
 // safeRedirectPath returns path if it is a safe same-site relative path to
 // return to after signing in, or "" if it should be ignored.
 func safeRedirectPath(path string) string {
@@ -77,12 +114,12 @@ func safeRedirectPath(path string) string {
 
 // requireSignIn redirects the request to the sign-in route, asking to be
 // returned to the requested path after signing in.
-func requireSignIn(c *gin.Context) {
+func requireSignIn(w http.ResponseWriter, r *http.Request) {
 	target := "/auth/signin"
-	if redirect := safeRedirectPath(c.Request.URL.RequestURI()); redirect != "" {
+	if redirect := safeRedirectPath(r.URL.RequestURI()); redirect != "" {
 		target = target + "?redirect=" + url.QueryEscape(redirect)
 	}
-	c.Redirect(http.StatusSeeOther, target)
+	http.Redirect(w, r, target, http.StatusSeeOther)
 }
 
 func (ac *AuthConfig) HandleSignin(ctx context.Context, w http.ResponseWriter, r *http.Request) {
@@ -102,9 +139,9 @@ func (ac *AuthConfig) HandleSignin(ctx context.Context, w http.ResponseWriter, r
 }
 
 // HandleSignout implements AuthHandler.
-func (ac *AuthConfig) HandleSignout(ctx *gin.Context) {
-	ctx.SetCookie(ac.CookieKey, "", -1, "/", ac.Config.MincepierankDomain, ac.Config.MincepierankSecureDomain, !ac.Config.MincepierankSecureDomain)
-	ctx.Redirect(http.StatusFound, "/")
+func (ac *AuthConfig) HandleSignout(w http.ResponseWriter, r *http.Request) {
+	ac.setSessionCookie(w, ac.CookieKey, "", -1)
+	http.Redirect(w, r, "/", http.StatusFound)
 }
 
 type jwtClaims struct {
@@ -113,15 +150,15 @@ type jwtClaims struct {
 	Groups   []string `json:"groups"`
 }
 
-func (ac *AuthConfig) HandleOAuth2Callback(ctx *gin.Context) {
-	state := ctx.Request.URL.Query().Get("state")
+func (ac *AuthConfig) HandleOAuth2Callback(w http.ResponseWriter, r *http.Request) {
+	state := r.URL.Query().Get("state")
 
 	// Verify state - the stored value is the path to return to after sign-in.
-	strd := ac.Redis.Get(ctx, state)
+	strd := ac.Redis.Get(r.Context(), state)
 
 	if strd.Err() != nil {
 		log.Error().Err(strd.Err()).Msg("Got an error trying to callback")
-		http.Error(ctx.Writer, "unrecognised state", http.StatusBadRequest)
+		http.Error(w, "unrecognised state", http.StatusBadRequest)
 		return
 	}
 
@@ -135,30 +172,30 @@ func (ac *AuthConfig) HandleOAuth2Callback(ctx *gin.Context) {
 		redirect = "/"
 	}
 
-	oauth2Token, err := ac.Oauth2Config.Exchange(ctx, ctx.Request.URL.Query().Get("code"))
+	oauth2Token, err := ac.Oauth2Config.Exchange(r.Context(), r.URL.Query().Get("code"))
 	if err != nil {
-		http.Error(ctx.Writer, err.Error(), http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	// Extract the ID Token from OAuth2 token.
 	rawIDToken, ok := oauth2Token.Extra("id_token").(string)
 	if !ok {
-		http.Error(ctx.Writer, "error reading token", http.StatusInternalServerError)
+		http.Error(w, "error reading token", http.StatusInternalServerError)
 		return
 	}
 
 	// Parse and verify ID Token payload.
-	idToken, err := ac.IdTokenVerifier.Verify(ctx, rawIDToken)
+	idToken, err := ac.IdTokenVerifier.Verify(r.Context(), rawIDToken)
 	if err != nil {
-		http.Error(ctx.Writer, err.Error(), http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	// Extract custom claims.
 	var claims jwtClaims
 	if err := idToken.Claims(&claims); err != nil {
-		http.Error(ctx.Writer, err.Error(), http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
@@ -169,45 +206,46 @@ func (ac *AuthConfig) HandleOAuth2Callback(ctx *gin.Context) {
 
 	tokenString, err := token.SignedString([]byte(ac.Config.JwtSigningKey))
 	if err != nil {
-		http.Error(ctx.Writer, err.Error(), http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	ctx.SetCookie(ac.CookieKey, tokenString, 34560000, "/", ac.Config.MincepierankDomain, ac.Config.MincepierankSecureDomain, !ac.Config.MincepierankSecureDomain)
-	ctx.Redirect(http.StatusFound, redirect)
+	ac.setSessionCookie(w, ac.CookieKey, tokenString, 34560000)
+	http.Redirect(w, r, redirect, http.StatusFound)
 }
 
-func (ac *AuthConfig) UserIdMiddleware() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		jwtStr, err := c.Cookie(ac.CookieKey)
+func (ac *AuthConfig) UserIdMiddleware() func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			ctx := r.Context()
 
-		if err == nil {
-			decodedToken, err := jwt.Parse(jwtStr, func(token *jwt.Token) (interface{}, error) {
-				return []byte(ac.Config.JwtSigningKey), nil
-			})
-			if err == nil && decodedToken != nil && decodedToken.Valid {
-				// userid from token
-				email := decodedToken.Claims.(jwt.MapClaims)["email"]
-				if email != nil && email != "" {
-					c.Keys = map[any]any{}
-					c.Keys["userid"] = email
-					c.Keys["signedin"] = true
-					c.Next()
-					return
+			jwtCookie, err := r.Cookie(ac.CookieKey)
+			if err == nil {
+				decodedToken, err := jwt.Parse(jwtCookie.Value, func(token *jwt.Token) (interface{}, error) {
+					return []byte(ac.Config.JwtSigningKey), nil
+				})
+				if err == nil && decodedToken != nil && decodedToken.Valid {
+					// userid from token
+					if email, ok := decodedToken.Claims.(jwt.MapClaims)["email"].(string); ok && email != "" {
+						ctx = context.WithValue(ctx, contextKeyUserID, email)
+						ctx = context.WithValue(ctx, contextKeySignedIn, true)
+						next.ServeHTTP(w, r.WithContext(ctx))
+						return
+					}
 				}
 			}
-		}
 
-		userid, err := c.Cookie("anon_user_id")
+			userid := ""
+			if anonCookie, err := r.Cookie("anon_user_id"); err == nil {
+				userid = anonCookie.Value
+			} else {
+				userid = uuid.NewString()
+				ac.setSessionCookie(w, "anon_user_id", userid, 34560000)
+			}
+			ctx = context.WithValue(ctx, contextKeyUserID, userid)
+			ctx = context.WithValue(ctx, contextKeySignedIn, false)
 
-		if err != nil {
-			userid = uuid.NewString()
-			c.SetCookie("anon_user_id", userid, 34560000, "/", ac.Config.MincepierankDomain, ac.Config.MincepierankSecureDomain, !ac.Config.MincepierankSecureDomain)
-		}
-		c.Keys = map[any]any{}
-		c.Keys["userid"] = userid
-		c.Keys["signedin"] = false
-
-		c.Next()
+			next.ServeHTTP(w, r.WithContext(ctx))
+		})
 	}
 }

@@ -9,18 +9,48 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/gin-gonic/gin"
 	"github.com/leemartin77/mincepierank.co.uk/internal/storage/types"
+	"github.com/leemartin77/mincepierank.co.uk/internal/templater"
 	"github.com/rs/zerolog/log"
 )
+
+// abortStatus writes a plain status response and stops further handling -
+// the net/http equivalent of gin's AbortWithStatus.
+func abortStatus(w http.ResponseWriter, code int) {
+	http.Error(w, http.StatusText(code), code)
+}
+
+// abortErr logs err and responds with code - the net/http equivalent of
+// gin's AbortWithError, which hid the error in its own internal log.
+func abortErr(w http.ResponseWriter, code int, err error) {
+	log.Error().Err(err).Int("status", code).Msg("request failed")
+	http.Error(w, http.StatusText(code), code)
+}
+
+// renderPage executes the named page template and writes it to w with the
+// given status. The templater prefixes "page:" when looking the template up,
+// so pass bare page names such as "admin:rankings".
+func (wrpr *WebsiteWrapper) renderPage(w http.ResponseWriter, status int, page string, data templater.PageData) {
+	rdr, err := wrpr.htmlTemplater.GeneratePage(page, data)
+	if err != nil {
+		log.Error().Err(err).Str("page", page).Msg("Error generating page")
+		http.Error(w, "error rendering page", http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	w.WriteHeader(status)
+	if _, err := io.Copy(w, rdr); err != nil {
+		log.Error().Err(err).Str("page", page).Msg("Error writing page response")
+	}
+}
 
 // saveUploadedFile writes the multipart file from formField to
 // imgprssrDir/<pathParts...>/<filename> and returns the public path (with
 // leading slash), the same convention pie images and brand logos use.
 // When the form carries no file for that field it returns ("", false, nil) so
 // optional uploads can be detected by the caller.
-func saveUploadedFile(imgprssrDir, formField string, c *gin.Context, pathParts ...string) (string, bool, error) {
-	header, err := c.FormFile(formField)
+func saveUploadedFile(imgprssrDir, formField string, r *http.Request, pathParts ...string) (string, bool, error) {
+	_, header, err := r.FormFile(formField)
 	// A url-encoded form (no multipart at all) is just as much "no file" as an
 	// empty file field; only real read/write failures are errors.
 	if err == http.ErrMissingFile || err == http.ErrNotMultipart {
@@ -70,7 +100,7 @@ func (wrpr *WebsiteWrapper) snowing(c context.Context) bool {
 	return !ro
 }
 
-func (wrpr *WebsiteWrapper) getMakerMap(c *gin.Context, year int64) (map[string]types.Maker, error) {
+func (wrpr *WebsiteWrapper) getMakerMap(c context.Context, year int64) (map[string]types.Maker, error) {
 	mkrs, err := wrpr.storage.GetMakersForYear(c, year)
 	if err != nil {
 		return nil, err

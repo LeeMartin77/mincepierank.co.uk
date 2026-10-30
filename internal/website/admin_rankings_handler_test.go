@@ -7,8 +7,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/gin-gonic/gin"
-
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/leemartin77/mincepierank.co.uk/internal/storage"
 	"github.com/leemartin77/mincepierank.co.uk/internal/storage/sqlcgen"
@@ -115,18 +113,17 @@ func (f *fakeRankingStore) GetUserPie(c context.Context, year int32, id string) 
 	return f.userPie, nil
 }
 
-func newRankingTestRouter(t *testing.T, store *fakeRankingStore) *gin.Engine {
+func newRankingTestRouter(t *testing.T, store *fakeRankingStore) http.Handler {
 	t.Helper()
-	gin.SetMode(gin.TestMode)
-	r := gin.New()
-	r.SetHTMLTemplate(templater.NewHtmlTemplater().GetTemplater())
-	r.Use(func(c *gin.Context) {
-		c.Keys = map[any]any{"userid": "admin@example.com"}
-	})
-	generated.RegisterHandlers(r, NewWebsiteWrapper(store, WebsiteConfiguration{
+	mux := http.NewServeMux()
+	generated.HandlerFromMux(NewWebsiteWrapper(store, WebsiteConfiguration{
 		ImgprssrDir: t.TempDir(),
-	}))
-	return r
+	}, templater.NewHtmlTemplater()), mux)
+	// stand in for UserIdMiddleware: every request carries an admin user id
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ctx := context.WithValue(r.Context(), contextKeyUserID, "admin@example.com")
+		mux.ServeHTTP(w, r.WithContext(ctx))
+	})
 }
 
 func TestAdminRankingsAccessControl(t *testing.T) {

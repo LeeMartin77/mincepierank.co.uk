@@ -4,45 +4,44 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/gin-gonic/gin"
 	"github.com/leemartin77/mincepierank.co.uk/internal/storage/types"
 	"github.com/leemartin77/mincepierank.co.uk/internal/templater"
 	"github.com/rs/zerolog/log"
 )
 
-func (wrpr *WebsiteWrapper) HomePage(c *gin.Context) {
-	ay, err := wrpr.storage.GetQuerier().GetActiveYear(c)
+func (wrpr *WebsiteWrapper) HomePage(w http.ResponseWriter, r *http.Request) {
+	ay, err := wrpr.storage.GetQuerier().GetActiveYear(r.Context())
 	if err != nil {
 		log.Error().Err(err).Msg("Error getting active year")
-		c.AbortWithStatus(500)
+		abortStatus(w, 500)
 		return
 	}
 
-	ro, err := wrpr.storage.GetReadonly(c)
+	ro, err := wrpr.storage.GetReadonly(r.Context())
 	if err != nil {
 		log.Error().Err(err).Msg("Error getting readonly")
-		c.AbortWithStatus(500)
+		abortStatus(w, 500)
 		return
 	}
 
-	topPie, err := wrpr.storage.GetTopMakerPie(c, ay)
+	topPie, err := wrpr.storage.GetTopMakerPie(r.Context(), ay)
 	if err != nil {
 		log.Error().Err(err).Msg("Error getting top maker pie")
-		c.AbortWithStatus(500)
+		abortStatus(w, 500)
 		return
 	}
 
-	ltstpie, ltstpiewhen, err := wrpr.storage.GetLatestPieRanking(c, ay)
+	ltstpie, ltstpiewhen, err := wrpr.storage.GetLatestPieRanking(r.Context(), ay)
 	if err != nil {
 		log.Error().Err(err).Msg("Error getting latest ranking")
-		c.AbortWithStatus(500)
+		abortStatus(w, 500)
 		return
 	}
 
-	makers, err := wrpr.storage.GetMakersForYear(c, ay)
+	makers, err := wrpr.storage.GetMakersForYear(r.Context(), ay)
 	if err != nil {
 		log.Error().Err(err).Msg("Error getting year makers")
-		c.AbortWithStatus(500)
+		abortStatus(w, 500)
 		return
 	}
 	mrks := []templater.MakerCardData{}
@@ -58,17 +57,17 @@ func (wrpr *WebsiteWrapper) HomePage(c *gin.Context) {
 		mkrMap[mkr.Id] = mkr
 	}
 
-	piesEnabled, _ := wrpr.storage.GetUserPiesEnabled(c)
+	piesEnabled, _ := wrpr.storage.GetUserPiesEnabled(r.Context())
 
 	vals := templater.PageData{
 		Head: templater.PageDataHead{
-			Snow:        wrpr.snowing(c),
+			Snow:        wrpr.snowing(r.Context()),
 			Title:       "Home Page",
 			Description: "Rank mince pies from major UK brands",
 			Keywords:    "Mince Pies, UK, Ranking",
 			MenuSettings: templater.MenuSettings{
 				ActiveYear:      ay,
-				SignedIn:        c.Keys["signedin"].(bool),
+				SignedIn:        signedInFrom(r),
 				UserPiesEnabled: piesEnabled,
 			},
 		},
@@ -118,5 +117,5 @@ func (wrpr *WebsiteWrapper) HomePage(c *gin.Context) {
 		vals.PageData = og
 	}
 
-	c.HTML(http.StatusOK, "page:index", vals)
+	wrpr.renderPage(w, http.StatusOK, "index", vals)
 }

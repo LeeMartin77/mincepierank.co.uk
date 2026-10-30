@@ -8,7 +8,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 
 	"github.com/leemartin77/mincepierank.co.uk/internal/storage"
@@ -102,18 +101,17 @@ func (f *fakeCategoryStore) DeleteCategory(c context.Context, id uuid.UUID) erro
 	return nil
 }
 
-func newCategoryTestRouter(t *testing.T, store *fakeCategoryStore) *gin.Engine {
+func newCategoryTestRouter(t *testing.T, store *fakeCategoryStore) http.Handler {
 	t.Helper()
-	gin.SetMode(gin.TestMode)
-	r := gin.New()
-	r.SetHTMLTemplate(templater.NewHtmlTemplater().GetTemplater())
-	r.Use(func(c *gin.Context) {
-		c.Keys = map[any]any{"userid": "admin@example.com"}
-	})
-	generated.RegisterHandlers(r, NewWebsiteWrapper(store, WebsiteConfiguration{
+	mux := http.NewServeMux()
+	generated.HandlerFromMux(NewWebsiteWrapper(store, WebsiteConfiguration{
 		ImgprssrDir: t.TempDir(),
-	}))
-	return r
+	}, templater.NewHtmlTemplater()), mux)
+	// stand in for UserIdMiddleware: every request carries an admin user id
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ctx := context.WithValue(r.Context(), contextKeyUserID, "admin@example.com")
+		mux.ServeHTTP(w, r.WithContext(ctx))
+	})
 }
 
 func TestAdminCategoriesAccessControl(t *testing.T) {
@@ -163,7 +161,7 @@ func TestAdminCategoryListAndNew(t *testing.T) {
 	}
 }
 
-func postCategoryForm(r *gin.Engine, method, path string, form url.Values) *httptest.ResponseRecorder {
+func postCategoryForm(r http.Handler, method, path string, form url.Values) *httptest.ResponseRecorder {
 	w := httptest.NewRecorder()
 	req := httptest.NewRequest(method, path, strings.NewReader(form.Encode()))
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
