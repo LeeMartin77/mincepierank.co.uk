@@ -39,7 +39,7 @@ func (wrpr *WebsiteWrapper) SubmitPieForm(c *gin.Context, year int64) {
 
 	sin, _ := c.Keys["signedin"].(bool)
 	if !sin {
-		c.Redirect(http.StatusSeeOther, "/signin")
+		requireSignIn(c)
 		return
 	}
 
@@ -87,7 +87,7 @@ func (wrpr *WebsiteWrapper) SubmitPie(c *gin.Context, year int64) {
 
 	sin, _ := c.Keys["signedin"].(bool)
 	if !sin {
-		c.Redirect(http.StatusSeeOther, "/signin")
+		requireSignIn(c)
 		return
 	}
 
@@ -478,6 +478,8 @@ func (wrpr *WebsiteWrapper) getUserPiePage(c *gin.Context, year int64, id string
 			"Status":         string(status),
 			"Errors":         errs,
 			"RankingFormURL": fmt.Sprintf("/years/%d/user-pies/%s/rating", pie.Year, pie.Id),
+			"SignedIn":       sin,
+			"SignInRedirect": fmt.Sprintf("/years/%d/user-pies/%s", pie.Year, pie.Id),
 		},
 	}
 

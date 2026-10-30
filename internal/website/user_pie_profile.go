@@ -32,7 +32,7 @@ func (wrpr *WebsiteWrapper) MyUserPies(c *gin.Context, year int64) {
 
 	sin, _ := c.Keys["signedin"].(bool)
 	if !sin {
-		c.Redirect(http.StatusSeeOther, "/signin")
+		requireSignIn(c)
 		return
 	}
 
@@ -106,7 +106,7 @@ func (wrpr *WebsiteWrapper) EditUserPieForm(c *gin.Context, year int64, id strin
 
 	sin, _ := c.Keys["signedin"].(bool)
 	if !sin {
-		c.Redirect(http.StatusSeeOther, "/signin")
+		requireSignIn(c)
 		return
 	}
 
@@ -180,7 +180,7 @@ func (wrpr *WebsiteWrapper) EditUserPie(c *gin.Context, year int64, id string) {
 
 	sin, _ := c.Keys["signedin"].(bool)
 	if !sin {
-		c.Redirect(http.StatusSeeOther, "/signin")
+		requireSignIn(c)
 		return
 	}
 
@@ -340,7 +340,7 @@ func (wrpr *WebsiteWrapper) WithdrawUserPie(c *gin.Context, year int64, id strin
 
 	sin, _ := c.Keys["signedin"].(bool)
 	if !sin {
-		c.Redirect(http.StatusSeeOther, "/signin")
+		requireSignIn(c)
 		return
 	}
 
