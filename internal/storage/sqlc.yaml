@@ -9,18 +9,14 @@ sql:
         sql_package: "pgx/v5"
         out: "sqlcgen"
         emit_interface: true
-        # The only jsonb in the schema is maker_pie_yearly_categories.categories
-        # (a jsonb_agg of {"id","slug","label"} objects), which the storage
-        # layer scans into types.Categories. Map it here so queries that
-        # select the column scan straight into the Go type, the same way pgx
-        # scans jsonb into types.Categories today.
+        # Scoped to the one column that needs it, per
+        # https://docs.sqlc.dev/en/latest/reference/datatypes.html#json.
+        # maker_pie_yearly_categories.categories is a jsonb_agg of
+        # {"id","slug","label"} objects that the storage layer scans into
+        # types.Categories. A db_type-wide jsonb override would silently
+        # apply to any new jsonb column, so it is not used.
         overrides:
-          - db_type: "jsonb"
-            go_type:
-              import: "github.com/leemartin77/mincepierank.co.uk/internal/storage/types"
-              type: "Categories"
-          - db_type: "jsonb"
-            nullable: true
+          - column: "maker_pie_yearly_categories.categories"
             go_type:
               import: "github.com/leemartin77/mincepierank.co.uk/internal/storage/types"
               type: "Categories"
