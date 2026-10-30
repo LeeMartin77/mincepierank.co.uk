@@ -3,6 +3,8 @@ package website
 import (
 	"context"
 	"net/http"
+	"net/url"
+	"strings"
 	"time"
 
 	"github.com/coreos/go-oidc"
@@ -58,9 +60,40 @@ func NewAuthHandler(redis *redis.Client, config WebsiteConfiguration) (AuthHandl
 	}, nil
 }
 
+// safeRedirectPath returns path if it is a safe same-site relative path to
+// return to after signing in, or "" if it should be ignored.
+func safeRedirectPath(path string) string {
+	// Only allow single-slash absolute paths - blocks //host (protocol
+	// relative URLs) and anything that could be an absolute URL. Backslashes
+	// are rejected because browsers parse /\host like //host.
+	if !strings.HasPrefix(path, "/") || strings.HasPrefix(path, "//") || strings.Contains(path, `\`) {
+		return ""
+	}
+	if u, err := url.Parse(path); err != nil || u.Host != "" || u.IsAbs() {
+		return ""
+	}
+	return path
+}
+
+// requireSignIn redirects the request to the sign-in route, asking to be
+// returned to the requested path after signing in.
+func requireSignIn(c *gin.Context) {
+	target := "/auth/signin"
+	if redirect := safeRedirectPath(c.Request.URL.RequestURI()); redirect != "" {
+		target = target + "?redirect=" + url.QueryEscape(redirect)
+	}
+	c.Redirect(http.StatusSeeOther, target)
+}
+
 func (ac *AuthConfig) HandleSignin(ctx context.Context, w http.ResponseWriter, r *http.Request) {
 	state := uuid.NewString()
-	resp := ac.Redis.Set(ctx, state, "true", time.Minute*15)
+
+	// Persist where to return to after sign-in (if a safe path was given).
+	redirect := safeRedirectPath(r.URL.Query().Get("redirect"))
+	if redirect == "" {
+		redirect = "/"
+	}
+	resp := ac.Redis.Set(ctx, state, redirect, time.Minute*15)
 	if resp.Err() != nil {
 		http.Error(w, resp.Err().Error(), http.StatusInternalServerError)
 		return
@@ -83,17 +116,23 @@ type jwtClaims struct {
 func (ac *AuthConfig) HandleOAuth2Callback(ctx *gin.Context) {
 	state := ctx.Request.URL.Query().Get("state")
 
-	// Verify state.
+	// Verify state - the stored value is the path to return to after sign-in.
 	strd := ac.Redis.Get(ctx, state)
 
-	if strd.Err() != nil || strd.Val() != "true" {
-		if strd.Err() != nil {
-			log.Error().Err(strd.Err()).Msg("Got an error trying to callback")
-		} else {
-			log.Warn().Any("resp", strd.Val()).Msg("non-true state value")
-		}
+	if strd.Err() != nil {
+		log.Error().Err(strd.Err()).Msg("Got an error trying to callback")
 		http.Error(ctx.Writer, "unrecognised state", http.StatusBadRequest)
 		return
+	}
+
+	redirect := strd.Val()
+	if safe := safeRedirectPath(redirect); safe != "" {
+		redirect = safe
+	} else {
+		if redirect != "" {
+			log.Warn().Str("state", state).Msg("discarding unsafe post-signin redirect")
+		}
+		redirect = "/"
 	}
 
 	oauth2Token, err := ac.Oauth2Config.Exchange(ctx, ctx.Request.URL.Query().Get("code"))
@@ -135,7 +174,7 @@ func (ac *AuthConfig) HandleOAuth2Callback(ctx *gin.Context) {
 	}
 
 	ctx.SetCookie(ac.CookieKey, tokenString, 34560000, "/", ac.Config.MincepierankDomain, ac.Config.MincepierankSecureDomain, !ac.Config.MincepierankSecureDomain)
-	ctx.Redirect(http.StatusFound, "/")
+	ctx.Redirect(http.StatusFound, redirect)
 }
 
 func (ac *AuthConfig) UserIdMiddleware() gin.HandlerFunc {

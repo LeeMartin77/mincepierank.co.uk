@@ -187,6 +187,8 @@ func returnSinglePiePage(wrpr *WebsiteWrapper, ctx *gin.Context, year int64, ay 
 			"Readonly":       ro,
 			"UserRanking":    urnking,
 			"Errors":         errs,
+			"SignedIn":       sin,
+			"SignInRedirect": fmt.Sprintf("/years/%d/brands/%s/%s", pie.Year, pie.MakerId, pie.Id),
 		},
 	}
 

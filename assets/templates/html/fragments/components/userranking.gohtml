@@ -18,6 +18,17 @@
     <h3 class="h6 text-muted">You ranked this on {{timetohuman .Ranking.LastUpdated.Time}}</h3>
     {{end}}
     {{if and (not .Readonly) (eq .ActiveYear .Pie.Year)}}
+      {{if not .SignedIn}}
+      <div class="alert alert-info mt-3" role="alert">
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+          <div>
+            <strong>Sign in to rank with your account</strong>
+            <div class="small">Rankings you submit signed in are saved to your profile and kept across visits.</div>
+          </div>
+          <a hx-boost="false" class="btn btn-primary" href="/auth/signin?redirect={{.SignInRedirect}}">Sign In</a>
+        </div>
+      </div>
+      {{end}}
       <form hx-put="{{if .RankingFormURL}}{{.RankingFormURL}}{{else}}/years/{{.Pie.Year}}/brands/{{.Pie.MakerId}}/{{.Pie.Id}}/rating{{end}}" hx-swap="outerHTML" hx-select="#pie-data-container" hx-target="#pie-data-container" class="mt-3">
         <div class="row g-3">
           <div class="col-md-6">
