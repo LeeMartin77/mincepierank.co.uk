@@ -87,6 +87,15 @@ func (wrpr *WebsiteWrapper) BulkCreateMakerPieAdmin(c *gin.Context) {
 
 	for _, pie := range mappedCsv {
 
+		rowLabel := "Pie " + pie["year"] + "/" + pie["makerid"] + "/" + pie["id"] + ": "
+		year, yearErr := parseFormYear(pie["year"])
+		packCount, packCountErr := parseFormInt("Pack count", pie["pack_count"])
+		packPrice, packPriceErr := parseFormInt("Pack price in pence", pie["pack_price_in_pence"])
+		if errs := formFieldErrors(yearErr, packCountErr, packPriceErr); len(errs) > 0 {
+			piesPage(wrpr, c, rowLabel+strings.Join(errs, "; "))
+			return
+		}
+
 		dirpath := strings.Join([]string{
 			wrpr.config.ImgprssrDir,
 			pie["year"],
@@ -120,7 +129,7 @@ func (wrpr *WebsiteWrapper) BulkCreateMakerPieAdmin(c *gin.Context) {
 		fresh := pie["fresh"] == "yes"
 
 		oid, err := q.CreateMakerPie(c, sqlcgen.CreateMakerPieParams{
-			Year:    mustParseInt(pie["year"]),
+			Year:    year,
 			Makerid: pie["makerid"],
 			ID:      pie["id"],
 
@@ -128,8 +137,8 @@ func (wrpr *WebsiteWrapper) BulkCreateMakerPieAdmin(c *gin.Context) {
 			Fresh:            fresh,
 			ImageFile:        "/" + path,
 			WebLink:          pie["web_link"],
-			PackCount:        mustParseInt(pie["pack_count"]),
-			PackPriceInPence: mustParseInt(pie["pack_price_in_pence"]),
+			PackCount:        packCount,
+			PackPriceInPence: packPrice,
 			Validated:        true,
 		})
 		if err != nil {

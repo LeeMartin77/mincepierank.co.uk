@@ -301,6 +301,16 @@ func (wrpr *WebsiteWrapper) CreateMakerPieAdmin(c *gin.Context) {
 		return
 	}
 
+	year, yearErr := parseFormYear(c.Request.FormValue("year"))
+	packCount, packCountErr := parseFormInt("Pack count", c.Request.FormValue("pack_count"))
+	packPrice, packPriceErr := parseFormInt("Pack price in pence", c.Request.FormValue("pack_price_in_pence"))
+	fresh, freshErr := parseFormBool("Fresh", c.Request.FormValue("fresh"))
+	validated, validatedErr := parseFormBool("Validated", c.Request.FormValue("validated"))
+	if errs := formFieldErrors(yearErr, packCountErr, packPriceErr, freshErr, validatedErr); len(errs) > 0 {
+		piesPage(wrpr, c, errs...)
+		return
+	}
+
 	path, uploaded, err := saveUploadedFile(wrpr.config.ImgprssrDir, "img", c,
 		c.Request.FormValue("year"), makerid, c.Request.FormValue("id"))
 	if err != nil {
@@ -313,17 +323,17 @@ func (wrpr *WebsiteWrapper) CreateMakerPieAdmin(c *gin.Context) {
 	}
 
 	oid, err := wrpr.storage.GetQuerier().CreateMakerPie(c, sqlcgen.CreateMakerPieParams{
-		Year:    mustParseInt(c.Request.FormValue("year")),
+		Year:    year,
 		Makerid: makerid,
 		ID:      c.Request.FormValue("id"),
 
 		Displayname:      c.Request.FormValue("displayname"),
-		Fresh:            mustParseBool(c.Request.FormValue("fresh")),
+		Fresh:            fresh,
 		ImageFile:        path,
 		WebLink:          c.Request.FormValue("web_link"),
-		PackCount:        mustParseInt(c.Request.FormValue("pack_count")),
-		PackPriceInPence: mustParseInt(c.Request.FormValue("pack_price_in_pence")),
-		Validated:        mustParseBool(c.Request.FormValue("validated")),
+		PackCount:        packCount,
+		PackPriceInPence: packPrice,
+		Validated:        validated,
 	})
 	if err != nil {
 		c.AbortWithError(500, err)
@@ -364,13 +374,22 @@ func (wrpr *WebsiteWrapper) UpdateMakerPie(c *gin.Context, oid string) {
 		return
 	}
 
+	packCount, packCountErr := parseFormInt("Pack count", c.Request.FormValue("pack_count"))
+	packPrice, packPriceErr := parseFormInt("Pack price in pence", c.Request.FormValue("pack_price_in_pence"))
+	fresh, freshErr := parseFormBool("Fresh", c.Request.FormValue("fresh"))
+	validated, validatedErr := parseFormBool("Validated", c.Request.FormValue("validated"))
+	if errs := formFieldErrors(packCountErr, packPriceErr, freshErr, validatedErr); len(errs) > 0 {
+		piePage(wrpr, c, oid, errs...)
+		return
+	}
+
 	err = wrpr.storage.GetQuerier().UpdateMakerPieByOid(c, sqlcgen.UpdateMakerPieByOidParams{
 		Displayname:      c.Request.FormValue("displayname"),
-		Fresh:            mustParseBool(c.Request.FormValue("fresh")),
+		Fresh:            fresh,
 		WebLink:          c.Request.FormValue("web_link"),
-		PackCount:        mustParseInt(c.Request.FormValue("pack_count")),
-		PackPriceInPence: mustParseInt(c.Request.FormValue("pack_price_in_pence")),
-		Validated:        mustParseBool(c.Request.FormValue("validated")),
+		PackCount:        packCount,
+		PackPriceInPence: packPrice,
+		Validated:        validated,
 		Oid:              oid,
 	})
 	if err != nil {
@@ -403,12 +422,53 @@ func (wrpr *WebsiteWrapper) UpdateMakerPie(c *gin.Context, oid string) {
 	piePage(wrpr, c, oid)
 }
 
-func mustParseInt(str string) int32 {
-	i, _ := strconv.ParseInt(str, 10, 32)
-	return int32(i)
+// formFieldErrors drops the empty strings from successful field parses so
+// the caller can render just the problems.
+func formFieldErrors(errs ...string) []string {
+	problems := []string{}
+	for _, e := range errs {
+		if e != "" {
+			problems = append(problems, e)
+		}
+	}
+	return problems
 }
 
-func mustParseBool(str string) bool {
-	i, _ := strconv.ParseBool(str)
-	return i
+// parseFormInt converts a form field to an int32. An empty value is stored
+// as 0 (the number inputs may be left blank); anything that is not a whole
+// number is rejected with a message naming the field so the admin can
+// correct it, instead of being quietly replaced with 0.
+func parseFormInt(label, value string) (int32, string) {
+	if value == "" {
+		return 0, ""
+	}
+	n, err := strconv.ParseInt(value, 10, 32)
+	if err != nil {
+		return 0, label + " must be a whole number (got \"" + value + "\")"
+	}
+	return int32(n), ""
+}
+
+// parseFormYear parses the year field, which unlike the pack fields is
+// never allowed to be blank.
+func parseFormYear(value string) (int32, string) {
+	if strings.TrimSpace(value) == "" {
+		return 0, "Year is required"
+	}
+	return parseFormInt("Year", value)
+}
+
+// parseFormBool parses a checkbox field. The templates render every
+// checkbox with value="true", so "true" means ticked and blank means
+// unticked; anything else is not something a checkbox can send and is
+// rejected rather than guessed at.
+func parseFormBool(label, value string) (bool, string) {
+	switch value {
+	case "":
+		return false, ""
+	case "true":
+		return true, ""
+	default:
+		return false, label + " must be ticked or left unticked (got \"" + value + "\")"
+	}
 }

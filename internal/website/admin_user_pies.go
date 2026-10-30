@@ -353,10 +353,10 @@ func (wrpr *WebsiteWrapper) PostAdminUserPiePromote(c *gin.Context, year int, id
 	if webLink == "" {
 		webLink = pie.WebLink
 	}
-	fresh := mustParseBool(c.Request.FormValue("fresh"))
-	validated := mustParseBool(c.Request.FormValue("validated"))
-	packCount := mustParseInt(c.Request.FormValue("packCount"))
-	packPrice := mustParseInt(c.Request.FormValue("packPriceInPence"))
+	// The promote form only supplies a brand id: everything else carries
+	// over from the user pie being promoted rather than being read from
+	// form fields the form does not even contain. The brand pie starts
+	// unvalidated because an admin has not checked its details yet.
 
 	// Parse categories
 	var categories []string
@@ -386,12 +386,12 @@ func (wrpr *WebsiteWrapper) PostAdminUserPiePromote(c *gin.Context, year int, id
 		ID:      pieid,
 
 		Displayname:      displayname,
-		Fresh:            fresh,
+		Fresh:            pie.Fresh,
 		ImageFile:        pie.ImageFile,
 		WebLink:          webLink,
-		PackCount:        packCount,
-		PackPriceInPence: packPrice,
-		Validated:        validated,
+		PackCount:        pie.PackCount,
+		PackPriceInPence: pie.PackPriceInPence,
+		Validated:        false,
 	})
 	if err != nil {
 		log.Error().Err(err).Msg("Error creating brand pie from user pie")
