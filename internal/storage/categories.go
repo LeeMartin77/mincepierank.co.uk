@@ -6,8 +6,8 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
+	"github.com/leemartin77/mincepierank.co.uk/internal/storage/sqlcgen"
 	"github.com/leemartin77/mincepierank.co.uk/internal/storage/types"
-	"github.com/rs/zerolog/log"
 )
 
 var (
@@ -26,51 +26,46 @@ type AdminCategoryRow struct {
 	PieCount int64
 }
 
+// categoryFromIdstr builds a types.Category from the text id the sqlc
+// queries return (ids are cast to text in the queries so generated rows
+// hold plain Go types).
+func categoryFromIdstr(idstr, slug, label string) (types.Category, error) {
+	id, err := uuid.Parse(idstr)
+	if err != nil {
+		return types.Category{}, err
+	}
+	return types.Category{Id: id, Slug: slug, Label: label}, nil
+}
+
 // GetAllCategoriesAdmin returns every category with a total pie count across
 // all years, ordered by label.
 func (o *OperationWrapper) GetAllCategoriesAdmin(c context.Context) (*[]AdminCategoryRow, error) {
-	r := []AdminCategoryRow{}
-	sql := `
-	select c.id, coalesce(c.slug, ''), coalesce(c.label, ''),
-	       coalesce(usage.cnt, 0) as piecount
-	from categories c
-	left join (
-		select category_id, count(1) as cnt
-		from maker_pie_categories
-		group by category_id
-	) usage on usage.category_id = c.id
-	order by lower(coalesce(c.label, c.slug)), c.id
-	`
-	rows, err := o.db.Query(c, sql)
+	rows, err := o.querier.ListCategoriesAdmin(c)
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
 
-	for rows.Next() {
-		var itm AdminCategoryRow
-		if err := rows.Scan(&itm.Id, &itm.Slug, &itm.Label, &itm.PieCount); err != nil {
-			log.Error().Err(err).Msg("Scan failed in get all categories")
-			continue
+	r := []AdminCategoryRow{}
+	for _, row := range rows {
+		cat, err := categoryFromIdstr(row.Idstr, row.Slug, row.Label)
+		if err != nil {
+			return nil, err
 		}
-		r = append(r, itm)
-	}
-
-	if err := rows.Err(); err != nil {
-		log.Error().Err(err).Msg("Error during all categories iteration")
+		r = append(r, AdminCategoryRow{Category: cat, PieCount: row.Piecount})
 	}
 	return &r, nil
 }
 
 // GetCategoryById returns the category or nil (no error) when not found.
 func (o *OperationWrapper) GetCategoryById(c context.Context, id uuid.UUID) (*types.Category, error) {
-	cat := types.Category{}
-	err := o.db.QueryRow(c,
-		`select id, coalesce(slug, ''), coalesce(label, '') from categories where id = $1`, id).
-		Scan(&cat.Id, &cat.Slug, &cat.Label)
+	row, err := o.querier.GetCategoryById(c, id.String())
 	if err == pgx.ErrNoRows {
 		return nil, nil
 	}
+	if err != nil {
+		return nil, err
+	}
+	cat, err := categoryFromIdstr(row.Idstr, row.Slug, row.Label)
 	if err != nil {
 		return nil, err
 	}
@@ -80,16 +75,7 @@ func (o *OperationWrapper) GetCategoryById(c context.Context, id uuid.UUID) (*ty
 // GetCategoryPieCount counts brand pies (all years) using the category, used
 // to guard category deletes against orphaning pie references.
 func (o *OperationWrapper) GetCategoryPieCount(c context.Context, id uuid.UUID) (int64, error) {
-	var cnt int64
-	err := o.db.QueryRow(c,
-		`select count(1) from maker_pie_categories where category_id = $1`, id).Scan(&cnt)
-	if err == pgx.ErrNoRows {
-		return 0, nil
-	}
-	if err != nil {
-		return 0, err
-	}
-	return cnt, nil
+	return o.querier.GetCategoryPieCount(c, id.String())
 }
 
 // CreateCategory inserts a new category. Returns ErrCategoryAlreadyExists
@@ -104,15 +90,18 @@ func (o *OperationWrapper) CreateCategory(c context.Context, cat types.Category)
 		return nil, ErrCategoryAlreadyExists
 	}
 
-	created := types.Category{}
-	err = o.db.QueryRow(c,
-		`insert into categories (slug, label) values ($1, $2) returning id`,
-		cat.Slug, cat.Label).Scan(&created.Id)
+	idstr, err := o.querier.CreateCategory(c, sqlcgen.CreateCategoryParams{
+		Slug:  cat.Slug,
+		Label: cat.Label,
+	})
 	if err != nil {
 		return nil, err
 	}
-	created.Slug = cat.Slug
-	created.Label = cat.Label
+
+	created, err := categoryFromIdstr(idstr, cat.Slug, cat.Label)
+	if err != nil {
+		return nil, err
+	}
 	return &created, nil
 }
 
@@ -128,9 +117,11 @@ func (o *OperationWrapper) UpdateCategory(c context.Context, cat types.Category)
 		return nil, ErrCategoryAlreadyExists
 	}
 
-	tag, err := o.db.Exec(c,
-		`update categories set slug = $2, label = $3 where id = $1`,
-		cat.Id, cat.Slug, cat.Label)
+	tag, err := o.querier.UpdateCategory(c, sqlcgen.UpdateCategoryParams{
+		Slug:  cat.Slug,
+		Label: cat.Label,
+		ID:    cat.Id.String(),
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -152,10 +143,11 @@ func (o *OperationWrapper) DeleteCategory(c context.Context, id uuid.UUID) error
 		tx.Rollback(c)
 	}()
 
-	if _, err := tx.Exec(c, `delete from maker_pie_categories where category_id = $1`, id); err != nil {
+	qtx := sqlcgen.New(tx)
+	if err := qtx.DeletePieCategoriesByCategory(c, id.String()); err != nil {
 		return err
 	}
-	tag, err := tx.Exec(c, `delete from categories where id = $1`, id)
+	tag, err := qtx.DeleteCategory(c, id.String())
 	if err != nil {
 		return err
 	}
@@ -168,11 +160,8 @@ func (o *OperationWrapper) DeleteCategory(c context.Context, id uuid.UUID) error
 // categorySlugTaken reports whether any category other than exceptId already
 // uses the slug.
 func (o *OperationWrapper) categorySlugTaken(c context.Context, slug string, exceptId uuid.UUID) (bool, error) {
-	var taken bool
-	err := o.db.QueryRow(c,
-		`select exists(select 1 from categories where slug = $1 and id <> $2)`, slug, exceptId).Scan(&taken)
-	if err != nil {
-		return false, err
-	}
-	return taken, nil
+	return o.querier.CategorySlugTaken(c, sqlcgen.CategorySlugTakenParams{
+		Slug:     slug,
+		ExceptID: exceptId.String(),
+	})
 }
