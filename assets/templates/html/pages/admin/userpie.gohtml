@@ -103,10 +103,10 @@
             <button class="btn btn-info" type="submit">Promote to Brand Pie</button>
           </form>
           {{end}}
-          <form method="post" action="/admin/userpies/{{.PageData.Year}}/{{.PageData.Pie.Id}}/{{.PageData.OwnerID}}" class="d-inline ms-2">
-        <input type="hidden" name="csrf_token" value="{{$.Head.CsrfToken}}">
-            <button class="btn btn-danger" type="submit" hx-confirm="This will delete this user pie{{if eq .PageData.Status "promoted"}} and its brand pie{{end}}. Are you sure?">Delete</button>
-          </form>
+          <button class="btn btn-danger" type="button"
+            hx-delete="/admin/userpies/{{.PageData.Year}}/{{.PageData.Pie.Id}}/{{.PageData.OwnerID}}"
+            hx-confirm="This will delete this user pie{{if eq .PageData.Status "promoted"}} and its brand pie{{end}}. Are you sure?"
+            hx-on::after-request="if(event.successful) window.location='/admin/userpies/{{.PageData.Year}}'">Delete</button>
         </div>
       </div>
       {{end}}
