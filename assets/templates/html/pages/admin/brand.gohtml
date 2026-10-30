@@ -1,0 +1,58 @@
+{{define "page:admin:brand"}}
+{{template "fragment:global:head" .Head}}
+<div class="container py-4">
+<h1>Edit Brand: {{.PageData.Maker.Name}}</h1>
+
+{{if .PageData.PageErrors}}
+<div class="alert alert-danger">{{range .PageData.PageErrors}}<div>{{.}}</div>{{end}}</div>
+{{end}}
+
+<div class="card mb-4">
+  <div class="card-body">
+    <form hx-put="/admin/brands/{{.PageData.Maker.Id}}" enctype="multipart/form-data">
+      <div class="row g-3">
+        <div class="col-md-4">
+          <label class="form-label" for="id">Id / slug</label>
+          <input class="form-control" id="id" type="text" value="{{.PageData.Maker.Id}}" disabled>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label" for="name">Name</label>
+          <input class="form-control" name="name" id="name" type="text" value="{{.PageData.Maker.Name}}" required>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label" for="website">Website</label>
+          <input class="form-control" name="website" id="website" type="url" placeholder="https://..." value="{{.PageData.Maker.Website}}">
+        </div>
+      </div>
+
+      <div class="row g-3 mt-1">
+        <div class="col-md-4">
+          <label class="form-label" for="logo">Replace logo image</label>
+          <input class="form-control" name="logo" id="logo" type="file" accept="image/*">
+        </div>
+        {{if .PageData.Maker.Logo}}
+        <div class="col-md-2">
+          <label class="form-label d-block">Current logo</label>
+          <img src="{{.PageData.Maker.Logo}}" alt="{{.PageData.Maker.Name}} logo" class="img-thumbnail" style="max-height:80px;object-fit:contain">
+        </div>
+        {{end}}
+      </div>
+
+      <button class="btn btn-primary mt-3" type="submit">Save</button>
+      <a class="btn btn-outline-secondary mt-3" href="/admin/brands">Back to brands</a>
+    </form>
+  </div>
+</div>
+
+<div class="card border-danger mb-4">
+  <div class="card-body">
+    <h5 class="text-danger">Delete Brand</h5>
+    <p class="text-muted mb-2">{{.PageData.PieCount}} pie(s) currently reference this brand. A brand with pies cannot be deleted.</p>
+    <button class="btn btn-danger" type="button"
+      hx-delete="/admin/brands/{{.PageData.Maker.Id}}"
+      hx-confirm="Delete brand {{.PageData.Maker.Name}} ({{.PageData.Maker.Id}})? This cannot be undone.">Delete</button>
+  </div>
+</div>
+</div>
+{{template "fragment:global:foot" .Foot}}
+{{end}}

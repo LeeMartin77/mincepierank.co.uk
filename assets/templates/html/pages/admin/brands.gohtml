@@ -1,0 +1,83 @@
+{{define "page:admin:brands"}}
+{{template "fragment:global:head" .Head}}
+<div class="container py-4">
+<h1>Admin Brands</h1>
+
+{{if .PageData.PageErrors}}
+<div class="alert alert-danger">{{range .PageData.PageErrors}}<div>{{.}}</div>{{end}}</div>
+{{end}}
+
+<p><a class="btn btn-primary" href="/admin/brands/new">New Brand</a></p>
+
+<div class="table-responsive mb-5">
+<table class="table table-striped table-hover">
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Id</th>
+      <th>Pies</th>
+      <th>Website</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {{range .PageData.Brands}}
+    <tr>
+      <td>{{.Name}}</td>
+      <td><code>{{.Id}}</code></td>
+      <td>{{.PieCount}}</td>
+      <td>{{if .Website}}<a href="{{.Website}}" target="_blank">{{.Website}}</a>{{end}}</td>
+      <td><a class="btn btn-sm btn-outline-info" href="/admin/brands/{{.Id}}">Edit</a></td>
+    </tr>
+    {{else}}
+    <tr><td colspan="5">No brands yet.</td></tr>
+    {{end}}
+  </tbody>
+</table>
+</div>
+
+<p><a href="/admin">Back to admin</a></p>
+</div>
+{{template "fragment:global:foot" .Foot}}
+{{end}}
+
+{{define "page:admin:brandnew"}}
+{{template "fragment:global:head" .Head}}
+<div class="container py-4">
+<h1>New Brand</h1>
+
+{{if .PageData.PageErrors}}
+<div class="alert alert-danger">{{range .PageData.PageErrors}}<div>{{.}}</div>{{end}}</div>
+{{end}}
+
+<div class="card mb-4">
+  <div class="card-body">
+    <form method="post" action="/admin/brands" enctype="multipart/form-data">
+      <div class="row g-3">
+        <div class="col-md-4">
+          <label class="form-label" for="name">Name</label>
+          <input class="form-control" name="name" id="name" type="text" placeholder="e.g. Bramwell's" value="{{with .PageData.Form}}{{.name}}{{end}}" required>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label" for="id">Id / slug <small class="text-muted">(optional — derived from name)</small></label>
+          <input class="form-control" name="id" id="id" type="text" placeholder="lowercase letters, numbers, dashes" value="{{with .PageData.Form}}{{.id}}{{end}}">
+        </div>
+        <div class="col-md-4">
+          <label class="form-label" for="website">Website</label>
+          <input class="form-control" name="website" id="website" type="url" placeholder="https://..." value="{{with .PageData.Form}}{{.website}}{{end}}">
+        </div>
+      </div>
+      <div class="row g-3 mt-1">
+        <div class="col-md-4">
+          <label class="form-label" for="logo">Logo image (optional)</label>
+          <input class="form-control" name="logo" id="logo" type="file" accept="image/*">
+        </div>
+      </div>
+      <button class="btn btn-primary mt-3" type="submit">Create Brand</button>
+      <a class="btn btn-outline-secondary mt-3" href="/admin/brands">Cancel</a>
+    </form>
+  </div>
+</div>
+</div>
+{{template "fragment:global:foot" .Foot}}
+{{end}}

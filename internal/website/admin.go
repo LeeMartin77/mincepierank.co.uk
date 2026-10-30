@@ -1,12 +1,8 @@
 package website
 
 import (
-	"io"
-	"io/fs"
 	"net/http"
-	"os"
 	"strconv"
-	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -52,11 +48,12 @@ func (wrpr *WebsiteWrapper) GetAdminIndex(c *gin.Context) {
 			},
 		},
 		PageData: map[string]interface{}{
-			"PendingCount":     0,
-			"ApprovedCount":    0,
-			"PromotedCount":    0,
-			"DuplicateCount":   0,
-			"RejectedCount":    0,
+			"PendingCount":    0,
+			"ApprovedCount":   0,
+			"PromotedCount":   0,
+			"DuplicateCount":  0,
+			"RejectedCount":   0,
+			"UserPiesEnabled": piesEnabled,
 		},
 	}
 
@@ -166,13 +163,18 @@ func (wrpr *WebsiteWrapper) UpdateAdminConfig(c *gin.Context, key string) {
 	configPage(wrpr, c)
 }
 
-func piesPage(wrpr *WebsiteWrapper, c *gin.Context) {
+func piesPage(wrpr *WebsiteWrapper, c *gin.Context, pageErrs ...string) {
 	pies, err := wrpr.storage.GetQuerier().GetAllMakerPies(c)
 	if err != nil {
 		c.AbortWithError(500, err)
 		return
 	}
 	ay, err := wrpr.storage.GetQuerier().GetActiveYear(c)
+	if err != nil {
+		c.AbortWithError(500, err)
+		return
+	}
+	brands, err := wrpr.storage.GetAllMakers(c)
 	if err != nil {
 		c.AbortWithError(500, err)
 		return
@@ -190,11 +192,26 @@ func piesPage(wrpr *WebsiteWrapper, c *gin.Context) {
 			},
 		},
 		PageData: map[string]interface{}{
-			"Pies": pies,
+			"Pies":       pies,
+			"AllBrands":  brands,
+			"PageErrors": pageErrs,
 		},
 	}
 
 	c.HTML(http.StatusOK, "page:admin:pies", vals)
+}
+
+// brandExists reports whether a maker row exists for the id, so creates and
+// promotions cannot leave pies pointing at a brand that has no page.
+func (wrpr *WebsiteWrapper) brandExists(c *gin.Context, makerid string) (bool, error) {
+	if makerid == "" {
+		return false, nil
+	}
+	mkr, err := wrpr.storage.GetMaker(c, makerid)
+	if err != nil {
+		return false, err
+	}
+	return mkr != nil, nil
 }
 
 func piePage(wrpr *WebsiteWrapper, c *gin.Context, oid string) {
@@ -266,54 +283,35 @@ func (wrpr *WebsiteWrapper) CreateMakerPieAdmin(c *gin.Context) {
 	if !validateAdmin(wrpr, c) {
 		return
 	}
-	img, err := c.FormFile("img")
-	if err != nil {
-		c.AbortWithError(500, err)
-		return
-	}
-	path := strings.Join([]string{
-		c.Request.FormValue("year"),
-		c.Request.FormValue("makerid"),
-		c.Request.FormValue("id"),
-		img.Filename,
-	}, "/")
 
-	dirpath := strings.Join([]string{
-		wrpr.config.ImgprssrDir,
-		c.Request.FormValue("year"),
-		c.Request.FormValue("makerid"),
-		c.Request.FormValue("id"),
-	}, "/")
+	makerid := c.Request.FormValue("makerid")
+	if ok, err := wrpr.brandExists(c, makerid); err != nil {
+		c.AbortWithError(500, err)
+		return
+	} else if !ok {
+		piesPage(wrpr, c, "Unknown brand id: "+makerid+" — create the brand first (admin brands page)")
+		return
+	}
 
-	err = os.MkdirAll(dirpath, os.ModePerm)
+	path, uploaded, err := saveUploadedFile(wrpr.config.ImgprssrDir, "img", c,
+		c.Request.FormValue("year"), makerid, c.Request.FormValue("id"))
 	if err != nil {
 		c.AbortWithError(500, err)
 		return
 	}
-	fl, err := img.Open()
-	if err != nil {
-		c.AbortWithError(500, err)
-		return
-	}
-	byteContainer, err := io.ReadAll(fl)
-	if err != nil {
-		c.AbortWithError(500, err)
-		return
-	}
-	err = os.WriteFile(wrpr.config.ImgprssrDir+"/"+path, byteContainer, fs.ModeAppend)
-	if err != nil {
-		c.AbortWithError(500, err)
+	if !uploaded {
+		piesPage(wrpr, c, "An image file is required")
 		return
 	}
 
 	oid, err := wrpr.storage.GetQuerier().CreateMakerPie(c, sqlcgen.CreateMakerPieParams{
 		Year:    mustParseInt(c.Request.FormValue("year")),
-		Makerid: c.Request.FormValue("makerid"),
+		Makerid: makerid,
 		ID:      c.Request.FormValue("id"),
 
 		Displayname:      c.Request.FormValue("displayname"),
 		Fresh:            mustParseBool(c.Request.FormValue("fresh")),
-		ImageFile:        "/" + path,
+		ImageFile:        path,
 		WebLink:          c.Request.FormValue("web_link"),
 		PackCount:        mustParseInt(c.Request.FormValue("pack_count")),
 		PackPriceInPence: mustParseInt(c.Request.FormValue("pack_price_in_pence")),
@@ -351,47 +349,11 @@ func (wrpr *WebsiteWrapper) UpdateMakerPie(c *gin.Context, oid string) {
 	}
 
 	// Handle optional image upload
-	var imageFile string
-	img, header, err := c.Request.FormFile("img")
-	if err == nil {
-		defer img.Close()
-
-		// Read the uploaded file
-		byteContainer, err := io.ReadAll(img)
-		if err != nil {
-			c.AbortWithError(500, err)
-			return
-		}
-
-		// Build the image path (year/makerid/id/filename)
-		imgFilename := header.Filename
-		path := strings.Join([]string{
-			c.Request.FormValue("year"),
-			c.Request.FormValue("makerid"),
-			c.Request.FormValue("id"),
-			imgFilename,
-		}, "/")
-
-		dirpath := strings.Join([]string{
-			wrpr.config.ImgprssrDir,
-			c.Request.FormValue("year"),
-			c.Request.FormValue("makerid"),
-			c.Request.FormValue("id"),
-		}, "/")
-
-		err = os.MkdirAll(dirpath, os.ModePerm)
-		if err != nil {
-			c.AbortWithError(500, err)
-			return
-		}
-
-		err = os.WriteFile(wrpr.config.ImgprssrDir+"/"+path, byteContainer, fs.ModeAppend)
-		if err != nil {
-			c.AbortWithError(500, err)
-			return
-		}
-
-		imageFile = "/" + path
+	imageFile, _, err := saveUploadedFile(wrpr.config.ImgprssrDir, "img", c,
+		c.Request.FormValue("year"), c.Request.FormValue("makerid"), c.Request.FormValue("id"))
+	if err != nil {
+		c.AbortWithError(500, err)
+		return
 	}
 
 	err = wrpr.storage.GetQuerier().UpdateMakerPieByOid(c, sqlcgen.UpdateMakerPieByOidParams{

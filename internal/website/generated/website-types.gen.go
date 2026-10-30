@@ -31,6 +31,21 @@ type Year = int64
 // UnexpectedError defines model for UnexpectedError.
 type UnexpectedError = Error
 
+// CreateAdminBrandMultipartBody defines parameters for CreateAdminBrand.
+type CreateAdminBrandMultipartBody struct {
+	Id      *string             `json:"id,omitempty"`
+	Logo    *openapi_types.File `json:"logo,omitempty"`
+	Name    string              `json:"name"`
+	Website *string             `json:"website,omitempty"`
+}
+
+// UpdateAdminBrandMultipartBody defines parameters for UpdateAdminBrand.
+type UpdateAdminBrandMultipartBody struct {
+	Logo    *openapi_types.File `json:"logo,omitempty"`
+	Name    string              `json:"name"`
+	Website *string             `json:"website,omitempty"`
+}
+
 // CreateAdminConfigFormdataBody defines parameters for CreateAdminConfig.
 type CreateAdminConfigFormdataBody struct {
 	Key   string `form:"key" json:"key"`
@@ -198,6 +213,12 @@ type RateUserPieFormdataBody struct {
 	Topping int `form:"topping" json:"topping"`
 	Value   int `form:"value" json:"value"`
 }
+
+// CreateAdminBrandMultipartRequestBody defines body for CreateAdminBrand for multipart/form-data ContentType.
+type CreateAdminBrandMultipartRequestBody CreateAdminBrandMultipartBody
+
+// UpdateAdminBrandMultipartRequestBody defines body for UpdateAdminBrand for multipart/form-data ContentType.
+type UpdateAdminBrandMultipartRequestBody UpdateAdminBrandMultipartBody
 
 // CreateAdminConfigFormdataRequestBody defines body for CreateAdminConfig for application/x-www-form-urlencoded ContentType.
 type CreateAdminConfigFormdataRequestBody CreateAdminConfigFormdataBody

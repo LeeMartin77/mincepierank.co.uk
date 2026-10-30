@@ -4,4 +4,3 @@ dist
 .localimages
 !.localimages/.gitkeep
 screenshots/
-/plans/

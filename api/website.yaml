@@ -696,6 +696,147 @@ paths:
           $ref: "#/components/responses/NotFound"
         default:
           $ref: "#/components/responses/UnexpectedError"
+  /admin/brands:
+    get:
+      operationId: getAdminBrands
+      tags:
+        - admin
+      responses:
+        "200":
+          description: Admin brands list
+          content:
+            text/html:
+              schema:
+                type: string
+        "404":
+          $ref: "#/components/responses/NotFound"
+        default:
+          $ref: "#/components/responses/UnexpectedError"
+    post:
+      operationId: createAdminBrand
+      tags:
+        - admin
+      requestBody:
+        description: Create Body
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - name
+              properties:
+                id:
+                  type: string
+                name:
+                  type: string
+                website:
+                  type: string
+                logo:
+                  type: string
+                  format: binary
+      responses:
+        "303":
+          description: Success — redirect to brand edit page
+        "400":
+          description: Validation error
+          content:
+            text/html:
+              schema:
+                type: string
+        "404":
+          $ref: "#/components/responses/NotFound"
+        default:
+          $ref: "#/components/responses/UnexpectedError"
+  /admin/brands/new:
+    get:
+      operationId: getAdminBrandNew
+      tags:
+        - admin
+      responses:
+        "200":
+          description: Admin brand create form
+          content:
+            text/html:
+              schema:
+                type: string
+        "404":
+          $ref: "#/components/responses/NotFound"
+        default:
+          $ref: "#/components/responses/UnexpectedError"
+  /admin/brands/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      operationId: getAdminBrand
+      tags:
+        - admin
+      responses:
+        "200":
+          description: Admin brand edit form
+          content:
+            text/html:
+              schema:
+                type: string
+        "404":
+          $ref: "#/components/responses/NotFound"
+        default:
+          $ref: "#/components/responses/UnexpectedError"
+    put:
+      operationId: updateAdminBrand
+      tags:
+        - admin
+      requestBody:
+        description: Update Body
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - name
+              properties:
+                name:
+                  type: string
+                website:
+                  type: string
+                logo:
+                  type: string
+                  format: binary
+      responses:
+        "303":
+          description: Success — redirect to brand edit page
+        "400":
+          description: Validation error
+          content:
+            text/html:
+              schema:
+                type: string
+        "404":
+          $ref: "#/components/responses/NotFound"
+        default:
+          $ref: "#/components/responses/UnexpectedError"
+    delete:
+      operationId: deleteAdminBrand
+      tags:
+        - admin
+      responses:
+        "303":
+          description: Success — redirect to brands list
+        "400":
+          description: Refused — pies still reference this brand
+          content:
+            text/html:
+              schema:
+                type: string
+        "404":
+          $ref: "#/components/responses/NotFound"
+        default:
+          $ref: "#/components/responses/UnexpectedError"
   /admin/makerpies:
     get:
       operationId: getMakerPiesAdmin
