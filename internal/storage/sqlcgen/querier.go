@@ -6,14 +6,23 @@ package sqlcgen
 
 import (
 	"context"
+
+	"github.com/jackc/pgx/v5/pgconn"
 )
 
 type Querier interface {
+	CategorySlugTaken(ctx context.Context, arg CategorySlugTakenParams) (bool, error)
+	CreateCategory(ctx context.Context, arg CreateCategoryParams) (string, error)
+	CreateMaker(ctx context.Context, arg CreateMakerParams) error
 	CreateMakerPie(ctx context.Context, arg CreateMakerPieParams) (string, error)
 	CreateUserPie(ctx context.Context, arg CreateUserPieParams) (UserPieYearly, error)
+	DeleteCategory(ctx context.Context, id string) (pgconn.CommandTag, error)
 	DeleteConfig(ctx context.Context, key string) error
+	DeleteMakerByID(ctx context.Context, id string) error
 	DeleteMakerPieByOid(ctx context.Context, oid string) error
 	DeleteMakerPieRanking(ctx context.Context, arg DeleteMakerPieRankingParams) error
+	DeletePieCategoriesByCategory(ctx context.Context, categoryID string) error
+	DeletePieCategoriesByPieOid(ctx context.Context, oid string) error
 	DeleteUserPie(ctx context.Context, arg DeleteUserPieParams) error
 	DeleteUserPieByOid(ctx context.Context, arg DeleteUserPieByOidParams) error
 	DeleteUserPieByOwner(ctx context.Context, arg DeleteUserPieByOwnerParams) error
@@ -23,10 +32,23 @@ type Querier interface {
 	GetActiveYear(ctx context.Context) (int64, error)
 	GetAllConfig(ctx context.Context) ([]GetAllConfigRow, error)
 	GetAllMakerPies(ctx context.Context) ([]GetAllMakerPiesRow, error)
+	GetCategoriesBySlugs(ctx context.Context, slugs []string) ([]GetCategoriesBySlugsRow, error)
+	GetCategoryById(ctx context.Context, id string) (GetCategoryByIdRow, error)
+	GetCategoryPieCount(ctx context.Context, categoryID string) (int64, error)
 	GetConfig(ctx context.Context, key string) (Config, error)
 	GetExistingBrandPiesForYear(ctx context.Context, arg GetExistingBrandPiesForYearParams) ([]MakerPieYearly, error)
+	GetFilterableMakerPies(ctx context.Context, arg GetFilterableMakerPiesParams) ([]GetFilterableMakerPiesRow, error)
+	GetFilterableMakerPiesForUser(ctx context.Context, arg GetFilterableMakerPiesForUserParams) ([]GetFilterableMakerPiesForUserRow, error)
+	GetLatestPieRanking(ctx context.Context, year int32) (GetLatestPieRankingRow, error)
+	GetMakerByID(ctx context.Context, id string) (GetMakerByIDRow, error)
 	GetMakerPieByOid(ctx context.Context, oid string) (GetMakerPieByOidRow, error)
+	GetMakerPieCategories(ctx context.Context) ([]GetMakerPieCategoriesRow, error)
+	GetMakerPieCategoriesForMakerPieOid(ctx context.Context, oid string) ([]GetMakerPieCategoriesForMakerPieOidRow, error)
+	GetMakerPieCategoriesForYear(ctx context.Context, arg GetMakerPieCategoriesForYearParams) ([]GetMakerPieCategoriesForYearRow, error)
+	GetMakerPieCount(ctx context.Context, makerid string) (int64, error)
 	GetMakerPieYears(ctx context.Context) ([]int32, error)
+	GetMakersForYear(ctx context.Context, year int32) ([]GetMakersForYearRow, error)
+	GetTopMakerPie(ctx context.Context, year int32) (GetTopMakerPieRow, error)
 	GetUserMakerPieRanking(ctx context.Context, arg GetUserMakerPieRankingParams) (MakerPieRankingYearly, error)
 	GetUserPie(ctx context.Context, arg GetUserPieParams) (UserPieYearly, error)
 	GetUserPieAdminQueueCountByStatus(ctx context.Context, arg GetUserPieAdminQueueCountByStatusParams) (int64, error)
@@ -42,12 +64,17 @@ type Querier interface {
 	GetUserPieRanking(ctx context.Context, arg GetUserPieRankingParams) (UserPieRankingYearly, error)
 	GetUserPieYearIDs(ctx context.Context, year int32) ([]string, error)
 	InsertConfig(ctx context.Context, arg InsertConfigParams) error
+	InsertPieCategories(ctx context.Context, arg InsertPieCategoriesParams) error
 	IsAdminId(ctx context.Context, userID string) (bool, error)
+	ListCategoriesAdmin(ctx context.Context) ([]ListCategoriesAdminRow, error)
 	ListMakerPieRankingSummaries(ctx context.Context, year int32) ([]ListMakerPieRankingSummariesRow, error)
 	ListMakerPieRankingsForPie(ctx context.Context, arg ListMakerPieRankingsForPieParams) ([]MakerPieRankingYearly, error)
+	ListMakersAdmin(ctx context.Context) ([]ListMakersAdminRow, error)
 	ListUserPieRankingSummaries(ctx context.Context, year int32) ([]ListUserPieRankingSummariesRow, error)
 	ListUserPieRankingsForPie(ctx context.Context, arg ListUserPieRankingsForPieParams) ([]UserPieRankingYearly, error)
+	UpdateCategory(ctx context.Context, arg UpdateCategoryParams) (pgconn.CommandTag, error)
 	UpdateConfig(ctx context.Context, arg UpdateConfigParams) error
+	UpdateMakerByID(ctx context.Context, arg UpdateMakerByIDParams) (pgconn.CommandTag, error)
 	UpdateMakerPieByOid(ctx context.Context, arg UpdateMakerPieByOidParams) error
 	UpdateMakerPieImageByOid(ctx context.Context, arg UpdateMakerPieImageByOidParams) error
 	UpdateMakerPieLabels(ctx context.Context, arg UpdateMakerPieLabelsParams) error

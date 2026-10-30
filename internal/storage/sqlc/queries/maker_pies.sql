@@ -100,12 +100,12 @@ SELECT
     coalesce(mpy.web_link, '') as web_link,
     coalesce(mpy.pack_count, 0)::int as pack_count,
     coalesce(mpy.pack_price_in_pence, 0)::int as pack_price_in_pence,
-    COALESCE(tp.pastry, 0::float) as pastry,
-    COALESCE(tp.filling, 0::float) as filling,
-    COALESCE(tp.topping, 0::float) as topping,
-    COALESCE(tp.looks, 0::float) as looks,
-    COALESCE(tp.value, 0::float) as value,
-    COALESCE(tp.avg, 0::float) as avg,
+    COALESCE(tp.pastry, 0::float)::float as pastry,
+    COALESCE(tp.filling, 0::float)::float as filling,
+    COALESCE(tp.topping, 0::float)::float as topping,
+    COALESCE(tp.looks, 0::float)::float as looks,
+    COALESCE(tp.value, 0::float)::float as value,
+    COALESCE(tp.avg, 0::float)::float as avg,
     COALESCE(tp.count, 0)::bigint as count
 FROM maker_pie_yearly mpy
 LEFT JOIN pie_rankings tp ON
@@ -123,6 +123,26 @@ LIMIT sqlc.arg(page_limit)::int
 OFFSET sqlc.arg(page_offset)::int;
 
 -- name: GetFilterableMakerPiesForUser :many
+WITH user_rankings AS (
+    SELECT
+        year,
+        makerid,
+        pieid,
+        pastry,
+        filling,
+        topping,
+        looks,
+        value,
+        (
+            pastry::float +
+            filling::float +
+            topping::float +
+            looks::float +
+            value::float
+        )/5 as avg
+    FROM maker_pie_ranking_yearly
+    WHERE userid = sqlc.arg(userid)::text
+)
 SELECT
     mpy.year,
     mpy.makerid,
@@ -134,37 +154,24 @@ SELECT
     coalesce(mpy.web_link, '') as web_link,
     coalesce(mpy.pack_count, 0)::int as pack_count,
     coalesce(mpy.pack_price_in_pence, 0)::int as pack_price_in_pence,
-    tp.pastry::float as pastry,
-    tp.filling::float as filling,
-    tp.topping::float as topping,
-    tp.looks::float as looks,
-    tp.value::float as value,
-    (
-        tp.pastry::float +
-        tp.filling::float +
-        tp.topping::float +
-        tp.looks::float +
-        tp.value::float
-    )/5 as avg
+    COALESCE(tp.pastry, 0::float)::float as pastry,
+    COALESCE(tp.filling, 0::float)::float as filling,
+    COALESCE(tp.topping, 0::float)::float as topping,
+    COALESCE(tp.looks, 0::float)::float as looks,
+    COALESCE(tp.value, 0::float)::float as value,
+    COALESCE(tp.avg, 0::float)::float as avg
 FROM maker_pie_yearly mpy
-INNER JOIN maker_pie_ranking_yearly tp ON
+INNER JOIN user_rankings tp ON
     tp.year = mpy.year AND
     tp.makerid = mpy.makerid AND
-    tp.pieid = mpy.id AND
-    tp.userid = sqlc.arg(userid)::text
+    tp.pieid = mpy.id
 INNER JOIN maker_pie_yearly_categories cts ON
     cts.oid = mpy.oid
 WHERE mpy.year = sqlc.arg(year)::int
     AND mpy.validated = true
     AND (sqlc.arg(brand_ids)::text = '' OR mpy.makerid = ANY(string_to_array(sqlc.arg(brand_ids)::text, ',')))
     AND (sqlc.arg(category_slugs)::text = '' OR cts.category_slugs @> string_to_array(sqlc.arg(category_slugs)::text, ','))
-ORDER BY (
-    tp.pastry::float +
-    tp.filling::float +
-    tp.topping::float +
-    tp.looks::float +
-    tp.value::float
-) DESC NULLS LAST
+ORDER BY tp.avg DESC NULLS LAST
 LIMIT sqlc.arg(page_limit)::int
 OFFSET sqlc.arg(page_offset)::int;
 
@@ -207,12 +214,12 @@ SELECT
     coalesce(mpy.web_link, '') as web_link,
     coalesce(mpy.pack_count, 0)::int as pack_count,
     coalesce(mpy.pack_price_in_pence, 0)::int as pack_price_in_pence,
-    COALESCE(tp.pastry, 0::float) as pastry,
-    COALESCE(tp.filling, 0::float) as filling,
-    COALESCE(tp.topping, 0::float) as topping,
-    COALESCE(tp.looks, 0::float) as looks,
-    COALESCE(tp.value, 0::float) as value,
-    COALESCE(tp.avg, 0::float) as avg,
+    COALESCE(tp.pastry, 0::float)::float as pastry,
+    COALESCE(tp.filling, 0::float)::float as filling,
+    COALESCE(tp.topping, 0::float)::float as topping,
+    COALESCE(tp.looks, 0::float)::float as looks,
+    COALESCE(tp.value, 0::float)::float as value,
+    COALESCE(tp.avg, 0::float)::float as avg,
     COALESCE(tp.count, 0)::bigint as count
 FROM maker_pie_yearly mpy
 INNER JOIN top_pie tp ON
@@ -258,12 +265,12 @@ SELECT
     coalesce(mpy.web_link, '') as web_link,
     coalesce(mpy.pack_count, 0)::int as pack_count,
     coalesce(mpy.pack_price_in_pence, 0)::int as pack_price_in_pence,
-    COALESCE(tp.pastry, 0::float) as pastry,
-    COALESCE(tp.filling, 0::float) as filling,
-    COALESCE(tp.topping, 0::float) as topping,
-    COALESCE(tp.looks, 0::float) as looks,
-    COALESCE(tp.value, 0::float) as value,
-    COALESCE(tp.avg, 0::float) as avg,
+    COALESCE(tp.pastry, 0::float)::float as pastry,
+    COALESCE(tp.filling, 0::float)::float as filling,
+    COALESCE(tp.topping, 0::float)::float as topping,
+    COALESCE(tp.looks, 0::float)::float as looks,
+    COALESCE(tp.value, 0::float)::float as value,
+    COALESCE(tp.avg, 0::float)::float as avg,
     COALESCE(tp.count, 0)::bigint as count,
     COALESCE(tp.last_updated, 'epoch'::timestamp)::timestamptz as last_updated
 FROM maker_pie_yearly mpy
