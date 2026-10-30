@@ -54,15 +54,12 @@
             <a class="btn btn-sm btn-outline-info" href="/admin/userpies/{{.Year}}/{{.ID}}/{{.OwnerUserid}}">Review</a>
             {{if eq .Status "pending"}}
             <form method="post" action="/admin/userpies/{{.Year}}/{{.ID}}/{{.OwnerUserid}}/approve" style="display:inline">
-        <input type="hidden" name="csrf_token" value="{{$.Head.CsrfToken}}">
               <button class="btn btn-sm btn-success" type="submit">Approve</button>
             </form>
             <form method="post" action="/admin/userpies/{{.Year}}/{{.ID}}/{{.OwnerUserid}}/reject" style="display:inline">
-        <input type="hidden" name="csrf_token" value="{{$.Head.CsrfToken}}">
               <button class="btn btn-sm btn-danger" type="submit">Reject</button>
             </form>
             <form method="post" action="/admin/userpies/{{.Year}}/{{.ID}}/{{.OwnerUserid}}/duplicate" style="display:inline">
-        <input type="hidden" name="csrf_token" value="{{$.Head.CsrfToken}}">
               <button class="btn btn-sm btn-outline-warning" type="submit">Mark Duplicate</button>
             </form>
             {{end}}

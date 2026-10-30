@@ -21,7 +21,6 @@ type PageDataHead struct {
 	ShowBreadcrumb   bool
 	IsAdminPage      bool
 	Snow             bool
-	CsrfToken        string
 	MenuSettings     MenuSettings
 	Breadcrumbs      []Link
 }

@@ -58,7 +58,6 @@ func (wrpr *WebsiteWrapper) YearPage(c *gin.Context, year int64) {
 	piesEnabled, _ := wrpr.storage.GetUserPiesEnabled(c)
 	vals := templater.PageData{
 		Head: templater.PageDataHead{
-			CsrfToken:   c.GetString("csrf_token"),
 			Snow:        wrpr.snowing(c),
 			Title:       fmt.Sprintf("%d Pies", year),
 			Description: fmt.Sprintf("Mince pie categories and brands we have data for %d", year),
@@ -119,7 +118,6 @@ func (wrpr *WebsiteWrapper) YearAllBrands(c *gin.Context, year int64) {
 
 	vals := templater.PageData{
 		Head: templater.PageDataHead{
-			CsrfToken:   c.GetString("csrf_token"),
 			Snow:        wrpr.snowing(c),
 			Title:       fmt.Sprintf("%d Brands", year),
 			Description: fmt.Sprintf("All brands we loaded data for in %d", year),
@@ -162,7 +160,6 @@ func (wrpr *WebsiteWrapper) YearAllCategories(c *gin.Context, year int64) {
 	piesEnabled, _ := wrpr.storage.GetUserPiesEnabled(c)
 	vals := templater.PageData{
 		Head: templater.PageDataHead{
-			CsrfToken:   c.GetString("csrf_token"),
 			Snow:        wrpr.snowing(c),
 			Title:       fmt.Sprintf("%d Categories", year),
 			Description: fmt.Sprintf("All categories we loaded data for in %d", year),
@@ -202,7 +199,6 @@ func (wrpr *WebsiteWrapper) YearsPage(c *gin.Context) {
 	piesEnabled, _ := wrpr.storage.GetUserPiesEnabled(c)
 	vals := templater.PageData{
 		Head: templater.PageDataHead{
-			CsrfToken:   c.GetString("csrf_token"),
 			Snow:        wrpr.snowing(c),
 			Title:       "Available Years",
 			Description: "All the years Mince Pie Rank has data for",

@@ -62,7 +62,6 @@ func (wrpr *WebsiteWrapper) HomePage(c *gin.Context) {
 
 	vals := templater.PageData{
 		Head: templater.PageDataHead{
-			CsrfToken:   c.GetString("csrf_token"),
 			Snow:        wrpr.snowing(c),
 			Title:       "Home Page",
 			Description: "Rank mince pies from major UK brands",

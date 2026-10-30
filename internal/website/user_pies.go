@@ -45,7 +45,6 @@ func (wrpr *WebsiteWrapper) SubmitPieForm(c *gin.Context, year int64) {
 
 	vals := templater.PageData{
 		Head: templater.PageDataHead{
-			CsrfToken:   c.GetString("csrf_token"),
 			Snow:        wrpr.snowing(c),
 			Title:       fmt.Sprintf("Submit a pie for %d", year),
 			Description: "Submit your own mince pie for ranking",
@@ -96,7 +95,6 @@ func (wrpr *WebsiteWrapper) SubmitPie(c *gin.Context, year int64) {
 	if ro {
 		c.HTML(http.StatusOK, "page:submit", templater.PageData{
 			Head: templater.PageDataHead{
-				CsrfToken:    c.GetString("csrf_token"),
 				Snow:         wrpr.snowing(c),
 				Title:        "Submit a pie",
 				Description:  "Submit your own mince pie for ranking",
@@ -139,7 +137,6 @@ func (wrpr *WebsiteWrapper) SubmitPie(c *gin.Context, year int64) {
 	if len(errs) > 0 {
 		c.HTML(http.StatusOK, "page:submit", templater.PageData{
 			Head: templater.PageDataHead{
-				CsrfToken:    c.GetString("csrf_token"),
 				Snow:         wrpr.snowing(c),
 				Title:        "Submit a pie",
 				Description:  "Submit your own mince pie for ranking",
@@ -195,7 +192,6 @@ func (wrpr *WebsiteWrapper) SubmitPie(c *gin.Context, year int64) {
 	if len(errs) > 0 {
 		c.HTML(http.StatusOK, "page:submit", templater.PageData{
 			Head: templater.PageDataHead{
-				CsrfToken:    c.GetString("csrf_token"),
 				Snow:         wrpr.snowing(c),
 				Title:        "Submit a pie",
 				Description:  "Submit your own mince pie for ranking",
@@ -311,7 +307,6 @@ func (wrpr *WebsiteWrapper) ListUserPies(c *gin.Context, year int64, params gene
 
 	vals := templater.PageData{
 		Head: templater.PageDataHead{
-			CsrfToken:   c.GetString("csrf_token"),
 			Snow:        wrpr.snowing(c),
 			Title:       fmt.Sprintf("Community Pies for %d", year),
 			Description: fmt.Sprintf("Community-submitted mince pies for %d", year),
@@ -468,7 +463,6 @@ func (wrpr *WebsiteWrapper) getUserPiePage(c *gin.Context, year int64, id string
 
 	vals := templater.PageData{
 		Head: templater.PageDataHead{
-			CsrfToken:   c.GetString("csrf_token"),
 			Snow:        wrpr.snowing(c),
 			Title:       fmt.Sprintf("%s (Community) :: %.2f/5", pie.DisplayName, rankingSummary.Average),
 			Description: fmt.Sprintf("%s from %s — community-submitted mince pie scored %.2f/5 in %d", pie.DisplayName, pie.Maker, rankingSummary.Average, pie.Year),

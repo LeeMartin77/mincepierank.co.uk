@@ -33,11 +33,10 @@ type UnexpectedError = Error
 
 // CreateAdminBrandMultipartBody defines parameters for CreateAdminBrand.
 type CreateAdminBrandMultipartBody struct {
-	CsrfToken *string             `json:"csrf_token,omitempty"`
-	Id        string              `json:"id"`
-	Logo      *openapi_types.File `json:"logo,omitempty"`
-	Name      string              `json:"name"`
-	Website   *string             `json:"website,omitempty"`
+	Id      string              `json:"id"`
+	Logo    *openapi_types.File `json:"logo,omitempty"`
+	Name    string              `json:"name"`
+	Website *string             `json:"website,omitempty"`
 }
 
 // UpdateAdminBrandMultipartBody defines parameters for UpdateAdminBrand.
@@ -49,9 +48,8 @@ type UpdateAdminBrandMultipartBody struct {
 
 // CreateAdminCategoryFormdataBody defines parameters for CreateAdminCategory.
 type CreateAdminCategoryFormdataBody struct {
-	CsrfToken *string `form:"csrf_token,omitempty" json:"csrf_token,omitempty"`
-	Label     string  `form:"label" json:"label"`
-	Slug      string  `form:"slug" json:"slug"`
+	Label string `form:"label" json:"label"`
+	Slug  string `form:"slug" json:"slug"`
 }
 
 // UpdateAdminCategoryFormdataBody defines parameters for UpdateAdminCategory.
@@ -72,7 +70,6 @@ type UpdateAdminConfigFormdataBody struct {
 
 // CreateMakerPieAdminMultipartBody defines parameters for CreateMakerPieAdmin.
 type CreateMakerPieAdminMultipartBody struct {
-	CsrfToken        *string            `json:"csrf_token,omitempty"`
 	Displayname      string             `json:"displayname"`
 	Fresh            bool               `json:"fresh"`
 	Id               string             `json:"id"`
@@ -87,14 +84,12 @@ type CreateMakerPieAdminMultipartBody struct {
 
 // BulkCreateMakerPieAdminMultipartBody defines parameters for BulkCreateMakerPieAdmin.
 type BulkCreateMakerPieAdminMultipartBody struct {
-	CsrfToken *string            `json:"csrf_token,omitempty"`
-	ZipFile   openapi_types.File `json:"zipFile"`
+	ZipFile openapi_types.File `json:"zipFile"`
 }
 
 // UpdateMakerPieMultipartBody defines parameters for UpdateMakerPie.
 type UpdateMakerPieMultipartBody struct {
 	Categories       []string            `json:"categories"`
-	CsrfToken        *string             `json:"csrf_token,omitempty"`
 	Displayname      string              `json:"displayname"`
 	Fresh            bool                `json:"fresh"`
 	Img              *openapi_types.File `json:"img,omitempty"`
@@ -144,20 +139,17 @@ type GetAdminUserPieDuplicatesParams struct {
 }
 
 // PostAdminUserPieApproveFormdataBody defines parameters for PostAdminUserPieApprove.
-type PostAdminUserPieApproveFormdataBody struct {
-	CsrfToken *string `form:"csrf_token,omitempty" json:"csrf_token,omitempty"`
+type PostAdminUserPieApproveFormdataBody = struct {
 }
 
 // PostAdminUserPieDuplicateFormdataBody defines parameters for PostAdminUserPieDuplicate.
 type PostAdminUserPieDuplicateFormdataBody struct {
-	CsrfToken   *string `form:"csrf_token,omitempty" json:"csrf_token,omitempty"`
-	DuplicateOf string  `form:"duplicateOf" json:"duplicateOf"`
+	DuplicateOf string `form:"duplicateOf" json:"duplicateOf"`
 }
 
 // PostAdminUserPiePromoteMultipartBody defines parameters for PostAdminUserPiePromote.
 type PostAdminUserPiePromoteMultipartBody struct {
 	Categories       []string `json:"categories"`
-	CsrfToken        *string  `json:"csrf_token,omitempty"`
 	Displayname      string   `json:"displayname"`
 	Fresh            bool     `json:"fresh"`
 	Labels           string   `json:"labels"`
@@ -171,8 +163,7 @@ type PostAdminUserPiePromoteMultipartBody struct {
 
 // PostAdminUserPieRejectFormdataBody defines parameters for PostAdminUserPieReject.
 type PostAdminUserPieRejectFormdataBody struct {
-	CsrfToken *string `form:"csrf_token,omitempty" json:"csrf_token,omitempty"`
-	Note      *string `form:"note,omitempty" json:"note,omitempty"`
+	Note *string `form:"note,omitempty" json:"note,omitempty"`
 }
 
 // EditUserPieMultipartBody defines parameters for EditUserPie.
@@ -289,7 +280,7 @@ type BulkCreateMakerPieAdminMultipartRequestBody BulkCreateMakerPieAdminMultipar
 type UpdateMakerPieMultipartRequestBody UpdateMakerPieMultipartBody
 
 // PostAdminUserPieApproveFormdataRequestBody defines body for PostAdminUserPieApprove for application/x-www-form-urlencoded ContentType.
-type PostAdminUserPieApproveFormdataRequestBody PostAdminUserPieApproveFormdataBody
+type PostAdminUserPieApproveFormdataRequestBody = PostAdminUserPieApproveFormdataBody
 
 // PostAdminUserPieDuplicateFormdataRequestBody defines body for PostAdminUserPieDuplicate for application/x-www-form-urlencoded ContentType.
 type PostAdminUserPieDuplicateFormdataRequestBody PostAdminUserPieDuplicateFormdataBody

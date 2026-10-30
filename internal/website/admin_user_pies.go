@@ -120,7 +120,6 @@ func (wrpr *WebsiteWrapper) GetAdminUserPies(c *gin.Context, params generated.Ge
 	piesEnabled, _ := wrpr.storage.GetUserPiesEnabled(c)
 	vals := templater.PageData{
 		Head: templater.PageDataHead{
-			CsrfToken:   c.GetString("csrf_token"),
 			IsAdminPage: true,
 			Title:       fmt.Sprintf("Admin User Pies - %d", year),
 			Description: "Moderate user-submitted pies",
@@ -206,7 +205,6 @@ func userPieReviewPage(wrpr *WebsiteWrapper, c *gin.Context, status int, pieWith
 	piesEnabled, _ := wrpr.storage.GetUserPiesEnabled(c)
 	vals := templater.PageData{
 		Head: templater.PageDataHead{
-			CsrfToken:   c.GetString("csrf_token"),
 			IsAdminPage: true,
 			Title:       fmt.Sprintf("Review: %s (Community) :: Admin", pie.DisplayName),
 			Description: "Review user-submitted pie",
@@ -453,7 +451,6 @@ func (wrpr *WebsiteWrapper) GetAdminUserPieDuplicates(c *gin.Context, params gen
 	piesEnabled, _ := wrpr.storage.GetUserPiesEnabled(c)
 	vals := templater.PageData{
 		Head: templater.PageDataHead{
-			CsrfToken:   c.GetString("csrf_token"),
 			IsAdminPage: true,
 			Title:       fmt.Sprintf("User Pie Duplicates - %d", year),
 			Description: "Review potential duplicate user pies",

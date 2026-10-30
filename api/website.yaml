@@ -736,8 +736,6 @@ paths:
                 logo:
                   type: string
                   format: binary
-                csrf_token:
-                  type: string
       responses:
         "303":
           description: Success — redirect to brand edit page
@@ -874,8 +872,6 @@ paths:
                 label:
                   type: string
                 slug:
-                  type: string
-                csrf_token:
                   type: string
       responses:
         "303":
@@ -1178,8 +1174,6 @@ paths:
                   x-go-type: int32
                 validated:
                   type: boolean
-                csrf_token:
-                  type: string
       responses:
         "200":
           description: Admin config
@@ -1209,8 +1203,6 @@ paths:
                 zipFile:
                   type: string
                   format: binary
-                csrf_token:
-                  type: string
       responses:
         "303":
           description: Success! Redirect to admin pies page
@@ -1312,8 +1304,6 @@ paths:
                   x-go-type: int32
                 validated:
                   type: boolean
-                csrf_token:
-                  type: string
       responses:
         "200":
           description: Admin config
@@ -1487,8 +1477,6 @@ paths:
             schema:
               type: object
               properties:
-                csrf_token:
-                  type: string
       responses:
         "200":
           description: Approved
@@ -1562,8 +1550,6 @@ paths:
                   x-go-type: int32
                 validated:
                   type: boolean
-                csrf_token:
-                  type: string
       responses:
         "200":
           description: Promoted
@@ -1603,8 +1589,6 @@ paths:
               type: object
               properties:
                 note:
-                  type: string
-                csrf_token:
                   type: string
       responses:
         "200":
@@ -1647,8 +1631,6 @@ paths:
                 - duplicateOf
               properties:
                 duplicateOf:
-                  type: string
-                csrf_token:
                   type: string
       responses:
         "200":

@@ -19,7 +19,6 @@ func (wrpr *WebsiteWrapper) AboutPage(c *gin.Context) {
 
 	vals := templater.PageData{
 		Head: templater.PageDataHead{
-			CsrfToken:   c.GetString("csrf_token"),
 			Snow:        wrpr.snowing(c),
 			Title:       "About",
 			Description: "All about what Mince Pie Rank is",
@@ -47,7 +46,6 @@ func (wrpr *WebsiteWrapper) CookiePage(c *gin.Context) {
 
 	vals := templater.PageData{
 		Head: templater.PageDataHead{
-			CsrfToken:   c.GetString("csrf_token"),
 			Snow:        wrpr.snowing(c),
 			Title:       "Cookies",
 			Description: "Mince Pie Rank cookie policy",
@@ -75,7 +73,6 @@ func (wrpr *WebsiteWrapper) PrivacyPage(c *gin.Context) {
 
 	vals := templater.PageData{
 		Head: templater.PageDataHead{
-			CsrfToken:   c.GetString("csrf_token"),
 			Snow:        wrpr.snowing(c),
 			Title:       "Privacy",
 			Description: "Mince Pie Rank's privacy policy",

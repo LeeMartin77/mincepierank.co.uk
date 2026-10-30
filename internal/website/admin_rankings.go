@@ -62,7 +62,6 @@ func (wrpr *WebsiteWrapper) GetAdminRankings(c *gin.Context, params generated.Ge
 	}
 	vals := templater.PageData{
 		Head: templater.PageDataHead{
-			CsrfToken:   c.GetString("csrf_token"),
 			IsAdminPage: true,
 			Title:       "Admin Rankings",
 			Description: "",
@@ -138,7 +137,6 @@ func (wrpr *WebsiteWrapper) GetAdminBrandPieRankings(c *gin.Context, brand strin
 	piesEnabled, _ := wrpr.storage.GetUserPiesEnabled(c)
 	vals := templater.PageData{
 		Head: templater.PageDataHead{
-			CsrfToken:   c.GetString("csrf_token"),
 			IsAdminPage: true,
 			Title:       pieYearly.DisplayName + " :: Rankings",
 			Description: "",
@@ -243,7 +241,6 @@ func (wrpr *WebsiteWrapper) GetAdminUserPieRankings(c *gin.Context, id string, p
 	}
 	vals := templater.PageData{
 		Head: templater.PageDataHead{
-			CsrfToken:   c.GetString("csrf_token"),
 			IsAdminPage: true,
 			Title:       pieWithOwner.Pie.DisplayName + " :: Rankings",
 			Description: "",

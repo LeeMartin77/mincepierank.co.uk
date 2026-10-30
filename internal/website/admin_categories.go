@@ -48,7 +48,6 @@ func categoryListPage(wrpr *WebsiteWrapper, c *gin.Context, pageErrs ...string) 
 	piesEnabled, _ := wrpr.storage.GetUserPiesEnabled(c)
 	vals := templater.PageData{
 		Head: templater.PageDataHead{
-			CsrfToken:   c.GetString("csrf_token"),
 			IsAdminPage: true,
 			Title:       "Admin Categories",
 			Description: "",
@@ -78,7 +77,6 @@ func categoryNewPage(wrpr *WebsiteWrapper, c *gin.Context, status int, form map[
 	piesEnabled, _ := wrpr.storage.GetUserPiesEnabled(c)
 	vals := templater.PageData{
 		Head: templater.PageDataHead{
-			CsrfToken:   c.GetString("csrf_token"),
 			IsAdminPage: true,
 			Title:       "New Category :: Admin",
 			Description: "",
@@ -109,7 +107,6 @@ func categoryEditPage(wrpr *WebsiteWrapper, c *gin.Context, status int, cat *typ
 	piesEnabled, _ := wrpr.storage.GetUserPiesEnabled(c)
 	vals := templater.PageData{
 		Head: templater.PageDataHead{
-			CsrfToken:   c.GetString("csrf_token"),
 			IsAdminPage: true,
 			Title:       cat.Label + " :: Admin",
 			Description: "",

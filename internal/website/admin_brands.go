@@ -54,7 +54,6 @@ func brandListPage(wrpr *WebsiteWrapper, c *gin.Context, pageErrs ...string) {
 	piesEnabled, _ := wrpr.storage.GetUserPiesEnabled(c)
 	vals := templater.PageData{
 		Head: templater.PageDataHead{
-			CsrfToken:   c.GetString("csrf_token"),
 			IsAdminPage: true,
 			Title:       "Admin Brands",
 			Description: "",
@@ -83,7 +82,6 @@ func brandNewPage(wrpr *WebsiteWrapper, c *gin.Context, status int, form map[str
 	piesEnabled, _ := wrpr.storage.GetUserPiesEnabled(c)
 	vals := templater.PageData{
 		Head: templater.PageDataHead{
-			CsrfToken:   c.GetString("csrf_token"),
 			IsAdminPage: true,
 			Title:       "New Brand :: Admin",
 			Description: "",
@@ -112,7 +110,6 @@ func brandEditPage(wrpr *WebsiteWrapper, c *gin.Context, status int, maker *type
 	piesEnabled, _ := wrpr.storage.GetUserPiesEnabled(c)
 	vals := templater.PageData{
 		Head: templater.PageDataHead{
-			CsrfToken:   c.GetString("csrf_token"),
 			IsAdminPage: true,
 			Title:       maker.Name + " :: Admin",
 			Description: "",
