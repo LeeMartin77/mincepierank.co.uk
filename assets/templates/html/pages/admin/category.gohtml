@@ -1,0 +1,42 @@
+{{define "page:admin:category"}}
+{{template "fragment:global:head" .Head}}
+<div class="container py-4">
+<h1>Edit Category: {{.PageData.Category.Label}}</h1>
+
+{{if .PageData.PageErrors}}
+<div class="alert alert-danger">{{range .PageData.PageErrors}}<div>{{.}}</div>{{end}}</div>
+{{end}}
+
+<div class="card mb-4">
+  <div class="card-body">
+    <form hx-put="/admin/categories/{{.PageData.Category.Id}}">
+      <div class="row g-3">
+        <div class="col-md-4">
+          <label class="form-label" for="slug">Slug</label>
+          <input class="form-control" id="slug" type="text" value="{{.PageData.Category.Slug}}" disabled>
+          <div class="form-text">Pies reference categories by slug, so it cannot be changed here.</div>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label" for="label">Label</label>
+          <input class="form-control" name="label" id="label" type="text" value="{{.PageData.Category.Label}}" required>
+        </div>
+      </div>
+
+      <button class="btn btn-primary mt-3" type="submit">Save</button>
+      <a class="btn btn-outline-secondary mt-3" href="/admin/categories">Back to categories</a>
+    </form>
+  </div>
+</div>
+
+<div class="card border-danger mb-4">
+  <div class="card-body">
+    <h5 class="text-danger">Delete Category</h5>
+    <p class="text-muted mb-2">{{.PageData.PieCount}} pie(s) currently use this category. A category used by pies cannot be deleted.</p>
+    <button class="btn btn-danger" type="button"
+      hx-delete="/admin/categories/{{.PageData.Category.Id}}"
+      hx-confirm="Delete category {{.PageData.Category.Label}} ({{.PageData.Category.Slug}})? This cannot be undone.">Delete</button>
+  </div>
+</div>
+</div>
+{{template "fragment:global:foot" .Foot}}
+{{end}}

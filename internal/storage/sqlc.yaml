@@ -9,3 +9,8 @@ sql:
         sql_package: "pgx/v5"
         out: "sqlcgen"
         emit_interface: true
+        overrides:
+          - column: "maker_pie_yearly_categories.categories"
+            go_type:
+              import: "github.com/leemartin77/mincepierank.co.uk/internal/storage/types"
+              type: "Categories"

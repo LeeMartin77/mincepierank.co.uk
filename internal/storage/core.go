@@ -41,11 +41,22 @@ type Operations interface {
 	GetMakerPieCategoriesForYear(c context.Context, year int64, requiredSlugs []string, requiredBrand *string) (*[]types.Category, error)
 
 	GetMaker(ctx context.Context, Id string) (*types.Maker, error)
+	GetAllMakers(c context.Context) (*[]AdminMakerRow, error)
+	GetMakerPieCount(c context.Context, makerid string) (int64, error)
+	CreateMaker(c context.Context, m types.Maker) (*types.Maker, error)
+	UpdateMaker(c context.Context, m types.Maker) (*types.Maker, error)
+	DeleteMaker(c context.Context, makerid string) error
 	GetMakerPieYearly(ctx context.Context, year int32, makerid string, id string) (*types.MakerPieYearly, error)
 	GetMakerPieCategoriesForMakerPieOid(ctx context.Context, oid uuid.UUID) (*[]types.Category, error)
 	GetMakerPieYearlyRankingSummary(c context.Context, year int32, makerid string, id string) (*RankingSummary, error)
 
 	GetMakerPieCategories(ctx context.Context) (*[]types.Category, error)
+	GetAllCategoriesAdmin(c context.Context) (*[]AdminCategoryRow, error)
+	GetCategoryById(c context.Context, id uuid.UUID) (*types.Category, error)
+	GetCategoryPieCount(c context.Context, id uuid.UUID) (int64, error)
+	CreateCategory(c context.Context, cat types.Category) (*types.Category, error)
+	UpdateCategory(c context.Context, cat types.Category) (*types.Category, error)
+	DeleteCategory(c context.Context, id uuid.UUID) error
 	SetPieCategories(ctx context.Context, oid uuid.UUID, category_keys []string) error
 	SetPieCategoriesTx(ctx context.Context, tx pgx.Tx, oid uuid.UUID, category_keys []string) error
 	UpdateMakerPieLabels(ctx context.Context, oid uuid.UUID, labels []string) error

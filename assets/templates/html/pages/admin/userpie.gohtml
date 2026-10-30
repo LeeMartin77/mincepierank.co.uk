@@ -4,6 +4,10 @@
   <h1>Review: {{.PageData.Pie.DisplayName}}</h1>
   <p class="text-muted">Community submission · Status: <strong>{{.PageData.Status}}</strong></p>
 
+  {{if .PageData.PageErrors}}
+  <div class="alert alert-danger">{{range .PageData.PageErrors}}<div>{{.}}</div>{{end}}</div>
+  {{end}}
+
   {{if .PageData.UserPiesEnabled}}
   <div class="row">
     <!-- Left: Pie details -->
@@ -42,16 +46,16 @@
       <div class="card mb-4">
         <div class="card-body">
           <h5>Actions</h5>
-          <form method="post" action="/admin/userpies/{{.PageData.Pie.Id}}/approve" class="d-inline">
+          <form method="post" action="/admin/userpies/{{.PageData.Year}}/{{.PageData.Pie.Id}}/{{.PageData.OwnerID}}/approve" class="d-inline">
             <button class="btn btn-success" type="submit">Approve</button>
           </form>
-          <form method="post" action="/admin/userpies/{{.PageData.Pie.Id}}/reject" class="d-inline ms-2">
+          <form method="post" action="/admin/userpies/{{.PageData.Year}}/{{.PageData.Pie.Id}}/{{.PageData.OwnerID}}/reject" class="d-inline ms-2">
             <div class="mb-2">
               <input class="form-control" name="note" placeholder="Rejection reason (optional)">
             </div>
             <button class="btn btn-danger" type="submit">Reject</button>
           </form>
-          <form method="post" action="/admin/userpies/{{.PageData.Pie.Id}}/duplicate" class="d-inline ms-2">
+          <form method="post" action="/admin/userpies/{{.PageData.Year}}/{{.PageData.Pie.Id}}/{{.PageData.OwnerID}}/duplicate" class="d-inline ms-2">
             <div class="mb-2">
               <select name="duplicateOf" class="form-select">
                 <option value="">Mark as duplicate of...</option>
@@ -62,7 +66,15 @@
             </div>
             <button class="btn btn-warning" type="submit">Mark Duplicate</button>
           </form>
-          <form method="post" action="/admin/userpies/{{.PageData.Pie.Id}}/promote" class="d-inline ms-2">
+          <form method="post" action="/admin/userpies/{{.PageData.Year}}/{{.PageData.Pie.Id}}/{{.PageData.OwnerID}}/promote" class="d-inline ms-2">
+            <div class="mb-2">
+              <select name="makerid" class="form-select" required>
+                <option value="">Promote to brand...</option>
+                {{range .PageData.AllBrands}}
+                <option value="{{.Id}}">{{.Name}} ({{.Id}})</option>
+                {{end}}
+              </select>
+            </div>
             <button class="btn btn-info" type="submit">Promote to Brand Pie</button>
           </form>
         </div>
@@ -73,12 +85,23 @@
       <div class="card mb-4">
         <div class="card-body">
           <h5>Actions</h5>
-          <form method="post" action="/admin/userpies/{{.PageData.Pie.Id}}/promote" class="d-inline">
+          {{if ne .PageData.Status "promoted"}}
+          <form method="post" action="/admin/userpies/{{.PageData.Year}}/{{.PageData.Pie.Id}}/{{.PageData.OwnerID}}/promote" class="d-inline">
+            <div class="mb-2">
+              <select name="makerid" class="form-select" required>
+                <option value="">Promote to brand...</option>
+                {{range .PageData.AllBrands}}
+                <option value="{{.Id}}">{{.Name}} ({{.Id}})</option>
+                {{end}}
+              </select>
+            </div>
             <button class="btn btn-info" type="submit">Promote to Brand Pie</button>
           </form>
-          <form method="post" action="/admin/userpies/{{.PageData.Pie.Id}}" class="d-inline ms-2">
-            <button class="btn btn-danger" type="submit" hx-confirm="This will delete this user pie{{if eq .PageData.Status "promoted"}} and its brand pie{{end}}. Are you sure?">Delete</button>
-          </form>
+          {{end}}
+          <button class="btn btn-danger" type="button"
+            hx-delete="/admin/userpies/{{.PageData.Year}}/{{.PageData.Pie.Id}}/{{.PageData.OwnerID}}"
+            hx-confirm="This will delete this user pie{{if eq .PageData.Status "promoted"}} and its brand pie{{end}}. Are you sure?"
+            hx-on::after-request="if(event.successful) window.location='/admin/userpies/{{.PageData.Year}}'">Delete</button>
         </div>
       </div>
       {{end}}
@@ -111,7 +134,7 @@
       <div class="card">
         <div class="card-body">
           <h6>Quick Links</h6>
-          <a href="/years/{{.PageData.Year}}/community/{{.PageData.Pie.Maker}}/{{.PageData.Pie.Id}}" class="btn btn-sm btn-outline-primary w-100 mb-2">View Public Page</a>
+          <a href="/years/{{.PageData.Year}}/user-pies/{{.PageData.Pie.Id}}" class="btn btn-sm btn-outline-primary w-100 mb-2">View Public Page</a>
           <a href="/admin/userpies" class="btn btn-sm btn-outline-secondary w-100">Back to Queue</a>
         </div>
       </div>

@@ -1,0 +1,72 @@
+{{define "page:admin:categories"}}
+{{template "fragment:global:head" .Head}}
+<div class="container py-4">
+<h1>Admin Categories</h1>
+
+{{if .PageData.PageErrors}}
+<div class="alert alert-danger">{{range .PageData.PageErrors}}<div>{{.}}</div>{{end}}</div>
+{{end}}
+
+<p><a class="btn btn-primary" href="/admin/categories/new">New Category</a></p>
+
+<div class="table-responsive mb-5">
+<table class="table table-striped table-hover">
+  <thead>
+    <tr>
+      <th>Label</th>
+      <th>Slug</th>
+      <th>Pies</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {{range .PageData.Categories}}
+    <tr>
+      <td>{{.Label}}</td>
+      <td><code>{{.Slug}}</code></td>
+      <td>{{.PieCount}}</td>
+      <td><a class="btn btn-sm btn-outline-info" href="/admin/categories/{{.Id}}">Edit</a></td>
+    </tr>
+    {{else}}
+    <tr><td colspan="4">No categories yet.</td></tr>
+    {{end}}
+  </tbody>
+</table>
+</div>
+
+<p><a href="/admin">Back to admin</a></p>
+</div>
+{{template "fragment:global:foot" .Foot}}
+{{end}}
+
+{{define "page:admin:categorynew"}}
+{{template "fragment:global:head" .Head}}
+<div class="container py-4">
+<h1>New Category</h1>
+
+{{if .PageData.PageErrors}}
+<div class="alert alert-danger">{{range .PageData.PageErrors}}<div>{{.}}</div>{{end}}</div>
+{{end}}
+
+<div class="card mb-4">
+  <div class="card-body">
+    <form method="post" action="/admin/categories">
+      <div class="row g-3">
+        <div class="col-md-4">
+          <label class="form-label" for="label">Label</label>
+          <input class="form-control" name="label" id="label" type="text" value="{{.PageData.Form.label}}" required>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label" for="slug">Slug</label>
+          <input class="form-control" name="slug" id="slug" type="text" placeholder="short lowercase slug, e.g. vegetarian" value="{{.PageData.Form.slug}}" required pattern="[a-z0-9][a-z0-9-]{0,63}" title="lowercase letters, numbers and dashes">
+        </div>
+      </div>
+
+      <button class="btn btn-primary mt-3" type="submit">Create</button>
+      <a class="btn btn-outline-secondary mt-3" href="/admin/categories">Back to categories</a>
+    </form>
+  </div>
+</div>
+</div>
+{{template "fragment:global:foot" .Foot}}
+{{end}}

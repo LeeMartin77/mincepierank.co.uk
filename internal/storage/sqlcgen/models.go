@@ -6,6 +6,7 @@ package sqlcgen
 
 import (
 	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/leemartin77/mincepierank.co.uk/internal/storage/types"
 )
 
 type Admin struct {
@@ -66,7 +67,7 @@ type MakerPieYearly struct {
 
 type MakerPieYearlyCategory struct {
 	Oid           pgtype.UUID
-	Categories    []byte
+	Categories    types.Categories
 	CategorySlugs interface{}
 }
 

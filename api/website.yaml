@@ -337,7 +337,7 @@ paths:
                 - imageFile
                 - webLink
                 - packCount
-                - packPriceInPence
+                - packPrice
               properties:
                 displayname:
                   type: string
@@ -357,7 +357,7 @@ paths:
                 packCount:
                   type: number
                   x-go-type: int32
-                packPriceInPence:
+                packPrice:
                   type: number
                   x-go-type: int32
       responses:
@@ -532,7 +532,7 @@ paths:
                 - imageFile
                 - webLink
                 - packCount
-                - packPriceInPence
+                - packPrice
               properties:
                 displayname:
                   type: string
@@ -552,7 +552,7 @@ paths:
                 packCount:
                   type: number
                   x-go-type: int32
-                packPriceInPence:
+                packPrice:
                   type: number
                   x-go-type: int32
       responses:
@@ -696,6 +696,421 @@ paths:
           $ref: "#/components/responses/NotFound"
         default:
           $ref: "#/components/responses/UnexpectedError"
+  /admin/brands:
+    get:
+      operationId: getAdminBrands
+      tags:
+        - admin
+      responses:
+        "200":
+          description: Admin brands list
+          content:
+            text/html:
+              schema:
+                type: string
+        "404":
+          $ref: "#/components/responses/NotFound"
+        default:
+          $ref: "#/components/responses/UnexpectedError"
+    post:
+      operationId: createAdminBrand
+      tags:
+        - admin
+      requestBody:
+        description: Create Body
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - name
+                - id
+              properties:
+                id:
+                  type: string
+                name:
+                  type: string
+                website:
+                  type: string
+                logo:
+                  type: string
+                  format: binary
+      responses:
+        "303":
+          description: Success — redirect to brand edit page
+        "400":
+          description: Validation error
+          content:
+            text/html:
+              schema:
+                type: string
+        "404":
+          $ref: "#/components/responses/NotFound"
+        default:
+          $ref: "#/components/responses/UnexpectedError"
+  /admin/brands/new:
+    get:
+      operationId: getAdminBrandNew
+      tags:
+        - admin
+      responses:
+        "200":
+          description: Admin brand create form
+          content:
+            text/html:
+              schema:
+                type: string
+        "404":
+          $ref: "#/components/responses/NotFound"
+        default:
+          $ref: "#/components/responses/UnexpectedError"
+  /admin/brands/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      operationId: getAdminBrand
+      tags:
+        - admin
+      responses:
+        "200":
+          description: Admin brand edit form
+          content:
+            text/html:
+              schema:
+                type: string
+        "404":
+          $ref: "#/components/responses/NotFound"
+        default:
+          $ref: "#/components/responses/UnexpectedError"
+    put:
+      operationId: updateAdminBrand
+      tags:
+        - admin
+      requestBody:
+        description: Update Body
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - name
+              properties:
+                name:
+                  type: string
+                website:
+                  type: string
+                logo:
+                  type: string
+                  format: binary
+      responses:
+        "303":
+          description: Success — redirect to brand edit page
+        "400":
+          description: Validation error
+          content:
+            text/html:
+              schema:
+                type: string
+        "404":
+          $ref: "#/components/responses/NotFound"
+        default:
+          $ref: "#/components/responses/UnexpectedError"
+    delete:
+      operationId: deleteAdminBrand
+      tags:
+        - admin
+      responses:
+        "303":
+          description: Success — redirect to brands list
+        "400":
+          description: Refused — pies still reference this brand
+          content:
+            text/html:
+              schema:
+                type: string
+        "404":
+          $ref: "#/components/responses/NotFound"
+        default:
+          $ref: "#/components/responses/UnexpectedError"
+  /admin/categories:
+    get:
+      operationId: getAdminCategories
+      tags:
+        - admin
+      responses:
+        "200":
+          description: Admin categories list
+          content:
+            text/html:
+              schema:
+                type: string
+        "404":
+          $ref: "#/components/responses/NotFound"
+        default:
+          $ref: "#/components/responses/UnexpectedError"
+    post:
+      operationId: createAdminCategory
+      tags:
+        - admin
+      requestBody:
+        description: Create Body
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+                - label
+                - slug
+              properties:
+                label:
+                  type: string
+                slug:
+                  type: string
+      responses:
+        "303":
+          description: Success — redirect to category edit page
+        "400":
+          description: Validation error
+          content:
+            text/html:
+              schema:
+                type: string
+        "404":
+          $ref: "#/components/responses/NotFound"
+        default:
+          $ref: "#/components/responses/UnexpectedError"
+  /admin/categories/new:
+    get:
+      operationId: getAdminCategoryNew
+      tags:
+        - admin
+      responses:
+        "200":
+          description: Admin category create form
+          content:
+            text/html:
+              schema:
+                type: string
+        "404":
+          $ref: "#/components/responses/NotFound"
+        default:
+          $ref: "#/components/responses/UnexpectedError"
+  /admin/categories/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      operationId: getAdminCategory
+      tags:
+        - admin
+      responses:
+        "200":
+          description: Admin category edit form
+          content:
+            text/html:
+              schema:
+                type: string
+        "404":
+          $ref: "#/components/responses/NotFound"
+        default:
+          $ref: "#/components/responses/UnexpectedError"
+    put:
+      operationId: updateAdminCategory
+      tags:
+        - admin
+      requestBody:
+        description: Update Body
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+                - label
+              properties:
+                label:
+                  type: string
+      responses:
+        "303":
+          description: Success — redirect to category edit page
+        "400":
+          description: Validation error
+          content:
+            text/html:
+              schema:
+                type: string
+        "404":
+          $ref: "#/components/responses/NotFound"
+        default:
+          $ref: "#/components/responses/UnexpectedError"
+    delete:
+      operationId: deleteAdminCategory
+      tags:
+        - admin
+      responses:
+        "303":
+          description: Success — redirect to categories list
+        "400":
+          description: Refused — pies still use this category
+          content:
+            text/html:
+              schema:
+                type: string
+        "404":
+          $ref: "#/components/responses/NotFound"
+        default:
+          $ref: "#/components/responses/UnexpectedError"
+  /admin/rankings:
+    get:
+      operationId: getAdminRankings
+      tags:
+        - admin
+      parameters:
+        - name: year
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Admin rankings picker — pies and their rating counts
+          content:
+            text/html:
+              schema:
+                type: string
+        "404":
+          $ref: "#/components/responses/NotFound"
+        default:
+          $ref: "#/components/responses/UnexpectedError"
+  /admin/rankings/brands/{brand}/{pie}:
+    parameters:
+      - name: brand
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: pie
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      operationId: getAdminBrandPieRankings
+      tags:
+        - admin
+      parameters:
+        - name: year
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Admin ranking review screen for a brand pie
+          content:
+            text/html:
+              schema:
+                type: string
+        "404":
+          $ref: "#/components/responses/NotFound"
+        default:
+          $ref: "#/components/responses/UnexpectedError"
+  /admin/rankings/brands/{brand}/{pie}/users/{userid}:
+    parameters:
+      - name: brand
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: pie
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: userid
+        in: path
+        required: true
+        schema:
+          type: string
+    delete:
+      operationId: deleteAdminBrandPieRanking
+      tags:
+        - admin
+      parameters:
+        - name: year
+          in: query
+          schema:
+            type: integer
+      responses:
+        "303":
+          description: Success — redirect back to the review screen
+        "404":
+          $ref: "#/components/responses/NotFound"
+        default:
+          $ref: "#/components/responses/UnexpectedError"
+  /admin/rankings/userpies/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      operationId: getAdminUserPieRankings
+      tags:
+        - admin
+      parameters:
+        - name: year
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Admin ranking review screen for a user pie
+          content:
+            text/html:
+              schema:
+                type: string
+        "404":
+          $ref: "#/components/responses/NotFound"
+        default:
+          $ref: "#/components/responses/UnexpectedError"
+  /admin/rankings/userpies/{id}/users/{userid}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: userid
+        in: path
+        required: true
+        schema:
+          type: string
+    delete:
+      operationId: deleteAdminUserPieRanking
+      tags:
+        - admin
+      parameters:
+        - name: year
+          in: query
+          schema:
+            type: integer
+      responses:
+        "303":
+          description: Success — redirect back to the review screen
+        "404":
+          $ref: "#/components/responses/NotFound"
+        default:
+          $ref: "#/components/responses/UnexpectedError"
   /admin/makerpies:
     get:
       operationId: getMakerPiesAdmin
@@ -729,11 +1144,10 @@ paths:
                 - id
                 - displayname
                 - fresh
-                - labels
-                - imageFile
-                - webLink
-                - packCount
-                - packPriceInPence
+                - img
+                - web_link
+                - pack_count
+                - pack_price_in_pence
                 - validated
               properties:
                 year:
@@ -747,17 +1161,15 @@ paths:
                   type: string
                 fresh:
                   type: boolean
-                labels:
-                  type: string
-                imageFile:
+                img:
                   type: string
                   format: binary
-                webLink:
+                web_link:
                   type: string
-                packCount:
+                pack_count:
                   type: number
                   x-go-type: int32
-                packPriceInPence:
+                pack_price_in_pence:
                   type: number
                   x-go-type: int32
                 validated:
@@ -865,10 +1277,9 @@ paths:
               required:
                 - displayname
                 - fresh
-                - labels
-                - webLink
-                - packCount
-                - packPriceInPence
+                - web_link
+                - pack_count
+                - pack_price_in_pence
                 - categories
                 - validated
               properties:
@@ -876,21 +1287,19 @@ paths:
                   type: string
                 fresh:
                   type: boolean
-                labels:
-                  type: string
-                imageFile:
+                img:
                   type: string
                   format: binary
-                webLink:
+                web_link:
                   type: string
                 categories:
                   type: array
                   items: 
                     type: string
-                packCount:
+                pack_count:
                   type: number
                   x-go-type: int32
-                packPriceInPence:
+                pack_price_in_pence:
                   type: number
                   x-go-type: int32
                 validated:
@@ -1060,6 +1469,14 @@ paths:
             type: string
       tags:
         - admin
+      requestBody:
+        description: Approve form data
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
       responses:
         "200":
           description: Approved

@@ -9,6 +9,7 @@ import (
 	"context"
 
 	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/leemartin77/mincepierank.co.uk/internal/storage/types"
 )
 
 const createMakerPie = `-- name: CreateMakerPie :one
@@ -81,6 +82,16 @@ func (q *Queries) DeleteMakerPieByOid(ctx context.Context, oid string) error {
 	return err
 }
 
+const deletePieCategoriesByPieOid = `-- name: DeletePieCategoriesByPieOid :exec
+DELETE FROM maker_pie_categories
+WHERE maker_pie_oid = uuid($1::text)
+`
+
+func (q *Queries) DeletePieCategoriesByPieOid(ctx context.Context, oid string) error {
+	_, err := q.db.Exec(ctx, deletePieCategoriesByPieOid, oid)
+	return err
+}
+
 const getAllMakerPies = `-- name: GetAllMakerPies :many
 SELECT mpy.oid::text as oidstr , mpy.year, mpy.makerid, mpy.id, mpy.displayname, mpy.fresh, mpy.labels, mpy.image_file, mpy.web_link, mpy.pack_count, mpy.pack_price_in_pence, mpy.validated, mpy.oid FROM maker_pie_yearly mpy
 `
@@ -135,6 +146,361 @@ func (q *Queries) GetAllMakerPies(ctx context.Context) ([]GetAllMakerPiesRow, er
 	return items, nil
 }
 
+const getFilterableMakerPies = `-- name: GetFilterableMakerPies :many
+WITH pie_rankings AS (
+    SELECT
+        year,
+        makerid,
+        pieid,
+        SUM(pastry::float )/COUNT(1) as pastry,
+        SUM(filling::float )/COUNT(1) as filling,
+        SUM(topping::float )/COUNT(1) as topping,
+        SUM(looks::float )/COUNT(1) as looks,
+        SUM(value::float )/COUNT(1) as value,
+        (
+            SUM(pastry::float )/COUNT(1) +
+            SUM(filling::float )/COUNT(1) +
+            SUM(topping::float )/COUNT(1) +
+            SUM(looks::float )/COUNT(1) +
+            SUM(value::float )/COUNT(1)
+        )/5 as avg,
+        COUNT(1)::bigint as count
+    FROM maker_pie_ranking_yearly
+    WHERE year = $1::int
+    GROUP BY year, makerid, pieid
+)
+SELECT
+    mpy.year,
+    mpy.makerid,
+    mpy.id,
+    coalesce(mpy.displayname, '') as displayname,
+    coalesce(mpy.fresh, false) as fresh,
+    cts.categories as categories,
+    coalesce(mpy.image_file, '') as image_file,
+    coalesce(mpy.web_link, '') as web_link,
+    coalesce(mpy.pack_count, 0)::int as pack_count,
+    coalesce(mpy.pack_price_in_pence, 0)::int as pack_price_in_pence,
+    COALESCE(tp.pastry, 0::float)::float as pastry,
+    COALESCE(tp.filling, 0::float)::float as filling,
+    COALESCE(tp.topping, 0::float)::float as topping,
+    COALESCE(tp.looks, 0::float)::float as looks,
+    COALESCE(tp.value, 0::float)::float as value,
+    COALESCE(tp.avg, 0::float)::float as avg,
+    COALESCE(tp.count, 0)::bigint as count
+FROM maker_pie_yearly mpy
+LEFT JOIN pie_rankings tp ON
+    tp.year = mpy.year AND
+    tp.makerid = mpy.makerid AND
+    tp.pieid = mpy.id
+INNER JOIN maker_pie_yearly_categories cts ON
+    cts.oid = mpy.oid
+WHERE mpy.year = $1::int
+    AND mpy.validated = true
+    AND ($2::text = '' OR mpy.makerid = ANY(string_to_array($2::text, ',')))
+    AND ($3::text = '' OR cts.category_slugs @> string_to_array($3::text, ','))
+ORDER BY tp.avg DESC NULLS LAST
+LIMIT $5::int
+OFFSET $4::int
+`
+
+type GetFilterableMakerPiesParams struct {
+	Year          int32
+	BrandIds      string
+	CategorySlugs string
+	PageOffset    int32
+	PageLimit     int32
+}
+
+type GetFilterableMakerPiesRow struct {
+	Year             int32
+	Makerid          string
+	ID               string
+	Displayname      string
+	Fresh            bool
+	Categories       types.Categories
+	ImageFile        string
+	WebLink          string
+	PackCount        int32
+	PackPriceInPence int32
+	Pastry           float64
+	Filling          float64
+	Topping          float64
+	Looks            float64
+	Value            float64
+	Avg              float64
+	Count            int64
+}
+
+func (q *Queries) GetFilterableMakerPies(ctx context.Context, arg GetFilterableMakerPiesParams) ([]GetFilterableMakerPiesRow, error) {
+	rows, err := q.db.Query(ctx, getFilterableMakerPies,
+		arg.Year,
+		arg.BrandIds,
+		arg.CategorySlugs,
+		arg.PageOffset,
+		arg.PageLimit,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetFilterableMakerPiesRow
+	for rows.Next() {
+		var i GetFilterableMakerPiesRow
+		if err := rows.Scan(
+			&i.Year,
+			&i.Makerid,
+			&i.ID,
+			&i.Displayname,
+			&i.Fresh,
+			&i.Categories,
+			&i.ImageFile,
+			&i.WebLink,
+			&i.PackCount,
+			&i.PackPriceInPence,
+			&i.Pastry,
+			&i.Filling,
+			&i.Topping,
+			&i.Looks,
+			&i.Value,
+			&i.Avg,
+			&i.Count,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getFilterableMakerPiesForUser = `-- name: GetFilterableMakerPiesForUser :many
+WITH user_rankings AS (
+    SELECT
+        year,
+        makerid,
+        pieid,
+        pastry,
+        filling,
+        topping,
+        looks,
+        value,
+        (
+            pastry::float +
+            filling::float +
+            topping::float +
+            looks::float +
+            value::float
+        )/5 as avg
+    FROM maker_pie_ranking_yearly
+    WHERE userid = $6::text
+)
+SELECT
+    mpy.year,
+    mpy.makerid,
+    mpy.id,
+    coalesce(mpy.displayname, '') as displayname,
+    coalesce(mpy.fresh, false) as fresh,
+    cts.categories as categories,
+    coalesce(mpy.image_file, '') as image_file,
+    coalesce(mpy.web_link, '') as web_link,
+    coalesce(mpy.pack_count, 0)::int as pack_count,
+    coalesce(mpy.pack_price_in_pence, 0)::int as pack_price_in_pence,
+    COALESCE(tp.pastry, 0::float)::float as pastry,
+    COALESCE(tp.filling, 0::float)::float as filling,
+    COALESCE(tp.topping, 0::float)::float as topping,
+    COALESCE(tp.looks, 0::float)::float as looks,
+    COALESCE(tp.value, 0::float)::float as value,
+    COALESCE(tp.avg, 0::float)::float as avg
+FROM maker_pie_yearly mpy
+INNER JOIN user_rankings tp ON
+    tp.year = mpy.year AND
+    tp.makerid = mpy.makerid AND
+    tp.pieid = mpy.id
+INNER JOIN maker_pie_yearly_categories cts ON
+    cts.oid = mpy.oid
+WHERE mpy.year = $1::int
+    AND mpy.validated = true
+    AND ($2::text = '' OR mpy.makerid = ANY(string_to_array($2::text, ',')))
+    AND ($3::text = '' OR cts.category_slugs @> string_to_array($3::text, ','))
+ORDER BY tp.avg DESC NULLS LAST
+LIMIT $5::int
+OFFSET $4::int
+`
+
+type GetFilterableMakerPiesForUserParams struct {
+	Year          int32
+	BrandIds      string
+	CategorySlugs string
+	PageOffset    int32
+	PageLimit     int32
+	Userid        string
+}
+
+type GetFilterableMakerPiesForUserRow struct {
+	Year             int32
+	Makerid          string
+	ID               string
+	Displayname      string
+	Fresh            bool
+	Categories       types.Categories
+	ImageFile        string
+	WebLink          string
+	PackCount        int32
+	PackPriceInPence int32
+	Pastry           float64
+	Filling          float64
+	Topping          float64
+	Looks            float64
+	Value            float64
+	Avg              float64
+}
+
+func (q *Queries) GetFilterableMakerPiesForUser(ctx context.Context, arg GetFilterableMakerPiesForUserParams) ([]GetFilterableMakerPiesForUserRow, error) {
+	rows, err := q.db.Query(ctx, getFilterableMakerPiesForUser,
+		arg.Year,
+		arg.BrandIds,
+		arg.CategorySlugs,
+		arg.PageOffset,
+		arg.PageLimit,
+		arg.Userid,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetFilterableMakerPiesForUserRow
+	for rows.Next() {
+		var i GetFilterableMakerPiesForUserRow
+		if err := rows.Scan(
+			&i.Year,
+			&i.Makerid,
+			&i.ID,
+			&i.Displayname,
+			&i.Fresh,
+			&i.Categories,
+			&i.ImageFile,
+			&i.WebLink,
+			&i.PackCount,
+			&i.PackPriceInPence,
+			&i.Pastry,
+			&i.Filling,
+			&i.Topping,
+			&i.Looks,
+			&i.Value,
+			&i.Avg,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getLatestPieRanking = `-- name: GetLatestPieRanking :one
+WITH top_pie AS (
+    SELECT
+        year,
+        makerid,
+        pieid,
+        pastry,
+        filling,
+        topping,
+        looks,
+        value,
+        (
+            pastry::float +
+            filling::float +
+            topping::float +
+            looks::float +
+            value::float
+        )/5 as avg,
+        1::bigint as count,
+        last_updated
+    FROM maker_pie_ranking_yearly
+    WHERE year = $1::int
+    ORDER BY last_updated DESC
+    LIMIT 1
+)
+SELECT
+    mpy.year,
+    mpy.makerid,
+    mpy.id,
+    coalesce(mpy.displayname, '') as displayname,
+    coalesce(mpy.fresh, false) as fresh,
+    cts.categories as categories,
+    coalesce(mpy.image_file, '') as image_file,
+    coalesce(mpy.web_link, '') as web_link,
+    coalesce(mpy.pack_count, 0)::int as pack_count,
+    coalesce(mpy.pack_price_in_pence, 0)::int as pack_price_in_pence,
+    COALESCE(tp.pastry, 0::float)::float as pastry,
+    COALESCE(tp.filling, 0::float)::float as filling,
+    COALESCE(tp.topping, 0::float)::float as topping,
+    COALESCE(tp.looks, 0::float)::float as looks,
+    COALESCE(tp.value, 0::float)::float as value,
+    COALESCE(tp.avg, 0::float)::float as avg,
+    COALESCE(tp.count, 0)::bigint as count,
+    COALESCE(tp.last_updated, 'epoch'::timestamp)::timestamptz as last_updated
+FROM maker_pie_yearly mpy
+INNER JOIN top_pie tp ON
+    tp.year = mpy.year AND
+    tp.makerid = mpy.makerid AND
+    tp.pieid = mpy.id
+INNER JOIN maker_pie_yearly_categories cts ON
+    cts.oid = mpy.oid
+`
+
+type GetLatestPieRankingRow struct {
+	Year             int32
+	Makerid          string
+	ID               string
+	Displayname      string
+	Fresh            bool
+	Categories       types.Categories
+	ImageFile        string
+	WebLink          string
+	PackCount        int32
+	PackPriceInPence int32
+	Pastry           float64
+	Filling          float64
+	Topping          float64
+	Looks            float64
+	Value            float64
+	Avg              float64
+	Count            int64
+	LastUpdated      pgtype.Timestamptz
+}
+
+func (q *Queries) GetLatestPieRanking(ctx context.Context, year int32) (GetLatestPieRankingRow, error) {
+	row := q.db.QueryRow(ctx, getLatestPieRanking, year)
+	var i GetLatestPieRankingRow
+	err := row.Scan(
+		&i.Year,
+		&i.Makerid,
+		&i.ID,
+		&i.Displayname,
+		&i.Fresh,
+		&i.Categories,
+		&i.ImageFile,
+		&i.WebLink,
+		&i.PackCount,
+		&i.PackPriceInPence,
+		&i.Pastry,
+		&i.Filling,
+		&i.Topping,
+		&i.Looks,
+		&i.Value,
+		&i.Avg,
+		&i.Count,
+		&i.LastUpdated,
+	)
+	return i, err
+}
+
 const getMakerPieByOid = `-- name: GetMakerPieByOid :one
 SELECT mpy.oid::text as oidstr , mpy.year, mpy.makerid, mpy.id, mpy.displayname, mpy.fresh, mpy.labels, mpy.image_file, mpy.web_link, mpy.pack_count, mpy.pack_price_in_pence, mpy.validated, mpy.oid FROM maker_pie_yearly mpy where mpy.oid = uuid($1::text)
 `
@@ -176,6 +542,119 @@ func (q *Queries) GetMakerPieByOid(ctx context.Context, oid string) (GetMakerPie
 	return i, err
 }
 
+const getMakerPieCategories = `-- name: GetMakerPieCategories :many
+SELECT id::text as idstr, coalesce(slug, '') as slug, coalesce(label, '') as label
+FROM categories
+`
+
+type GetMakerPieCategoriesRow struct {
+	Idstr string
+	Slug  string
+	Label string
+}
+
+func (q *Queries) GetMakerPieCategories(ctx context.Context) ([]GetMakerPieCategoriesRow, error) {
+	rows, err := q.db.Query(ctx, getMakerPieCategories)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetMakerPieCategoriesRow
+	for rows.Next() {
+		var i GetMakerPieCategoriesRow
+		if err := rows.Scan(&i.Idstr, &i.Slug, &i.Label); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getMakerPieCategoriesForMakerPieOid = `-- name: GetMakerPieCategoriesForMakerPieOid :many
+SELECT c.id::text as idstr, coalesce(c.slug, '') as slug, coalesce(c.label, '') as label
+FROM categories c
+INNER JOIN maker_pie_categories mpc ON
+    mpc.category_id = c.id
+WHERE
+    mpc.maker_pie_oid = uuid($1::text)
+`
+
+type GetMakerPieCategoriesForMakerPieOidRow struct {
+	Idstr string
+	Slug  string
+	Label string
+}
+
+func (q *Queries) GetMakerPieCategoriesForMakerPieOid(ctx context.Context, oid string) ([]GetMakerPieCategoriesForMakerPieOidRow, error) {
+	rows, err := q.db.Query(ctx, getMakerPieCategoriesForMakerPieOid, oid)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetMakerPieCategoriesForMakerPieOidRow
+	for rows.Next() {
+		var i GetMakerPieCategoriesForMakerPieOidRow
+		if err := rows.Scan(&i.Idstr, &i.Slug, &i.Label); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getMakerPieCategoriesForYear = `-- name: GetMakerPieCategoriesForYear :many
+SELECT distinct c.id::text as idstr, coalesce(c.slug, '') as slug, coalesce(c.label, '') as label
+FROM categories c
+INNER JOIN maker_pie_categories mpc ON
+    mpc.category_id = c.id
+INNER JOIN maker_pie_yearly mpy ON
+    mpc.maker_pie_oid = mpy.oid AND
+    mpy.year = $1::int
+INNER JOIN maker_pie_yearly_categories cts ON
+    cts.oid = mpy.oid
+WHERE
+    ($2::text = '' OR mpy.makerid = $2::text)
+    AND ($3::text = '' OR cts.category_slugs @> string_to_array($3::text, ','))
+`
+
+type GetMakerPieCategoriesForYearParams struct {
+	Year          int32
+	Brand         string
+	RequiredSlugs string
+}
+
+type GetMakerPieCategoriesForYearRow struct {
+	Idstr string
+	Slug  string
+	Label string
+}
+
+func (q *Queries) GetMakerPieCategoriesForYear(ctx context.Context, arg GetMakerPieCategoriesForYearParams) ([]GetMakerPieCategoriesForYearRow, error) {
+	rows, err := q.db.Query(ctx, getMakerPieCategoriesForYear, arg.Year, arg.Brand, arg.RequiredSlugs)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetMakerPieCategoriesForYearRow
+	for rows.Next() {
+		var i GetMakerPieCategoriesForYearRow
+		if err := rows.Scan(&i.Idstr, &i.Slug, &i.Label); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getMakerPieYears = `-- name: GetMakerPieYears :many
 SELECT DISTINCT year
 FROM maker_pie_yearly
@@ -200,6 +679,122 @@ func (q *Queries) GetMakerPieYears(ctx context.Context) ([]int32, error) {
 		return nil, err
 	}
 	return items, nil
+}
+
+const getTopMakerPie = `-- name: GetTopMakerPie :one
+WITH aggregated_pies AS (
+    SELECT
+        year,
+        makerid,
+        pieid,
+        SUM(pastry::float )/COUNT(1) as pastry,
+        SUM(filling::float )/COUNT(1) as filling,
+        SUM(topping::float )/COUNT(1) as topping,
+        SUM(looks::float )/COUNT(1) as looks,
+        SUM(value::float )/COUNT(1) as value,
+        (
+            SUM(pastry::float )/COUNT(1) +
+            SUM(filling::float )/COUNT(1) +
+            SUM(topping::float )/COUNT(1) +
+            SUM(looks::float )/COUNT(1) +
+            SUM(value::float )/COUNT(1)
+        )/5 as avg,
+        COUNT(1)::bigint as count
+    FROM maker_pie_ranking_yearly
+    WHERE year = $1::int
+    GROUP BY year, makerid, pieid
+), top_pie AS (
+    SELECT year, makerid, pieid, pastry, filling, topping, looks, value, avg, count
+    FROM aggregated_pies
+    ORDER BY avg DESC
+    LIMIT 1
+)
+SELECT
+    mpy.year,
+    mpy.makerid,
+    mpy.id,
+    coalesce(mpy.displayname, '') as displayname,
+    coalesce(mpy.fresh, false) as fresh,
+    cts.categories as categories,
+    coalesce(mpy.image_file, '') as image_file,
+    coalesce(mpy.web_link, '') as web_link,
+    coalesce(mpy.pack_count, 0)::int as pack_count,
+    coalesce(mpy.pack_price_in_pence, 0)::int as pack_price_in_pence,
+    COALESCE(tp.pastry, 0::float)::float as pastry,
+    COALESCE(tp.filling, 0::float)::float as filling,
+    COALESCE(tp.topping, 0::float)::float as topping,
+    COALESCE(tp.looks, 0::float)::float as looks,
+    COALESCE(tp.value, 0::float)::float as value,
+    COALESCE(tp.avg, 0::float)::float as avg,
+    COALESCE(tp.count, 0)::bigint as count
+FROM maker_pie_yearly mpy
+INNER JOIN top_pie tp ON
+    tp.year = mpy.year AND
+    tp.makerid = mpy.makerid AND
+    tp.pieid = mpy.id
+INNER JOIN maker_pie_yearly_categories cts ON
+    cts.oid = mpy.oid
+`
+
+type GetTopMakerPieRow struct {
+	Year             int32
+	Makerid          string
+	ID               string
+	Displayname      string
+	Fresh            bool
+	Categories       types.Categories
+	ImageFile        string
+	WebLink          string
+	PackCount        int32
+	PackPriceInPence int32
+	Pastry           float64
+	Filling          float64
+	Topping          float64
+	Looks            float64
+	Value            float64
+	Avg              float64
+	Count            int64
+}
+
+func (q *Queries) GetTopMakerPie(ctx context.Context, year int32) (GetTopMakerPieRow, error) {
+	row := q.db.QueryRow(ctx, getTopMakerPie, year)
+	var i GetTopMakerPieRow
+	err := row.Scan(
+		&i.Year,
+		&i.Makerid,
+		&i.ID,
+		&i.Displayname,
+		&i.Fresh,
+		&i.Categories,
+		&i.ImageFile,
+		&i.WebLink,
+		&i.PackCount,
+		&i.PackPriceInPence,
+		&i.Pastry,
+		&i.Filling,
+		&i.Topping,
+		&i.Looks,
+		&i.Value,
+		&i.Avg,
+		&i.Count,
+	)
+	return i, err
+}
+
+const insertPieCategories = `-- name: InsertPieCategories :exec
+INSERT INTO maker_pie_categories (maker_pie_oid, category_id)
+SELECT uuid($1::text), u.cid::uuid
+FROM unnest($2::text[]) as u(cid)
+`
+
+type InsertPieCategoriesParams struct {
+	Oid         string
+	CategoryIds []string
+}
+
+func (q *Queries) InsertPieCategories(ctx context.Context, arg InsertPieCategoriesParams) error {
+	_, err := q.db.Exec(ctx, insertPieCategories, arg.Oid, arg.CategoryIds)
+	return err
 }
 
 const updateMakerPieByOid = `-- name: UpdateMakerPieByOid :exec

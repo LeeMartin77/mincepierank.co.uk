@@ -4,6 +4,7 @@ import (
 	"archive/zip"
 	"bytes"
 	"encoding/csv"
+	"errors"
 	"fmt"
 	"io"
 	"io/fs"
@@ -14,6 +15,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"github.com/leemartin77/mincepierank.co.uk/internal/storage"
 	"github.com/leemartin77/mincepierank.co.uk/internal/storage/sqlcgen"
 )
 
@@ -85,6 +87,15 @@ func (wrpr *WebsiteWrapper) BulkCreateMakerPieAdmin(c *gin.Context) {
 
 	for _, pie := range mappedCsv {
 
+		rowLabel := "Pie " + pie["year"] + "/" + pie["makerid"] + "/" + pie["id"] + ": "
+		year, yearErr := parseFormYear(pie["year"])
+		packCount, packCountErr := parseFormInt("Pack count", pie["pack_count"])
+		packPrice, packPriceErr := parseFormInt("Pack price in pence", pie["pack_price_in_pence"])
+		if errs := formFieldErrors(yearErr, packCountErr, packPriceErr); len(errs) > 0 {
+			piesPage(wrpr, c, rowLabel+strings.Join(errs, "; "))
+			return
+		}
+
 		dirpath := strings.Join([]string{
 			wrpr.config.ImgprssrDir,
 			pie["year"],
@@ -118,7 +129,7 @@ func (wrpr *WebsiteWrapper) BulkCreateMakerPieAdmin(c *gin.Context) {
 		fresh := pie["fresh"] == "yes"
 
 		oid, err := q.CreateMakerPie(c, sqlcgen.CreateMakerPieParams{
-			Year:    mustParseInt(pie["year"]),
+			Year:    year,
 			Makerid: pie["makerid"],
 			ID:      pie["id"],
 
@@ -126,8 +137,8 @@ func (wrpr *WebsiteWrapper) BulkCreateMakerPieAdmin(c *gin.Context) {
 			Fresh:            fresh,
 			ImageFile:        "/" + path,
 			WebLink:          pie["web_link"],
-			PackCount:        mustParseInt(pie["pack_count"]),
-			PackPriceInPence: mustParseInt(pie["pack_price_in_pence"]),
+			PackCount:        packCount,
+			PackPriceInPence: packPrice,
 			Validated:        true,
 		})
 		if err != nil {
@@ -135,6 +146,10 @@ func (wrpr *WebsiteWrapper) BulkCreateMakerPieAdmin(c *gin.Context) {
 			return
 		}
 		err = wrpr.storage.SetPieCategoriesTx(c, tx, uuid.MustParse(oid), strings.Split(pie["category_slugs"], ","))
+		if errors.Is(err, storage.ErrUnknownCategories) {
+			piesPage(wrpr, c, "Pie "+pie["year"]+"/"+pie["makerid"]+"/"+pie["id"]+": "+err.Error())
+			return
+		}
 		if err != nil {
 			c.AbortWithError(400, err)
 			return

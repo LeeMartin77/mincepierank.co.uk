@@ -33,3 +33,30 @@ WHERE year = sqlc.arg(year)::int AND pieid = sqlc.arg(pieid)::text;
 -- name: DeleteUserPieRankingsByUser :exec
 DELETE FROM user_pie_ranking_yearly
 WHERE year = sqlc.arg(year)::int AND userid = sqlc.arg(userid)::text;
+
+-- name: ListUserPieRankingSummaries :many
+SELECT upy.year,
+       upy.id AS pieid,
+       min(upy.displayname)::text AS displayname,
+       min(upy.maker)::text AS maker,
+       count(distinct upry.userid)::bigint AS ranking_count
+FROM user_pie_yearly upy
+LEFT JOIN user_pie_ranking_yearly upry
+    ON upry.year = upy.year AND upry.pieid = upy.id
+WHERE upy.year = sqlc.arg(year)::int
+    AND upy.status IN ('approved', 'promoted')
+GROUP BY upy.year, upy.id
+ORDER BY min(upy.displayname);
+
+-- name: ListUserPieRankingsForPie :many
+SELECT *
+FROM user_pie_ranking_yearly
+WHERE year = sqlc.arg(year)::int
+    AND pieid = sqlc.arg(pieid)::text
+ORDER BY userid;
+
+-- name: DeleteUserPieRanking :exec
+DELETE FROM user_pie_ranking_yearly
+WHERE year = sqlc.arg(year)::int
+    AND pieid = sqlc.arg(pieid)::text
+    AND userid = sqlc.arg(userid)::text;

@@ -25,7 +25,7 @@ func TestValidateUserPieForm(t *testing.T) {
 		{
 			name: "missing displayname",
 			form: url.Values{
-				"maker": {"Ginsters"},
+				"maker":   {"Ginsters"},
 				"webLink": {"https://ginsters.co.uk"},
 			},
 			wantErrs: []string{"Display name is required"},
@@ -34,7 +34,7 @@ func TestValidateUserPieForm(t *testing.T) {
 			name: "missing maker",
 			form: url.Values{
 				"displayname": {"Ginsters"},
-				"webLink": {"https://ginsters.co.uk"},
+				"webLink":     {"https://ginsters.co.uk"},
 			},
 			wantErrs: []string{"Maker/brand is required"},
 		},
@@ -42,7 +42,7 @@ func TestValidateUserPieForm(t *testing.T) {
 			name: "missing webLink",
 			form: url.Values{
 				"displayname": {"Ginsters"},
-				"maker": {"Ginsters"},
+				"maker":       {"Ginsters"},
 			},
 			wantErrs: []string{"Website link is required"},
 		},

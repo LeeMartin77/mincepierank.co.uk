@@ -9,6 +9,24 @@ import (
 	"context"
 )
 
+const deleteUserPieRanking = `-- name: DeleteUserPieRanking :exec
+DELETE FROM user_pie_ranking_yearly
+WHERE year = $1::int
+    AND pieid = $2::text
+    AND userid = $3::text
+`
+
+type DeleteUserPieRankingParams struct {
+	Year   int32
+	Pieid  string
+	Userid string
+}
+
+func (q *Queries) DeleteUserPieRanking(ctx context.Context, arg DeleteUserPieRankingParams) error {
+	_, err := q.db.Exec(ctx, deleteUserPieRanking, arg.Year, arg.Pieid, arg.Userid)
+	return err
+}
+
 const deleteUserPieRankings = `-- name: DeleteUserPieRankings :exec
 DELETE FROM user_pie_ranking_yearly
 WHERE year = $1::int AND pieid = $2::text
@@ -67,6 +85,99 @@ func (q *Queries) GetUserPieRanking(ctx context.Context, arg GetUserPieRankingPa
 		&i.LastUpdated,
 	)
 	return i, err
+}
+
+const listUserPieRankingSummaries = `-- name: ListUserPieRankingSummaries :many
+SELECT upy.year,
+       upy.id AS pieid,
+       min(upy.displayname)::text AS displayname,
+       min(upy.maker)::text AS maker,
+       count(distinct upry.userid)::bigint AS ranking_count
+FROM user_pie_yearly upy
+LEFT JOIN user_pie_ranking_yearly upry
+    ON upry.year = upy.year AND upry.pieid = upy.id
+WHERE upy.year = $1::int
+    AND upy.status IN ('approved', 'promoted')
+GROUP BY upy.year, upy.id
+ORDER BY min(upy.displayname)
+`
+
+type ListUserPieRankingSummariesRow struct {
+	Year         int32
+	Pieid        string
+	Displayname  string
+	Maker        string
+	RankingCount int64
+}
+
+func (q *Queries) ListUserPieRankingSummaries(ctx context.Context, year int32) ([]ListUserPieRankingSummariesRow, error) {
+	rows, err := q.db.Query(ctx, listUserPieRankingSummaries, year)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ListUserPieRankingSummariesRow
+	for rows.Next() {
+		var i ListUserPieRankingSummariesRow
+		if err := rows.Scan(
+			&i.Year,
+			&i.Pieid,
+			&i.Displayname,
+			&i.Maker,
+			&i.RankingCount,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listUserPieRankingsForPie = `-- name: ListUserPieRankingsForPie :many
+SELECT year, pieid, userid, pastry, filling, topping, looks, value, notes, last_updated
+FROM user_pie_ranking_yearly
+WHERE year = $1::int
+    AND pieid = $2::text
+ORDER BY userid
+`
+
+type ListUserPieRankingsForPieParams struct {
+	Year  int32
+	Pieid string
+}
+
+func (q *Queries) ListUserPieRankingsForPie(ctx context.Context, arg ListUserPieRankingsForPieParams) ([]UserPieRankingYearly, error) {
+	rows, err := q.db.Query(ctx, listUserPieRankingsForPie, arg.Year, arg.Pieid)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []UserPieRankingYearly
+	for rows.Next() {
+		var i UserPieRankingYearly
+		if err := rows.Scan(
+			&i.Year,
+			&i.Pieid,
+			&i.Userid,
+			&i.Pastry,
+			&i.Filling,
+			&i.Topping,
+			&i.Looks,
+			&i.Value,
+			&i.Notes,
+			&i.LastUpdated,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const upsertUserPieRanking = `-- name: UpsertUserPieRanking :exec

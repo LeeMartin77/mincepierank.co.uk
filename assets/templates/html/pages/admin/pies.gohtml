@@ -3,6 +3,10 @@
 <div class="container py-4">
 <h1>Admin Pies</h1>
 
+{{if .PageData.PageErrors}}
+<div class="alert alert-danger">{{range .PageData.PageErrors}}<div>{{.}}</div>{{end}}</div>
+{{end}}
+
 <div class="card mb-4">
   <div class="card-body">
     <h3>Create Pie</h3>
@@ -13,8 +17,13 @@
           <input class="form-control" name="year" id="year" type="number" placeholder="Enter year" />
         </div>
         <div class="col-md-3">
-          <label class="form-label" for="makerid">Maker Id</label>
-          <input class="form-control" name="makerid" id="makerid" type="text" placeholder="Enter maker id" />
+          <label class="form-label" for="makerid">Brand</label>
+          <select class="form-select" name="makerid" id="makerid" required>
+            <option value="" selected>Select brand...</option>
+            {{range .PageData.AllBrands}}
+            <option value="{{.Id}}">{{.Name}} ({{.Id}})</option>
+            {{end}}
+          </select>
         </div>
         <div class="col-md-3">
           <label class="form-label" for="id">ID/Slug</label>
