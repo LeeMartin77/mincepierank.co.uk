@@ -62,6 +62,7 @@ func (wrpr *WebsiteWrapper) GetAdminRankings(c *gin.Context, params generated.Ge
 	}
 	vals := templater.PageData{
 		Head: templater.PageDataHead{
+			CsrfToken:   c.GetString("csrf_token"),
 			IsAdminPage: true,
 			Title:       "Admin Rankings",
 			Description: "",
@@ -78,7 +79,7 @@ func (wrpr *WebsiteWrapper) GetAdminRankings(c *gin.Context, params generated.Ge
 			"PageErrors": []string{},
 		},
 	}
-	wrpr.html(c, http.StatusOK, "page:admin:rankings", vals)
+	c.HTML(http.StatusOK, "page:admin:rankings", vals)
 }
 
 // GetAdminBrandPieRankings implements generated.ServerInterface. The review
@@ -137,6 +138,7 @@ func (wrpr *WebsiteWrapper) GetAdminBrandPieRankings(c *gin.Context, brand strin
 	piesEnabled, _ := wrpr.storage.GetUserPiesEnabled(c)
 	vals := templater.PageData{
 		Head: templater.PageDataHead{
+			CsrfToken:   c.GetString("csrf_token"),
 			IsAdminPage: true,
 			Title:       pieYearly.DisplayName + " :: Rankings",
 			Description: "",
@@ -155,7 +157,7 @@ func (wrpr *WebsiteWrapper) GetAdminBrandPieRankings(c *gin.Context, brand strin
 			"PageErrors": []string{},
 		},
 	}
-	wrpr.html(c, http.StatusOK, "page:admin:rankreview", vals)
+	c.HTML(http.StatusOK, "page:admin:rankreview", vals)
 }
 
 // DeleteAdminBrandPieRanking implements generated.ServerInterface.
@@ -241,6 +243,7 @@ func (wrpr *WebsiteWrapper) GetAdminUserPieRankings(c *gin.Context, id string, p
 	}
 	vals := templater.PageData{
 		Head: templater.PageDataHead{
+			CsrfToken:   c.GetString("csrf_token"),
 			IsAdminPage: true,
 			Title:       pieWithOwner.Pie.DisplayName + " :: Rankings",
 			Description: "",
@@ -259,7 +262,7 @@ func (wrpr *WebsiteWrapper) GetAdminUserPieRankings(c *gin.Context, id string, p
 			"PageErrors": []string{},
 		},
 	}
-	wrpr.html(c, http.StatusOK, "page:admin:rankreview", vals)
+	c.HTML(http.StatusOK, "page:admin:rankreview", vals)
 }
 
 // DeleteAdminUserPieRanking implements generated.ServerInterface.

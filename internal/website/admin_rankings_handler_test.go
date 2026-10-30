@@ -103,7 +103,9 @@ func (f *fakeRankingQuerier) DeleteUserPieRanking(ctx context.Context, arg sqlcg
 
 func (f *fakeRankingStore) GetQuerier() sqlcgen.Querier { return &f.querier }
 
-func (f *fakeRankingStore) GetUserPiesEnabled(c context.Context) (bool, error) { return f.piesEnabled, nil }
+func (f *fakeRankingStore) GetUserPiesEnabled(c context.Context) (bool, error) {
+	return f.piesEnabled, nil
+}
 
 func (f *fakeRankingStore) GetMakerPieYearly(ctx context.Context, year int32, makerid string, id string) (*types.MakerPieYearly, error) {
 	return f.brandPieYear, nil

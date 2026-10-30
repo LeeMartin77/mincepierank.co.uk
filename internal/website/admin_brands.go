@@ -65,6 +65,7 @@ func brandListPage(wrpr *WebsiteWrapper, c *gin.Context, pageErrs ...string) {
 	piesEnabled, _ := wrpr.storage.GetUserPiesEnabled(c)
 	vals := templater.PageData{
 		Head: templater.PageDataHead{
+			CsrfToken:   c.GetString("csrf_token"),
 			IsAdminPage: true,
 			Title:       "Admin Brands",
 			Description: "",
@@ -80,7 +81,7 @@ func brandListPage(wrpr *WebsiteWrapper, c *gin.Context, pageErrs ...string) {
 		},
 	}
 
-	wrpr.html(c, http.StatusOK, "page:admin:brands", vals)
+	c.HTML(http.StatusOK, "page:admin:brands", vals)
 }
 
 // brandNewPage renders the brand create form, keeping entered values on error.
@@ -93,6 +94,7 @@ func brandNewPage(wrpr *WebsiteWrapper, c *gin.Context, status int, form map[str
 	piesEnabled, _ := wrpr.storage.GetUserPiesEnabled(c)
 	vals := templater.PageData{
 		Head: templater.PageDataHead{
+			CsrfToken:   c.GetString("csrf_token"),
 			IsAdminPage: true,
 			Title:       "New Brand :: Admin",
 			Description: "",
@@ -108,7 +110,7 @@ func brandNewPage(wrpr *WebsiteWrapper, c *gin.Context, status int, form map[str
 		},
 	}
 
-	wrpr.html(c, status, "page:admin:brandnew", vals)
+	c.HTML(status, "page:admin:brandnew", vals)
 }
 
 // brandEditPage renders the brand edit form.
@@ -121,6 +123,7 @@ func brandEditPage(wrpr *WebsiteWrapper, c *gin.Context, status int, maker *type
 	piesEnabled, _ := wrpr.storage.GetUserPiesEnabled(c)
 	vals := templater.PageData{
 		Head: templater.PageDataHead{
+			CsrfToken:   c.GetString("csrf_token"),
 			IsAdminPage: true,
 			Title:       maker.Name + " :: Admin",
 			Description: "",
@@ -137,7 +140,7 @@ func brandEditPage(wrpr *WebsiteWrapper, c *gin.Context, status int, maker *type
 		},
 	}
 
-	wrpr.html(c, status, "page:admin:brand", vals)
+	c.HTML(status, "page:admin:brand", vals)
 }
 
 // GetAdminBrands implements generated.ServerInterface.

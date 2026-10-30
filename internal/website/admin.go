@@ -41,6 +41,7 @@ func (wrpr *WebsiteWrapper) GetAdminIndex(c *gin.Context) {
 	piesEnabled, _ := wrpr.storage.GetUserPiesEnabled(c)
 	vals := templater.PageData{
 		Head: templater.PageDataHead{
+			CsrfToken:   c.GetString("csrf_token"),
 			IsAdminPage: true,
 			Title:       "Admin Index",
 			Description: "",
@@ -75,7 +76,7 @@ func (wrpr *WebsiteWrapper) GetAdminIndex(c *gin.Context) {
 		}
 	}
 
-	wrpr.html(c, http.StatusOK, "page:admin:index", vals)
+	c.HTML(http.StatusOK, "page:admin:index", vals)
 }
 
 func configPage(wrpr *WebsiteWrapper, c *gin.Context) {
@@ -92,6 +93,7 @@ func configPage(wrpr *WebsiteWrapper, c *gin.Context) {
 	piesEnabled, _ := wrpr.storage.GetUserPiesEnabled(c)
 	vals := templater.PageData{
 		Head: templater.PageDataHead{
+			CsrfToken:   c.GetString("csrf_token"),
 			IsAdminPage: true,
 			Title:       "Admin Config",
 			Description: "",
@@ -106,7 +108,7 @@ func configPage(wrpr *WebsiteWrapper, c *gin.Context) {
 		},
 	}
 
-	wrpr.html(c, http.StatusOK, "page:admin:config", vals)
+	c.HTML(http.StatusOK, "page:admin:config", vals)
 }
 
 // GetAdminConfig implements generated.ServerInterface.
@@ -185,6 +187,7 @@ func piesPage(wrpr *WebsiteWrapper, c *gin.Context, pageErrs ...string) {
 	piesEnabled, _ := wrpr.storage.GetUserPiesEnabled(c)
 	vals := templater.PageData{
 		Head: templater.PageDataHead{
+			CsrfToken:   c.GetString("csrf_token"),
 			IsAdminPage: true,
 			Title:       "Admin Pies",
 			Description: "",
@@ -201,7 +204,7 @@ func piesPage(wrpr *WebsiteWrapper, c *gin.Context, pageErrs ...string) {
 		},
 	}
 
-	wrpr.html(c, http.StatusOK, "page:admin:pies", vals)
+	c.HTML(http.StatusOK, "page:admin:pies", vals)
 }
 
 // brandExists reports whether a maker row exists for the id, so creates and
@@ -246,6 +249,7 @@ func piePage(wrpr *WebsiteWrapper, c *gin.Context, oid string, pageErrs ...strin
 	piesEnabled, _ := wrpr.storage.GetUserPiesEnabled(c)
 	vals := templater.PageData{
 		Head: templater.PageDataHead{
+			CsrfToken:   c.GetString("csrf_token"),
 			IsAdminPage: true,
 			Title:       "Admin Pie",
 			Description: "",
@@ -263,7 +267,7 @@ func piePage(wrpr *WebsiteWrapper, c *gin.Context, oid string, pageErrs ...strin
 		},
 	}
 
-	wrpr.html(c, http.StatusOK, "page:admin:pie", vals)
+	c.HTML(http.StatusOK, "page:admin:pie", vals)
 }
 
 // GetMakerPie implements generated.ServerInterface.

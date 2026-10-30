@@ -52,6 +52,7 @@ func categoryListPage(wrpr *WebsiteWrapper, c *gin.Context, pageErrs ...string) 
 	piesEnabled, _ := wrpr.storage.GetUserPiesEnabled(c)
 	vals := templater.PageData{
 		Head: templater.PageDataHead{
+			CsrfToken:   c.GetString("csrf_token"),
 			IsAdminPage: true,
 			Title:       "Admin Categories",
 			Description: "",
@@ -67,7 +68,7 @@ func categoryListPage(wrpr *WebsiteWrapper, c *gin.Context, pageErrs ...string) 
 		},
 	}
 
-	wrpr.html(c, http.StatusOK, "page:admin:categories", vals)
+	c.HTML(http.StatusOK, "page:admin:categories", vals)
 }
 
 // categoryNewPage renders the category create form, keeping entered values on
@@ -81,6 +82,7 @@ func categoryNewPage(wrpr *WebsiteWrapper, c *gin.Context, status int, form map[
 	piesEnabled, _ := wrpr.storage.GetUserPiesEnabled(c)
 	vals := templater.PageData{
 		Head: templater.PageDataHead{
+			CsrfToken:   c.GetString("csrf_token"),
 			IsAdminPage: true,
 			Title:       "New Category :: Admin",
 			Description: "",
@@ -96,7 +98,7 @@ func categoryNewPage(wrpr *WebsiteWrapper, c *gin.Context, status int, form map[
 		},
 	}
 
-	wrpr.html(c, status, "page:admin:categorynew", vals)
+	c.HTML(status, "page:admin:categorynew", vals)
 }
 
 // categoryEditPage renders the category edit form. The slug is shown but not
@@ -111,6 +113,7 @@ func categoryEditPage(wrpr *WebsiteWrapper, c *gin.Context, status int, cat *typ
 	piesEnabled, _ := wrpr.storage.GetUserPiesEnabled(c)
 	vals := templater.PageData{
 		Head: templater.PageDataHead{
+			CsrfToken:   c.GetString("csrf_token"),
 			IsAdminPage: true,
 			Title:       cat.Label + " :: Admin",
 			Description: "",
@@ -127,7 +130,7 @@ func categoryEditPage(wrpr *WebsiteWrapper, c *gin.Context, status int, cat *typ
 		},
 	}
 
-	wrpr.html(c, status, "page:admin:category", vals)
+	c.HTML(status, "page:admin:category", vals)
 }
 
 // GetAdminCategories implements generated.ServerInterface.

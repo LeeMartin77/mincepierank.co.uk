@@ -69,6 +69,7 @@ func (wrpr *WebsiteWrapper) MyUserPies(c *gin.Context, year int64) {
 
 	vals := templater.PageData{
 		Head: templater.PageDataHead{
+			CsrfToken:   c.GetString("csrf_token"),
 			Snow:        wrpr.snowing(c),
 			Title:       fmt.Sprintf("My Community Pies for %d", year),
 			Description: "Manage your community-submitted mince pies",
@@ -87,7 +88,7 @@ func (wrpr *WebsiteWrapper) MyUserPies(c *gin.Context, year int64) {
 		},
 	}
 
-	wrpr.html(c, http.StatusOK, "page:profilepies", vals)
+	c.HTML(http.StatusOK, "page:profilepies", vals)
 }
 
 // editUserPieForm implements generated.ServerInterface.
@@ -138,6 +139,7 @@ func (wrpr *WebsiteWrapper) EditUserPieForm(c *gin.Context, year int64, id strin
 
 	vals := templater.PageData{
 		Head: templater.PageDataHead{
+			CsrfToken:   c.GetString("csrf_token"),
 			Snow:        wrpr.snowing(c),
 			Title:       fmt.Sprintf("Edit: %s", pie.DisplayName),
 			Description: "Edit your community-submitted mince pie",
@@ -157,7 +159,7 @@ func (wrpr *WebsiteWrapper) EditUserPieForm(c *gin.Context, year int64, id strin
 		},
 	}
 
-	wrpr.html(c, http.StatusOK, "page:editpie", vals)
+	c.HTML(http.StatusOK, "page:editpie", vals)
 }
 
 // editUserPie implements generated.ServerInterface.
@@ -211,8 +213,9 @@ func (wrpr *WebsiteWrapper) EditUserPie(c *gin.Context, year int64, id string) {
 	}
 
 	if ro {
-		wrpr.html(c, http.StatusOK, "page:editpie", templater.PageData{
+		c.HTML(http.StatusOK, "page:editpie", templater.PageData{
 			Head: templater.PageDataHead{
+				CsrfToken:    c.GetString("csrf_token"),
 				Snow:         wrpr.snowing(c),
 				Title:        "Edit pie",
 				Description:  "Edit your community-submitted mince pie",
@@ -285,8 +288,9 @@ func (wrpr *WebsiteWrapper) EditUserPie(c *gin.Context, year int64, id string) {
 	}
 
 	if len(errs) > 0 {
-		wrpr.html(c, http.StatusOK, "page:editpie", templater.PageData{
+		c.HTML(http.StatusOK, "page:editpie", templater.PageData{
 			Head: templater.PageDataHead{
+				CsrfToken:    c.GetString("csrf_token"),
 				Snow:         wrpr.snowing(c),
 				Title:        "Edit pie",
 				Description:  "Edit your community-submitted mince pie",

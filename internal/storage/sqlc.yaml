@@ -3,6 +3,19 @@ sql:
   - engine: "postgresql"
     queries: "sqlc/queries"
     schema: "sqlc/schema"
+    rules:
+      # The only jsonb in the schema is maker_pie_yearly_categories.categories
+      # (a jsonb_agg of {"id","slug","label"} objects), which the storage layer
+      # scans into types.Categories. Map it once here so every query that
+      # selects the column scans straight into the Go type.
+      - id: "jsonb_to_categories"
+        cmd: "builtin/override_field_type"
+        params:
+          db_types:
+            - "jsonb"
+          new_type:
+            import_path: "github.com/leemartin77/mincepierank.co.uk/internal/storage/types"
+            name: "Categories"
     gen:
       go:
         package: "sqlcgen"
