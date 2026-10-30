@@ -837,6 +837,137 @@ paths:
           $ref: "#/components/responses/NotFound"
         default:
           $ref: "#/components/responses/UnexpectedError"
+  /admin/categories:
+    get:
+      operationId: getAdminCategories
+      tags:
+        - admin
+      responses:
+        "200":
+          description: Admin categories list
+          content:
+            text/html:
+              schema:
+                type: string
+        "404":
+          $ref: "#/components/responses/NotFound"
+        default:
+          $ref: "#/components/responses/UnexpectedError"
+    post:
+      operationId: createAdminCategory
+      tags:
+        - admin
+      requestBody:
+        description: Create Body
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+                - label
+              properties:
+                label:
+                  type: string
+                slug:
+                  type: string
+      responses:
+        "303":
+          description: Success — redirect to category edit page
+        "400":
+          description: Validation error
+          content:
+            text/html:
+              schema:
+                type: string
+        "404":
+          $ref: "#/components/responses/NotFound"
+        default:
+          $ref: "#/components/responses/UnexpectedError"
+  /admin/categories/new:
+    get:
+      operationId: getAdminCategoryNew
+      tags:
+        - admin
+      responses:
+        "200":
+          description: Admin category create form
+          content:
+            text/html:
+              schema:
+                type: string
+        "404":
+          $ref: "#/components/responses/NotFound"
+        default:
+          $ref: "#/components/responses/UnexpectedError"
+  /admin/categories/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      operationId: getAdminCategory
+      tags:
+        - admin
+      responses:
+        "200":
+          description: Admin category edit form
+          content:
+            text/html:
+              schema:
+                type: string
+        "404":
+          $ref: "#/components/responses/NotFound"
+        default:
+          $ref: "#/components/responses/UnexpectedError"
+    put:
+      operationId: updateAdminCategory
+      tags:
+        - admin
+      requestBody:
+        description: Update Body
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+                - label
+              properties:
+                label:
+                  type: string
+      responses:
+        "303":
+          description: Success — redirect to category edit page
+        "400":
+          description: Validation error
+          content:
+            text/html:
+              schema:
+                type: string
+        "404":
+          $ref: "#/components/responses/NotFound"
+        default:
+          $ref: "#/components/responses/UnexpectedError"
+    delete:
+      operationId: deleteAdminCategory
+      tags:
+        - admin
+      responses:
+        "303":
+          description: Success — redirect to categories list
+        "400":
+          description: Refused — pies still use this category
+          content:
+            text/html:
+              schema:
+                type: string
+        "404":
+          $ref: "#/components/responses/NotFound"
+        default:
+          $ref: "#/components/responses/UnexpectedError"
   /admin/makerpies:
     get:
       operationId: getMakerPiesAdmin

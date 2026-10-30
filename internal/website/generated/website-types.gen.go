@@ -46,6 +46,17 @@ type UpdateAdminBrandMultipartBody struct {
 	Website *string             `json:"website,omitempty"`
 }
 
+// CreateAdminCategoryFormdataBody defines parameters for CreateAdminCategory.
+type CreateAdminCategoryFormdataBody struct {
+	Label string  `form:"label" json:"label"`
+	Slug  *string `form:"slug,omitempty" json:"slug,omitempty"`
+}
+
+// UpdateAdminCategoryFormdataBody defines parameters for UpdateAdminCategory.
+type UpdateAdminCategoryFormdataBody struct {
+	Label string `form:"label" json:"label"`
+}
+
 // CreateAdminConfigFormdataBody defines parameters for CreateAdminConfig.
 type CreateAdminConfigFormdataBody struct {
 	Key   string `form:"key" json:"key"`
@@ -219,6 +230,12 @@ type CreateAdminBrandMultipartRequestBody CreateAdminBrandMultipartBody
 
 // UpdateAdminBrandMultipartRequestBody defines body for UpdateAdminBrand for multipart/form-data ContentType.
 type UpdateAdminBrandMultipartRequestBody UpdateAdminBrandMultipartBody
+
+// CreateAdminCategoryFormdataRequestBody defines body for CreateAdminCategory for application/x-www-form-urlencoded ContentType.
+type CreateAdminCategoryFormdataRequestBody CreateAdminCategoryFormdataBody
+
+// UpdateAdminCategoryFormdataRequestBody defines body for UpdateAdminCategory for application/x-www-form-urlencoded ContentType.
+type UpdateAdminCategoryFormdataRequestBody UpdateAdminCategoryFormdataBody
 
 // CreateAdminConfigFormdataRequestBody defines body for CreateAdminConfig for application/x-www-form-urlencoded ContentType.
 type CreateAdminConfigFormdataRequestBody CreateAdminConfigFormdataBody

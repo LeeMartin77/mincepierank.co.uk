@@ -2,6 +2,10 @@
 {{template "fragment:global:head" .Head}}
 <div class="container py-4">
 <h1>Update Data</h1>
+
+{{if .PageData.PageErrors}}
+<div class="alert alert-danger">{{range .PageData.PageErrors}}<div>{{.}}</div>{{end}}</div>
+{{end}}
 <form hx-target="body" hx-swap="body" hx-put="/admin/makerpies/{{.PageData.Pie.Oidstr}}" enctype='multipart/form-data'>
   <div class="row g-3 mb-3">
     <div class="col-md-4">

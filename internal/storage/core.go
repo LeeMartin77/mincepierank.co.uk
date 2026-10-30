@@ -51,6 +51,12 @@ type Operations interface {
 	GetMakerPieYearlyRankingSummary(c context.Context, year int32, makerid string, id string) (*RankingSummary, error)
 
 	GetMakerPieCategories(ctx context.Context) (*[]types.Category, error)
+	GetAllCategoriesAdmin(c context.Context) (*[]AdminCategoryRow, error)
+	GetCategoryById(c context.Context, id uuid.UUID) (*types.Category, error)
+	GetCategoryPieCount(c context.Context, id uuid.UUID) (int64, error)
+	CreateCategory(c context.Context, cat types.Category) (*types.Category, error)
+	UpdateCategory(c context.Context, cat types.Category) (*types.Category, error)
+	DeleteCategory(c context.Context, id uuid.UUID) error
 	SetPieCategories(ctx context.Context, oid uuid.UUID, category_keys []string) error
 	SetPieCategoriesTx(ctx context.Context, tx pgx.Tx, oid uuid.UUID, category_keys []string) error
 	UpdateMakerPieLabels(ctx context.Context, oid uuid.UUID, labels []string) error

@@ -4,6 +4,7 @@ import (
 	"archive/zip"
 	"bytes"
 	"encoding/csv"
+	"errors"
 	"fmt"
 	"io"
 	"io/fs"
@@ -14,6 +15,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"github.com/leemartin77/mincepierank.co.uk/internal/storage"
 	"github.com/leemartin77/mincepierank.co.uk/internal/storage/sqlcgen"
 )
 
@@ -135,6 +137,10 @@ func (wrpr *WebsiteWrapper) BulkCreateMakerPieAdmin(c *gin.Context) {
 			return
 		}
 		err = wrpr.storage.SetPieCategoriesTx(c, tx, uuid.MustParse(oid), strings.Split(pie["category_slugs"], ","))
+		if errors.Is(err, storage.ErrUnknownCategories) {
+			piesPage(wrpr, c, "Pie "+pie["year"]+"/"+pie["makerid"]+"/"+pie["id"]+": "+err.Error())
+			return
+		}
 		if err != nil {
 			c.AbortWithError(400, err)
 			return

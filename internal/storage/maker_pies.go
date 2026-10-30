@@ -542,36 +542,62 @@ func (o *OperationWrapper) SetPieCategories(ctx context.Context, oid uuid.UUID, 
 }
 
 func (o *OperationWrapper) SetPieCategoriesTx(ctx context.Context, tx pgx.Tx, oid uuid.UUID, category_keys []string) error {
-	_, err := tx.Exec(ctx, `DELETE from maker_pie_categories WHERE maker_pie_oid = $1`, oid)
-	if err != nil {
+	if _, err := tx.Exec(ctx, `DELETE from maker_pie_categories WHERE maker_pie_oid = $1`, oid); err != nil {
 		return err
 	}
 
-	catids := []uuid.UUID{}
+	// Blank keys are meaningless (bulk CSV splits can produce them) and never
+	// match a real slug, so drop them before anything else.
+	keys := make([]string, 0, len(category_keys))
+	for _, k := range category_keys {
+		if k = strings.TrimSpace(k); k != "" {
+			keys = append(keys, k)
+		}
+	}
+	if len(keys) == 0 {
+		return nil
+	}
+
+	// Slugs are looked up on tx, not the pool, so the function is correct
+	// inside a transaction that has just inserted the categories or the pie.
+	// Unknown slugs are reported instead of being silently dropped.
 	sql := `
-	SELECT c.id, c.slug, c.label
+	SELECT c.id, c.slug
 	FROM categories c
 	WHERE c.slug = ANY($1::text[])
 	`
-	rows, err := o.db.Query(ctx, sql, category_keys)
-	if err == pgx.ErrNoRows || len(category_keys) == 0 {
-		return nil
-	}
+	rows, err := tx.Query(ctx, sql, keys)
 	if err != nil {
 		return err
 	}
 	defer rows.Close()
-	for rows.Next() {
-		var ctg types.Category
-		if err := rows.Scan(&ctg.Id, &ctg.Slug, &ctg.Label); err != nil {
-			log.Error().Err(err).Msg("Scan failed")
-			continue
-		}
-		catids = append(catids, ctg.Id)
-	}
 
+	catids := []uuid.UUID{}
+	found := map[string]bool{}
+	for rows.Next() {
+		var id uuid.UUID
+		var slug string
+		if err := rows.Scan(&id, &slug); err != nil {
+			log.Error().Err(err).Msg("Scan failed")
+			return err
+		}
+		catids = append(catids, id)
+		found[slug] = true
+	}
 	if err := rows.Err(); err != nil {
 		log.Error().Err(err).Msg("Error during cat id retreival")
+		return err
+	}
+	rows.Close()
+
+	var unknown []string
+	for _, key := range keys {
+		if !found[key] {
+			unknown = append(unknown, key)
+		}
+	}
+	if len(unknown) > 0 {
+		return fmt.Errorf("%w: %s", ErrUnknownCategories, strings.Join(unknown, ", "))
 	}
 
 	insql := `INSERT INTO maker_pie_categories (maker_pie_oid, category_id) VALUES `

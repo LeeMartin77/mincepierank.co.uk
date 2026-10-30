@@ -1,11 +1,14 @@
 package website
 
 import (
+	"errors"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"github.com/leemartin77/mincepierank.co.uk/internal/storage"
 	"github.com/leemartin77/mincepierank.co.uk/internal/storage/sqlcgen"
 	"github.com/leemartin77/mincepierank.co.uk/internal/templater"
 )
@@ -214,7 +217,7 @@ func (wrpr *WebsiteWrapper) brandExists(c *gin.Context, makerid string) (bool, e
 	return mkr != nil, nil
 }
 
-func piePage(wrpr *WebsiteWrapper, c *gin.Context, oid string) {
+func piePage(wrpr *WebsiteWrapper, c *gin.Context, oid string, pageErrs ...string) {
 	pie, err := wrpr.storage.GetQuerier().GetMakerPieByOid(c, oid)
 	if err != nil {
 		c.AbortWithError(500, err)
@@ -256,6 +259,7 @@ func piePage(wrpr *WebsiteWrapper, c *gin.Context, oid string) {
 			"Pie":           pie,
 			"PieCategories": pcats,
 			"AllCategories": cats,
+			"PageErrors":    pageErrs,
 		},
 	}
 
@@ -382,6 +386,12 @@ func (wrpr *WebsiteWrapper) UpdateMakerPie(c *gin.Context, oid string) {
 		}
 	}
 	err = wrpr.storage.SetPieCategories(c, uid, c.Request.Form["categories"])
+	if errors.Is(err, storage.ErrUnknownCategories) {
+		// Unknown slugs type the transaction back, so the pie keeps its old
+		// categories; show the problem on the edit page instead of a 500.
+		piePage(wrpr, c, oid, "Unknown categories: "+strings.TrimPrefix(err.Error(), "unknown category slugs: "))
+		return
+	}
 	if err != nil {
 		c.AbortWithError(500, err)
 		return
