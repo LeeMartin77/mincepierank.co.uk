@@ -30,7 +30,7 @@ func (wrpr *WebsiteWrapper) AboutPage(w http.ResponseWriter, r *http.Request) {
 		},
 	}
 
-	wrpr.renderPage(w, 200, "static:about", vals)
+	wrpr.htmlTemplater.WritePage(w, 200, "static:about", vals)
 }
 
 // CookiePage implements generated.StrictServerInterface.
@@ -57,7 +57,7 @@ func (wrpr *WebsiteWrapper) CookiePage(w http.ResponseWriter, r *http.Request) {
 		},
 	}
 
-	wrpr.renderPage(w, 200, "static:cookies", vals)
+	wrpr.htmlTemplater.WritePage(w, 200, "static:cookies", vals)
 }
 
 // PrivacyPage implements generated.StrictServerInterface.
@@ -84,5 +84,5 @@ func (wrpr *WebsiteWrapper) PrivacyPage(w http.ResponseWriter, r *http.Request) 
 		},
 	}
 
-	wrpr.renderPage(w, 200, "static:privacy", vals)
+	wrpr.htmlTemplater.WritePage(w, 200, "static:privacy", vals)
 }

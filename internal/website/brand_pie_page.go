@@ -191,5 +191,5 @@ func returnSinglePiePage(wrpr *WebsiteWrapper, w http.ResponseWriter, r *http.Re
 		},
 	}
 
-	wrpr.renderPage(w, http.StatusOK, "singlepie", vals)
+	wrpr.htmlTemplater.WritePage(w, http.StatusOK, "singlepie", vals)
 }

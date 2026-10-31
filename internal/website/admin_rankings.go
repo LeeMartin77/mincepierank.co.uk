@@ -77,7 +77,7 @@ func (wrpr *WebsiteWrapper) GetAdminRankings(w http.ResponseWriter, r *http.Requ
 			"PageErrors": []string{},
 		},
 	}
-	wrpr.renderPage(w, http.StatusOK, "admin:rankings", vals)
+	wrpr.htmlTemplater.WritePage(w, http.StatusOK, "admin:rankings", vals)
 }
 
 // GetAdminBrandPieRankings implements generated.ServerInterface. The review
@@ -154,7 +154,7 @@ func (wrpr *WebsiteWrapper) GetAdminBrandPieRankings(w http.ResponseWriter, r *h
 			"PageErrors": []string{},
 		},
 	}
-	wrpr.renderPage(w, http.StatusOK, "admin:rankreview", vals)
+	wrpr.htmlTemplater.WritePage(w, http.StatusOK, "admin:rankreview", vals)
 }
 
 // DeleteAdminBrandPieRanking implements generated.ServerInterface.
@@ -258,7 +258,7 @@ func (wrpr *WebsiteWrapper) GetAdminUserPieRankings(w http.ResponseWriter, r *ht
 			"PageErrors": []string{},
 		},
 	}
-	wrpr.renderPage(w, http.StatusOK, "admin:rankreview", vals)
+	wrpr.htmlTemplater.WritePage(w, http.StatusOK, "admin:rankreview", vals)
 }
 
 // DeleteAdminUserPieRanking implements generated.ServerInterface.

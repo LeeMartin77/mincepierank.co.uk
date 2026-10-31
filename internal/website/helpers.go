@@ -10,7 +10,6 @@ import (
 	"strings"
 
 	"github.com/leemartin77/mincepierank.co.uk/internal/storage/types"
-	"github.com/leemartin77/mincepierank.co.uk/internal/templater"
 	"github.com/rs/zerolog/log"
 )
 
@@ -25,23 +24,6 @@ func abortStatus(w http.ResponseWriter, code int) {
 func abortErr(w http.ResponseWriter, code int, err error) {
 	log.Error().Err(err).Int("status", code).Msg("request failed")
 	http.Error(w, http.StatusText(code), code)
-}
-
-// renderPage executes the named page template and writes it to w with the
-// given status. The templater prefixes "page:" when looking the template up,
-// so pass bare page names such as "admin:rankings".
-func (wrpr *WebsiteWrapper) renderPage(w http.ResponseWriter, status int, page string, data templater.PageData) {
-	rdr, err := wrpr.htmlTemplater.GeneratePage(page, data)
-	if err != nil {
-		log.Error().Err(err).Str("page", page).Msg("Error generating page")
-		http.Error(w, "error rendering page", http.StatusInternalServerError)
-		return
-	}
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	w.WriteHeader(status)
-	if _, err := io.Copy(w, rdr); err != nil {
-		log.Error().Err(err).Str("page", page).Msg("Error writing page response")
-	}
 }
 
 // saveUploadedFile writes the multipart file from formField to

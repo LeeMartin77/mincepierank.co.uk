@@ -86,7 +86,7 @@ func (wrpr *WebsiteWrapper) MyUserPies(w http.ResponseWriter, r *http.Request, y
 		},
 	}
 
-	wrpr.renderPage(w, http.StatusOK, "profilepies", vals)
+	wrpr.htmlTemplater.WritePage(w, http.StatusOK, "profilepies", vals)
 }
 
 // editUserPieForm implements generated.ServerInterface.
@@ -156,7 +156,7 @@ func (wrpr *WebsiteWrapper) EditUserPieForm(w http.ResponseWriter, r *http.Reque
 		},
 	}
 
-	wrpr.renderPage(w, http.StatusOK, "editpie", vals)
+	wrpr.htmlTemplater.WritePage(w, http.StatusOK, "editpie", vals)
 }
 
 // editUserPie implements generated.ServerInterface.
@@ -210,7 +210,7 @@ func (wrpr *WebsiteWrapper) EditUserPie(w http.ResponseWriter, r *http.Request, 
 	}
 
 	if ro {
-		wrpr.renderPage(w, http.StatusOK, "editpie", templater.PageData{
+		wrpr.htmlTemplater.WritePage(w, http.StatusOK, "editpie", templater.PageData{
 			Head: templater.PageDataHead{
 				Snow:         wrpr.snowing(r.Context()),
 				Title:        "Edit pie",
@@ -284,7 +284,7 @@ func (wrpr *WebsiteWrapper) EditUserPie(w http.ResponseWriter, r *http.Request, 
 	}
 
 	if len(errs) > 0 {
-		wrpr.renderPage(w, http.StatusOK, "editpie", templater.PageData{
+		wrpr.htmlTemplater.WritePage(w, http.StatusOK, "editpie", templater.PageData{
 			Head: templater.PageDataHead{
 				Snow:         wrpr.snowing(r.Context()),
 				Title:        "Edit pie",

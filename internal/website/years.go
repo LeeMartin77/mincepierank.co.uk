@@ -86,7 +86,7 @@ func (wrpr *WebsiteWrapper) YearPage(w http.ResponseWriter, r *http.Request, yea
 	}
 	vals.PageData = pageData
 
-	wrpr.renderPage(w, 200, "year", vals)
+	wrpr.htmlTemplater.WritePage(w, 200, "year", vals)
 }
 
 // YearAllBrands implements generated.StrictServerInterface.
@@ -135,7 +135,7 @@ func (wrpr *WebsiteWrapper) YearAllBrands(w http.ResponseWriter, r *http.Request
 		},
 	}
 
-	wrpr.renderPage(w, 200, "yearbrands", vals)
+	wrpr.htmlTemplater.WritePage(w, 200, "yearbrands", vals)
 }
 
 // YearAllCategories implements generated.StrictServerInterface.
@@ -177,7 +177,7 @@ func (wrpr *WebsiteWrapper) YearAllCategories(w http.ResponseWriter, r *http.Req
 		},
 	}
 
-	wrpr.renderPage(w, 200, "yearcategories", vals)
+	wrpr.htmlTemplater.WritePage(w, 200, "yearcategories", vals)
 }
 
 // YearsPage implements generated.StrictServerInterface.
@@ -215,5 +215,5 @@ func (wrpr *WebsiteWrapper) YearsPage(w http.ResponseWriter, r *http.Request) {
 		},
 	}
 
-	wrpr.renderPage(w, 200, "years", vals)
+	wrpr.htmlTemplater.WritePage(w, 200, "years", vals)
 }

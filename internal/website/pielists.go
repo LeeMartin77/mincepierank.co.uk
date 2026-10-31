@@ -159,7 +159,7 @@ func (wrpr *WebsiteWrapper) YearAllPies(w http.ResponseWriter, r *http.Request, 
 		},
 	}
 
-	wrpr.renderPage(w, 200, "pielist", vals)
+	wrpr.htmlTemplater.WritePage(w, 200, "pielist", vals)
 }
 
 func (wrpr *WebsiteWrapper) YearPersonalRanking(w http.ResponseWriter, r *http.Request, year int64, params generated.YearPersonalRankingParams) {
@@ -241,7 +241,7 @@ func (wrpr *WebsiteWrapper) YearPersonalRanking(w http.ResponseWriter, r *http.R
 		},
 	}
 
-	wrpr.renderPage(w, 200, "pielist", vals)
+	wrpr.htmlTemplater.WritePage(w, 200, "pielist", vals)
 }
 
 // YearBrandPies implements generated.StrictServerInterface.
@@ -337,7 +337,7 @@ func (wrpr *WebsiteWrapper) YearBrandPies(w http.ResponseWriter, r *http.Request
 		},
 	}
 
-	wrpr.renderPage(w, 200, "pielist", vals)
+	wrpr.htmlTemplater.WritePage(w, 200, "pielist", vals)
 }
 
 // YearCategoryPies implements generated.StrictServerInterface.
@@ -426,5 +426,5 @@ func (wrpr *WebsiteWrapper) YearCategoryPies(w http.ResponseWriter, r *http.Requ
 		},
 	}
 
-	wrpr.renderPage(w, 200, "pielist", vals)
+	wrpr.htmlTemplater.WritePage(w, 200, "pielist", vals)
 }

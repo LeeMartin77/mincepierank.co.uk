@@ -117,5 +117,5 @@ func (wrpr *WebsiteWrapper) HomePage(w http.ResponseWriter, r *http.Request) {
 		vals.PageData = og
 	}
 
-	wrpr.renderPage(w, http.StatusOK, "index", vals)
+	wrpr.htmlTemplater.WritePage(w, http.StatusOK, "index", vals)
 }
