@@ -9,18 +9,66 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/gin-gonic/gin"
+	"github.com/leemartin77/mincepierank.co.uk/internal/storage"
+	"github.com/leemartin77/mincepierank.co.uk/internal/storage/sqlcgen"
 	"github.com/leemartin77/mincepierank.co.uk/internal/storage/types"
 	"github.com/rs/zerolog/log"
 )
+
+// AbortStatus writes a plain status response and stops further handling -
+// the net/http equivalent of gin's AbortWithStatus. Handlers should return
+// immediately after calling it.
+func AbortStatus(w http.ResponseWriter, code int) {
+	http.Error(w, http.StatusText(code), code)
+}
+
+// AbortErr logs err and responds with code - the net/http equivalent of
+// gin's AbortWithError, which hid the error in its own internal log. The
+// error itself is logged, never sent to the client. Handlers should return
+// immediately after calling it.
+func AbortErr(w http.ResponseWriter, code int, err error) {
+	log.Error().Err(err).Int("status", code).Msg("request failed")
+	http.Error(w, http.StatusText(code), code)
+}
+
+// loadUserPie looks up a user pie for the given year, answering the request
+// with 500 when the lookup fails or 404 when the pie does not exist. ok
+// reports whether the caller can carry on with the returned pie.
+func loadUserPie(wrpr *WebsiteWrapper, w http.ResponseWriter, r *http.Request, year int32, id string) (*storage.UserPieWithOwner, bool) {
+	pieWithOwner, err := wrpr.storage.GetUserPie(r.Context(), year, id)
+	if err != nil {
+		AbortErr(w, http.StatusInternalServerError, err)
+		return nil, false
+	}
+	if pieWithOwner == nil || pieWithOwner.Pie.Id == "" {
+		AbortStatus(w, http.StatusNotFound)
+		return nil, false
+	}
+	return pieWithOwner, true
+}
+
+// loadUserPieRankings lists every rating left against a user pie for the
+// given year, answering with 500 when the query fails. ok reports whether the
+// caller can carry on with the returned rankings.
+func loadUserPieRankings(wrpr *WebsiteWrapper, w http.ResponseWriter, r *http.Request, year int32, id string) ([]sqlcgen.UserPieRankingYearly, bool) {
+	rankings, err := wrpr.storage.GetQuerier().ListUserPieRankingsForPie(r.Context(), sqlcgen.ListUserPieRankingsForPieParams{
+		Year:  year,
+		Pieid: id,
+	})
+	if err != nil {
+		AbortErr(w, http.StatusInternalServerError, err)
+		return nil, false
+	}
+	return rankings, true
+}
 
 // saveUploadedFile writes the multipart file from formField to
 // imgprssrDir/<pathParts...>/<filename> and returns the public path (with
 // leading slash), the same convention pie images and brand logos use.
 // When the form carries no file for that field it returns ("", false, nil) so
 // optional uploads can be detected by the caller.
-func saveUploadedFile(imgprssrDir, formField string, c *gin.Context, pathParts ...string) (string, bool, error) {
-	header, err := c.FormFile(formField)
+func saveUploadedFile(imgprssrDir, formField string, r *http.Request, pathParts ...string) (string, bool, error) {
+	_, header, err := r.FormFile(formField)
 	// A url-encoded form (no multipart at all) is just as much "no file" as an
 	// empty file field; only real read/write failures are errors.
 	if err == http.ErrMissingFile || err == http.ErrNotMultipart {
@@ -70,7 +118,7 @@ func (wrpr *WebsiteWrapper) snowing(c context.Context) bool {
 	return !ro
 }
 
-func (wrpr *WebsiteWrapper) getMakerMap(c *gin.Context, year int64) (map[string]types.Maker, error) {
+func (wrpr *WebsiteWrapper) getMakerMap(c context.Context, year int64) (map[string]types.Maker, error) {
 	mkrs, err := wrpr.storage.GetMakersForYear(c, year)
 	if err != nil {
 		return nil, err

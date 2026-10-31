@@ -3,6 +3,7 @@ package templater
 import (
 	"html/template"
 	"io"
+	"net/http"
 	"strings"
 	"time"
 
@@ -50,6 +51,9 @@ type Templater interface {
 	GenerateTemplate(template string, data interface{}) (io.Reader, error)
 	// will prepend "page:" when finding template
 	GeneratePage(page string, data PageData) (io.Reader, error)
+	// WritePage renders page (prepending "page:") and writes it to w with
+	// the given status and an html content type.
+	WritePage(w http.ResponseWriter, status int, page string, data PageData)
 	GetTemplater() *template.Template
 }
 

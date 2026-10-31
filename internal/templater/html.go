@@ -6,6 +6,7 @@ import (
 	"html/template"
 	"io"
 	"io/fs"
+	"net/http"
 	"os"
 	"slices"
 	"strings"
@@ -77,6 +78,21 @@ func (wrp *HtmlTemplaterWrapper) GeneratePage(template string, data PageData) (i
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 	}
 	return &buf, nil
+}
+
+// WritePage implements Templater: it renders page via GeneratePage and
+// writes it to w with the given status and an html content type.
+func (wrp *HtmlTemplaterWrapper) WritePage(w http.ResponseWriter, status int, page string, data PageData) {
+	rdr, err := wrp.GeneratePage(page, data)
+	if err != nil {
+		http.Error(w, "error rendering page", http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	w.WriteHeader(status)
+	if _, err := io.Copy(w, rdr); err != nil {
+		fmt.Fprintf(os.Stderr, "Error writing page response: %v\n", err)
+	}
 }
 
 func (wrp *HtmlTemplaterWrapper) GenerateTemplate(template string, data interface{}) (io.Reader, error) {

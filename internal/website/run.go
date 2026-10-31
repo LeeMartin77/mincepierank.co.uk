@@ -10,9 +10,9 @@ import (
 	"path/filepath"
 	"strings"
 	"syscall"
+	"time"
 
 	"github.com/gabriel-vasile/mimetype"
-	"github.com/gin-gonic/gin"
 	"github.com/leemartin77/mincepierank.co.uk/assets"
 	generated "github.com/leemartin77/mincepierank.co.uk/internal/website/generated"
 
@@ -51,34 +51,67 @@ func handleFavicon(w http.ResponseWriter, r *http.Request) {
 	w.Write(data)
 }
 
+// statusRecorder remembers the status code written to the ResponseWriter so
+// the logging middleware can report it.
+type statusRecorder struct {
+	http.ResponseWriter
+	status int
+}
+
+func (sr *statusRecorder) WriteHeader(code int) {
+	sr.status = code
+	sr.ResponseWriter.WriteHeader(code)
+}
+
+// loggingMiddleware logs each request, replacing gin.Logger().
+func loggingMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		start := time.Now()
+		rec := &statusRecorder{ResponseWriter: w, status: http.StatusOK}
+		next.ServeHTTP(rec, r)
+		log.Info().
+			Str("method", r.Method).
+			Str("path", r.URL.Path).
+			Int("status", rec.status).
+			Dur("took", time.Since(start)).
+			Msg("request")
+	})
+}
+
+// recoveryMiddleware turns panics into 500s, replacing gin.Recovery().
+func recoveryMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		defer func() {
+			if rec := recover(); rec != nil {
+				log.Error().Interface("panic", rec).Str("path", r.URL.Path).Msg("recovered from panic")
+				http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+			}
+		}()
+		next.ServeHTTP(w, r)
+	})
+}
+
 func (api Website) Run() error {
-	r := gin.Default()
+	mux := http.NewServeMux()
 
-	r.GET("/static/*filepath", func(c *gin.Context) {
-		handleStatic(c.Writer, c.Request)
+	mux.HandleFunc("GET /static/{filepath...}", handleStatic)
+
+	mux.HandleFunc("GET /favicon.ico", handleFavicon)
+
+	mux.HandleFunc("GET /auth/signin", func(w http.ResponseWriter, r *http.Request) {
+		api.auth.HandleSignin(r.Context(), w, r)
 	})
 
-	r.GET("/favicon.ico", func(c *gin.Context) {
-		handleFavicon(c.Writer, c.Request)
-	})
+	mux.HandleFunc("GET /auth/signout", api.auth.HandleSignout)
 
-	r.Use(api.auth.UserIdMiddleware())
+	mux.HandleFunc("GET /auth/callback", api.auth.HandleOAuth2Callback)
 
-	r.GET("/auth/signin", func(c *gin.Context) {
-		api.auth.HandleSignin(c, c.Writer, c.Request)
-	})
-
-	r.GET("/auth/signout", func(c *gin.Context) {
-		api.auth.HandleSignout(c)
-	})
-
-	r.GET("/auth/callback", func(c *gin.Context) {
-		api.auth.HandleOAuth2Callback(c)
-	})
-
-	r.SetHTMLTemplate(api.htmlTemplater.GetTemplater())
-
-	generated.RegisterHandlers(r, api.serverInterface)
+	// Routes from the OpenAPI spec get the userid middleware, as in the old
+	// gin engine where r.Use applied it to everything registered after the
+	// static and auth routes.
+	apiMux := http.NewServeMux()
+	generated.HandlerFromMux(api.serverInterface, apiMux)
+	mux.Handle("/", api.auth.UserIdMiddleware()(apiMux))
 
 	// Run the server
 	port := os.Getenv("MPR_PORT")
@@ -87,7 +120,7 @@ func (api Website) Run() error {
 	}
 	srv := &http.Server{
 		Addr:    fmt.Sprintf(":%s", port),
-		Handler: r,
+		Handler: loggingMiddleware(recoveryMiddleware(mux)),
 	}
 
 	log.Info().Msgf("starting on %s", srv.Addr)

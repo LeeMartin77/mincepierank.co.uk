@@ -8,8 +8,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/gin-gonic/gin"
-
 	"github.com/leemartin77/mincepierank.co.uk/internal/storage"
 	"github.com/leemartin77/mincepierank.co.uk/internal/storage/sqlcgen"
 	"github.com/leemartin77/mincepierank.co.uk/internal/storage/types"
@@ -92,18 +90,17 @@ func (f *fakeBrandStore) DeleteMaker(c context.Context, makerid string) error {
 	return nil
 }
 
-func newBrandTestRouter(t *testing.T, store *fakeBrandStore) *gin.Engine {
+func newBrandTestRouter(t *testing.T, store *fakeBrandStore) http.Handler {
 	t.Helper()
-	gin.SetMode(gin.TestMode)
-	r := gin.New()
-	r.SetHTMLTemplate(templater.NewHtmlTemplater().GetTemplater())
-	r.Use(func(c *gin.Context) {
-		c.Keys = map[any]any{"userid": "admin@example.com"}
-	})
-	generated.RegisterHandlers(r, NewWebsiteWrapper(store, WebsiteConfiguration{
+	mux := http.NewServeMux()
+	generated.HandlerFromMux(NewWebsiteWrapper(store, WebsiteConfiguration{
 		ImgprssrDir: t.TempDir(),
-	}))
-	return r
+	}, templater.NewHtmlTemplater()), mux)
+	// stand in for UserIdMiddleware: every request carries an admin user id
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ctx := context.WithValue(r.Context(), contextKeyUserID, "admin@example.com")
+		mux.ServeHTTP(w, r.WithContext(ctx))
+	})
 }
 
 func TestAdminBrandsAccessControl(t *testing.T) {

@@ -6,7 +6,6 @@ import (
 	"os"
 	"strings"
 
-	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/leemartin77/mincepierank.co.uk/internal/storage"
 	"github.com/leemartin77/mincepierank.co.uk/internal/storage/sqlcgen"
@@ -17,8 +16,8 @@ import (
 )
 
 // GetAdminUserPies implements generated.ServerInterface.
-func (wrpr *WebsiteWrapper) GetAdminUserPies(c *gin.Context, params generated.GetAdminUserPiesParams) {
-	if !validateAdmin(wrpr, c) {
+func (wrpr *WebsiteWrapper) GetAdminUserPies(w http.ResponseWriter, r *http.Request, params generated.GetAdminUserPiesParams) {
+	if !validateAdmin(wrpr, w, r) {
 		return
 	}
 
@@ -26,10 +25,10 @@ func (wrpr *WebsiteWrapper) GetAdminUserPies(c *gin.Context, params generated.Ge
 	if params.Year != nil {
 		year = *params.Year
 	} else {
-		ay, err := wrpr.storage.GetActiveYear(c)
+		ay, err := wrpr.storage.GetActiveYear(r.Context())
 		if err != nil {
 			log.Error().Err(err).Msg("Error getting active year")
-			c.AbortWithStatus(500)
+			AbortStatus(w, 500)
 			return
 		}
 		year = *ay
@@ -59,26 +58,26 @@ func (wrpr *WebsiteWrapper) GetAdminUserPies(c *gin.Context, params generated.Ge
 	var pendingCount, approvedCount, promotedCount, duplicateCount, rejectedCount int64
 
 	if statusFilter != "" {
-		count, err := wrpr.storage.GetUserPieAdminQueueCountByStatus(c, int32(year), statusFilter)
+		count, err := wrpr.storage.GetUserPieAdminQueueCountByStatus(r.Context(), int32(year), statusFilter)
 		if err != nil {
 			log.Error().Err(err).Msg("Error getting queue count by status")
-			c.AbortWithStatus(500)
+			AbortStatus(w, 500)
 			return
 		}
 		totalCount = count
 	} else {
-		pendingCount, _ = wrpr.storage.GetUserPieAdminQueueCountByStatus(c, int32(year), "pending")
-		approvedCount, _ = wrpr.storage.GetUserPieAdminQueueCountByStatus(c, int32(year), "approved")
-		promotedCount, _ = wrpr.storage.GetUserPieAdminQueueCountByStatus(c, int32(year), "promoted")
-		duplicateCount, _ = wrpr.storage.GetUserPieAdminQueueCountByStatus(c, int32(year), "duplicate")
-		rejectedCount, _ = wrpr.storage.GetUserPieAdminQueueCountByStatus(c, int32(year), "rejected")
+		pendingCount, _ = wrpr.storage.GetUserPieAdminQueueCountByStatus(r.Context(), int32(year), "pending")
+		approvedCount, _ = wrpr.storage.GetUserPieAdminQueueCountByStatus(r.Context(), int32(year), "approved")
+		promotedCount, _ = wrpr.storage.GetUserPieAdminQueueCountByStatus(r.Context(), int32(year), "promoted")
+		duplicateCount, _ = wrpr.storage.GetUserPieAdminQueueCountByStatus(r.Context(), int32(year), "duplicate")
+		rejectedCount, _ = wrpr.storage.GetUserPieAdminQueueCountByStatus(r.Context(), int32(year), "rejected")
 		totalCount = pendingCount + approvedCount + promotedCount + duplicateCount + rejectedCount
 	}
 
-	rows, err := wrpr.storage.GetUserPieAdminQueue(c, int32(year), int(limit), int(pageZeroIdx))
+	rows, err := wrpr.storage.GetUserPieAdminQueue(r.Context(), int32(year), int(limit), int(pageZeroIdx))
 	if err != nil {
 		log.Error().Err(err).Msg("Error getting admin queue")
-		c.AbortWithStatus(500)
+		AbortStatus(w, 500)
 		return
 	}
 
@@ -116,8 +115,8 @@ func (wrpr *WebsiteWrapper) GetAdminUserPies(c *gin.Context, params generated.Ge
 		rows = filtered
 	}
 
-	ay, _ := wrpr.storage.GetActiveYear(c)
-	piesEnabled, _ := wrpr.storage.GetUserPiesEnabled(c)
+	ay, _ := wrpr.storage.GetActiveYear(r.Context())
+	piesEnabled, _ := wrpr.storage.GetUserPiesEnabled(r.Context())
 	vals := templater.PageData{
 		Head: templater.PageDataHead{
 			IsAdminPage: true,
@@ -148,34 +147,34 @@ func (wrpr *WebsiteWrapper) GetAdminUserPies(c *gin.Context, params generated.Ge
 		},
 	}
 
-	c.HTML(http.StatusOK, "page:admin:userpies", vals)
+	wrpr.htmlTemplater.WritePage(w, http.StatusOK, "admin:userpies", vals)
 }
 
 // GetAdminUserPie implements generated.ServerInterface.
-func (wrpr *WebsiteWrapper) GetAdminUserPie(c *gin.Context, year int, id string, ownerid string) {
-	if !validateAdmin(wrpr, c) {
+func (wrpr *WebsiteWrapper) GetAdminUserPie(w http.ResponseWriter, r *http.Request, year int, id string, ownerid string) {
+	if !validateAdmin(wrpr, w, r) {
 		return
 	}
 
-	pieWithOwner, ok := loadUserPieForOwner(wrpr, c, year, id, ownerid)
+	pieWithOwner, ok := loadUserPieForOwner(wrpr, w, r, year, id, ownerid)
 	if !ok {
 		return
 	}
 
-	userPieReviewPage(wrpr, c, http.StatusOK, pieWithOwner)
+	userPieReviewPage(wrpr, w, r, http.StatusOK, pieWithOwner)
 }
 
 // loadUserPieForOwner fetches a user pie and verifies the owner, aborting 404
 // on a miss.
-func loadUserPieForOwner(wrpr *WebsiteWrapper, c *gin.Context, year int, id, ownerid string) (*storage.UserPieWithOwner, bool) {
-	pieWithOwner, err := wrpr.storage.GetUserPie(c, int32(year), id)
+func loadUserPieForOwner(wrpr *WebsiteWrapper, w http.ResponseWriter, r *http.Request, year int, id, ownerid string) (*storage.UserPieWithOwner, bool) {
+	pieWithOwner, err := wrpr.storage.GetUserPie(r.Context(), int32(year), id)
 	if err != nil {
 		log.Error().Err(err).Msg("Error getting user pie")
-		c.AbortWithStatus(500)
+		AbortStatus(w, 500)
 		return nil, false
 	}
 	if pieWithOwner.Pie.Id == "" || pieWithOwner.OwnerID != ownerid {
-		c.AbortWithStatus(404)
+		AbortStatus(w, 404)
 		return nil, false
 	}
 	return pieWithOwner, true
@@ -183,26 +182,26 @@ func loadUserPieForOwner(wrpr *WebsiteWrapper, c *gin.Context, year int, id, own
 
 // userPieReviewPage renders the admin review screen for a user pie, with
 // optional error messages (e.g. failed promote validation).
-func userPieReviewPage(wrpr *WebsiteWrapper, c *gin.Context, status int, pieWithOwner *storage.UserPieWithOwner, pageErrs ...string) {
+func userPieReviewPage(wrpr *WebsiteWrapper, w http.ResponseWriter, r *http.Request, status int, pieWithOwner *storage.UserPieWithOwner, pageErrs ...string) {
 	pie := &pieWithOwner.Pie
 	statusStr := pie.Status
 
 	// Get duplicate candidates
 	dupes, err := wrpr.storage.GetUserPieDuplicateGroups(
-		c, pie.Year, pie.Id, pie.Maker, pie.DisplayName, pie.WebLink)
+		r.Context(), pie.Year, pie.Id, pie.Maker, pie.DisplayName, pie.WebLink)
 	if err != nil {
 		log.Error().Err(err).Msg("Error getting duplicate groups")
 	}
 
-	brands, err := wrpr.storage.GetAllMakers(c)
+	brands, err := wrpr.storage.GetAllMakers(r.Context())
 	if err != nil {
 		log.Error().Err(err).Msg("Error getting brands for promote form")
-		c.AbortWithStatus(500)
+		AbortStatus(w, 500)
 		return
 	}
 
-	ay, _ := wrpr.storage.GetActiveYear(c)
-	piesEnabled, _ := wrpr.storage.GetUserPiesEnabled(c)
+	ay, _ := wrpr.storage.GetActiveYear(r.Context())
+	piesEnabled, _ := wrpr.storage.GetUserPiesEnabled(r.Context())
 	vals := templater.PageData{
 		Head: templater.PageDataHead{
 			IsAdminPage: true,
@@ -229,92 +228,92 @@ func userPieReviewPage(wrpr *WebsiteWrapper, c *gin.Context, status int, pieWith
 		},
 	}
 
-	c.HTML(status, "page:admin:userpie", vals)
+	wrpr.htmlTemplater.WritePage(w, status, "admin:userpie", vals)
 }
 
 // PostAdminUserPieApprove implements generated.ServerInterface.
-func (wrpr *WebsiteWrapper) PostAdminUserPieApprove(c *gin.Context, year int, id string, ownerid string) {
-	if !validateAdmin(wrpr, c) {
+func (wrpr *WebsiteWrapper) PostAdminUserPieApprove(w http.ResponseWriter, r *http.Request, year int, id string, ownerid string) {
+	if !validateAdmin(wrpr, w, r) {
 		return
 	}
 
-	pieWithOwner, ok := loadUserPieForOwner(wrpr, c, year, id, ownerid)
+	pieWithOwner, ok := loadUserPieForOwner(wrpr, w, r, year, id, ownerid)
 	if !ok {
 		return
 	}
 
-	userId := c.Keys["userid"].(string)
-	err := wrpr.storage.SetUserPieStatus(c, int32(year), id, storage.UserPieStatus(pieWithOwner.Pie.Status), storage.UserPieStatusApproved)
+	userId := UserIDFrom(r)
+	err := wrpr.storage.SetUserPieStatus(r.Context(), int32(year), id, storage.UserPieStatus(pieWithOwner.Pie.Status), storage.UserPieStatusApproved)
 	if err != nil {
 		log.Error().Err(err).Msg("Error approving user pie")
-		c.AbortWithStatus(500)
+		AbortStatus(w, 500)
 		return
 	}
 
 	log.Info().Str("year", fmt.Sprintf("%d", year)).Str("id", id).Str("moderatedBy", userId).Msg("Approved user pie")
-	c.Redirect(302, fmt.Sprintf("/admin/userpies/%d/%s/%s", year, id, ownerid))
+	http.Redirect(w, r, fmt.Sprintf("/admin/userpies/%d/%s/%s", year, id, ownerid), 302)
 }
 
 // PostAdminUserPieReject implements generated.ServerInterface.
-func (wrpr *WebsiteWrapper) PostAdminUserPieReject(c *gin.Context, year int, id string, ownerid string) {
-	if !validateAdmin(wrpr, c) {
+func (wrpr *WebsiteWrapper) PostAdminUserPieReject(w http.ResponseWriter, r *http.Request, year int, id string, ownerid string) {
+	if !validateAdmin(wrpr, w, r) {
 		return
 	}
 
-	pieWithOwner, ok := loadUserPieForOwner(wrpr, c, year, id, ownerid)
+	pieWithOwner, ok := loadUserPieForOwner(wrpr, w, r, year, id, ownerid)
 	if !ok {
 		return
 	}
 
-	note := c.Request.FormValue("note")
-	userId := c.Keys["userid"].(string)
-	err := wrpr.storage.SetUserPieStatusWithNote(c, int32(year), id, storage.UserPieStatus(pieWithOwner.Pie.Status), storage.UserPieStatusRejected, note, userId)
+	note := r.FormValue("note")
+	userId := UserIDFrom(r)
+	err := wrpr.storage.SetUserPieStatusWithNote(r.Context(), int32(year), id, storage.UserPieStatus(pieWithOwner.Pie.Status), storage.UserPieStatusRejected, note, userId)
 	if err != nil {
 		log.Error().Err(err).Msg("Error rejecting user pie")
-		c.AbortWithStatus(500)
+		AbortStatus(w, 500)
 		return
 	}
 
 	log.Info().Str("year", fmt.Sprintf("%d", year)).Str("id", id).Str("note", note).Str("moderatedBy", userId).Msg("Rejected user pie")
-	c.Redirect(302, fmt.Sprintf("/admin/userpies/%d/%s/%s", year, id, ownerid))
+	http.Redirect(w, r, fmt.Sprintf("/admin/userpies/%d/%s/%s", year, id, ownerid), 302)
 }
 
 // PostAdminUserPieDuplicate implements generated.ServerInterface.
-func (wrpr *WebsiteWrapper) PostAdminUserPieDuplicate(c *gin.Context, year int, id string, ownerid string) {
-	if !validateAdmin(wrpr, c) {
+func (wrpr *WebsiteWrapper) PostAdminUserPieDuplicate(w http.ResponseWriter, r *http.Request, year int, id string, ownerid string) {
+	if !validateAdmin(wrpr, w, r) {
 		return
 	}
 
-	pieWithOwner, ok := loadUserPieForOwner(wrpr, c, year, id, ownerid)
+	pieWithOwner, ok := loadUserPieForOwner(wrpr, w, r, year, id, ownerid)
 	if !ok {
 		return
 	}
 
-	duplicateOf := c.Request.FormValue("duplicateOf")
+	duplicateOf := r.FormValue("duplicateOf")
 	if duplicateOf == "" {
-		c.AbortWithStatus(400)
+		AbortStatus(w, 400)
 		return
 	}
 
-	userId := c.Keys["userid"].(string)
-	err := wrpr.storage.SetUserPieDuplicateOf(c, int32(year), id, storage.UserPieStatus(pieWithOwner.Pie.Status), duplicateOf, userId)
+	userId := UserIDFrom(r)
+	err := wrpr.storage.SetUserPieDuplicateOf(r.Context(), int32(year), id, storage.UserPieStatus(pieWithOwner.Pie.Status), duplicateOf, userId)
 	if err != nil {
 		log.Error().Err(err).Msg("Error marking user pie as duplicate")
-		c.AbortWithStatus(500)
+		AbortStatus(w, 500)
 		return
 	}
 
 	log.Info().Str("year", fmt.Sprintf("%d", year)).Str("id", id).Str("duplicateOf", duplicateOf).Str("moderatedBy", userId).Msg("Marked user pie as duplicate")
-	c.Redirect(302, fmt.Sprintf("/admin/userpies/%d/%s/%s", year, id, ownerid))
+	http.Redirect(w, r, fmt.Sprintf("/admin/userpies/%d/%s/%s", year, id, ownerid), 302)
 }
 
 // PostAdminUserPiePromote implements generated.ServerInterface.
-func (wrpr *WebsiteWrapper) PostAdminUserPiePromote(c *gin.Context, year int, id string, ownerid string) {
-	if !validateAdmin(wrpr, c) {
+func (wrpr *WebsiteWrapper) PostAdminUserPiePromote(w http.ResponseWriter, r *http.Request, year int, id string, ownerid string) {
+	if !validateAdmin(wrpr, w, r) {
 		return
 	}
 
-	pieWithOwner, ok := loadUserPieForOwner(wrpr, c, year, id, ownerid)
+	pieWithOwner, ok := loadUserPieForOwner(wrpr, w, r, year, id, ownerid)
 	if !ok {
 		return
 	}
@@ -322,32 +321,32 @@ func (wrpr *WebsiteWrapper) PostAdminUserPiePromote(c *gin.Context, year int, id
 	pie := &pieWithOwner.Pie
 
 	// Parse form values
-	displayname := c.Request.FormValue("displayname")
+	displayname := r.FormValue("displayname")
 	if displayname == "" {
 		displayname = pie.DisplayName
 	}
 	// The promote form must pick a real brand; falling back to the free-text
 	// maker from the submission would orphan the pie from any brand page.
-	makerid := strings.TrimSpace(c.Request.FormValue("makerid"))
+	makerid := strings.TrimSpace(r.FormValue("makerid"))
 	if makerid == "" {
-		userPieReviewPage(wrpr, c, http.StatusBadRequest, pieWithOwner,
+		userPieReviewPage(wrpr, w, r, http.StatusBadRequest, pieWithOwner,
 			"Select the brand this pie belongs to before promoting")
 		return
 	}
-	if exists, err := wrpr.brandExists(c, makerid); err != nil {
+	if exists, err := wrpr.brandExists(r.Context(), makerid); err != nil {
 		log.Error().Err(err).Msg("Error checking brand existence for promote")
-		c.AbortWithStatus(500)
+		AbortStatus(w, 500)
 		return
 	} else if !exists {
-		userPieReviewPage(wrpr, c, http.StatusBadRequest, pieWithOwner,
+		userPieReviewPage(wrpr, w, r, http.StatusBadRequest, pieWithOwner,
 			"Unknown brand id: "+makerid+" — create the brand first (admin brands page)")
 		return
 	}
-	pieid := c.Request.FormValue("pieid")
+	pieid := r.FormValue("pieid")
 	if pieid == "" {
 		pieid = pie.Id
 	}
-	webLink := c.Request.FormValue("webLink")
+	webLink := r.FormValue("webLink")
 	if webLink == "" {
 		webLink = pie.WebLink
 	}
@@ -358,7 +357,7 @@ func (wrpr *WebsiteWrapper) PostAdminUserPiePromote(c *gin.Context, year int, id
 
 	// Parse categories
 	var categories []string
-	cats := c.Request.Form["categories"]
+	cats := r.Form["categories"]
 	for _, cat := range cats {
 		if cat != "" {
 			categories = append(categories, cat)
@@ -367,7 +366,7 @@ func (wrpr *WebsiteWrapper) PostAdminUserPiePromote(c *gin.Context, year int, id
 
 	// Parse labels
 	var labels []string
-	labelsStr := c.Request.FormValue("labels")
+	labelsStr := r.FormValue("labels")
 	if labelsStr != "" {
 		for _, l := range strings.Split(labelsStr, ",") {
 			l = strings.TrimSpace(l)
@@ -378,7 +377,7 @@ func (wrpr *WebsiteWrapper) PostAdminUserPiePromote(c *gin.Context, year int, id
 	}
 
 	// Create brand pie
-	newOid, err := wrpr.storage.GetQuerier().CreateMakerPie(c, sqlcgen.CreateMakerPieParams{
+	newOid, err := wrpr.storage.GetQuerier().CreateMakerPie(r.Context(), sqlcgen.CreateMakerPieParams{
 		Year:    pie.Year,
 		Makerid: makerid,
 		ID:      pieid,
@@ -393,37 +392,37 @@ func (wrpr *WebsiteWrapper) PostAdminUserPiePromote(c *gin.Context, year int, id
 	})
 	if err != nil {
 		log.Error().Err(err).Msg("Error creating brand pie from user pie")
-		c.AbortWithStatus(500)
+		AbortStatus(w, 500)
 		return
 	}
 
 	// Link categories to new brand pie
 	if len(categories) > 0 {
 		parsedOid, _ := uuid.Parse(newOid)
-		wrpr.storage.SetPieCategories(c, parsedOid, categories)
+		wrpr.storage.SetPieCategories(r.Context(), parsedOid, categories)
 	}
 
 	// Update labels (labels are a text[] column)
 	if len(labels) > 0 {
 		parsedOid, _ := uuid.Parse(newOid)
-		_ = wrpr.storage.UpdateMakerPieLabels(c, parsedOid, labels)
+		_ = wrpr.storage.UpdateMakerPieLabels(r.Context(), parsedOid, labels)
 	}
 
 	// Mark user pie as promoted
-	userId := c.Keys["userid"].(string)
+	userId := UserIDFrom(r)
 	parsedNewOid, _ := uuid.Parse(newOid)
-	err = wrpr.storage.SetUserPiePromotedMakerPieOid(c, int32(year), id, storage.UserPieStatus(pie.Status), parsedNewOid.String(), userId)
+	err = wrpr.storage.SetUserPiePromotedMakerPieOid(r.Context(), int32(year), id, storage.UserPieStatus(pie.Status), parsedNewOid.String(), userId)
 	if err != nil {
 		log.Error().Err(err).Msg("Error marking user pie as promoted")
 	}
 
 	log.Info().Str("userYear", fmt.Sprintf("%d", year)).Str("userId", id).Str("brandOid", newOid).Str("moderatedBy", userId).Msg("Promoted user pie to brand pie")
-	c.Redirect(302, "/admin/makerpies/"+newOid)
+	http.Redirect(w, r, "/admin/makerpies/"+newOid, 302)
 }
 
 // GetAdminUserPieDuplicates implements generated.ServerInterface.
-func (wrpr *WebsiteWrapper) GetAdminUserPieDuplicates(c *gin.Context, params generated.GetAdminUserPieDuplicatesParams) {
-	if !validateAdmin(wrpr, c) {
+func (wrpr *WebsiteWrapper) GetAdminUserPieDuplicates(w http.ResponseWriter, r *http.Request, params generated.GetAdminUserPieDuplicatesParams) {
+	if !validateAdmin(wrpr, w, r) {
 		return
 	}
 
@@ -431,24 +430,24 @@ func (wrpr *WebsiteWrapper) GetAdminUserPieDuplicates(c *gin.Context, params gen
 	if params.Year != nil {
 		year = *params.Year
 	} else {
-		ay, err := wrpr.storage.GetActiveYear(c)
+		ay, err := wrpr.storage.GetActiveYear(r.Context())
 		if err != nil {
 			log.Error().Err(err).Msg("Error getting active year")
-			c.AbortWithStatus(500)
+			AbortStatus(w, 500)
 			return
 		}
 		year = *ay
 	}
 
-	groups, err := wrpr.storage.GetUserPieDuplicateGroupsAll(c, int32(year))
+	groups, err := wrpr.storage.GetUserPieDuplicateGroupsAll(r.Context(), int32(year))
 	if err != nil {
 		log.Error().Err(err).Msg("Error getting duplicate groups")
-		c.AbortWithStatus(500)
+		AbortStatus(w, 500)
 		return
 	}
 
-	ay, _ := wrpr.storage.GetActiveYear(c)
-	piesEnabled, _ := wrpr.storage.GetUserPiesEnabled(c)
+	ay, _ := wrpr.storage.GetActiveYear(r.Context())
+	piesEnabled, _ := wrpr.storage.GetUserPiesEnabled(r.Context())
 	vals := templater.PageData{
 		Head: templater.PageDataHead{
 			IsAdminPage: true,
@@ -467,16 +466,16 @@ func (wrpr *WebsiteWrapper) GetAdminUserPieDuplicates(c *gin.Context, params gen
 		},
 	}
 
-	c.HTML(http.StatusOK, "page:admin:userpie_duplicates", vals)
+	wrpr.htmlTemplater.WritePage(w, http.StatusOK, "admin:userpie_duplicates", vals)
 }
 
 // DeleteAdminUserPie implements generated.ServerInterface.
-func (wrpr *WebsiteWrapper) DeleteAdminUserPie(c *gin.Context, year int, id string, ownerid string) {
-	if !validateAdmin(wrpr, c) {
+func (wrpr *WebsiteWrapper) DeleteAdminUserPie(w http.ResponseWriter, r *http.Request, year int, id string, ownerid string) {
+	if !validateAdmin(wrpr, w, r) {
 		return
 	}
 
-	pieWithOwner, ok := loadUserPieForOwner(wrpr, c, year, id, ownerid)
+	pieWithOwner, ok := loadUserPieForOwner(wrpr, w, r, year, id, ownerid)
 	if !ok {
 		return
 	}
@@ -486,7 +485,7 @@ func (wrpr *WebsiteWrapper) DeleteAdminUserPie(c *gin.Context, year int, id stri
 
 	// If promoted, also delete the brand pie
 	if status == storage.UserPieStatusPromoted && pie.PromotedMakerPieO != "" {
-		delErr := wrpr.storage.GetQuerier().DeleteMakerPieByOid(c, pie.PromotedMakerPieO)
+		delErr := wrpr.storage.GetQuerier().DeleteMakerPieByOid(r.Context(), pie.PromotedMakerPieO)
 		if delErr != nil {
 			log.Error().Err(delErr).Str("brandId", pie.PromotedMakerPieO).Msg("Error deleting brand pie during promotion removal")
 		} else {
@@ -495,10 +494,10 @@ func (wrpr *WebsiteWrapper) DeleteAdminUserPie(c *gin.Context, year int, id stri
 	}
 
 	// Delete the user pie
-	err := wrpr.storage.DeleteUserPie(c, int32(year), id)
+	err := wrpr.storage.DeleteUserPie(r.Context(), int32(year), id)
 	if err != nil {
 		log.Error().Err(err).Msg("Error deleting user pie")
-		c.AbortWithStatus(500)
+		AbortStatus(w, 500)
 		return
 	}
 
@@ -511,7 +510,7 @@ func (wrpr *WebsiteWrapper) DeleteAdminUserPie(c *gin.Context, year int, id stri
 	}
 
 	log.Info().Str("year", fmt.Sprintf("%d", year)).Str("id", id).Str("status", string(status)).Msg("Deleted user pie")
-	c.Redirect(302, "/admin/userpies")
+	http.Redirect(w, r, "/admin/userpies", 302)
 }
 
 // dupeCandidatesToPieList converts duplicate candidate pies to a simple list
