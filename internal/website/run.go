@@ -78,6 +78,30 @@ func loggingMiddleware(next http.Handler) http.Handler {
 	})
 }
 
+// csrfMiddleware rejects cross-site state-changing requests using the
+// standard library's CrossOriginProtection. Safe methods (GET, HEAD,
+// OPTIONS) always pass through; every other method (POST, PUT, DELETE, ...)
+// must show same-origin evidence, which browsers supply automatically via
+// Sec-Fetch-Site or Origin. That covers every form and htmx verb on the
+// site without any per-form or per-handler plumbing; requests that fail the
+// checks are logged and rejected with 403. Escape hatch for a legitimately
+// different origin (or a proxy that rewrites the Host header for very old
+// browsers) is cop.AddTrustedOrigin.
+func csrfMiddleware(next http.Handler) http.Handler {
+	cop := http.NewCrossOriginProtection()
+	cop.SetDenyHandler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		log.Warn().
+			Str("method", r.Method).
+			Str("path", r.URL.Path).
+			Str("host", r.Host).
+			Str("origin", r.Header.Get("Origin")).
+			Str("sec-fetch-site", r.Header.Get("Sec-Fetch-Site")).
+			Msg("blocked cross-origin request")
+		http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
+	}))
+	return cop.Handler(next)
+}
+
 // recoveryMiddleware turns panics into 500s, replacing gin.Recovery().
 func recoveryMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -120,7 +144,10 @@ func (api Website) Run() error {
 	}
 	srv := &http.Server{
 		Addr:    fmt.Sprintf(":%s", port),
-		Handler: loggingMiddleware(recoveryMiddleware(mux)),
+		// Inside recovery so a panic in the csrf middleware still yields a
+		// 500, outside everything else so every route is covered and the
+		// logging middleware still records the 403s.
+		Handler: loggingMiddleware(recoveryMiddleware(csrfMiddleware(mux))),
 	}
 
 	log.Info().Msgf("starting on %s", srv.Addr)
