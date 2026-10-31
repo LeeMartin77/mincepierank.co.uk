@@ -20,7 +20,7 @@ func rankingYear(wrpr *WebsiteWrapper, w http.ResponseWriter, r *http.Request, p
 	}
 	ay, err := wrpr.storage.GetQuerier().GetActiveYear(r.Context())
 	if err != nil {
-		abortErr(w, 500, err)
+		AbortErr(w, 500, err)
 		return 0, false
 	}
 	return int32(ay), true
@@ -40,7 +40,7 @@ func (wrpr *WebsiteWrapper) GetAdminRankings(w http.ResponseWriter, r *http.Requ
 
 	brandPies, err := wrpr.storage.GetQuerier().ListMakerPieRankingSummaries(r.Context(), year)
 	if err != nil {
-		abortErr(w, 500, err)
+		AbortErr(w, 500, err)
 		return
 	}
 
@@ -49,14 +49,14 @@ func (wrpr *WebsiteWrapper) GetAdminRankings(w http.ResponseWriter, r *http.Requ
 	if piesEnabled {
 		userPies, err = wrpr.storage.GetQuerier().ListUserPieRankingSummaries(r.Context(), year)
 		if err != nil {
-			abortErr(w, 500, err)
+			AbortErr(w, 500, err)
 			return
 		}
 	}
 
 	ay, err := wrpr.storage.GetQuerier().GetActiveYear(r.Context())
 	if err != nil {
-		abortErr(w, 500, err)
+		AbortErr(w, 500, err)
 		return
 	}
 	vals := templater.PageData{
@@ -94,11 +94,11 @@ func (wrpr *WebsiteWrapper) GetAdminBrandPieRankings(w http.ResponseWriter, r *h
 
 	pieYearly, err := wrpr.storage.GetMakerPieYearly(r.Context(), year, brand, pie)
 	if err != nil {
-		abortErr(w, 500, err)
+		AbortErr(w, 500, err)
 		return
 	}
 	if pieYearly == nil {
-		abortStatus(w, http.StatusNotFound)
+		AbortStatus(w, http.StatusNotFound)
 		return
 	}
 
@@ -108,7 +108,7 @@ func (wrpr *WebsiteWrapper) GetAdminBrandPieRankings(w http.ResponseWriter, r *h
 		Pieid:   pie,
 	})
 	if err != nil {
-		abortErr(w, 500, err)
+		AbortErr(w, 500, err)
 		return
 	}
 
@@ -130,7 +130,7 @@ func (wrpr *WebsiteWrapper) GetAdminBrandPieRankings(w http.ResponseWriter, r *h
 
 	ay, err := wrpr.storage.GetQuerier().GetActiveYear(r.Context())
 	if err != nil {
-		abortErr(w, 500, err)
+		AbortErr(w, 500, err)
 		return
 	}
 	piesEnabled, _ := wrpr.storage.GetUserPiesEnabled(r.Context())
@@ -173,7 +173,7 @@ func (wrpr *WebsiteWrapper) DeleteAdminBrandPieRanking(w http.ResponseWriter, r 
 		Pieid:   pie,
 		Userid:  userid,
 	}); err != nil {
-		abortErr(w, 500, err)
+		AbortErr(w, 500, err)
 		return
 	}
 
@@ -194,7 +194,7 @@ func (wrpr *WebsiteWrapper) GetAdminUserPieRankings(w http.ResponseWriter, r *ht
 
 	piesEnabled, _ := wrpr.storage.GetUserPiesEnabled(r.Context())
 	if !piesEnabled {
-		abortStatus(w, http.StatusNotFound)
+		AbortStatus(w, http.StatusNotFound)
 		return
 	}
 
@@ -226,7 +226,7 @@ func (wrpr *WebsiteWrapper) GetAdminUserPieRankings(w http.ResponseWriter, r *ht
 
 	ay, err := wrpr.storage.GetQuerier().GetActiveYear(r.Context())
 	if err != nil {
-		abortErr(w, 500, err)
+		AbortErr(w, 500, err)
 		return
 	}
 	vals := templater.PageData{
@@ -267,7 +267,7 @@ func (wrpr *WebsiteWrapper) DeleteAdminUserPieRanking(w http.ResponseWriter, r *
 		Pieid:  id,
 		Userid: userid,
 	}); err != nil {
-		abortErr(w, 500, err)
+		AbortErr(w, 500, err)
 		return
 	}
 

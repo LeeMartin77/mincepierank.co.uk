@@ -13,35 +13,35 @@ func (wrpr *WebsiteWrapper) HomePage(w http.ResponseWriter, r *http.Request) {
 	ay, err := wrpr.storage.GetQuerier().GetActiveYear(r.Context())
 	if err != nil {
 		log.Error().Err(err).Msg("Error getting active year")
-		abortStatus(w, 500)
+		AbortStatus(w, 500)
 		return
 	}
 
 	ro, err := wrpr.storage.GetReadonly(r.Context())
 	if err != nil {
 		log.Error().Err(err).Msg("Error getting readonly")
-		abortStatus(w, 500)
+		AbortStatus(w, 500)
 		return
 	}
 
 	topPie, err := wrpr.storage.GetTopMakerPie(r.Context(), ay)
 	if err != nil {
 		log.Error().Err(err).Msg("Error getting top maker pie")
-		abortStatus(w, 500)
+		AbortStatus(w, 500)
 		return
 	}
 
 	ltstpie, ltstpiewhen, err := wrpr.storage.GetLatestPieRanking(r.Context(), ay)
 	if err != nil {
 		log.Error().Err(err).Msg("Error getting latest ranking")
-		abortStatus(w, 500)
+		AbortStatus(w, 500)
 		return
 	}
 
 	makers, err := wrpr.storage.GetMakersForYear(r.Context(), ay)
 	if err != nil {
 		log.Error().Err(err).Msg("Error getting year makers")
-		abortStatus(w, 500)
+		AbortStatus(w, 500)
 		return
 	}
 	mrks := []templater.MakerCardData{}

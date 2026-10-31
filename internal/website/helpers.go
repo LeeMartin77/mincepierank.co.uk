@@ -15,15 +15,18 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-// abortStatus writes a plain status response and stops further handling -
-// the net/http equivalent of gin's AbortWithStatus.
-func abortStatus(w http.ResponseWriter, code int) {
+// AbortStatus writes a plain status response and stops further handling -
+// the net/http equivalent of gin's AbortWithStatus. Handlers should return
+// immediately after calling it.
+func AbortStatus(w http.ResponseWriter, code int) {
 	http.Error(w, http.StatusText(code), code)
 }
 
-// abortErr logs err and responds with code - the net/http equivalent of
-// gin's AbortWithError, which hid the error in its own internal log.
-func abortErr(w http.ResponseWriter, code int, err error) {
+// AbortErr logs err and responds with code - the net/http equivalent of
+// gin's AbortWithError, which hid the error in its own internal log. The
+// error itself is logged, never sent to the client. Handlers should return
+// immediately after calling it.
+func AbortErr(w http.ResponseWriter, code int, err error) {
 	log.Error().Err(err).Int("status", code).Msg("request failed")
 	http.Error(w, http.StatusText(code), code)
 }
@@ -34,11 +37,11 @@ func abortErr(w http.ResponseWriter, code int, err error) {
 func loadUserPie(wrpr *WebsiteWrapper, w http.ResponseWriter, r *http.Request, year int32, id string) (*storage.UserPieWithOwner, bool) {
 	pieWithOwner, err := wrpr.storage.GetUserPie(r.Context(), year, id)
 	if err != nil {
-		abortErr(w, http.StatusInternalServerError, err)
+		AbortErr(w, http.StatusInternalServerError, err)
 		return nil, false
 	}
 	if pieWithOwner == nil || pieWithOwner.Pie.Id == "" {
-		abortStatus(w, http.StatusNotFound)
+		AbortStatus(w, http.StatusNotFound)
 		return nil, false
 	}
 	return pieWithOwner, true
@@ -53,7 +56,7 @@ func loadUserPieRankings(wrpr *WebsiteWrapper, w http.ResponseWriter, r *http.Re
 		Pieid: id,
 	})
 	if err != nil {
-		abortErr(w, http.StatusInternalServerError, err)
+		AbortErr(w, http.StatusInternalServerError, err)
 		return nil, false
 	}
 	return rankings, true

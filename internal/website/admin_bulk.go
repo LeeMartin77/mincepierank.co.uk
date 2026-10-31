@@ -27,7 +27,7 @@ func (wrpr *WebsiteWrapper) BulkCreateMakerPieAdmin(w http.ResponseWriter, r *ht
 
 	tx, err := wrpr.storage.GetTransaction(r.Context())
 	if err != nil {
-		abortErr(w, 500, err)
+		AbortErr(w, 500, err)
 		return
 	}
 	defer func() {
@@ -38,12 +38,12 @@ func (wrpr *WebsiteWrapper) BulkCreateMakerPieAdmin(w http.ResponseWriter, r *ht
 	dest := "/tmp/" + uuid.NewString()
 	_, hdr, err := r.FormFile("zipFile")
 	if err != nil {
-		abortErr(w, 400, err)
+		AbortErr(w, 400, err)
 		return
 	}
 	err = unzip(hdr, dest)
 	if err != nil {
-		abortErr(w, 400, err)
+		AbortErr(w, 400, err)
 		return
 	}
 
@@ -54,7 +54,7 @@ func (wrpr *WebsiteWrapper) BulkCreateMakerPieAdmin(w http.ResponseWriter, r *ht
 
 	headers, err := csvReader.Read()
 	if err != nil {
-		abortErr(w, 400, err)
+		AbortErr(w, 400, err)
 		return
 	}
 
@@ -64,7 +64,7 @@ func (wrpr *WebsiteWrapper) BulkCreateMakerPieAdmin(w http.ResponseWriter, r *ht
 			break
 		}
 		if err != nil {
-			abortErr(w, 400, err)
+			AbortErr(w, 400, err)
 			return
 		}
 		if nxt != nil {
@@ -76,7 +76,7 @@ func (wrpr *WebsiteWrapper) BulkCreateMakerPieAdmin(w http.ResponseWriter, r *ht
 			for i, hdr := range headers {
 				if i > len(nxt)-1 {
 
-					abortErr(w, 400, err)
+					AbortErr(w, 400, err)
 					return
 				}
 				mp[hdr] = nxt[i]
@@ -106,7 +106,7 @@ func (wrpr *WebsiteWrapper) BulkCreateMakerPieAdmin(w http.ResponseWriter, r *ht
 		img, err := os.Open(dest + "/" + pie["image_file"])
 		if err != nil {
 
-			abortErr(w, 400, err)
+			AbortErr(w, 400, err)
 			return
 		}
 		defer img.Close()
@@ -114,7 +114,7 @@ func (wrpr *WebsiteWrapper) BulkCreateMakerPieAdmin(w http.ResponseWriter, r *ht
 		rf, err := os.ReadFile(dest + "/" + pie["image_file"])
 		if err != nil {
 
-			abortErr(w, 400, err)
+			AbortErr(w, 400, err)
 			return
 		}
 
@@ -142,7 +142,7 @@ func (wrpr *WebsiteWrapper) BulkCreateMakerPieAdmin(w http.ResponseWriter, r *ht
 			Validated:        true,
 		})
 		if err != nil {
-			abortErr(w, 400, err)
+			AbortErr(w, 400, err)
 			return
 		}
 		err = wrpr.storage.SetPieCategoriesTx(r.Context(), tx, uuid.MustParse(oid), strings.Split(pie["category_slugs"], ","))
@@ -151,19 +151,19 @@ func (wrpr *WebsiteWrapper) BulkCreateMakerPieAdmin(w http.ResponseWriter, r *ht
 			return
 		}
 		if err != nil {
-			abortErr(w, 400, err)
+			AbortErr(w, 400, err)
 			return
 		}
 
 		err = os.MkdirAll(dirpath, os.ModePerm)
 		if err != nil {
-			abortErr(w, 500, err)
+			AbortErr(w, 500, err)
 			return
 		}
 
 		err = os.WriteFile(wrpr.config.ImgprssrDir+"/"+path, rf, fs.ModeAppend)
 		if err != nil {
-			abortErr(w, 500, err)
+			AbortErr(w, 500, err)
 			return
 		}
 

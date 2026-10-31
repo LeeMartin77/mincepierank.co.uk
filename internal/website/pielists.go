@@ -84,7 +84,7 @@ func (wrpr *WebsiteWrapper) YearAllPies(w http.ResponseWriter, r *http.Request, 
 	ay, err := wrpr.storage.GetActiveYear(r.Context())
 	if err != nil {
 		log.Error().Err(err).Msg("Error getting active year")
-		abortStatus(w, 500)
+		AbortStatus(w, 500)
 		return
 	}
 
@@ -95,7 +95,7 @@ func (wrpr *WebsiteWrapper) YearAllPies(w http.ResponseWriter, r *http.Request, 
 	flinks, activequery, err := getFilterLinks(wrpr, r.Context(), year, catFilters, fmt.Sprintf("/years/%d/all-pies", year), nil, nil)
 	if err != nil {
 		log.Error().Err(err).Msg("Error getting filter links")
-		abortStatus(w, 500)
+		AbortStatus(w, 500)
 		return
 	}
 
@@ -104,14 +104,14 @@ func (wrpr *WebsiteWrapper) YearAllPies(w http.ResponseWriter, r *http.Request, 
 	})
 	if err != nil {
 		log.Error().Err(err).Msg("Error getting maker pies")
-		abortStatus(w, 500)
+		AbortStatus(w, 500)
 		return
 	}
 
 	mmap, err := wrpr.getMakerMap(r.Context(), year)
 	if err != nil {
 		log.Error().Err(err).Msg("Error getting maker pies")
-		abortStatus(w, 500)
+		AbortStatus(w, 500)
 		return
 	}
 
@@ -166,7 +166,7 @@ func (wrpr *WebsiteWrapper) YearPersonalRanking(w http.ResponseWriter, r *http.R
 	ay, err := wrpr.storage.GetActiveYear(r.Context())
 	if err != nil {
 		log.Error().Err(err).Msg("Error getting active year")
-		abortStatus(w, 500)
+		AbortStatus(w, 500)
 		return
 	}
 
@@ -177,7 +177,7 @@ func (wrpr *WebsiteWrapper) YearPersonalRanking(w http.ResponseWriter, r *http.R
 	flinks, activequery, err := getFilterLinks(wrpr, r.Context(), year, catFilters, fmt.Sprintf("/years/%d/all-pies", year), nil, nil)
 	if err != nil {
 		log.Error().Err(err).Msg("Error getting filter links")
-		abortStatus(w, 500)
+		AbortStatus(w, 500)
 		return
 	}
 
@@ -186,14 +186,14 @@ func (wrpr *WebsiteWrapper) YearPersonalRanking(w http.ResponseWriter, r *http.R
 	})
 	if err != nil {
 		log.Error().Err(err).Msg("Error getting user rankings")
-		abortStatus(w, 500)
+		AbortStatus(w, 500)
 		return
 	}
 
 	mmap, err := wrpr.getMakerMap(r.Context(), year)
 	if err != nil {
 		log.Error().Err(err).Msg("Error getting maker pies")
-		abortStatus(w, 500)
+		AbortStatus(w, 500)
 		return
 	}
 
@@ -249,18 +249,18 @@ func (wrpr *WebsiteWrapper) YearBrandPies(w http.ResponseWriter, r *http.Request
 	ay, err := wrpr.storage.GetActiveYear(r.Context())
 	if err != nil {
 		log.Error().Err(err).Msg("Error getting active year")
-		abortStatus(w, 500)
+		AbortStatus(w, 500)
 		return
 	}
 
 	maker, err := wrpr.storage.GetMaker(r.Context(), brand)
 	if err != nil {
 		log.Error().Err(err).Msg("Error getting brand")
-		abortStatus(w, 500)
+		AbortStatus(w, 500)
 		return
 	}
 	if maker == nil {
-		abortStatus(w, 404)
+		AbortStatus(w, 404)
 		return
 	}
 
@@ -279,7 +279,7 @@ func (wrpr *WebsiteWrapper) YearBrandPies(w http.ResponseWriter, r *http.Request
 	flinks, activequery, err := getFilterLinks(wrpr, r.Context(), year, catFilters, fmt.Sprintf("/years/%d/brands/%s", year, maker.Id), nil, &maker.Id)
 	if err != nil {
 		log.Error().Err(err).Msg("Error getting filter links")
-		abortStatus(w, 500)
+		AbortStatus(w, 500)
 		return
 	}
 
@@ -289,7 +289,7 @@ func (wrpr *WebsiteWrapper) YearBrandPies(w http.ResponseWriter, r *http.Request
 	})
 	if err != nil {
 		log.Error().Err(err).Msg("Error getting pies")
-		abortStatus(w, 500)
+		AbortStatus(w, 500)
 		return
 	}
 
@@ -345,12 +345,12 @@ func (wrpr *WebsiteWrapper) YearCategoryPies(w http.ResponseWriter, r *http.Requ
 	ay, err := wrpr.storage.GetActiveYear(r.Context())
 	if err != nil {
 		log.Error().Err(err).Msg("Error getting active year")
-		abortStatus(w, 500)
+		AbortStatus(w, 500)
 		return
 	}
 	cat, err := url.QueryUnescape(category)
 	if err != nil {
-		abortStatus(w, 400)
+		AbortStatus(w, 400)
 		return
 	}
 
@@ -361,7 +361,7 @@ func (wrpr *WebsiteWrapper) YearCategoryPies(w http.ResponseWriter, r *http.Requ
 	flinks, activequery, err := getFilterLinks(wrpr, r.Context(), year, catFilters, fmt.Sprintf("/years/%d/categories/%s", year, url.QueryEscape(category)), &cat, nil)
 	if err != nil {
 		log.Error().Err(err).Msg("Error getting filter links")
-		abortStatus(w, 500)
+		AbortStatus(w, 500)
 		return
 	}
 
@@ -371,14 +371,14 @@ func (wrpr *WebsiteWrapper) YearCategoryPies(w http.ResponseWriter, r *http.Requ
 	})
 	if err != nil {
 		log.Error().Err(err).Msg("Error getting maker pies")
-		abortStatus(w, 500)
+		AbortStatus(w, 500)
 		return
 	}
 
 	mmap, err := wrpr.getMakerMap(r.Context(), year)
 	if err != nil {
 		log.Error().Err(err).Msg("Error getting maker pies")
-		abortStatus(w, 500)
+		AbortStatus(w, 500)
 		return
 	}
 

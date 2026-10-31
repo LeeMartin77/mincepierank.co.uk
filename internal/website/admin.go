@@ -18,11 +18,11 @@ func validateAdmin(wrpr *WebsiteWrapper, w http.ResponseWriter, r *http.Request)
 	userId := UserIDFrom(r)
 	isAdmin, err := wrpr.storage.GetQuerier().IsAdminId(r.Context(), userId)
 	if err != nil {
-		abortErr(w, 500, err)
+		AbortErr(w, 500, err)
 		return false
 	}
 	if !isAdmin {
-		abortStatus(w, 403)
+		AbortStatus(w, 403)
 		return false
 	}
 	return true
@@ -35,7 +35,7 @@ func (wrpr *WebsiteWrapper) GetAdminIndex(w http.ResponseWriter, r *http.Request
 	}
 	ay, err := wrpr.storage.GetQuerier().GetActiveYear(r.Context())
 	if err != nil {
-		abortErr(w, 500, err)
+		AbortErr(w, 500, err)
 		return
 	}
 	piesEnabled, _ := wrpr.storage.GetUserPiesEnabled(r.Context())
@@ -81,12 +81,12 @@ func (wrpr *WebsiteWrapper) GetAdminIndex(w http.ResponseWriter, r *http.Request
 func configPage(wrpr *WebsiteWrapper, w http.ResponseWriter, r *http.Request) {
 	ay, err := wrpr.storage.GetQuerier().GetActiveYear(r.Context())
 	if err != nil {
-		abortErr(w, 500, err)
+		AbortErr(w, 500, err)
 		return
 	}
 	config, err := wrpr.storage.GetQuerier().GetAllConfig(r.Context())
 	if err != nil {
-		abortErr(w, 500, err)
+		AbortErr(w, 500, err)
 		return
 	}
 	piesEnabled, _ := wrpr.storage.GetUserPiesEnabled(r.Context())
@@ -129,7 +129,7 @@ func (wrpr *WebsiteWrapper) CreateAdminConfig(w http.ResponseWriter, r *http.Req
 		Value: r.FormValue("value"),
 	})
 	if err != nil {
-		abortErr(w, 500, err)
+		AbortErr(w, 500, err)
 		return
 	}
 	configPage(wrpr, w, r)
@@ -143,7 +143,7 @@ func (wrpr *WebsiteWrapper) DeleteAdminConfig(w http.ResponseWriter, r *http.Req
 
 	err := wrpr.storage.GetQuerier().DeleteConfig(r.Context(), key)
 	if err != nil {
-		abortErr(w, 500, err)
+		AbortErr(w, 500, err)
 		return
 	}
 	configPage(wrpr, w, r)
@@ -160,7 +160,7 @@ func (wrpr *WebsiteWrapper) UpdateAdminConfig(w http.ResponseWriter, r *http.Req
 		Value: r.FormValue("value"),
 	})
 	if err != nil {
-		abortErr(w, 500, err)
+		AbortErr(w, 500, err)
 		return
 	}
 	configPage(wrpr, w, r)
@@ -169,17 +169,17 @@ func (wrpr *WebsiteWrapper) UpdateAdminConfig(w http.ResponseWriter, r *http.Req
 func piesPage(wrpr *WebsiteWrapper, w http.ResponseWriter, r *http.Request, pageErrs ...string) {
 	pies, err := wrpr.storage.GetQuerier().GetAllMakerPies(r.Context())
 	if err != nil {
-		abortErr(w, 500, err)
+		AbortErr(w, 500, err)
 		return
 	}
 	ay, err := wrpr.storage.GetQuerier().GetActiveYear(r.Context())
 	if err != nil {
-		abortErr(w, 500, err)
+		AbortErr(w, 500, err)
 		return
 	}
 	brands, err := wrpr.storage.GetAllMakers(r.Context())
 	if err != nil {
-		abortErr(w, 500, err)
+		AbortErr(w, 500, err)
 		return
 	}
 	piesEnabled, _ := wrpr.storage.GetUserPiesEnabled(r.Context())
@@ -220,27 +220,27 @@ func (wrpr *WebsiteWrapper) brandExists(ctx context.Context, makerid string) (bo
 func piePage(wrpr *WebsiteWrapper, w http.ResponseWriter, r *http.Request, oid string, pageErrs ...string) {
 	pie, err := wrpr.storage.GetQuerier().GetMakerPieByOid(r.Context(), oid)
 	if err != nil {
-		abortErr(w, 500, err)
+		AbortErr(w, 500, err)
 		return
 	}
 	ay, err := wrpr.storage.GetQuerier().GetActiveYear(r.Context())
 	if err != nil {
-		abortErr(w, 500, err)
+		AbortErr(w, 500, err)
 		return
 	}
 	uid, err := uuid.Parse(oid)
 	if err != nil {
-		abortErr(w, 500, err)
+		AbortErr(w, 500, err)
 		return
 	}
 	pcats, err := wrpr.storage.GetMakerPieCategoriesForMakerPieOid(r.Context(), uid)
 	if err != nil {
-		abortErr(w, 500, err)
+		AbortErr(w, 500, err)
 		return
 	}
 	cats, err := wrpr.storage.GetMakerPieCategories(r.Context())
 	if err != nil {
-		abortErr(w, 500, err)
+		AbortErr(w, 500, err)
 		return
 	}
 	piesEnabled, _ := wrpr.storage.GetUserPiesEnabled(r.Context())
@@ -290,7 +290,7 @@ func (wrpr *WebsiteWrapper) CreateMakerPieAdmin(w http.ResponseWriter, r *http.R
 
 	makerid := r.FormValue("makerid")
 	if ok, err := wrpr.brandExists(r.Context(), makerid); err != nil {
-		abortErr(w, 500, err)
+		AbortErr(w, 500, err)
 		return
 	} else if !ok {
 		piesPage(wrpr, w, r, "Unknown brand id: "+makerid+" — create the brand first (admin brands page)")
@@ -310,7 +310,7 @@ func (wrpr *WebsiteWrapper) CreateMakerPieAdmin(w http.ResponseWriter, r *http.R
 	path, uploaded, err := saveUploadedFile(wrpr.config.ImgprssrDir, "img", r,
 		r.FormValue("year"), makerid, r.FormValue("id"))
 	if err != nil {
-		abortErr(w, 500, err)
+		AbortErr(w, 500, err)
 		return
 	}
 	if !uploaded {
@@ -332,7 +332,7 @@ func (wrpr *WebsiteWrapper) CreateMakerPieAdmin(w http.ResponseWriter, r *http.R
 		Validated:        validated,
 	})
 	if err != nil {
-		abortErr(w, 500, err)
+		AbortErr(w, 500, err)
 		return
 	}
 	http.Redirect(w, r, "/admin/makerpies/"+oid, 301)
@@ -345,7 +345,7 @@ func (wrpr *WebsiteWrapper) DeleteMakerPie(w http.ResponseWriter, r *http.Reques
 	}
 	err := wrpr.storage.GetQuerier().DeleteMakerPieByOid(r.Context(), oid)
 	if err != nil {
-		abortErr(w, 500, err)
+		AbortErr(w, 500, err)
 		return
 	}
 	piesPage(wrpr, w, r)
@@ -358,7 +358,7 @@ func (wrpr *WebsiteWrapper) UpdateMakerPie(w http.ResponseWriter, r *http.Reques
 	}
 	uid, err := uuid.Parse(oid)
 	if err != nil {
-		abortStatus(w, 400)
+		AbortStatus(w, 400)
 		return
 	}
 
@@ -366,7 +366,7 @@ func (wrpr *WebsiteWrapper) UpdateMakerPie(w http.ResponseWriter, r *http.Reques
 	imageFile, _, err := saveUploadedFile(wrpr.config.ImgprssrDir, "img", r,
 		r.FormValue("year"), r.FormValue("makerid"), r.FormValue("id"))
 	if err != nil {
-		abortErr(w, 500, err)
+		AbortErr(w, 500, err)
 		return
 	}
 
@@ -389,7 +389,7 @@ func (wrpr *WebsiteWrapper) UpdateMakerPie(w http.ResponseWriter, r *http.Reques
 		Oid:              oid,
 	})
 	if err != nil {
-		abortErr(w, 500, err)
+		AbortErr(w, 500, err)
 		return
 	}
 
@@ -400,7 +400,7 @@ func (wrpr *WebsiteWrapper) UpdateMakerPie(w http.ResponseWriter, r *http.Reques
 			Oid:       oid,
 		})
 		if err != nil {
-			abortErr(w, 500, err)
+			AbortErr(w, 500, err)
 			return
 		}
 	}
@@ -412,7 +412,7 @@ func (wrpr *WebsiteWrapper) UpdateMakerPie(w http.ResponseWriter, r *http.Reques
 		return
 	}
 	if err != nil {
-		abortErr(w, 500, err)
+		AbortErr(w, 500, err)
 		return
 	}
 	piePage(wrpr, w, r, oid)

@@ -36,12 +36,12 @@ func validateCategoryForm(label, slug string) (string, string, []string) {
 func categoryListPage(wrpr *WebsiteWrapper, w http.ResponseWriter, r *http.Request, pageErrs ...string) {
 	cats, err := wrpr.storage.GetAllCategoriesAdmin(r.Context())
 	if err != nil {
-		abortErr(w, 500, err)
+		AbortErr(w, 500, err)
 		return
 	}
 	ay, err := wrpr.storage.GetQuerier().GetActiveYear(r.Context())
 	if err != nil {
-		abortErr(w, 500, err)
+		AbortErr(w, 500, err)
 		return
 	}
 	piesEnabled, _ := wrpr.storage.GetUserPiesEnabled(r.Context())
@@ -70,7 +70,7 @@ func categoryListPage(wrpr *WebsiteWrapper, w http.ResponseWriter, r *http.Reque
 func categoryNewPage(wrpr *WebsiteWrapper, w http.ResponseWriter, r *http.Request, status int, form map[string]string, pageErrs ...string) {
 	ay, err := wrpr.storage.GetQuerier().GetActiveYear(r.Context())
 	if err != nil {
-		abortErr(w, 500, err)
+		AbortErr(w, 500, err)
 		return
 	}
 	piesEnabled, _ := wrpr.storage.GetUserPiesEnabled(r.Context())
@@ -100,7 +100,7 @@ func categoryNewPage(wrpr *WebsiteWrapper, w http.ResponseWriter, r *http.Reques
 func categoryEditPage(wrpr *WebsiteWrapper, w http.ResponseWriter, r *http.Request, status int, cat *types.Category, pieCount int64, pageErrs ...string) {
 	ay, err := wrpr.storage.GetQuerier().GetActiveYear(r.Context())
 	if err != nil {
-		abortErr(w, 500, err)
+		AbortErr(w, 500, err)
 		return
 	}
 	piesEnabled, _ := wrpr.storage.GetUserPiesEnabled(r.Context())
@@ -163,7 +163,7 @@ func (wrpr *WebsiteWrapper) CreateAdminCategory(w http.ResponseWriter, r *http.R
 		return
 	}
 	if err != nil {
-		abortErr(w, 500, err)
+		AbortErr(w, 500, err)
 		return
 	}
 
@@ -207,11 +207,11 @@ func (wrpr *WebsiteWrapper) UpdateAdminCategory(w http.ResponseWriter, r *http.R
 		Label: label,
 	})
 	if errors.Is(err, storage.ErrCategoryNotFound) {
-		abortStatus(w, http.StatusNotFound)
+		AbortStatus(w, http.StatusNotFound)
 		return
 	}
 	if err != nil {
-		abortErr(w, 500, err)
+		AbortErr(w, 500, err)
 		return
 	}
 
@@ -240,10 +240,10 @@ func (wrpr *WebsiteWrapper) DeleteAdminCategory(w http.ResponseWriter, r *http.R
 
 	if err := wrpr.storage.DeleteCategory(r.Context(), cat.Id); err != nil {
 		if errors.Is(err, storage.ErrCategoryNotFound) {
-			abortStatus(w, http.StatusNotFound)
+			AbortStatus(w, http.StatusNotFound)
 			return
 		}
-		abortErr(w, 500, err)
+		AbortErr(w, 500, err)
 		return
 	}
 
@@ -257,21 +257,21 @@ func (wrpr *WebsiteWrapper) DeleteAdminCategory(w http.ResponseWriter, r *http.R
 func loadCategory(wrpr *WebsiteWrapper, w http.ResponseWriter, r *http.Request, id string) (*types.Category, int64, bool) {
 	uid, err := uuid.Parse(id)
 	if err != nil {
-		abortStatus(w, http.StatusBadRequest)
+		AbortStatus(w, http.StatusBadRequest)
 		return nil, 0, false
 	}
 	cat, err := wrpr.storage.GetCategoryById(r.Context(), uid)
 	if err != nil {
-		abortErr(w, 500, err)
+		AbortErr(w, 500, err)
 		return nil, 0, false
 	}
 	if cat == nil {
-		abortStatus(w, http.StatusNotFound)
+		AbortStatus(w, http.StatusNotFound)
 		return nil, 0, false
 	}
 	pieCount, err := wrpr.storage.GetCategoryPieCount(r.Context(), uid)
 	if err != nil {
-		abortErr(w, 500, err)
+		AbortErr(w, 500, err)
 		return nil, 0, false
 	}
 	return cat, pieCount, true

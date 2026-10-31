@@ -15,7 +15,7 @@ func (wrpr *WebsiteWrapper) YearBrandPie(w http.ResponseWriter, r *http.Request,
 	ay, err := wrpr.storage.GetActiveYear(r.Context())
 	if err != nil {
 		log.Error().Err(err).Msg("Error getting active year")
-		abortStatus(w, 500)
+		AbortStatus(w, 500)
 		return
 	}
 
@@ -27,11 +27,11 @@ func (wrpr *WebsiteWrapper) YearBrandPie(w http.ResponseWriter, r *http.Request,
 	pie, err := wrpr.storage.GetMakerPieYearly(r.Context(), int32(year), brand, pieParam)
 	if err != nil {
 		log.Error().Err(err).Msg("Error getting maker year pie")
-		abortStatus(w, 500)
+		AbortStatus(w, 500)
 		return
 	}
 	if pie == nil {
-		abortStatus(w, 404)
+		AbortStatus(w, 404)
 		return
 	}
 
@@ -76,7 +76,7 @@ func (wrpr *WebsiteWrapper) RateYearBrandPie(w http.ResponseWriter, r *http.Requ
 	ay, err := wrpr.storage.GetActiveYear(r.Context())
 	if err != nil {
 		log.Error().Err(err).Msg("Error getting active year")
-		abortStatus(w, 500)
+		AbortStatus(w, 500)
 		return
 	}
 
@@ -88,11 +88,11 @@ func (wrpr *WebsiteWrapper) RateYearBrandPie(w http.ResponseWriter, r *http.Requ
 	pie, err := wrpr.storage.GetMakerPieYearly(r.Context(), int32(year), brand, pieParam)
 	if err != nil {
 		log.Error().Err(err).Msg("Error getting maker year pie")
-		abortStatus(w, 500)
+		AbortStatus(w, 500)
 		return
 	}
 	if pie == nil {
-		abortStatus(w, 404)
+		AbortStatus(w, 404)
 		return
 	}
 
@@ -129,21 +129,21 @@ func returnSinglePiePage(wrpr *WebsiteWrapper, w http.ResponseWriter, r *http.Re
 	maker, err := wrpr.storage.GetMaker(r.Context(), brand)
 	if err != nil {
 		log.Error().Err(err).Msg("Error getting maker year pie")
-		abortStatus(w, 500)
+		AbortStatus(w, 500)
 		return
 	}
 
 	rankingSummary, err := wrpr.storage.GetMakerPieYearlyRankingSummary(r.Context(), int32(year), brand, pieParam)
 	if err != nil {
 		log.Error().Err(err).Msg("Error getting maker year pie rank summary")
-		abortStatus(w, 500)
+		AbortStatus(w, 500)
 		return
 	}
 
 	cats, err := wrpr.storage.GetMakerPieCategoriesForMakerPieOid(r.Context(), pie.OId)
 	if err != nil {
 		log.Error().Err(err).Msg("Error getting maker year pie rank categories")
-		abortStatus(w, 500)
+		AbortStatus(w, 500)
 		return
 	}
 

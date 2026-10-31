@@ -19,13 +19,13 @@ func (wrpr *WebsiteWrapper) MyUserPies(w http.ResponseWriter, r *http.Request, y
 	ay, err := wrpr.storage.GetActiveYear(r.Context())
 	if err != nil {
 		log.Error().Err(err).Msg("Error getting active year")
-		abortStatus(w, 500)
+		AbortStatus(w, 500)
 		return
 	}
 
 	piesEnabled, _ := wrpr.storage.GetUserPiesEnabled(r.Context())
 	if !piesEnabled {
-		abortStatus(w, 404)
+		AbortStatus(w, 404)
 		return
 	}
 
@@ -40,7 +40,7 @@ func (wrpr *WebsiteWrapper) MyUserPies(w http.ResponseWriter, r *http.Request, y
 	pies, err := wrpr.storage.GetOwnerUserPies(r.Context(), int32(year), uid)
 	if err != nil {
 		log.Error().Err(err).Msg("Error getting user pies")
-		abortStatus(w, 500)
+		AbortStatus(w, 500)
 		return
 	}
 
@@ -94,13 +94,13 @@ func (wrpr *WebsiteWrapper) EditUserPieForm(w http.ResponseWriter, r *http.Reque
 	ay, err := wrpr.storage.GetActiveYear(r.Context())
 	if err != nil {
 		log.Error().Err(err).Msg("Error getting active year")
-		abortStatus(w, 500)
+		AbortStatus(w, 500)
 		return
 	}
 
 	piesEnabled, _ := wrpr.storage.GetUserPiesEnabled(r.Context())
 	if !piesEnabled {
-		abortStatus(w, 404)
+		AbortStatus(w, 404)
 		return
 	}
 
@@ -115,11 +115,11 @@ func (wrpr *WebsiteWrapper) EditUserPieForm(w http.ResponseWriter, r *http.Reque
 	pie, err := wrpr.storage.GetUserPieByOwner(r.Context(), int32(year), id, uid)
 	if err != nil {
 		log.Error().Err(err).Msg("Error getting user pie")
-		abortStatus(w, 500)
+		AbortStatus(w, 500)
 		return
 	}
 	if pie.Id == "" {
-		abortStatus(w, 404)
+		AbortStatus(w, 404)
 		return
 	}
 
@@ -164,7 +164,7 @@ func (wrpr *WebsiteWrapper) EditUserPie(w http.ResponseWriter, r *http.Request, 
 	ay, err := wrpr.storage.GetActiveYear(r.Context())
 	if err != nil {
 		log.Error().Err(err).Msg("Error getting active year")
-		abortStatus(w, 500)
+		AbortStatus(w, 500)
 		return
 	}
 
@@ -175,7 +175,7 @@ func (wrpr *WebsiteWrapper) EditUserPie(w http.ResponseWriter, r *http.Request, 
 
 	piesEnabled, _ := wrpr.storage.GetUserPiesEnabled(r.Context())
 	if !piesEnabled {
-		abortStatus(w, 404)
+		AbortStatus(w, 404)
 		return
 	}
 
@@ -190,11 +190,11 @@ func (wrpr *WebsiteWrapper) EditUserPie(w http.ResponseWriter, r *http.Request, 
 	pie, err := wrpr.storage.GetUserPieByOwner(r.Context(), int32(year), id, uid)
 	if err != nil {
 		log.Error().Err(err).Msg("Error getting user pie")
-		abortStatus(w, 500)
+		AbortStatus(w, 500)
 		return
 	}
 	if pie.Id == "" {
-		abortStatus(w, 404)
+		AbortStatus(w, 404)
 		return
 	}
 
@@ -326,7 +326,7 @@ func (wrpr *WebsiteWrapper) EditUserPie(w http.ResponseWriter, r *http.Request, 
 	err = wrpr.storage.UpdateUserPie(r.Context(), updatedPie)
 	if err != nil {
 		log.Error().Err(err).Msg("Error updating user pie")
-		abortStatus(w, 500)
+		AbortStatus(w, 500)
 		return
 	}
 
@@ -337,7 +337,7 @@ func (wrpr *WebsiteWrapper) EditUserPie(w http.ResponseWriter, r *http.Request, 
 func (wrpr *WebsiteWrapper) WithdrawUserPie(w http.ResponseWriter, r *http.Request, year int64, id string) {
 	piesEnabled, _ := wrpr.storage.GetUserPiesEnabled(r.Context())
 	if !piesEnabled {
-		abortStatus(w, 404)
+		AbortStatus(w, 404)
 		return
 	}
 
@@ -352,11 +352,11 @@ func (wrpr *WebsiteWrapper) WithdrawUserPie(w http.ResponseWriter, r *http.Reque
 	pie, err := wrpr.storage.GetUserPieByOwner(r.Context(), int32(year), id, uid)
 	if err != nil {
 		log.Error().Err(err).Msg("Error getting user pie")
-		abortStatus(w, 500)
+		AbortStatus(w, 500)
 		return
 	}
 	if pie.Id == "" {
-		abortStatus(w, 404)
+		AbortStatus(w, 404)
 		return
 	}
 

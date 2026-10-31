@@ -14,27 +14,27 @@ func (wrpr *WebsiteWrapper) YearPage(w http.ResponseWriter, r *http.Request, yea
 	ay, err := wrpr.storage.GetActiveYear(r.Context())
 	if err != nil {
 		log.Error().Err(err).Msg("Error getting active year")
-		abortStatus(w, 500)
+		AbortStatus(w, 500)
 		return
 	}
 	topPie, err := wrpr.storage.GetTopMakerPie(r.Context(), year)
 	if err != nil {
 		log.Error().Err(err).Msg("Error getting top maker pie")
-		abortStatus(w, 500)
+		AbortStatus(w, 500)
 		return
 	}
 
 	makers, err := wrpr.storage.GetMakersForYear(r.Context(), year)
 	if err != nil {
 		log.Error().Err(err).Msg("Error getting makers")
-		abortStatus(w, 500)
+		AbortStatus(w, 500)
 		return
 	}
 
 	cats, err := wrpr.storage.GetMakerPieCategoriesForYear(r.Context(), year, []string{}, nil)
 	if err != nil {
 		log.Error().Err(err).Msg("Error getting pie categories")
-		abortStatus(w, 500)
+		AbortStatus(w, 500)
 		return
 	}
 	categoryLinks := []templater.Link{}
@@ -94,14 +94,14 @@ func (wrpr *WebsiteWrapper) YearAllBrands(w http.ResponseWriter, r *http.Request
 	ay, err := wrpr.storage.GetActiveYear(r.Context())
 	if err != nil {
 		log.Error().Err(err).Msg("Error getting active year")
-		abortStatus(w, 500)
+		AbortStatus(w, 500)
 		return
 	}
 
 	makers, err := wrpr.storage.GetMakersForYear(r.Context(), year)
 	if err != nil {
 		log.Error().Err(err).Msg("Error getting makers")
-		abortStatus(w, 500)
+		AbortStatus(w, 500)
 		return
 	}
 
@@ -143,14 +143,14 @@ func (wrpr *WebsiteWrapper) YearAllCategories(w http.ResponseWriter, r *http.Req
 	ay, err := wrpr.storage.GetActiveYear(r.Context())
 	if err != nil {
 		log.Error().Err(err).Msg("Error getting active year")
-		abortStatus(w, 500)
+		AbortStatus(w, 500)
 		return
 	}
 
 	cats, err := wrpr.storage.GetMakerPieCategoriesForYear(r.Context(), year, []string{}, nil)
 	if err != nil {
 		log.Error().Err(err).Msg("Error getting GetMakerPieCategoriesForYear")
-		abortStatus(w, 500)
+		AbortStatus(w, 500)
 		return
 	}
 	categoryLinks := []templater.Link{}
@@ -185,13 +185,13 @@ func (wrpr *WebsiteWrapper) YearsPage(w http.ResponseWriter, r *http.Request) {
 	ay, err := wrpr.storage.GetActiveYear(r.Context())
 	if err != nil {
 		log.Error().Err(err).Msg("Error getting active year")
-		abortStatus(w, 500)
+		AbortStatus(w, 500)
 		return
 	}
 	yrs, err := wrpr.storage.GetQuerier().GetMakerPieYears(r.Context())
 	if err != nil {
 		log.Error().Err(err).Msg("Error getting years")
-		abortStatus(w, 500)
+		AbortStatus(w, 500)
 		return
 	}
 	slices.Sort(yrs)

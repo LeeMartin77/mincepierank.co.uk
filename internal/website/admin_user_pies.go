@@ -28,7 +28,7 @@ func (wrpr *WebsiteWrapper) GetAdminUserPies(w http.ResponseWriter, r *http.Requ
 		ay, err := wrpr.storage.GetActiveYear(r.Context())
 		if err != nil {
 			log.Error().Err(err).Msg("Error getting active year")
-			abortStatus(w, 500)
+			AbortStatus(w, 500)
 			return
 		}
 		year = *ay
@@ -61,7 +61,7 @@ func (wrpr *WebsiteWrapper) GetAdminUserPies(w http.ResponseWriter, r *http.Requ
 		count, err := wrpr.storage.GetUserPieAdminQueueCountByStatus(r.Context(), int32(year), statusFilter)
 		if err != nil {
 			log.Error().Err(err).Msg("Error getting queue count by status")
-			abortStatus(w, 500)
+			AbortStatus(w, 500)
 			return
 		}
 		totalCount = count
@@ -77,7 +77,7 @@ func (wrpr *WebsiteWrapper) GetAdminUserPies(w http.ResponseWriter, r *http.Requ
 	rows, err := wrpr.storage.GetUserPieAdminQueue(r.Context(), int32(year), int(limit), int(pageZeroIdx))
 	if err != nil {
 		log.Error().Err(err).Msg("Error getting admin queue")
-		abortStatus(w, 500)
+		AbortStatus(w, 500)
 		return
 	}
 
@@ -170,11 +170,11 @@ func loadUserPieForOwner(wrpr *WebsiteWrapper, w http.ResponseWriter, r *http.Re
 	pieWithOwner, err := wrpr.storage.GetUserPie(r.Context(), int32(year), id)
 	if err != nil {
 		log.Error().Err(err).Msg("Error getting user pie")
-		abortStatus(w, 500)
+		AbortStatus(w, 500)
 		return nil, false
 	}
 	if pieWithOwner.Pie.Id == "" || pieWithOwner.OwnerID != ownerid {
-		abortStatus(w, 404)
+		AbortStatus(w, 404)
 		return nil, false
 	}
 	return pieWithOwner, true
@@ -196,7 +196,7 @@ func userPieReviewPage(wrpr *WebsiteWrapper, w http.ResponseWriter, r *http.Requ
 	brands, err := wrpr.storage.GetAllMakers(r.Context())
 	if err != nil {
 		log.Error().Err(err).Msg("Error getting brands for promote form")
-		abortStatus(w, 500)
+		AbortStatus(w, 500)
 		return
 	}
 
@@ -246,7 +246,7 @@ func (wrpr *WebsiteWrapper) PostAdminUserPieApprove(w http.ResponseWriter, r *ht
 	err := wrpr.storage.SetUserPieStatus(r.Context(), int32(year), id, storage.UserPieStatus(pieWithOwner.Pie.Status), storage.UserPieStatusApproved)
 	if err != nil {
 		log.Error().Err(err).Msg("Error approving user pie")
-		abortStatus(w, 500)
+		AbortStatus(w, 500)
 		return
 	}
 
@@ -270,7 +270,7 @@ func (wrpr *WebsiteWrapper) PostAdminUserPieReject(w http.ResponseWriter, r *htt
 	err := wrpr.storage.SetUserPieStatusWithNote(r.Context(), int32(year), id, storage.UserPieStatus(pieWithOwner.Pie.Status), storage.UserPieStatusRejected, note, userId)
 	if err != nil {
 		log.Error().Err(err).Msg("Error rejecting user pie")
-		abortStatus(w, 500)
+		AbortStatus(w, 500)
 		return
 	}
 
@@ -291,7 +291,7 @@ func (wrpr *WebsiteWrapper) PostAdminUserPieDuplicate(w http.ResponseWriter, r *
 
 	duplicateOf := r.FormValue("duplicateOf")
 	if duplicateOf == "" {
-		abortStatus(w, 400)
+		AbortStatus(w, 400)
 		return
 	}
 
@@ -299,7 +299,7 @@ func (wrpr *WebsiteWrapper) PostAdminUserPieDuplicate(w http.ResponseWriter, r *
 	err := wrpr.storage.SetUserPieDuplicateOf(r.Context(), int32(year), id, storage.UserPieStatus(pieWithOwner.Pie.Status), duplicateOf, userId)
 	if err != nil {
 		log.Error().Err(err).Msg("Error marking user pie as duplicate")
-		abortStatus(w, 500)
+		AbortStatus(w, 500)
 		return
 	}
 
@@ -335,7 +335,7 @@ func (wrpr *WebsiteWrapper) PostAdminUserPiePromote(w http.ResponseWriter, r *ht
 	}
 	if exists, err := wrpr.brandExists(r.Context(), makerid); err != nil {
 		log.Error().Err(err).Msg("Error checking brand existence for promote")
-		abortStatus(w, 500)
+		AbortStatus(w, 500)
 		return
 	} else if !exists {
 		userPieReviewPage(wrpr, w, r, http.StatusBadRequest, pieWithOwner,
@@ -392,7 +392,7 @@ func (wrpr *WebsiteWrapper) PostAdminUserPiePromote(w http.ResponseWriter, r *ht
 	})
 	if err != nil {
 		log.Error().Err(err).Msg("Error creating brand pie from user pie")
-		abortStatus(w, 500)
+		AbortStatus(w, 500)
 		return
 	}
 
@@ -433,7 +433,7 @@ func (wrpr *WebsiteWrapper) GetAdminUserPieDuplicates(w http.ResponseWriter, r *
 		ay, err := wrpr.storage.GetActiveYear(r.Context())
 		if err != nil {
 			log.Error().Err(err).Msg("Error getting active year")
-			abortStatus(w, 500)
+			AbortStatus(w, 500)
 			return
 		}
 		year = *ay
@@ -442,7 +442,7 @@ func (wrpr *WebsiteWrapper) GetAdminUserPieDuplicates(w http.ResponseWriter, r *
 	groups, err := wrpr.storage.GetUserPieDuplicateGroupsAll(r.Context(), int32(year))
 	if err != nil {
 		log.Error().Err(err).Msg("Error getting duplicate groups")
-		abortStatus(w, 500)
+		AbortStatus(w, 500)
 		return
 	}
 
@@ -497,7 +497,7 @@ func (wrpr *WebsiteWrapper) DeleteAdminUserPie(w http.ResponseWriter, r *http.Re
 	err := wrpr.storage.DeleteUserPie(r.Context(), int32(year), id)
 	if err != nil {
 		log.Error().Err(err).Msg("Error deleting user pie")
-		abortStatus(w, 500)
+		AbortStatus(w, 500)
 		return
 	}
 

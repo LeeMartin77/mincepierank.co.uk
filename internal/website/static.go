@@ -11,7 +11,7 @@ func (wrpr *WebsiteWrapper) AboutPage(w http.ResponseWriter, r *http.Request) {
 	ay, err := wrpr.storage.GetActiveYear(r.Context())
 	if err != nil {
 		log.Error().Err(err).Msg("Error getting active year")
-		abortStatus(w, 500)
+		AbortStatus(w, 500)
 		return
 	}
 
@@ -38,7 +38,7 @@ func (wrpr *WebsiteWrapper) CookiePage(w http.ResponseWriter, r *http.Request) {
 	ay, err := wrpr.storage.GetActiveYear(r.Context())
 	if err != nil {
 		log.Error().Err(err).Msg("Error getting active year")
-		abortStatus(w, 500)
+		AbortStatus(w, 500)
 		return
 	}
 
@@ -65,7 +65,7 @@ func (wrpr *WebsiteWrapper) PrivacyPage(w http.ResponseWriter, r *http.Request) 
 	ay, err := wrpr.storage.GetActiveYear(r.Context())
 	if err != nil {
 		log.Error().Err(err).Msg("Error getting active year")
-		abortStatus(w, 500)
+		AbortStatus(w, 500)
 		return
 	}
 

@@ -42,12 +42,12 @@ func validateBrandForm(name, id string) (string, []string) {
 func brandListPage(wrpr *WebsiteWrapper, w http.ResponseWriter, r *http.Request, pageErrs ...string) {
 	brands, err := wrpr.storage.GetAllMakers(r.Context())
 	if err != nil {
-		abortErr(w, 500, err)
+		AbortErr(w, 500, err)
 		return
 	}
 	ay, err := wrpr.storage.GetQuerier().GetActiveYear(r.Context())
 	if err != nil {
-		abortErr(w, 500, err)
+		AbortErr(w, 500, err)
 		return
 	}
 	piesEnabled, _ := wrpr.storage.GetUserPiesEnabled(r.Context())
@@ -75,7 +75,7 @@ func brandListPage(wrpr *WebsiteWrapper, w http.ResponseWriter, r *http.Request,
 func brandNewPage(wrpr *WebsiteWrapper, w http.ResponseWriter, r *http.Request, status int, form map[string]string, pageErrs ...string) {
 	ay, err := wrpr.storage.GetQuerier().GetActiveYear(r.Context())
 	if err != nil {
-		abortErr(w, 500, err)
+		AbortErr(w, 500, err)
 		return
 	}
 	piesEnabled, _ := wrpr.storage.GetUserPiesEnabled(r.Context())
@@ -103,7 +103,7 @@ func brandNewPage(wrpr *WebsiteWrapper, w http.ResponseWriter, r *http.Request, 
 func brandEditPage(wrpr *WebsiteWrapper, w http.ResponseWriter, r *http.Request, status int, maker *types.Maker, pieCount int64, pageErrs ...string) {
 	ay, err := wrpr.storage.GetQuerier().GetActiveYear(r.Context())
 	if err != nil {
-		abortErr(w, 500, err)
+		AbortErr(w, 500, err)
 		return
 	}
 	piesEnabled, _ := wrpr.storage.GetUserPiesEnabled(r.Context())
@@ -163,7 +163,7 @@ func (wrpr *WebsiteWrapper) CreateAdminBrand(w http.ResponseWriter, r *http.Requ
 	// logo upload is optional; stored at /brands/{id}/{filename}
 	logo := ""
 	if publicPath, uploaded, err := saveUploadedFile(wrpr.config.ImgprssrDir, "logo", r, "brands", id); err != nil {
-		abortErr(w, 500, err)
+		AbortErr(w, 500, err)
 		return
 	} else if uploaded {
 		logo = publicPath
@@ -182,7 +182,7 @@ func (wrpr *WebsiteWrapper) CreateAdminBrand(w http.ResponseWriter, r *http.Requ
 		return
 	}
 	if err != nil {
-		abortErr(w, 500, err)
+		AbortErr(w, 500, err)
 		return
 	}
 
@@ -231,7 +231,7 @@ func (wrpr *WebsiteWrapper) UpdateAdminBrand(w http.ResponseWriter, r *http.Requ
 	// optional logo upload: a new file is added under /brands/{id}/ and
 	// replaces the recorded path; the old file is removed best-effort.
 	if publicPath, uploaded, err := saveUploadedFile(wrpr.config.ImgprssrDir, "logo", r, "brands", id); err != nil {
-		abortErr(w, 500, err)
+		AbortErr(w, 500, err)
 		return
 	} else if uploaded {
 		if maker.Logo != "" && maker.Logo != publicPath {
@@ -246,11 +246,11 @@ func (wrpr *WebsiteWrapper) UpdateAdminBrand(w http.ResponseWriter, r *http.Requ
 	maker.Website = website
 	updated, err := wrpr.storage.UpdateMaker(r.Context(), *maker)
 	if errors.Is(err, storage.ErrBrandNotFound) {
-		abortStatus(w, http.StatusNotFound)
+		AbortStatus(w, http.StatusNotFound)
 		return
 	}
 	if err != nil {
-		abortErr(w, 500, err)
+		AbortErr(w, 500, err)
 		return
 	}
 
@@ -278,7 +278,7 @@ func (wrpr *WebsiteWrapper) DeleteAdminBrand(w http.ResponseWriter, r *http.Requ
 	}
 
 	if err := wrpr.storage.DeleteMaker(r.Context(), id); err != nil {
-		abortErr(w, 500, err)
+		AbortErr(w, 500, err)
 		return
 	}
 	if maker.Logo != "" {
@@ -296,16 +296,16 @@ func (wrpr *WebsiteWrapper) DeleteAdminBrand(w http.ResponseWriter, r *http.Requ
 func loadBrand(wrpr *WebsiteWrapper, w http.ResponseWriter, r *http.Request, id string) (*types.Maker, int64, bool) {
 	maker, err := wrpr.storage.GetMaker(r.Context(), id)
 	if err != nil {
-		abortErr(w, 500, err)
+		AbortErr(w, 500, err)
 		return nil, 0, false
 	}
 	if maker == nil {
-		abortStatus(w, http.StatusNotFound)
+		AbortStatus(w, http.StatusNotFound)
 		return nil, 0, false
 	}
 	pieCount, err := wrpr.storage.GetMakerPieCount(r.Context(), id)
 	if err != nil {
-		abortErr(w, 500, err)
+		AbortErr(w, 500, err)
 		return nil, 0, false
 	}
 	return maker, pieCount, true
