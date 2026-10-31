@@ -64,7 +64,7 @@ func (wrpr *WebsiteWrapper) YearPage(w http.ResponseWriter, r *http.Request, yea
 			Keywords:    fmt.Sprintf("Mince Pies, UK, Ranking, %d", year),
 			MenuSettings: templater.MenuSettings{
 				ActiveYear:      *ay,
-				SignedIn:        signedInFrom(r),
+				SignedIn:        SignedInFrom(r),
 				UserPiesEnabled: piesEnabled,
 			},
 		},
@@ -124,7 +124,7 @@ func (wrpr *WebsiteWrapper) YearAllBrands(w http.ResponseWriter, r *http.Request
 			Keywords:    fmt.Sprintf("Mince Pies, UK, Ranking, %d", year),
 			MenuSettings: templater.MenuSettings{
 				ActiveYear:      *ay,
-				SignedIn:        signedInFrom(r),
+				SignedIn:        SignedInFrom(r),
 				UserPiesEnabled: piesEnabled,
 			},
 		},
@@ -166,7 +166,7 @@ func (wrpr *WebsiteWrapper) YearAllCategories(w http.ResponseWriter, r *http.Req
 			Keywords:    fmt.Sprintf("Mince Pies, UK, Ranking, %d", year),
 			MenuSettings: templater.MenuSettings{
 				ActiveYear:      *ay,
-				SignedIn:        signedInFrom(r),
+				SignedIn:        SignedInFrom(r),
 				UserPiesEnabled: piesEnabled,
 			},
 		},
@@ -205,7 +205,7 @@ func (wrpr *WebsiteWrapper) YearsPage(w http.ResponseWriter, r *http.Request) {
 			Keywords:    "Mince Pies, UK, Ranking",
 			MenuSettings: templater.MenuSettings{
 				ActiveYear:      *ay,
-				SignedIn:        signedInFrom(r),
+				SignedIn:        SignedInFrom(r),
 				UserPiesEnabled: piesEnabled,
 			},
 		},

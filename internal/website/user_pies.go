@@ -36,9 +36,9 @@ func (wrpr *WebsiteWrapper) SubmitPieForm(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	sin := signedInFrom(r)
+	sin := SignedInFrom(r)
 	if !sin {
-		requireSignIn(w, r)
+		RequireSignIn(w, r)
 		return
 	}
 
@@ -85,9 +85,9 @@ func (wrpr *WebsiteWrapper) SubmitPie(w http.ResponseWriter, r *http.Request, ye
 		return
 	}
 
-	sin := signedInFrom(r)
+	sin := SignedInFrom(r)
 	if !sin {
-		requireSignIn(w, r)
+		RequireSignIn(w, r)
 		return
 	}
 
@@ -217,7 +217,7 @@ func (wrpr *WebsiteWrapper) SubmitPie(w http.ResponseWriter, r *http.Request, ye
 	}
 
 	// Create the user pie
-	uid := userIDFrom(r)
+	uid := UserIDFrom(r)
 	pie := types.UserPieYearly{
 		Year:             int32(year),
 		Id:               uuid.NewString(),
@@ -312,7 +312,7 @@ func (wrpr *WebsiteWrapper) ListUserPies(w http.ResponseWriter, r *http.Request,
 			Keywords:    fmt.Sprintf("Mince pies, UK, ranking, %d, community", year),
 			MenuSettings: templater.MenuSettings{
 				ActiveYear:      *ay,
-				SignedIn:        signedInFrom(r),
+				SignedIn:        SignedInFrom(r),
 				UserPiesEnabled: piesEnabled,
 			},
 		},
@@ -385,7 +385,7 @@ func (wrpr *WebsiteWrapper) RateUserPie(w http.ResponseWriter, r *http.Request, 
 		return
 	}
 
-	uid := userIDFrom(r)
+	uid := UserIDFrom(r)
 	wrpr.storage.GetQuerier().UpsertUserPieRanking(r.Context(), sqlcgen.UpsertUserPieRankingParams{
 		Year:    pie.Year,
 		Pieid:   pie.Id,
@@ -447,8 +447,8 @@ func (wrpr *WebsiteWrapper) getUserPiePage(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	uid := userIDFrom(r)
-	sin := signedInFrom(r)
+	uid := UserIDFrom(r)
+	sin := SignedInFrom(r)
 
 	var userRanking *types.UserPieRankingYearly
 	if sin {

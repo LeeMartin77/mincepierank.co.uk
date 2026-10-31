@@ -24,7 +24,7 @@ func (wrpr *WebsiteWrapper) AboutPage(w http.ResponseWriter, r *http.Request) {
 			Description: "All about what Mince Pie Rank is",
 			MenuSettings: templater.MenuSettings{
 				ActiveYear:      *ay,
-				SignedIn:        signedInFrom(r),
+				SignedIn:        SignedInFrom(r),
 				UserPiesEnabled: piesEnabled,
 			},
 		},
@@ -51,7 +51,7 @@ func (wrpr *WebsiteWrapper) CookiePage(w http.ResponseWriter, r *http.Request) {
 			Description: "Mince Pie Rank cookie policy",
 			MenuSettings: templater.MenuSettings{
 				ActiveYear:      *ay,
-				SignedIn:        signedInFrom(r),
+				SignedIn:        SignedInFrom(r),
 				UserPiesEnabled: piesEnabled,
 			},
 		},
@@ -78,7 +78,7 @@ func (wrpr *WebsiteWrapper) PrivacyPage(w http.ResponseWriter, r *http.Request) 
 			Description: "Mince Pie Rank's privacy policy",
 			MenuSettings: templater.MenuSettings{
 				ActiveYear:      *ay,
-				SignedIn:        signedInFrom(r),
+				SignedIn:        SignedInFrom(r),
 				UserPiesEnabled: piesEnabled,
 			},
 		},

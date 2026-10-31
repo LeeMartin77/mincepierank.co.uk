@@ -67,7 +67,7 @@ func (wrpr *WebsiteWrapper) HomePage(w http.ResponseWriter, r *http.Request) {
 			Keywords:    "Mince Pies, UK, Ranking",
 			MenuSettings: templater.MenuSettings{
 				ActiveYear:      ay,
-				SignedIn:        signedInFrom(r),
+				SignedIn:        SignedInFrom(r),
 				UserPiesEnabled: piesEnabled,
 			},
 		},

@@ -177,7 +177,7 @@ func (wrpr *WebsiteWrapper) DeleteAdminBrandPieRanking(w http.ResponseWriter, r 
 		return
 	}
 
-	adminId := userIDFrom(r)
+	adminId := UserIDFrom(r)
 	log.Info().Str("pie", brand+"/"+pie).Str("rated_by", userid).Str("by", adminId).Msg("Deleted brand pie ranking")
 	http.Redirect(w, r, rankingReviewPath("brands/"+url.PathEscape(brand)+"/"+url.PathEscape(pie), year), http.StatusSeeOther)
 }
@@ -280,7 +280,7 @@ func (wrpr *WebsiteWrapper) DeleteAdminUserPieRanking(w http.ResponseWriter, r *
 		return
 	}
 
-	adminId := userIDFrom(r)
+	adminId := UserIDFrom(r)
 	log.Info().Str("pie", id).Str("rated_by", userid).Str("by", adminId).Msg("Deleted user pie ranking")
 	http.Redirect(w, r, rankingReviewPath("userpies/"+url.PathEscape(id), year), http.StatusSeeOther)
 }

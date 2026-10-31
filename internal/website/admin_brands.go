@@ -186,7 +186,7 @@ func (wrpr *WebsiteWrapper) CreateAdminBrand(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	userId := userIDFrom(r)
+	userId := UserIDFrom(r)
 	log.Info().Str("brand", id).Str("by", userId).Msg("Created brand")
 	http.Redirect(w, r, "/admin/brands/"+id, http.StatusSeeOther)
 }
@@ -254,7 +254,7 @@ func (wrpr *WebsiteWrapper) UpdateAdminBrand(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	userId := userIDFrom(r)
+	userId := UserIDFrom(r)
 	log.Info().Str("brand", id).Str("by", userId).Msg("Updated brand")
 	http.Redirect(w, r, "/admin/brands/"+updated.Id, http.StatusSeeOther)
 }
@@ -287,7 +287,7 @@ func (wrpr *WebsiteWrapper) DeleteAdminBrand(w http.ResponseWriter, r *http.Requ
 		}
 	}
 
-	userId := userIDFrom(r)
+	userId := UserIDFrom(r)
 	log.Info().Str("brand", id).Str("by", userId).Msg("Deleted brand")
 	http.Redirect(w, r, "/admin/brands", http.StatusSeeOther)
 }

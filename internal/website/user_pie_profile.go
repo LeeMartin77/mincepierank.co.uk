@@ -29,13 +29,13 @@ func (wrpr *WebsiteWrapper) MyUserPies(w http.ResponseWriter, r *http.Request, y
 		return
 	}
 
-	sin := signedInFrom(r)
+	sin := SignedInFrom(r)
 	if !sin {
-		requireSignIn(w, r)
+		RequireSignIn(w, r)
 		return
 	}
 
-	uid := userIDFrom(r)
+	uid := UserIDFrom(r)
 
 	pies, err := wrpr.storage.GetOwnerUserPies(r.Context(), int32(year), uid)
 	if err != nil {
@@ -104,13 +104,13 @@ func (wrpr *WebsiteWrapper) EditUserPieForm(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	sin := signedInFrom(r)
+	sin := SignedInFrom(r)
 	if !sin {
-		requireSignIn(w, r)
+		RequireSignIn(w, r)
 		return
 	}
 
-	uid := userIDFrom(r)
+	uid := UserIDFrom(r)
 
 	pie, err := wrpr.storage.GetUserPieByOwner(r.Context(), int32(year), id, uid)
 	if err != nil {
@@ -179,13 +179,13 @@ func (wrpr *WebsiteWrapper) EditUserPie(w http.ResponseWriter, r *http.Request, 
 		return
 	}
 
-	sin := signedInFrom(r)
+	sin := SignedInFrom(r)
 	if !sin {
-		requireSignIn(w, r)
+		RequireSignIn(w, r)
 		return
 	}
 
-	uid := userIDFrom(r)
+	uid := UserIDFrom(r)
 
 	pie, err := wrpr.storage.GetUserPieByOwner(r.Context(), int32(year), id, uid)
 	if err != nil {
@@ -341,13 +341,13 @@ func (wrpr *WebsiteWrapper) WithdrawUserPie(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	sin := signedInFrom(r)
+	sin := SignedInFrom(r)
 	if !sin {
-		requireSignIn(w, r)
+		RequireSignIn(w, r)
 		return
 	}
 
-	uid := userIDFrom(r)
+	uid := UserIDFrom(r)
 
 	pie, err := wrpr.storage.GetUserPieByOwner(r.Context(), int32(year), id, uid)
 	if err != nil {

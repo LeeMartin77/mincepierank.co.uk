@@ -242,7 +242,7 @@ func (wrpr *WebsiteWrapper) PostAdminUserPieApprove(w http.ResponseWriter, r *ht
 		return
 	}
 
-	userId := userIDFrom(r)
+	userId := UserIDFrom(r)
 	err := wrpr.storage.SetUserPieStatus(r.Context(), int32(year), id, storage.UserPieStatus(pieWithOwner.Pie.Status), storage.UserPieStatusApproved)
 	if err != nil {
 		log.Error().Err(err).Msg("Error approving user pie")
@@ -266,7 +266,7 @@ func (wrpr *WebsiteWrapper) PostAdminUserPieReject(w http.ResponseWriter, r *htt
 	}
 
 	note := r.FormValue("note")
-	userId := userIDFrom(r)
+	userId := UserIDFrom(r)
 	err := wrpr.storage.SetUserPieStatusWithNote(r.Context(), int32(year), id, storage.UserPieStatus(pieWithOwner.Pie.Status), storage.UserPieStatusRejected, note, userId)
 	if err != nil {
 		log.Error().Err(err).Msg("Error rejecting user pie")
@@ -295,7 +295,7 @@ func (wrpr *WebsiteWrapper) PostAdminUserPieDuplicate(w http.ResponseWriter, r *
 		return
 	}
 
-	userId := userIDFrom(r)
+	userId := UserIDFrom(r)
 	err := wrpr.storage.SetUserPieDuplicateOf(r.Context(), int32(year), id, storage.UserPieStatus(pieWithOwner.Pie.Status), duplicateOf, userId)
 	if err != nil {
 		log.Error().Err(err).Msg("Error marking user pie as duplicate")
@@ -409,7 +409,7 @@ func (wrpr *WebsiteWrapper) PostAdminUserPiePromote(w http.ResponseWriter, r *ht
 	}
 
 	// Mark user pie as promoted
-	userId := userIDFrom(r)
+	userId := UserIDFrom(r)
 	parsedNewOid, _ := uuid.Parse(newOid)
 	err = wrpr.storage.SetUserPiePromotedMakerPieOid(r.Context(), int32(year), id, storage.UserPieStatus(pie.Status), parsedNewOid.String(), userId)
 	if err != nil {

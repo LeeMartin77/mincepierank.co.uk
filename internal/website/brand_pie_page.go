@@ -109,7 +109,7 @@ func (wrpr *WebsiteWrapper) RateYearBrandPie(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	uid := userIDFrom(r)
+	uid := UserIDFrom(r)
 	wrpr.storage.GetQuerier().UpsertUserMakerPieRanking(r.Context(), sqlcgen.UpsertUserMakerPieRankingParams{
 		Year:    int32(year),
 		Makerid: brand,
@@ -147,8 +147,8 @@ func returnSinglePiePage(wrpr *WebsiteWrapper, w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	uid := userIDFrom(r)
-	sin := signedInFrom(r)
+	uid := UserIDFrom(r)
+	sin := SignedInFrom(r)
 	piesEnabled, _ := wrpr.storage.GetUserPiesEnabled(r.Context())
 
 	urnking, _ := wrpr.storage.GetQuerier().GetUserMakerPieRanking(r.Context(), sqlcgen.GetUserMakerPieRankingParams{

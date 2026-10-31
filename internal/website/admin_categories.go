@@ -167,7 +167,7 @@ func (wrpr *WebsiteWrapper) CreateAdminCategory(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	userId := userIDFrom(r)
+	userId := UserIDFrom(r)
 	log.Info().Str("category", created.Slug).Str("by", userId).Msg("Created category")
 	http.Redirect(w, r, "/admin/categories/"+created.Id.String(), http.StatusSeeOther)
 }
@@ -215,7 +215,7 @@ func (wrpr *WebsiteWrapper) UpdateAdminCategory(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	userId := userIDFrom(r)
+	userId := UserIDFrom(r)
 	log.Info().Str("category", updated.Slug).Str("by", userId).Msg("Updated category")
 	http.Redirect(w, r, "/admin/categories/"+updated.Id.String(), http.StatusSeeOther)
 }
@@ -247,7 +247,7 @@ func (wrpr *WebsiteWrapper) DeleteAdminCategory(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	userId := userIDFrom(r)
+	userId := UserIDFrom(r)
 	log.Info().Str("category", cat.Slug).Str("by", userId).Msg("Deleted category")
 	http.Redirect(w, r, "/admin/categories", http.StatusSeeOther)
 }

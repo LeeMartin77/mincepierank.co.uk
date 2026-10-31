@@ -15,7 +15,7 @@ import (
 
 // will abort with a 403 if not admin
 func validateAdmin(wrpr *WebsiteWrapper, w http.ResponseWriter, r *http.Request) bool {
-	userId := userIDFrom(r)
+	userId := UserIDFrom(r)
 	isAdmin, err := wrpr.storage.GetQuerier().IsAdminId(r.Context(), userId)
 	if err != nil {
 		abortErr(w, 500, err)

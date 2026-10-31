@@ -143,7 +143,7 @@ func (wrpr *WebsiteWrapper) YearAllPies(w http.ResponseWriter, r *http.Request, 
 			Keywords:    fmt.Sprintf("Mince pies, UK, ranking, %d", year),
 			MenuSettings: templater.MenuSettings{
 				ActiveYear:      *ay,
-				SignedIn:        signedInFrom(r),
+				SignedIn:        SignedInFrom(r),
 				UserPiesEnabled: piesEnabled,
 			},
 		},
@@ -181,7 +181,7 @@ func (wrpr *WebsiteWrapper) YearPersonalRanking(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	pies, err := wrpr.storage.GetFilterableMakerPiesForUser(r.Context(), year, userIDFrom(r), limit, pageZeroIdx, storage.PieFilters{
+	pies, err := wrpr.storage.GetFilterableMakerPiesForUser(r.Context(), year, UserIDFrom(r), limit, pageZeroIdx, storage.PieFilters{
 		CategorySlugs: catFilters,
 	})
 	if err != nil {
@@ -225,7 +225,7 @@ func (wrpr *WebsiteWrapper) YearPersonalRanking(w http.ResponseWriter, r *http.R
 			Keywords:    fmt.Sprintf("Mince pies, UK, ranking, %d", year),
 			MenuSettings: templater.MenuSettings{
 				ActiveYear:      *ay,
-				SignedIn:        signedInFrom(r),
+				SignedIn:        SignedInFrom(r),
 				UserPiesEnabled: piesEnabled,
 			},
 		},
@@ -321,7 +321,7 @@ func (wrpr *WebsiteWrapper) YearBrandPies(w http.ResponseWriter, r *http.Request
 			Keywords:    fmt.Sprintf("Mince pies, UK, ranking, %d", year),
 			MenuSettings: templater.MenuSettings{
 				ActiveYear:      *ay,
-				SignedIn:        signedInFrom(r),
+				SignedIn:        SignedInFrom(r),
 				UserPiesEnabled: piesEnabled,
 			},
 		},
@@ -410,7 +410,7 @@ func (wrpr *WebsiteWrapper) YearCategoryPies(w http.ResponseWriter, r *http.Requ
 			Keywords:    fmt.Sprintf("Mince pies, UK, ranking, %d", year),
 			MenuSettings: templater.MenuSettings{
 				ActiveYear:      *ay,
-				SignedIn:        signedInFrom(r),
+				SignedIn:        SignedInFrom(r),
 				UserPiesEnabled: piesEnabled,
 			},
 		},

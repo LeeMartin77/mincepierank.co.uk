@@ -66,17 +66,17 @@ const (
 	contextKeySignedIn
 )
 
-// userIDFrom returns the id of the user attached to the request by
+// UserIDFrom returns the id of the user attached to the request by
 // UserIdMiddleware - their email when signed in, an anonymous id otherwise.
 // It is empty if the middleware did not run.
-func userIDFrom(r *http.Request) string {
+func UserIDFrom(r *http.Request) string {
 	v, _ := r.Context().Value(contextKeyUserID).(string)
 	return v
 }
 
-// signedInFrom reports whether the request carries a verified sign-in, as
+// SignedInFrom reports whether the request carries a verified sign-in, as
 // attached by UserIdMiddleware.
-func signedInFrom(r *http.Request) bool {
+func SignedInFrom(r *http.Request) bool {
 	v, _ := r.Context().Value(contextKeySignedIn).(bool)
 	return v
 }
@@ -112,9 +112,10 @@ func safeRedirectPath(path string) string {
 	return path
 }
 
-// requireSignIn redirects the request to the sign-in route, asking to be
-// returned to the requested path after signing in.
-func requireSignIn(w http.ResponseWriter, r *http.Request) {
+// RequireSignIn redirects the request to the sign-in route, asking to be
+// returned to the requested path after signing in. Pair it with SignedInFrom
+// to decide whether the visitor is signed in.
+func RequireSignIn(w http.ResponseWriter, r *http.Request) {
 	target := "/auth/signin"
 	if redirect := safeRedirectPath(r.URL.RequestURI()); redirect != "" {
 		target = target + "?redirect=" + url.QueryEscape(redirect)
