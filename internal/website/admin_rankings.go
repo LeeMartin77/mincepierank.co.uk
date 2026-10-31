@@ -198,22 +198,13 @@ func (wrpr *WebsiteWrapper) GetAdminUserPieRankings(w http.ResponseWriter, r *ht
 		return
 	}
 
-	pieWithOwner, err := wrpr.storage.GetUserPie(r.Context(), year, id)
-	if err != nil {
-		abortErr(w, 500, err)
-		return
-	}
-	if pieWithOwner == nil || pieWithOwner.Pie.Id == "" {
-		abortStatus(w, http.StatusNotFound)
+	pieWithOwner, ok := loadUserPie(wrpr, w, r, year, id)
+	if !ok {
 		return
 	}
 
-	rankings, err := wrpr.storage.GetQuerier().ListUserPieRankingsForPie(r.Context(), sqlcgen.ListUserPieRankingsForPieParams{
-		Year:  year,
-		Pieid: id,
-	})
-	if err != nil {
-		abortErr(w, 500, err)
+	rankings, ok := loadUserPieRankings(wrpr, w, r, year, id)
+	if !ok {
 		return
 	}
 

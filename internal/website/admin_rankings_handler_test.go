@@ -2,6 +2,7 @@ package website
 
 import (
 	"context"
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -23,16 +24,18 @@ type fakeRankingStore struct {
 	piesEnabled  bool
 	brandPieYear *types.MakerPieYearly
 	userPie      *storage.UserPieWithOwner
+	userPieErr   error
 }
 
 type fakeRankingQuerier struct {
 	sqlcgen.Querier
-	isAdmin       bool
-	activeYe      int64
-	brandPies     []sqlcgen.ListMakerPieRankingSummariesRow
-	userPies      []sqlcgen.ListUserPieRankingSummariesRow
-	brandRankings []sqlcgen.MakerPieRankingYearly
-	userRankings  []sqlcgen.UserPieRankingYearly
+	isAdmin         bool
+	activeYe        int64
+	brandPies       []sqlcgen.ListMakerPieRankingSummariesRow
+	userPies        []sqlcgen.ListUserPieRankingSummariesRow
+	brandRankings   []sqlcgen.MakerPieRankingYearly
+	userRankings    []sqlcgen.UserPieRankingYearly
+	userRankingsErr error
 }
 
 func newFakeRankingStore() *fakeRankingStore {
@@ -66,6 +69,9 @@ func (f *fakeRankingQuerier) ListMakerPieRankingsForPie(ctx context.Context, arg
 }
 
 func (f *fakeRankingQuerier) ListUserPieRankingsForPie(ctx context.Context, arg sqlcgen.ListUserPieRankingsForPieParams) ([]sqlcgen.UserPieRankingYearly, error) {
+	if f.userRankingsErr != nil {
+		return nil, f.userRankingsErr
+	}
 	var out []sqlcgen.UserPieRankingYearly
 	for _, r := range f.userRankings {
 		if r.Year == arg.Year && r.Pieid == arg.Pieid {
@@ -110,7 +116,7 @@ func (f *fakeRankingStore) GetMakerPieYearly(ctx context.Context, year int32, ma
 }
 
 func (f *fakeRankingStore) GetUserPie(c context.Context, year int32, id string) (*storage.UserPieWithOwner, error) {
-	return f.userPie, nil
+	return f.userPie, f.userPieErr
 }
 
 func newRankingTestRouter(t *testing.T, store *fakeRankingStore) http.Handler {
@@ -124,6 +130,15 @@ func newRankingTestRouter(t *testing.T, store *fakeRankingStore) http.Handler {
 		ctx := context.WithValue(r.Context(), contextKeyUserID, "admin@example.com")
 		mux.ServeHTTP(w, r.WithContext(ctx))
 	})
+}
+
+// newRankingWrapper builds the bare wrapper for testing the helper functions
+// without routing.
+func newRankingWrapper(t *testing.T, store *fakeRankingStore) *WebsiteWrapper {
+	t.Helper()
+	return NewWebsiteWrapper(store, WebsiteConfiguration{
+		ImgprssrDir: t.TempDir(),
+	}, templater.NewHtmlTemplater()).(*WebsiteWrapper)
 }
 
 func TestAdminRankingsAccessControl(t *testing.T) {
@@ -281,4 +296,75 @@ func TestAdminRankingsYearParam(t *testing.T) {
 	if w.Code != http.StatusBadRequest {
 		t.Errorf("malformed year = %d, want 400", w.Code)
 	}
+}
+
+func TestLoadUserPie(t *testing.T) {
+	store := newFakeRankingStore()
+	wrpr := newRankingWrapper(t, store)
+
+	t.Run("found pie is returned without a response", func(t *testing.T) {
+		store.userPie = &storage.UserPieWithOwner{Pie: types.UserPieYearly{Year: 2026, Id: "mypie"}}
+		w := httptest.NewRecorder()
+		pie, ok := loadUserPie(wrpr, w, httptest.NewRequest(http.MethodGet, "/", nil), 2026, "mypie")
+		if !ok || pie == nil || pie.Pie.Id != "mypie" {
+			t.Errorf("loadUserPie = (%v, %v), want the mypie pie", pie, ok)
+		}
+		if w.Body.Len() != 0 {
+			t.Errorf("found pie should write nothing, got %d", w.Code)
+		}
+	})
+
+	t.Run("missing pie is 404", func(t *testing.T) {
+		store.userPie = nil
+		w := httptest.NewRecorder()
+		if pie, ok := loadUserPie(wrpr, w, httptest.NewRequest(http.MethodGet, "/", nil), 2026, "gone"); ok || pie != nil {
+			t.Errorf("loadUserPie = (%v, %v), want (nil, false)", pie, ok)
+		}
+		if w.Code != http.StatusNotFound {
+			t.Errorf("missing pie = %d, want 404", w.Code)
+		}
+	})
+
+	t.Run("lookup failure is 500", func(t *testing.T) {
+		store.userPieErr = errors.New("db down")
+		defer func() { store.userPieErr = nil }()
+		w := httptest.NewRecorder()
+		if pie, ok := loadUserPie(wrpr, w, httptest.NewRequest(http.MethodGet, "/", nil), 2026, "mypie"); ok || pie != nil {
+			t.Errorf("loadUserPie = (%v, %v), want (nil, false)", pie, ok)
+		}
+		if w.Code != http.StatusInternalServerError {
+			t.Errorf("failing lookup = %d, want 500", w.Code)
+		}
+	})
+}
+
+func TestLoadUserPieRankings(t *testing.T) {
+	store := newFakeRankingStore()
+	wrpr := newRankingWrapper(t, store)
+
+	t.Run("rankings are returned without a response", func(t *testing.T) {
+		store.querier.userRankings = []sqlcgen.UserPieRankingYearly{
+			{Year: 2026, Pieid: "mypie", Userid: "rater@example.com"},
+		}
+		w := httptest.NewRecorder()
+		rankings, ok := loadUserPieRankings(wrpr, w, httptest.NewRequest(http.MethodGet, "/", nil), 2026, "mypie")
+		if !ok || len(rankings) != 1 || rankings[0].Userid != "rater@example.com" {
+			t.Errorf("loadUserPieRankings = (%v, %v), want the one ranking", rankings, ok)
+		}
+		if w.Body.Len() != 0 {
+			t.Errorf("found rankings should write nothing, got %d", w.Code)
+		}
+	})
+
+	t.Run("query failure is 500", func(t *testing.T) {
+		store.querier.userRankingsErr = errors.New("db down")
+		defer func() { store.querier.userRankingsErr = nil }()
+		w := httptest.NewRecorder()
+		if rankings, ok := loadUserPieRankings(wrpr, w, httptest.NewRequest(http.MethodGet, "/", nil), 2026, "mypie"); ok || rankings != nil {
+			t.Errorf("loadUserPieRankings = (%v, %v), want (nil, false)", rankings, ok)
+		}
+		if w.Code != http.StatusInternalServerError {
+			t.Errorf("failing query = %d, want 500", w.Code)
+		}
+	})
 }

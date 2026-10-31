@@ -9,6 +9,8 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/leemartin77/mincepierank.co.uk/internal/storage"
+	"github.com/leemartin77/mincepierank.co.uk/internal/storage/sqlcgen"
 	"github.com/leemartin77/mincepierank.co.uk/internal/storage/types"
 	"github.com/rs/zerolog/log"
 )
@@ -24,6 +26,37 @@ func abortStatus(w http.ResponseWriter, code int) {
 func abortErr(w http.ResponseWriter, code int, err error) {
 	log.Error().Err(err).Int("status", code).Msg("request failed")
 	http.Error(w, http.StatusText(code), code)
+}
+
+// loadUserPie looks up a user pie for the given year, answering the request
+// with 500 when the lookup fails or 404 when the pie does not exist. ok
+// reports whether the caller can carry on with the returned pie.
+func loadUserPie(wrpr *WebsiteWrapper, w http.ResponseWriter, r *http.Request, year int32, id string) (*storage.UserPieWithOwner, bool) {
+	pieWithOwner, err := wrpr.storage.GetUserPie(r.Context(), year, id)
+	if err != nil {
+		abortErr(w, http.StatusInternalServerError, err)
+		return nil, false
+	}
+	if pieWithOwner == nil || pieWithOwner.Pie.Id == "" {
+		abortStatus(w, http.StatusNotFound)
+		return nil, false
+	}
+	return pieWithOwner, true
+}
+
+// loadUserPieRankings lists every rating left against a user pie for the
+// given year, answering with 500 when the query fails. ok reports whether the
+// caller can carry on with the returned rankings.
+func loadUserPieRankings(wrpr *WebsiteWrapper, w http.ResponseWriter, r *http.Request, year int32, id string) ([]sqlcgen.UserPieRankingYearly, bool) {
+	rankings, err := wrpr.storage.GetQuerier().ListUserPieRankingsForPie(r.Context(), sqlcgen.ListUserPieRankingsForPieParams{
+		Year:  year,
+		Pieid: id,
+	})
+	if err != nil {
+		abortErr(w, http.StatusInternalServerError, err)
+		return nil, false
+	}
+	return rankings, true
 }
 
 // saveUploadedFile writes the multipart file from formField to

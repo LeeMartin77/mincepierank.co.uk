@@ -356,14 +356,8 @@ func (wrpr *WebsiteWrapper) RateUserPie(w http.ResponseWriter, r *http.Request, 
 		return
 	}
 
-	pieWithOwner, err := wrpr.storage.GetUserPie(r.Context(), int32(year), id)
-	if err != nil {
-		log.Error().Err(err).Msg("Error getting user pie")
-		abortStatus(w, 500)
-		return
-	}
-	if pieWithOwner.Pie.Id == "" {
-		abortStatus(w, 404)
+	pieWithOwner, ok := loadUserPie(wrpr, w, r, int32(year), id)
+	if !ok {
 		return
 	}
 
@@ -420,14 +414,8 @@ func (wrpr *WebsiteWrapper) getUserPiePage(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	pieWithOwner, err := wrpr.storage.GetUserPie(r.Context(), int32(year), id)
-	if err != nil {
-		log.Error().Err(err).Msg("Error getting user pie")
-		abortStatus(w, 500)
-		return
-	}
-	if pieWithOwner.Pie.Id == "" {
-		abortStatus(w, 404)
+	pieWithOwner, ok := loadUserPie(wrpr, w, r, int32(year), id)
+	if !ok {
 		return
 	}
 
