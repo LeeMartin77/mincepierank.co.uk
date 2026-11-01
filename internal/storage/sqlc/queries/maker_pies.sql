@@ -36,6 +36,44 @@ INSERT INTO maker_pie_yearly
     )
 RETURNING oid::text as oid;
 
+-- name: UpsertMakerPie :one
+INSERT INTO maker_pie_yearly
+    (
+        year,
+        makerid,
+        id,
+        displayname,
+        fresh,
+        image_file,
+        web_link,
+        pack_count,
+        pack_price_in_pence,
+        validated
+    ) 
+    VALUES
+    (
+        sqlc.arg(year)::int,
+        sqlc.arg(makerid)::text,
+        sqlc.arg(id)::text,
+        sqlc.arg(displayname)::text,
+        sqlc.arg(fresh)::boolean,
+        sqlc.arg(image_file)::text,
+        sqlc.arg(web_link)::text,
+        sqlc.arg(pack_count)::int,
+        sqlc.arg(pack_price_in_pence)::int,
+        sqlc.arg(validated)::boolean
+    )
+    ON CONFLICT (year, makerid, id)
+    DO UPDATE SET
+        displayname=EXCLUDED.displayname,
+        fresh=EXCLUDED.fresh,
+        image_file=EXCLUDED.image_file,
+        web_link=EXCLUDED.web_link,
+        pack_count=EXCLUDED.pack_count,
+        pack_price_in_pence=EXCLUDED.pack_price_in_pence,
+        validated=EXCLUDED.validated
+RETURNING oid::text as oid;
+
 -- name: UpdateMakerPieByOid :exec
 UPDATE maker_pie_yearly
 SET

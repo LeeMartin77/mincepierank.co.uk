@@ -867,3 +867,73 @@ func (q *Queries) UpdateMakerPieLabels(ctx context.Context, arg UpdateMakerPieLa
 	_, err := q.db.Exec(ctx, updateMakerPieLabels, arg.Labels, arg.Oid)
 	return err
 }
+
+const upsertMakerPie = `-- name: UpsertMakerPie :one
+INSERT INTO maker_pie_yearly
+    (
+        year,
+        makerid,
+        id,
+        displayname,
+        fresh,
+        image_file,
+        web_link,
+        pack_count,
+        pack_price_in_pence,
+        validated
+    ) 
+    VALUES
+    (
+        $1::int,
+        $2::text,
+        $3::text,
+        $4::text,
+        $5::boolean,
+        $6::text,
+        $7::text,
+        $8::int,
+        $9::int,
+        $10::boolean
+    )
+    ON CONFLICT (year, makerid, id)
+    DO UPDATE SET
+        displayname=EXCLUDED.displayname,
+        fresh=EXCLUDED.fresh,
+        image_file=EXCLUDED.image_file,
+        web_link=EXCLUDED.web_link,
+        pack_count=EXCLUDED.pack_count,
+        pack_price_in_pence=EXCLUDED.pack_price_in_pence,
+        validated=EXCLUDED.validated
+RETURNING oid::text as oid
+`
+
+type UpsertMakerPieParams struct {
+	Year             int32
+	Makerid          string
+	ID               string
+	Displayname      string
+	Fresh            bool
+	ImageFile        string
+	WebLink          string
+	PackCount        int32
+	PackPriceInPence int32
+	Validated        bool
+}
+
+func (q *Queries) UpsertMakerPie(ctx context.Context, arg UpsertMakerPieParams) (string, error) {
+	row := q.db.QueryRow(ctx, upsertMakerPie,
+		arg.Year,
+		arg.Makerid,
+		arg.ID,
+		arg.Displayname,
+		arg.Fresh,
+		arg.ImageFile,
+		arg.WebLink,
+		arg.PackCount,
+		arg.PackPriceInPence,
+		arg.Validated,
+	)
+	var oid string
+	err := row.Scan(&oid)
+	return oid, err
+}

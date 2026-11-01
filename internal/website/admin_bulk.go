@@ -128,7 +128,9 @@ func (wrpr *WebsiteWrapper) BulkCreateMakerPieAdmin(w http.ResponseWriter, r *ht
 
 		fresh := pie["fresh"] == "yes"
 
-		oid, err := q.CreateMakerPie(r.Context(), sqlcgen.CreateMakerPieParams{
+		// Upsert so partial re-uploads (scrape-as-you-go) update pies in
+		// place instead of failing on the (year, makerid, id) primary key.
+		oid, err := q.UpsertMakerPie(r.Context(), sqlcgen.UpsertMakerPieParams{
 			Year:    year,
 			Makerid: pie["makerid"],
 			ID:      pie["id"],

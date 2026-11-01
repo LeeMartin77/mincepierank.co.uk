@@ -83,6 +83,7 @@ type Querier interface {
 	UpdateUserPieImage(ctx context.Context, arg UpdateUserPieImageParams) error
 	UpdateUserPiePromotedMakerPieOid(ctx context.Context, arg UpdateUserPiePromotedMakerPieOidParams) error
 	UpdateUserPieStatusWithNote(ctx context.Context, arg UpdateUserPieStatusWithNoteParams) error
+	UpsertMakerPie(ctx context.Context, arg UpsertMakerPieParams) (string, error)
 	UpsertUserMakerPieRanking(ctx context.Context, arg UpsertUserMakerPieRankingParams) error
 	UpsertUserPieRanking(ctx context.Context, arg UpsertUserPieRankingParams) error
 }
