@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Piescraper</title>
+  <style>
+    body {
+      font: 13px/1.45 system-ui, sans-serif;
+      width: 640px;
+      margin: 0;
+      padding: 10px 12px;
+      color: #1f2430;
+    }
+    header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    header h1 {
+      font-size: 15px;
+      margin: 0 auto 0 0;
+    }
+    button {
+      padding: 4px 10px;
+      cursor: pointer;
+    }
+    input[type="number"] {
+      width: 72px;
+    }
+    #status {
+      min-height: 18px;
+      margin: 4px 0 8px;
+      white-space: pre-wrap;
+    }
+    #status.error { color: #b3261e; }
+    #status.ok { color: #186a3b; }
+    .entry {
+      border: 1px solid #c9ced6;
+      border-radius: 6px;
+      padding: 8px;
+      margin-bottom: 8px;
+      display: grid;
+      grid-template-columns: 96px 1fr;
+      gap: 6px 10px;
+    }
+    .entry img {
+      width: 96px;
+      height: 96px;
+      object-fit: contain;
+      background: #f2f4f7;
+      border-radius: 4px;
+    }
+    .entry .fields {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 4px 8px;
+    }
+    .entry label {
+      display: flex;
+      flex-direction: column;
+      font-size: 11px;
+      color: #5a6472;
+    }
+    .entry label.wide { grid-column: span 2; }
+    .entry input, .entry select {
+      font: inherit;
+      color: inherit;
+      padding: 2px 4px;
+      min-width: 0;
+    }
+    .entry label.check {
+      flex-direction: row;
+      align-items: center;
+      gap: 4px;
+      margin-top: 14px;
+    }
+    .entry .meta {
+      grid-column: span 2;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 11px;
+      color: #5a6472;
+    }
+    .entry .meta select { flex: 1; }
+    .entry input.invalid { outline: 2px solid #b3261e; }
+    .key { font-family: monospace; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Piescraper</h1>
+    <label>Year <input type="number" id="year" min="2020" max="2099" /></label>
+    <button id="scrape">Scrape current tab</button>
+    <button id="export">Export zip</button>
+  </header>
+  <div id="status"></div>
+  <div id="count"></div>
+  <div id="entries"></div>
+  <datalist id="categoryOptions"></datalist>
+  <script src="lib/derive.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>

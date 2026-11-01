@@ -1,6 +1,258 @@
-browser.action.onClicked.addListener(async (tab) => {
-  await browser.scripting.executeScript({
-    target: { tabId: tab.id },
-    files: ["scraper.js"]
-  });
+// Background event page: owns the storage entry store and the export, since
+// the popup closes as soon as a download starts.
+
+importScripts("lib/derive.js", "lib/zip.js");
+
+var STORE_KEY = "entries";
+var SETTINGS_KEY = "settings";
+
+browser.runtime.onMessage.addListener(function (msg) {
+  switch (msg.type) {
+    case "scrape":
+      return scrapeActiveTab();
+    case "getEntries":
+      return getEntries();
+    case "updateEntry":
+      return updateEntry(msg.key, msg.patch);
+    case "deleteEntry":
+      return deleteEntry(msg.key);
+    case "export":
+      return exportZip(msg.year, msg.keys);
+    default:
+      return { ok: false, error: "unknown message type: " + msg.type };
+  }
 });
+
+function scrapeActiveTab() {
+  return browser.tabs.query({ active: true, currentWindow: true }).then(function (tabs) {
+    if (!tabs.length) {
+      throw new Error("no active tab");
+    }
+    var tabId = tabs[0].id;
+    return browser.scripting
+      .executeScript({
+        target: { tabId: tabId },
+        files: ["lib/derive.js", "lib/extract.js"]
+      })
+      .then(function () {
+        return browser.scripting.executeScript({
+          target: { tabId: tabId },
+          func: function () {
+            return globalThis.piescraperExtract();
+          }
+        });
+      })
+      .then(function (results) {
+        var facts = results[0] && results[0].result;
+        if (!facts || !facts.url) {
+          throw new Error("extraction returned nothing (restricted page?)");
+        }
+        var entry = PS.buildEntry(facts);
+        return mergeEntry(entry).then(function (merged) {
+          return { ok: true, key: merged.key, entry: merged.entry };
+        });
+      });
+  });
+}
+
+function readStore() {
+  return browser.storage.local.get([STORE_KEY, SETTINGS_KEY]).then(function (data) {
+    return {
+      entries: data[STORE_KEY] || {},
+      settings: data[SETTINGS_KEY] || {}
+    };
+  });
+}
+
+function mergeEntry(fresh) {
+  var key = fresh.makerid + "/" + fresh.id;
+  return readStore().then(function (store) {
+    var existing = store.entries[key];
+    var merged = fresh;
+    if (existing) {
+      merged.editedFields = existing.editedFields || [];
+      ["name", "priceInPence", "packCount", "categories", "fresh", "id", "makerid", "url"].forEach(function (f) {
+        if (merged.editedFields.indexOf(f) !== -1) {
+          merged[f] = existing[f];
+        }
+      });
+      merged.image = pickChosenImage(existing, fresh);
+      merged.imageCandidates = unionCandidates(existing.imageCandidates, fresh.imageCandidates);
+      if (!merged.image && merged.imageCandidates.length) {
+        merged.image = merged.imageCandidates[0].url;
+      }
+    }
+    store.entries[entryKey(merged)] = merged;
+    return browser.storage.local.set({ entries: store.entries }).then(function () {
+      return { key: entryKey(merged), entry: merged };
+    });
+  });
+}
+
+function entryKey(entry) {
+  return entry.makerid + "/" + entry.id;
+}
+
+function pickChosenImage(existing, fresh) {
+  if (!existing.image) {
+    return fresh.image;
+  }
+  var stillThere = fresh.imageCandidates.some(function (c) {
+    return c.url === existing.image;
+  });
+  return stillThere ? existing.image : fresh.image;
+}
+
+function unionCandidates(a, b) {
+  var byUrl = {};
+  (a || []).concat(b || []).forEach(function (c) {
+    if (!byUrl[c.url] || c.score > byUrl[c.url].score) {
+      byUrl[c.url] = c;
+    }
+  });
+  var out = Object.keys(byUrl).map(function (k) {
+    return byUrl[k];
+  });
+  out.sort(function (x, y) {
+    return y.score - x.score;
+  });
+  return out.slice(0, 8);
+}
+
+function getEntries() {
+  return readStore().then(function (store) {
+    return { ok: true, entries: store.entries, settings: store.settings };
+  });
+}
+
+function updateEntry(key, patch) {
+  return readStore().then(function (store) {
+    var entry = store.entries[key];
+    if (!entry) {
+      throw new Error("no entry " + key);
+    }
+    entry.editedFields = entry.editedFields || [];
+    Object.keys(patch).forEach(function (field) {
+      entry[field] = patch[field];
+      if (entry.editedFields.indexOf(field) === -1) {
+        entry.editedFields.push(field);
+      }
+    });
+    var newKey = entryKey(entry);
+    if (newKey !== key) {
+      delete store.entries[key];
+    }
+    store.entries[newKey] = entry;
+    return browser.storage.local.set({ entries: store.entries }).then(function () {
+      return { ok: true, key: newKey, entry: entry };
+    });
+  });
+}
+
+function deleteEntry(key) {
+  return readStore().then(function (store) {
+    delete store.entries[key];
+    return browser.storage.local.set({ entries: store.entries }).then(function () {
+      return { ok: true };
+    });
+  });
+}
+
+function exportZip(year, keys) {
+  if (!year || !/^\d{4}$/.test(String(year))) {
+    throw new Error("year must be a four digit number");
+  }
+  return readStore().then(function (store) {
+    var skipped = [];
+    var rows = [];
+    var images = [];
+    var chain = Promise.resolve();
+
+    keys.forEach(function (key) {
+      var entry = store.entries[key];
+      if (!entry) {
+        return;
+      }
+      chain = chain
+        .then(function () {
+          if (!entry.image) {
+            throw new Error("no image selected");
+          }
+          return fetch(entry.image, { credentials: "include" }).then(function (res) {
+            if (!res.ok) {
+              throw new Error("image fetch failed: " + res.status);
+            }
+            return res.arrayBuffer().then(function (buf) {
+              var makerid = PS.slugify(entry.makerid) || "unknown";
+              var id = PS.slugify(entry.id) || "unknown";
+              var ext = extensionFor(res.headers.get("content-type"), entry.image);
+              rows.push({
+                year: String(year),
+                makerid: makerid,
+                id: id,
+                displayname: entry.name,
+                fresh: entry.fresh ? "yes" : "no",
+                pack_count: entry.packCount === null || entry.packCount === undefined ? "" : entry.packCount,
+                pack_price_in_pence: entry.priceInPence === null || entry.priceInPence === undefined ? "" : entry.priceInPence,
+                category_slugs: (entry.categories || []).join(","),
+                web_link: entry.url,
+                image_file: "images/" + makerid + "/" + id + "." + ext
+              });
+              images.push({
+                path: "images/" + makerid + "/" + id + "." + ext,
+                bytes: new Uint8Array(buf)
+              });
+            });
+          });
+        })
+        .catch(function (err) {
+          skipped.push({ key: key, name: entry.name || key, reason: String(err.message || err) });
+        });
+    });
+
+    return chain.then(function () {
+      if (!rows.length) {
+        throw new Error("nothing to export" + (skipped.length ? " (all entries failed)" : ""));
+      }
+      var zip = new ZipWriter();
+      zip.add("piedata.csv", new TextEncoder().encode(PS.buildCsv(String(year), rows)));
+      images.forEach(function (img) {
+        zip.add(img.path, img.bytes);
+      });
+      return downloadZip(zip.finish(), "piedata-" + year + ".zip").then(function () {
+        return { ok: true, exported: rows.length, skipped: skipped };
+      });
+    });
+  });
+}
+
+function extensionFor(contentType, url) {
+  var byType = {
+    "image/jpeg": "jpg",
+    "image/png": "png",
+    "image/webp": "webp",
+    "image/avif": "avif",
+    "image/gif": "gif"
+  };
+  if (contentType) {
+    var base = contentType.split(";")[0].trim().toLowerCase();
+    if (byType[base]) {
+      return byType[base];
+    }
+  }
+  var m = String(url).match(/\.(jpe?g|png|webp|avif|gif)(\?|#|$)/i);
+  if (m) {
+    return m[1].toLowerCase() === "jpeg" ? "jpg" : m[1].toLowerCase();
+  }
+  return "jpg";
+}
+
+function downloadZip(bytes, filename) {
+  var CHUNK = 0x8000;
+  var binary = "";
+  for (var i = 0; i < bytes.length; i += CHUNK) {
+    binary += String.fromCharCode.apply(null, bytes.subarray(i, i + CHUNK));
+  }
+  var url = "data:application/zip;base64," + btoa(binary);
+  return browser.downloads.download({ url: url, filename: filename, saveAs: true });
+}

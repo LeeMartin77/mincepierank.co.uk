@@ -8,18 +8,25 @@ If this was a big commercial project, we'd pay for access, but for a hobby proje
 
 Problem is this is massively boring gruntwork, so the goal is to simplify it a bit.
 
-# Extract
+## The extension
 
-We'll have a "webscraping" script that does two things - dumps out the html and images from pages as we're browsing, but does so with names that help an LLM figure out what website it's from.
+`webscraper/` is a Firefox extension that turns product pages you browse by hand into rows for the bulk importer.
 
-# Transform
+Load it from `about:debugging#/runtime/this-firefox` -> "Load Temporary Add-on" -> pick `webscraper/manifest.json` (Firefox drops it again on restart, so reload it each session).
 
-We then use some simple models - florence to identify which pictures are actually of food, and whatever free model we fancy to just sift through the data, combine it with some template data for labels and brands.
+Then:
 
-# Load
+- Browse to a product page on a retailer site.
+- Open the Piescraper toolbar popup and hit "Scrape current tab". It reads the JSON-LD product data, `og:` meta tags and page images, and guesses id, makerid, price, pack count and categories.
+- Entries accumulate in extension storage keyed by `makerid/id`, so scraping the same pie again just merges new image candidates in without losing your edits.
+- Fix anything wrong in the popup table (id and makerid form the key, price is in pence, categories are slugs from `data/generic/categories.sql`).
+- Pick the year, hit "Export zip". The images are fetched at this point (in your browsing session, so cookies get past the image cdn), packed with `piedata.csv` into `piedata-<year>.zip`, and you can upload that straight to the admin bulk import page.
 
-Drop the data in the required structured zip into the website, and we've got a year of mince pies ready to go.
+The pure logic (ids, prices, pack counts, category guesses, csv, zip) lives in `webscraper/lib/derive.js` and `webscraper/lib/zip.js` and is unit tested with `node --test webscraper/test/*.test.mjs` (node >= 22). `lib/extract.js` only collects raw DOM facts.
 
+## Legacy flow
+
+The older dump-everything approach (`organiser/`) is kept around but the extension replaced it: structured extraction gets us most of the way there without needing an LLM to sift through html dumps.
 
 ## Considerations
 
