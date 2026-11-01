@@ -86,6 +86,28 @@
     .entry .meta select { flex: 1; }
     .entry input.invalid { outline: 2px solid #b3261e; }
     .key { font-family: monospace; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    #ai-settings {
+      margin-bottom: 8px;
+      font-size: 12px;
+      color: #5a6472;
+    }
+    #ai-settings .ai-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 1.2fr 1fr;
+      gap: 6px 8px;
+      margin: 6px 0;
+    }
+    #ai-settings label {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    #ai-settings input {
+      font: inherit;
+      color: #1f2430;
+      padding: 2px 4px;
+      min-width: 0;
+    }
   </style>
 </head>
 <body>
@@ -96,6 +118,16 @@
     <button id="export">Export zip</button>
   </header>
   <div id="status"></div>
+  <details id="ai-settings">
+    <summary>AI fill (optional): fixes pages with odd or missing json-ld</summary>
+    <div class="ai-grid">
+      <label>base url <input type="text" id="ai-base" placeholder="https://api.openai.com/v1" autocomplete="off" /></label>
+      <label>api key <input type="password" id="ai-key" autocomplete="off" /></label>
+      <label>model <input type="text" id="ai-model" placeholder="gpt-4o-mini" autocomplete="off" /></label>
+    </div>
+    Only used when scraping leaves gaps; the page's text and json-ld go to this endpoint.
+    Leave the key empty to disable.
+  </details>
   <div id="count"></div>
   <div id="entries"></div>
   <datalist id="categoryOptions"></datalist>

@@ -67,9 +67,13 @@ var PS = (function () {
   // id is what converges on re-scrape (it is part of the primary key in the
   // bulk csv), so prefer stable numeric product codes over anything else.
   function deriveId(facts) {
+    return deriveIdDetailed(facts).id;
+  }
+
+  function deriveIdDetailed(facts) {
     var code = firstDigits(facts.gtin) || firstDigits(facts.sku);
     if (code && code.length >= 8) {
-      return code;
+      return { id: code, source: "code" };
     }
     var u = parseUrl(facts.url);
     if (u) {
@@ -77,17 +81,18 @@ var PS = (function () {
       for (var i = segs.length - 1; i >= 0; i--) {
         var num = firstDigits(decodeURIComponent(segs[i]));
         if (num && num.length >= 8) {
-          return num;
+          return { id: num, source: "url-code" };
         }
       }
       for (var j = segs.length - 1; j >= 0; j--) {
         var seg = slugify(decodeURIComponent(segs[j]));
         if (seg && !/^(p|pd|pdp|product|products|item|sku|c)$/g.test(seg) && !/^\d+$/.test(seg)) {
-          return seg;
+          return { id: seg, source: "url-slug" };
         }
       }
     }
-    return slugify(facts.name) || "unknown";
+    var nameSlug = slugify(facts.name);
+    return { id: nameSlug || "unknown", source: nameSlug ? "name-slug" : "unknown" };
   }
 
   function firstDigits(s) {
@@ -278,12 +283,13 @@ var PS = (function () {
   function buildEntry(facts) {
     var product = pickProduct(facts.products || []);
     var name = (product && product.name) || facts.ogTitle || facts.title || "";
-    var id = deriveId({
+    var derived = deriveIdDetailed({
       url: facts.url,
       name: name,
       gtin: product && product.gtin,
       sku: product && product.sku
     });
+    var id = derived.id;
     var price = null;
     if (product && product.price !== null && product.price !== undefined) {
       price = priceToPence(product.price);
@@ -300,6 +306,7 @@ var PS = (function () {
     return {
       makerid: makeridFromUrl(facts.url),
       id: id,
+      idSource: derived.source,
       url: facts.url,
       name: name,
       description: (product && product.description) || facts.ogDescription || "",
@@ -312,6 +319,178 @@ var PS = (function () {
       capturedAt: new Date().toISOString(),
       editedFields: []
     };
+  }
+
+  // ---------------------------------------------------------------------
+  // openai fallback: used when the rules above left gaps, or when the page
+  // has json-ld in a shape we do not understand. The model sees the raw
+  // json-ld documents plus the visible page text, and may only fill fields
+  // that are still missing.
+  // ---------------------------------------------------------------------
+
+  function urlsInText(text, limit) {
+    var m = String(text || "").match(/https?:\/\/[^\s"'\\<>]+/g) || [];
+    var out = [];
+    for (var i = 0; i < m.length && out.length < (limit || 16); i++) {
+      var u = m[i].replace(/[),.;:]+$/, "");
+      if (out.indexOf(u) === -1) {
+        out.push(u);
+      }
+    }
+    return out;
+  }
+
+  function imageLikeUrl(u) {
+    return /\.(jpe?g|png|webp|avif|gif)([?#]|$)/i.test(u) || /image/i.test(u);
+  }
+
+  function missingFields(entry) {
+    var missing = [];
+    if (!entry.name) missing.push("name");
+    if (entry.priceInPence === null || entry.priceInPence === undefined) missing.push("price");
+    if (entry.packCount === null || entry.packCount === undefined) missing.push("pack_count");
+    if (!(entry.categories && entry.categories.length)) missing.push("categories");
+    if (!entry.image) missing.push("image");
+    if (!/^(code|url-code|url-slug|edited)$/.test(entry.idSource || "")) missing.push("id");
+    return missing;
+  }
+
+  function needsAiFill(entry) {
+    return missingFields(entry).length > 0;
+  }
+
+  var AI_SYSTEM =
+    "You extract structured product data for a mince pie price ranking site from " +
+    "supermarket web pages. Pages may have no JSON-LD, or JSON-LD in unusual shapes, " +
+    "so use whatever structure the input has. Reply with ONLY a JSON object, no prose:\n" +
+    '{"name": string, "price_gbp": number like 2.49 or null, "pack_count": integer or null, ' +
+    '"categories": [strings], "fresh": true or false, "image": string or null, "id": string or null}\n' +
+    "Rules: categories may only use slugs from this list, [] if none fit: CATEGORIES. " +
+    "image must be one of the supplied image_urls. id: the product's numeric code if one " +
+    "appears in the data, otherwise a short lowercase slug. " +
+    "Prefer values found in jsonld over guesses from page_text. Use null instead of guessing.";
+
+  // image urls the model is allowed to pick: the scored candidates plus any
+  // image-ish urls that appear in the page's own json-ld. background.js passes
+  // the same list to aiFill so the model cannot invent urls to download.
+  function aiImageCandidates(facts, entry) {
+    var candidates = (entry.imageCandidates || []).slice(0, 8).map(function (c) {
+      return c.url;
+    });
+    if (entry.image && candidates.indexOf(entry.image) === -1) {
+      candidates.unshift(entry.image);
+    }
+    urlsInText((facts.rawLd || []).join(" "), 16).forEach(function (u) {
+      if (imageLikeUrl(u) && candidates.indexOf(u) === -1) {
+        candidates.push(u);
+      }
+    });
+    return candidates.slice(0, 16);
+  }
+
+  // The chat payload: raw json-ld first (the point is to understand shapes we
+  // could not parse ourselves), then the visible text as backstop.
+  function aiMessages(facts, entry) {
+    var system = AI_SYSTEM.replace("CATEGORIES", CATEGORIES.join(", "));
+    var user = JSON.stringify({
+      url: entry.url || facts.url,
+      title: facts.title || null,
+      og_title: facts.ogTitle || null,
+      og_description: facts.ogDescription || null,
+      jsonld: facts.rawLd || [],
+      known: {
+        name: entry.name || null,
+        id: entry.id,
+        price_gbp: entry.priceInPence == null ? null : entry.priceInPence / 100,
+        pack_count: entry.packCount == null ? null : entry.packCount,
+        categories: entry.categories || []
+      },
+      missing: missingFields(entry),
+      image_urls: aiImageCandidates(facts, entry),
+      page_text: String(facts.bodyText || "").slice(0, 6000)
+    });
+    return [
+      { role: "system", content: system },
+      { role: "user", content: user }
+    ];
+  }
+
+  // chat completions wrap answers in prose or ``` fences, so slice out the object
+  function parseAiJson(content) {
+    var text = String(content || "");
+    var start = text.indexOf("{");
+    var end = text.lastIndexOf("}");
+    if (start === -1 || end <= start) {
+      throw new Error("ai response contained no json object");
+    }
+    return JSON.parse(text.slice(start, end + 1));
+  }
+
+  // Only fills what is still missing, and only with values that can be checked:
+  // categories must be real slugs, images must be urls seen on the page, and a
+  // suggested id replaces a weak one (or any id when it is a real product code).
+  function aiFill(entry, parsed, allowedImageUrls) {
+    var filled = [];
+    if (!entry.name && typeof parsed.name === "string" && parsed.name.trim()) {
+      entry.name = parsed.name.trim().slice(0, 200);
+      filled.push("name");
+    }
+    if (entry.priceInPence == null) {
+      var pence = priceToPence(parsed.price_gbp);
+      if (pence !== null && pence >= 1 && pence <= 100000) {
+        entry.priceInPence = pence;
+        filled.push("priceInPence");
+      }
+    }
+    if (entry.packCount == null) {
+      var n = parseInt(parsed.pack_count, 10);
+      if (isFinite(n) && n >= 1 && n <= 100) {
+        entry.packCount = n;
+        filled.push("packCount");
+      }
+    }
+    if (!(entry.categories && entry.categories.length) && Array.isArray(parsed.categories)) {
+      var cats = [];
+      parsed.categories.forEach(function (c) {
+        c = String(c).toLowerCase().trim();
+        if (CATEGORIES.indexOf(c) !== -1 && cats.indexOf(c) === -1) {
+          cats.push(c);
+        }
+      });
+      if (cats.length) {
+        entry.categories = cats.sort();
+        filled.push("categories");
+      }
+    }
+    if (!entry.fresh && parsed.fresh === true) {
+      entry.fresh = true;
+      filled.push("fresh");
+    }
+    if (!entry.image && parsed.image) {
+      var url = String(parsed.image);
+      if (/^https?:\/\//i.test(url) && (allowedImageUrls || []).indexOf(url) !== -1) {
+        entry.image = url;
+        entry.imageCandidates = (entry.imageCandidates || []).concat([{ url: url, score: -1 }]);
+        filled.push("image");
+      }
+    }
+    if (parsed.id !== null && parsed.id !== undefined && String(parsed.id).trim()) {
+      var rawId = String(parsed.id).trim();
+      var digits = rawId.replace(/\D/g, "");
+      var id;
+      if (/^\d{8,}$/.test(rawId) || (digits.length >= 8 && /^[0-9 -]{8,}$/.test(rawId))) {
+        id = /^\d{8,}$/.test(rawId) ? rawId : digits;
+      } else {
+        id = slugify(rawId);
+      }
+      var weakId = !/^(code|url-code|edited)$/.test(entry.idSource || "");
+      if (id && id !== "unknown" && (/^\d{8,}$/.test(id) || (weakId && id !== entry.id))) {
+        entry.id = id;
+        entry.idSource = "ai";
+        filled.push("id");
+      }
+    }
+    return { entry: entry, filled: filled };
   }
 
   function csvField(s) {
@@ -351,6 +530,12 @@ var PS = (function () {
     scoreImages: scoreImages,
     buildEntry: buildEntry,
     buildCsv: buildCsv,
-    csvField: csvField
+    csvField: csvField,
+    missingFields: missingFields,
+    needsAiFill: needsAiFill,
+    aiImageCandidates: aiImageCandidates,
+    aiMessages: aiMessages,
+    parseAiJson: parseAiJson,
+    aiFill: aiFill
   };
 })();

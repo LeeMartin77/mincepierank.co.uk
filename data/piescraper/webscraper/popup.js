@@ -176,7 +176,13 @@ document.getElementById("scrape").addEventListener("click", function () {
       setStatus("scrape failed: " + ((res && res.error) || "unknown error"), "error");
       return;
     }
-    setStatus("captured " + res.key, "ok");
+    var message = "captured " + res.key;
+    if (res.ai && res.ai.error) {
+      message += "\nopenai fill failed: " + res.ai.error;
+    } else if (res.ai && res.ai.filled && res.ai.filled.length) {
+      message += "\nopenai filled: " + res.ai.filled.join(", ");
+    }
+    setStatus(message, res.ai && res.ai.error ? "error" : "ok");
     return refresh();
   }).catch(function (err) {
     setStatus("scrape failed: " + err.message, "error");
@@ -212,6 +218,24 @@ document.getElementById("year").addEventListener("change", function () {
   browser.storage.local.set({ settings: settings });
 });
 
+var AI_FIELDS = { "ai-base": "baseUrl", "ai-key": "apiKey", "ai-model": "model" };
+
+function initAiSettings() {
+  var openai = settings.openai || {};
+  Object.keys(AI_FIELDS).forEach(function (id) {
+    var el = document.getElementById(id);
+    el.value = openai[AI_FIELDS[id]] || "";
+    el.addEventListener("change", function () {
+      var fresh = settings.openai || {};
+      Object.keys(AI_FIELDS).forEach(function (other) {
+        fresh[AI_FIELDS[other]] = document.getElementById(other).value.trim();
+      });
+      settings.openai = fresh;
+      browser.storage.local.set({ settings: settings });
+    });
+  });
+}
+
 function init() {
   var datalist = document.getElementById("categoryOptions");
   PS.CATEGORIES.forEach(function (slug) {
@@ -220,6 +244,7 @@ function init() {
     datalist.appendChild(option);
   });
   return refresh().then(function () {
+    initAiSettings();
     var year = document.getElementById("year");
     year.value = settings.year || String(new Date().getFullYear());
   });

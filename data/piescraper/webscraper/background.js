@@ -49,9 +49,79 @@ function scrapeActiveTab() {
         }
         var entry = PS.buildEntry(facts);
         return mergeEntry(entry).then(function (merged) {
-          return { ok: true, key: merged.key, entry: merged.entry };
+          return fillWithAi(facts, merged.key, merged.entry).then(function (done) {
+            return { ok: true, key: done.key, entry: done.entry, ai: done.ai };
+          });
         });
       });
+  });
+}
+
+// Last resort for pages with no or unusual json-ld: ask an openai-compatible
+// chat endpoint to fill only what the extractor missed. A failing call never
+// loses the entry that was already scraped and saved.
+function fillWithAi(facts, key, entry) {
+  return readStore().then(function (store) {
+    var ai = store.settings.openai || {};
+    if (!ai.apiKey || !PS.needsAiFill(entry)) {
+      return { key: key, entry: entry, ai: null };
+    }
+    return chatCompletion(ai, PS.aiMessages(facts, entry))
+      .then(function (parsed) {
+        var allowed = PS.aiImageCandidates(facts, entry);
+        var result = PS.aiFill(entry, parsed, allowed);
+        if (!result.filled.length) {
+          return { key: key, entry: entry, ai: { filled: [] } };
+        }
+        return saveEntry(key, entry).then(function (saved) {
+          return { key: saved.key, entry: saved.entry, ai: { filled: result.filled } };
+        });
+      })
+      .catch(function (err) {
+        return { key: key, entry: entry, ai: { error: String(err.message || err) } };
+      });
+  });
+}
+
+function chatCompletion(ai, messages) {
+  var base = String(ai.baseUrl || "https://api.openai.com/v1").replace(/\/+$/, "");
+  return fetch(base + "/chat/completions", {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      authorization: "Bearer " + ai.apiKey
+    },
+    body: JSON.stringify({
+      model: ai.model || "gpt-4o-mini",
+      messages: messages,
+      temperature: 0
+    })
+  })
+    .then(function (res) {
+      if (!res.ok) {
+        return res.text().then(function (text) {
+          throw new Error("openai " + res.status + ": " + text.slice(0, 200));
+        });
+      }
+      return res.json();
+    })
+    .then(function (data) {
+      var choice = data.choices && data.choices[0];
+      var content = choice && choice.message && choice.message.content;
+      return PS.parseAiJson(content);
+    });
+}
+
+function saveEntry(oldKey, entry) {
+  return readStore().then(function (store) {
+    var key = entryKey(entry);
+    if (oldKey && oldKey !== key) {
+      delete store.entries[oldKey];
+    }
+    store.entries[key] = entry;
+    return browser.storage.local.set({ entries: store.entries }).then(function () {
+      return { key: key, entry: entry };
+    });
   });
 }
 
@@ -76,6 +146,9 @@ function mergeEntry(fresh) {
           merged[f] = existing[f];
         }
       });
+      if (merged.editedFields.indexOf("id") !== -1) {
+        merged.idSource = existing.idSource || "edited";
+      }
       merged.image = pickChosenImage(existing, fresh);
       merged.imageCandidates = unionCandidates(existing.imageCandidates, fresh.imageCandidates);
       if (!merged.image && merged.imageCandidates.length) {
@@ -138,6 +211,9 @@ function updateEntry(key, patch) {
         entry.editedFields.push(field);
       }
     });
+    if (patch.id !== undefined) {
+      entry.idSource = "edited";
+    }
     var newKey = entryKey(entry);
     if (newKey !== key) {
       delete store.entries[key];

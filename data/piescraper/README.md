@@ -24,9 +24,11 @@ Then:
 
 The pure logic (ids, prices, pack counts, category guesses, csv, zip) lives in `webscraper/lib/derive.js` and `webscraper/lib/zip.js` and is unit tested with `node --test webscraper/test/*.test.mjs` (node >= 22). `lib/extract.js` only collects raw DOM facts.
 
+If a page has no json-ld, or json-ld in a shape the extension does not understand, open "AI fill" in the popup and point it at an OpenAI-compatible endpoint (base url + api key + model). It only runs when scraping has left gaps, and the model sees the page's raw json-ld and visible text but can only fill the missing fields: categories are filtered to the real slugs, images must be urls the page itself referenced, a real product code from the data replaces a weak guessed id, and ids you have edited are left alone. A failing api call never loses the scraped entry.
+
 ## Legacy flow
 
-The older dump-everything approach (`organiser/`) is kept around but the extension replaced it: structured extraction gets us most of the way there without needing an LLM to sift through html dumps.
+The older dump-everything approach (`organiser/`) is kept around but the extension replaced it: structured extraction gets us most of the way there, and the optional AI fill only needs the json-ld and page text for the rest.
 
 ## Considerations
 

@@ -114,6 +114,7 @@ test("buildEntry assembles a bulk-ready row", function () {
   });
   assert.equal(entry.makerid, "greggs");
   assert.equal(entry.id, "123456789");
+  assert.equal(entry.idSource, "url-code");
   assert.equal(entry.name, "Mince Pie");
   assert.equal(entry.priceInPence, 125);
   assert.equal(entry.fresh, false);
@@ -142,4 +143,110 @@ test("buildCsv quotes fields and matches the importer header", function () {
     "year,makerid,id,displayname,fresh,pack_count,pack_price_in_pence,category_slugs,web_link,image_file"
   );
   assert.ok(lines[1].includes('"The ""Best"" Mince Pie, 6 pack"'));
+});
+
+function baseEntry(over) {
+  return Object.assign(
+    {
+      makerid: "weird",
+      id: "festive-mince-pies",
+      idSource: "name-slug",
+      url: "https://www.weird-supermarket.co.uk/p/99",
+      name: "Festive Mince Pies",
+      description: "",
+      priceInPence: null,
+      packCount: null,
+      fresh: false,
+      categories: [],
+      image: "",
+      imageCandidates: [],
+      editedFields: []
+    },
+    over || {}
+  );
+}
+
+test("missingFields flags gaps but not strong or edited ids", function () {
+  eqArray(PS.missingFields(baseEntry({
+    priceInPence: 399, packCount: 6, categories: ["classic"],
+    image: "https://x/y.jpg", idSource: "url-code"
+  })), []);
+  eqArray(PS.missingFields(baseEntry({
+    priceInPence: 399, packCount: 6, categories: ["classic"],
+    image: "https://x/y.jpg", id: "user-chosen", idSource: "edited"
+  })), []);
+  eqArray(PS.missingFields(baseEntry()), ["price", "pack_count", "categories", "image", "id"]);
+  assert.ok(PS.needsAiFill(baseEntry()));
+});
+
+test("aiMessages sends raw json-ld, gaps and page-ish image urls", function () {
+  const facts = {
+    url: "https://www.weird-supermarket.co.uk/p/99",
+    title: "Festive Mince Pies",
+    rawLd: ['{"@type":"WeirdThing","item":{"price":"3.99","imgs":["https://cdn.weird/img_1.jpg"]}}'],
+    bodyText: "Festive Mince Pies 6 pack £3.99 " + "x".repeat(7000)
+  };
+  const msgs = PS.aiMessages(facts, baseEntry());
+  assert.equal(msgs[0].role, "system");
+  assert.ok(msgs[0].content.includes("salted-caramel"));
+  const user = JSON.parse(msgs[1].content);
+  assert.deepEqual(user.jsonld, facts.rawLd);
+  eqArray(user.missing, ["price", "pack_count", "categories", "image", "id"]);
+  assert.ok(user.image_urls.includes("https://cdn.weird/img_1.jpg"));
+  assert.ok(user.page_text.length <= 6000);
+});
+
+test("parseAiJson copes with prose and code fences", function () {
+  // parsed objects come from the vm realm, so compare the json text instead
+  assert.equal(JSON.stringify(PS.parseAiJson('{"name": "x"}')), '{"name":"x"}');
+  assert.equal(JSON.stringify(PS.parseAiJson('Sure!\n```json\n{"name": "x"}\n```')), '{"name":"x"}');
+  assert.throws(function () { PS.parseAiJson("{name: not json}"); }, function (err) {
+    return err.name === "SyntaxError";
+  });
+  assert.throws(function () { PS.parseAiJson(""); }, function (err) {
+    return err.name === "Error" && err.message.includes("no json object");
+  });
+});
+
+test("aiFill only fills gaps and validates every value", function () {
+  const entry = baseEntry();
+  const res = PS.aiFill(entry, {
+    name: "Ignored Renaming",
+    price_gbp: 3.99,
+    pack_count: 6,
+    categories: ["NotACategory", "Mini", "classic", "classic"],
+    fresh: true,
+    image: "https://evil.example.com/made-up.jpg",
+    id: "festive-mince-pies-6pk"
+  }, ["https://cdn.weird/img_1.jpg"]);
+  assert.equal(entry.name, "Festive Mince Pies");
+  assert.equal(entry.priceInPence, 399);
+  assert.equal(entry.packCount, 6);
+  eqArray(entry.categories, ["classic", "mini"]);
+  assert.equal(entry.fresh, true);
+  assert.equal(entry.image, "");
+  assert.equal(entry.id, "festive-mince-pies-6pk");
+  assert.equal(entry.idSource, "ai");
+  eqArray(res.filled, ["priceInPence", "packCount", "categories", "fresh", "id"]);
+});
+
+test("aiFill accepts allowed images and product codes over weak ids", function () {
+  const entry = baseEntry({ id: "christmas-mince-pies", idSource: "url-slug" });
+  PS.aiFill(entry, {
+    image: "https://cdn.weird/img_1.jpg",
+    id: "0 123 4567 8901",
+    price_gbp: 0
+  }, ["https://cdn.weird/img_1.jpg"]);
+  assert.equal(entry.image, "https://cdn.weird/img_1.jpg");
+  assert.equal(entry.id, "012345678901");
+  assert.equal(entry.idSource, "ai");
+  assert.equal(entry.priceInPence, null);
+
+  const byCode = baseEntry({ id: "906005527", idSource: "code" });
+  PS.aiFill(byCode, { id: "mince-pies" }, []);
+  assert.equal(byCode.id, "906005527");
+
+  const edited = baseEntry({ id: "user-chosen", idSource: "edited" });
+  PS.aiFill(edited, { id: "ai-guess" }, []);
+  assert.equal(edited.id, "user-chosen");
 });

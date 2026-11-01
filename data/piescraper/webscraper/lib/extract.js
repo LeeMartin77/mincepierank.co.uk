@@ -17,14 +17,26 @@ globalThis.piescraperExtract = function () {
     return null;
   }
 
-  function collectLdNodes() {
+  // nodes: every object anywhere in the json-ld, for normalizeProducts.
+  // rawDocs: the whole documents as text, so the openai fallback can make
+  // sense of shapes normalizeProducts does not understand.
+  function collectLd() {
     var nodes = [];
+    var rawDocs = [];
+    var rawSize = 0;
     document.querySelectorAll('script[type="application/ld+json"]').forEach(function (script) {
       var data;
       try {
         data = JSON.parse(script.textContent);
       } catch (e) {
         return;
+      }
+      if (rawDocs.length < 10) {
+        var text = JSON.stringify(data);
+        if (text && rawSize < 8000) {
+          rawDocs.push(text.slice(0, 8000 - rawSize));
+          rawSize += Math.min(text.length, 8000);
+        }
       }
       walk(data);
     });
@@ -38,7 +50,12 @@ globalThis.piescraperExtract = function () {
         walk(node["@graph"]);
       }
     }
-    return nodes;
+    return { nodes: nodes, rawDocs: rawDocs };
+  }
+
+  function pageText() {
+    var text = document.body ? document.body.innerText || "" : "";
+    return text.replace(/\s+/g, " ").trim().slice(0, 8000);
   }
 
   function asText(v) {
@@ -145,7 +162,7 @@ globalThis.piescraperExtract = function () {
     (document.querySelector('meta[itemprop="price"]') || {}).content ||
     metaContent(["product:price:amount", "og:price:amount"]);
 
-  var ldNodes = collectLdNodes();
+  var ld = collectLd();
 
   return {
     url: window.location.href,
@@ -154,7 +171,9 @@ globalThis.piescraperExtract = function () {
     ogDescription: metaContent(["og:description"]),
     ogImage: metaContent(["og:image:secure_url", "og:image"]),
     priceMeta: priceMeta || null,
-    products: normalizeProducts(ldNodes),
+    products: normalizeProducts(ld.nodes),
+    rawLd: ld.rawDocs,
+    bodyText: pageText(),
     images: collectImages()
   };
 };
