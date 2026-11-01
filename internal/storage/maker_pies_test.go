@@ -12,9 +12,6 @@ import (
 	"github.com/leemartin77/mincepierank.co.uk/internal/storage/types"
 )
 
-// UpsertMakerPie is what the admin bulk import uses, so uploading the same
-// year/brand/pie twice must update the row in place rather than fail on the
-// (year, makerid, id) primary key.
 func TestUpsertMakerPieReplacesExistingRow(t *testing.T) {
 	ctx := context.Background()
 	ops := newMigratedOps(t)
@@ -39,8 +36,6 @@ func TestUpsertMakerPieReplacesExistingRow(t *testing.T) {
 	require.NoError(t, err)
 	require.NoError(t, ops.SetPieCategories(ctx, oid, []string{"sweet"}))
 
-	// re-uploading the same pie updates every column in place and keeps the
-	// oid, so category links (and anything else keyed on oid) survive
 	reupload, err := q.UpsertMakerPie(ctx, sqlcgen.UpsertMakerPieParams{
 		Year: 2026, Makerid: "greggs", ID: "steak-slice",
 		Displayname: "The Steak Slice", Fresh: true, ImageFile: "/2026/greggs/steak-slice/b.jpg",
@@ -60,14 +55,12 @@ func TestUpsertMakerPieReplacesExistingRow(t *testing.T) {
 	assert.Equal(t, int32(2), pie.PackCount)
 	assert.Equal(t, int32(329), pie.PackPriceInPence)
 
-	// the bulk import re-sets categories per row, replacing the old set
 	require.NoError(t, ops.SetPieCategories(ctx, oid, []string{"savory"}))
 	pieCats, err := ops.GetMakerPieCategoriesForMakerPieOid(ctx, oid)
 	require.NoError(t, err)
 	require.Len(t, *pieCats, 1)
 	assert.Equal(t, "savory", (*pieCats)[0].Slug)
 
-	// a different pie id under the same brand still inserts a new row
 	otherOid, err := q.UpsertMakerPie(ctx, sqlcgen.UpsertMakerPieParams{
 		Year: 2026, Makerid: "greggs", ID: "sausage-roll",
 		Displayname: "Sausage Roll", ImageFile: "/2026/greggs/sausage-roll/c.jpg",
