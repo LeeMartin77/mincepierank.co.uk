@@ -127,8 +127,7 @@ func (wrpr *WebsiteWrapper) BulkCreateMakerPieAdmin(w http.ResponseWriter, r *ht
 		}, "/")
 
 		fresh := pie["fresh"] == "yes"
-
-		oid, err := q.CreateMakerPie(r.Context(), sqlcgen.CreateMakerPieParams{
+		oid, err := q.UpsertMakerPie(r.Context(), sqlcgen.UpsertMakerPieParams{
 			Year:    year,
 			Makerid: pie["makerid"],
 			ID:      pie["id"],
@@ -173,9 +172,7 @@ func (wrpr *WebsiteWrapper) BulkCreateMakerPieAdmin(w http.ResponseWriter, r *ht
 	http.Redirect(w, r, "/admin/makerpies/", 303)
 }
 
-// Unzip function extracts a ZIP archive to a target directory
 func unzip(zipfile *multipart.FileHeader, dest string) error {
-	// Open the zip archive for reading
 	fl, err := zipfile.Open()
 	if err != nil {
 		return err
@@ -190,49 +187,40 @@ func unzip(zipfile *multipart.FileHeader, dest string) error {
 		return err
 	}
 
-	// Iterate through each file in the archive
 	for _, f := range r.File {
-		// Create the full path for the extracted file
 		fpath := filepath.Join(dest, f.Name)
 
-		// Check for directory traversal vulnerability
 		if !strings.HasPrefix(fpath, filepath.Clean(dest)+string(os.PathSeparator)) {
 			return fmt.Errorf("illegal file path: %s", fpath)
 		}
 
 		if f.FileInfo().IsDir() {
-			// Create directories if necessary
 			os.MkdirAll(fpath, os.ModePerm)
 			continue
 		}
 
-		// Create the file's parent directories if necessary
 		if err := os.MkdirAll(filepath.Dir(fpath), os.ModePerm); err != nil {
 			return err
 		}
 
-		// Open the file inside the zip archive
 		inFile, err := f.Open()
 		if err != nil {
 			return err
 		}
 		defer inFile.Close()
 
-		// Create the output file on disk
 		outFile, err := os.Create(fpath)
 		if err != nil {
 			return err
 		}
 		defer outFile.Close()
 
-		// Copy the contents of the file in the archive to the new file on disk
 		_, err = io.Copy(outFile, inFile)
 		if err != nil {
 			return err
 		}
 	}
 
-	// Check for CSV
 	_, err = os.Stat(dest + "/piedata.csv")
 	if err != nil && !os.IsNotExist(err) {
 		return err
