@@ -5,6 +5,12 @@ importScripts("lib/derive.js", "lib/zip.js");
 
 var STORE_KEY = "entries";
 var SETTINGS_KEY = "settings";
+var REFERENCE_KEY = "reference";
+
+// public json endpoints on the site (see api/website.yaml); the built-in
+// copies in derive.js only kick in when these cannot be reached.
+var SITE_BASE = "https://mincepierank.co.uk";
+var REFERENCE_TTL_MS = 24 * 60 * 60 * 1000;
 
 browser.runtime.onMessage.addListener(function (msg) {
   switch (msg.type) {
@@ -47,29 +53,79 @@ function scrapeActiveTab() {
         if (!facts || !facts.url) {
           throw new Error("extraction returned nothing (restricted page?)");
         }
-        var entry = PS.buildEntry(facts);
-        return mergeEntry(entry).then(function (merged) {
-          return fillWithAi(facts, merged.key, merged.entry).then(function (done) {
-            return { ok: true, key: done.key, entry: done.entry, ai: done.ai };
+        return getReference().then(function (ref) {
+          var entry = PS.buildEntry(facts, ref && ref.brands);
+          return mergeEntry(entry).then(function (merged) {
+            return fillWithAi(facts, merged.key, merged.entry, ref && ref.categories).then(function (done) {
+              return { ok: true, key: done.key, entry: done.entry, ai: done.ai };
+            });
           });
         });
       });
   });
 }
 
+// live category slugs and brand websites from the site, cached in storage
+// so a scrape does not hit the network twice a day; failures fall back to
+// the stale cache, then to derive.js's built-in lists.
+function getReference() {
+  return browser.storage.local.get(REFERENCE_KEY).then(function (data) {
+    var cached = data[REFERENCE_KEY];
+    if (cached && Date.now() - cached.fetchedAt < REFERENCE_TTL_MS) {
+      return cached;
+    }
+    return Promise.all([fetchJson(SITE_BASE + "/api/categories"), fetchJson(SITE_BASE + "/api/brands")])
+      .then(function (lists) {
+        var fresh = {
+          fetchedAt: Date.now(),
+          categories: (lists[0] || []).map(function (c) {
+            return c.slug;
+          }),
+          brands: lists[1] || []
+        };
+        if (!fresh.categories.length || !fresh.brands.length) {
+          throw new Error("site returned empty lists");
+        }
+        return browser.storage.local.set(objectWith(REFERENCE_KEY, fresh)).then(function () {
+          return fresh;
+        });
+      })
+      .catch(function (err) {
+        console.warn("reference fetch failed, using " + (cached ? "stale cache" : "built-in lists") + ": " + err);
+        return cached || null;
+      });
+  });
+}
+
+function fetchJson(url) {
+  return fetch(url).then(function (res) {
+    if (!res.ok) {
+      throw new Error(url + " -> " + res.status);
+    }
+    return res.json();
+  });
+}
+
+// storage.local.set wants a key/value object and the key here is a variable
+function objectWith(key, value) {
+  var obj = {};
+  obj[key] = value;
+  return obj;
+}
+
 // Last resort for pages with no or unusual json-ld: ask an openai-compatible
 // chat endpoint to fill only what the extractor missed. A failing call never
 // loses the entry that was already scraped and saved.
-function fillWithAi(facts, key, entry) {
+function fillWithAi(facts, key, entry, categories) {
   return readStore().then(function (store) {
     var ai = store.settings.openai || {};
     if (!ai.apiKey || !PS.needsAiFill(entry)) {
       return { key: key, entry: entry, ai: null };
     }
-    return chatCompletion(ai, PS.aiMessages(facts, entry))
+    return chatCompletion(ai, PS.aiMessages(facts, entry, categories))
       .then(function (parsed) {
         var allowed = PS.aiImageCandidates(facts, entry);
-        var result = PS.aiFill(entry, parsed, allowed);
+        var result = PS.aiFill(entry, parsed, allowed, categories);
         if (!result.filled.length) {
           return { key: key, entry: entry, ai: { filled: [] } };
         }

@@ -23,6 +23,44 @@ test("makeridFromUrl", function () {
   assert.equal(PS.makeridFromUrl("https://www.piefarm.co.uk/pies"), "piefarm");
 });
 
+test("hostOf reduces free-text websites to a bare host", function () {
+  assert.equal(PS.hostOf("https://www.tesco.com"), "tesco.com");
+  assert.equal(PS.hostOf("http://tesco.com/groceries"), "tesco.com");
+  assert.equal(PS.hostOf("tesco.com"), "tesco.com");
+  assert.equal(PS.hostOf("www.Tesco.com "), "tesco.com");
+  assert.equal(PS.hostOf(""), "");
+});
+
+test("makeridFromUrl prefers live brands from the api", function () {
+  const brands = [
+    { id: "marks-and-spencer", website: "https://www.marksandspencer.com" },
+    { id: "bells-bakeries", website: "bellsbakeries.co.uk" },
+    { id: "no-website-brand", website: "" }
+  ];
+  // api data wins over the built-in map
+  assert.equal(PS.makeridFromUrl("https://www.marksandspencer.com/p/1", brands), "marks-and-spencer");
+  // website text needs the same host reduction as the page url
+  assert.equal(PS.makeridFromUrl("https://www.bellsbakeries.co.uk/pie", brands), "bells-bakeries");
+  // groceries subdomain still matches the apex website
+  assert.equal(PS.makeridFromUrl("https://groceries.morrisons.com/x", [{ id: "morrisons", website: "https://www.morrisons.com" }]), "morrisons");
+  // no brand match falls back to the built-in map, then the host slug
+  assert.equal(PS.makeridFromUrl("https://www.tesco.com/x", brands), "tesco");
+  assert.equal(PS.makeridFromUrl("https://www.piefarm.co.uk/pies", brands), "piefarm");
+});
+
+test("buildEntry uses the live brands for makerid", function () {
+  const facts = {
+    url: "https://www.bellsbakeries.co.uk/products/mince-pies",
+    title: "Mince Pies | Bells Bakeries",
+    products: [{ name: "Mince Pies", price: "1.25", imageUrls: [] }],
+    images: []
+  };
+  const entry = PS.buildEntry(facts, [{ id: "bells-bakeries", website: "https://bellsbakeries.co.uk" }]);
+  assert.equal(entry.makerid, "bells-bakeries");
+  // without the api list the same url falls back to the host slug
+  assert.equal(PS.buildEntry(facts).makerid, "bellsbakeries");
+});
+
 test("deriveId prefers codes then url then name", function () {
   assert.equal(PS.deriveId({ url: "https://x.com/p/whatever", name: "Mince Pies", gtin: "0123456789012" }), "0123456789012");
   assert.equal(PS.deriveId({ url: "https://x.com/products/mince-pies/906005527", name: "Mince Pies" }), "906005527");
@@ -228,6 +266,22 @@ test("aiFill only fills gaps and validates every value", function () {
   assert.equal(entry.id, "festive-mince-pies-6pk");
   assert.equal(entry.idSource, "ai");
   eqArray(res.filled, ["priceInPence", "packCount", "categories", "fresh", "id"]);
+});
+
+test("aiMessages and aiFill follow the live category list", function () {
+  const facts = { url: "https://x.com/p/1", rawLd: [], bodyText: "Keto Mince Pies" };
+  const live = ["classic", "keto", "mini"];
+  const msgs = PS.aiMessages(facts, baseEntry(), live);
+  assert.ok(msgs[0].content.includes("keto"));
+  assert.ok(!msgs[0].content.includes("salted-caramel")); // no longer offered
+  const entry = baseEntry();
+  const res = PS.aiFill(entry, { categories: ["keto", "salted-caramel"] }, [], live);
+  eqArray(entry.categories, ["keto"]);
+  eqArray(res.filled, ["categories"]);
+  // omitting the list falls back to the built-in slugs
+  const fallback = baseEntry();
+  PS.aiFill(fallback, { categories: ["salted-caramel"] }, []);
+  eqArray(fallback.categories, ["salted-caramel"]);
 });
 
 test("aiFill accepts allowed images and product codes over weak ids", function () {

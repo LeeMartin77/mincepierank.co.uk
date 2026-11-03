@@ -49,12 +49,42 @@ var PS = (function () {
     }
   }
 
-  function makeridFromUrl(url) {
+  // brand websites in the db are free text ("https://www.tesco.com",
+  // "tesco.com"), so reduce both sides to a bare hostname before comparing.
+  function hostOf(url) {
+    var s = String(url || "").trim();
+    if (!s) {
+      return "";
+    }
+    var u = parseUrl(/^[a-z][a-z0-9+.-]*:\/\//i.test(s) ? s : "https://" + s);
+    var host = u ? u.hostname : s;
+    return host.toLowerCase().replace(/^www\./, "");
+  }
+
+  // brands is the live list from /api/brands ([{id, website}]); it wins over
+  // the built-in map, which only covers the fallback for when the fetch failed.
+  function makeridFromUrl(url, brands) {
     var u = parseUrl(url);
     if (!u) {
       return "unknown";
     }
     var host = u.hostname.toLowerCase().replace(/^www\./, "");
+    if (brands && brands.length) {
+      var probes = [host];
+      if (host.startsWith("groceries.")) {
+        probes.push(host.slice("groceries.".length));
+      }
+      for (var i = 0; i < brands.length; i++) {
+        var b = brands[i] || {};
+        var bh = hostOf(b.website);
+        if (!b.id || !bh) {
+          continue;
+        }
+        if (probes.indexOf(bh) !== -1) {
+          return b.id;
+        }
+      }
+    }
     if (MAKERID_BY_HOST[host]) {
       return MAKERID_BY_HOST[host];
     }
@@ -280,7 +310,7 @@ var PS = (function () {
     return u ? u.hostname.toLowerCase() + u.pathname : null;
   }
 
-  function buildEntry(facts) {
+  function buildEntry(facts, brands) {
     var product = pickProduct(facts.products || []);
     var name = (product && product.name) || facts.ogTitle || facts.title || "";
     var derived = deriveIdDetailed({
@@ -304,7 +334,7 @@ var PS = (function () {
       ldImageUrls: product && product.imageUrls
     });
     return {
-      makerid: makeridFromUrl(facts.url),
+      makerid: makeridFromUrl(facts.url, brands),
       id: id,
       idSource: derived.source,
       url: facts.url,
@@ -389,9 +419,10 @@ var PS = (function () {
   }
 
   // The chat payload: raw json-ld first (the point is to understand shapes we
-  // could not parse ourselves), then the visible text as backstop.
-  function aiMessages(facts, entry) {
-    var system = AI_SYSTEM.replace("CATEGORIES", CATEGORIES.join(", "));
+  // could not parse ourselves), then the visible text as backstop. categories
+  // is the live slug list from /api/categories, falling back to the built-in copy.
+  function aiMessages(facts, entry, categories) {
+    var system = AI_SYSTEM.replace("CATEGORIES", chosenCategories(categories).join(", "));
     var user = JSON.stringify({
       url: entry.url || facts.url,
       title: facts.title || null,
@@ -426,10 +457,14 @@ var PS = (function () {
     return JSON.parse(text.slice(start, end + 1));
   }
 
+  function chosenCategories(categories) {
+    return categories && categories.length ? categories : CATEGORIES;
+  }
+
   // Only fills what is still missing, and only with values that can be checked:
   // categories must be real slugs, images must be urls seen on the page, and a
   // suggested id replaces a weak one (or any id when it is a real product code).
-  function aiFill(entry, parsed, allowedImageUrls) {
+  function aiFill(entry, parsed, allowedImageUrls, categories) {
     var filled = [];
     if (!entry.name && typeof parsed.name === "string" && parsed.name.trim()) {
       entry.name = parsed.name.trim().slice(0, 200);
@@ -453,7 +488,7 @@ var PS = (function () {
       var cats = [];
       parsed.categories.forEach(function (c) {
         c = String(c).toLowerCase().trim();
-        if (CATEGORIES.indexOf(c) !== -1 && cats.indexOf(c) === -1) {
+        if (chosenCategories(categories).indexOf(c) !== -1 && cats.indexOf(c) === -1) {
           cats.push(c);
         }
       });
@@ -521,6 +556,7 @@ var PS = (function () {
     MAKERID_BY_HOST: MAKERID_BY_HOST,
     slugify: slugify,
     parseUrl: parseUrl,
+    hostOf: hostOf,
     makeridFromUrl: makeridFromUrl,
     deriveId: deriveId,
     priceToPence: priceToPence,
