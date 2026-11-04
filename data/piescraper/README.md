@@ -8,18 +8,29 @@ If this was a big commercial project, we'd pay for access, but for a hobby proje
 
 Problem is this is massively boring gruntwork, so the goal is to simplify it a bit.
 
-# Extract
+## The extension
 
-We'll have a "webscraping" script that does two things - dumps out the html and images from pages as we're browsing, but does so with names that help an LLM figure out what website it's from.
+`webscraper/` is a Firefox extension that turns product pages you browse by hand into rows for the bulk importer.
 
-# Transform
+Load it from `about:debugging#/runtime/this-firefox` -> "Load Temporary Add-on" -> pick `webscraper/manifest.json` (Firefox drops it again on restart, so reload it each session).
 
-We then use some simple models - florence to identify which pictures are actually of food, and whatever free model we fancy to just sift through the data, combine it with some template data for labels and brands.
+Then:
 
-# Load
+- Browse to a product page on a retailer site.
+- Open the Piescraper toolbar popup and hit "Scrape current tab". It reads the JSON-LD product data, `og:` meta tags and page images, and guesses id, makerid, price, pack count and categories.
+- Entries accumulate in extension storage keyed by `makerid/id`, so scraping the same pie again just merges new image candidates in without losing your edits.
+- Fix anything wrong in the popup table (id and makerid form the key, price is in pence, categories are the site's live category slugs).
+- Pick the year, hit "Export zip". The images are fetched at this point (in your browsing session, so cookies get past the image cdn), packed with `piedata.csv` into `piedata-<year>.zip`, and you can upload that straight to the admin bulk import page.
 
-Drop the data in the required structured zip into the website, and we've got a year of mince pies ready to go.
+The pure logic (ids, prices, pack counts, category guesses, csv, zip) lives in `webscraper/lib/derive.js` and `webscraper/lib/zip.js` and is unit tested with `node --test webscraper/test/*.test.mjs` (node >= 22). `lib/extract.js` only collects raw DOM facts.
 
+Each scrape consults `https://mincepierank.co.uk/api/categories` and `/api/brands` (cached for 24 hours) for the real category slugs and brand websites: brand matching uses the site's own website data, guessed categories are filtered to the real slugs and the AI prompt only offers the real slugs. The site is the only source for these, so a first scrape with the site unreachable fails until you are online again; later scrapes fall back to the cached copy.
+
+If a page has no json-ld, or json-ld in a shape the extension does not understand, open "AI fill" in the popup and point it at an OpenAI-compatible endpoint (base url + api key + model). It only runs when scraping has left gaps, and the model sees the page's raw json-ld and visible text but can only fill the missing fields: categories are filtered to the real slugs, images must be urls the page itself referenced, a real product code from the data replaces a weak guessed id, and ids you have edited are left alone. A failing api call never loses the scraped entry.
+
+## Legacy flow
+
+The older dump-everything approach (`organiser/`) is kept around but the extension replaced it: structured extraction gets us most of the way there, and the optional AI fill only needs the json-ld and page text for the rest.
 
 ## Considerations
 

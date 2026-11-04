@@ -1,10 +1,11 @@
 {
   "manifest_version": 3,
   "name": "Piescraper",
-  "version": "1.0",
+  "version": "2.0",
 
-  "description": "Scrape a page of data for mince pie collection",
-  "permissions": ["scripting"],
+  "description": "Scrape mince pie product pages into a bulk upload archive for mincepierank.co.uk",
+  "permissions": ["activeTab", "scripting", "storage", "downloads"],
+  "host_permissions": ["<all_urls>"],
   "icons": {
     "48": "icons/chart-pie-outline-48.png"
   },
@@ -26,12 +27,11 @@
         "size": 32
       }
     ],
-    "default_title": "Scrape"
+    "default_title": "Piescraper",
+    "default_popup": "popup.html"
   },
 
-  "background": 
-    {
-      "scripts": ["background.js"]
-    }
-  
+  "background": {
+    "scripts": ["background.js"]
+  }
 }
