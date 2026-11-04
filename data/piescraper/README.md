@@ -24,7 +24,7 @@ Then:
 
 The pure logic (ids, prices, pack counts, category guesses, csv, zip) lives in `webscraper/lib/derive.js` and `webscraper/lib/zip.js` and is unit tested with `node --test webscraper/test/*.test.mjs` (node >= 22). `lib/extract.js` only collects raw DOM facts.
 
-Each scrape consults `https://mincepierank.co.uk/api/categories` and `/api/brands` (cached for 24 hours) for the real category slugs and brand websites: brand matching uses the site's own website data, and the AI prompt only offers the real slugs. When the site cannot be reached the extension falls back to its cached copy and then to the built-in lists in `derive.js`.
+Each scrape consults `https://mincepierank.co.uk/api/categories` and `/api/brands` (cached for 24 hours) for the real category slugs and brand websites: brand matching uses the site's own website data, guessed categories are filtered to the real slugs and the AI prompt only offers the real slugs. The site is the only source for these, so a first scrape with the site unreachable fails until you are online again; later scrapes fall back to the cached copy.
 
 If a page has no json-ld, or json-ld in a shape the extension does not understand, open "AI fill" in the popup and point it at an OpenAI-compatible endpoint (base url + api key + model). It only runs when scraping has left gaps, and the model sees the page's raw json-ld and visible text but can only fill the missing fields: categories are filtered to the real slugs, images must be urls the page itself referenced, a real product code from the data replaces a weak guessed id, and ids you have edited are left alone. A failing api call never loses the scraped entry.
 

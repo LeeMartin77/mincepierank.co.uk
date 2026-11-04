@@ -238,12 +238,15 @@ function initAiSettings() {
 
 function init() {
   var datalist = document.getElementById("categoryOptions");
-  PS.CATEGORIES.forEach(function (slug) {
-    var option = document.createElement("option");
-    option.value = slug;
-    datalist.appendChild(option);
-  });
-  return refresh().then(function () {
+  return browser.storage.local.get("reference").then(function (stored) {
+    var ref = stored.reference || {};
+    (ref.categories || []).forEach(function (slug) {
+      var option = document.createElement("option");
+      option.value = slug;
+      datalist.appendChild(option);
+    });
+    return refresh();
+  }).then(function () {
     initAiSettings();
     var year = document.getElementById("year");
     year.value = settings.year || String(new Date().getFullYear());

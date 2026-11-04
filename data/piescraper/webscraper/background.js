@@ -7,8 +7,9 @@ var STORE_KEY = "entries";
 var SETTINGS_KEY = "settings";
 var REFERENCE_KEY = "reference";
 
-// public json endpoints on the site (see api/website.yaml); the built-in
-// copies in derive.js only kick in when these cannot be reached.
+// public json endpoints on the site (see api/website.yaml) are the only
+// source of category slugs and brand ids; results are cached for a day and
+// a scrape with neither a fresh fetch nor any cache fails outright.
 var SITE_BASE = "https://mincepierank.co.uk";
 var REFERENCE_TTL_MS = 24 * 60 * 60 * 1000;
 
@@ -54,9 +55,12 @@ function scrapeActiveTab() {
           throw new Error("extraction returned nothing (restricted page?)");
         }
         return getReference().then(function (ref) {
-          var entry = PS.buildEntry(facts, ref && ref.brands);
+          if (!ref) {
+            throw new Error("cannot reach " + SITE_BASE + " and there is no cached copy - check your connection");
+          }
+          var entry = PS.buildEntry(facts, ref);
           return mergeEntry(entry).then(function (merged) {
-            return fillWithAi(facts, merged.key, merged.entry, ref && ref.categories).then(function (done) {
+            return fillWithAi(facts, merged.key, merged.entry, ref.categories).then(function (done) {
               return { ok: true, key: done.key, entry: done.entry, ai: done.ai };
             });
           });
@@ -67,7 +71,7 @@ function scrapeActiveTab() {
 
 // live category slugs and brand websites from the site, cached in storage
 // so a scrape does not hit the network twice a day; failures fall back to
-// the stale cache, then to derive.js's built-in lists.
+// the stale cache, and with no cache at all the scrape fails outright.
 function getReference() {
   return browser.storage.local.get(REFERENCE_KEY).then(function (data) {
     var cached = data[REFERENCE_KEY];
@@ -91,7 +95,7 @@ function getReference() {
         });
       })
       .catch(function (err) {
-        console.warn("reference fetch failed, using " + (cached ? "stale cache" : "built-in lists") + ": " + err);
+        console.warn("reference fetch failed, using " + (cached ? "stale cache" : "nothing") + ": " + err);
         return cached || null;
       });
   });

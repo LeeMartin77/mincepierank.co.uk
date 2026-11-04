@@ -18,7 +18,9 @@ test("slugify", function () {
 test("makeridFromUrl", function () {
   assert.equal(PS.makeridFromUrl("https://www.tesco.com/groceries/en-GB/products/906005527"), "tesco");
   assert.equal(PS.makeridFromUrl("https://groceries.aldi.co.uk/EN-Online/shop/p-specially-selected/4061462560620"), "aldi");
-  assert.equal(PS.makeridFromUrl("https://www.marksandspencer.com/p/snowballs/p200804242"), "marks-and-spencer");
+  // without the api's brand list this is just the host slug, not the site's
+  // canonical "marks-and-spencer" id
+  assert.equal(PS.makeridFromUrl("https://www.marksandspencer.com/p/snowballs/p200804242"), "marksandspencer");
   assert.equal(PS.makeridFromUrl("https://www.morrisons.com/product/christmas-mince-pies-256647233/"), "morrisons");
   assert.equal(PS.makeridFromUrl("https://www.piefarm.co.uk/pies"), "piefarm");
 });
@@ -37,13 +39,13 @@ test("makeridFromUrl prefers live brands from the api", function () {
     { id: "bells-bakeries", website: "bellsbakeries.co.uk" },
     { id: "no-website-brand", website: "" }
   ];
-  // api data wins over the built-in map
+  // the site's own id beats the host slug
   assert.equal(PS.makeridFromUrl("https://www.marksandspencer.com/p/1", brands), "marks-and-spencer");
   // website text needs the same host reduction as the page url
   assert.equal(PS.makeridFromUrl("https://www.bellsbakeries.co.uk/pie", brands), "bells-bakeries");
   // groceries subdomain still matches the apex website
   assert.equal(PS.makeridFromUrl("https://groceries.morrisons.com/x", [{ id: "morrisons", website: "https://www.morrisons.com" }]), "morrisons");
-  // no brand match falls back to the built-in map, then the host slug
+  // no brand match falls back to the host slug
   assert.equal(PS.makeridFromUrl("https://www.tesco.com/x", brands), "tesco");
   assert.equal(PS.makeridFromUrl("https://www.piefarm.co.uk/pies", brands), "piefarm");
 });
@@ -55,10 +57,21 @@ test("buildEntry uses the live brands for makerid", function () {
     products: [{ name: "Mince Pies", price: "1.25", imageUrls: [] }],
     images: []
   };
-  const entry = PS.buildEntry(facts, [{ id: "bells-bakeries", website: "https://bellsbakeries.co.uk" }]);
+  const entry = PS.buildEntry(facts, { brands: [{ id: "bells-bakeries", website: "https://bellsbakeries.co.uk" }] });
   assert.equal(entry.makerid, "bells-bakeries");
   // without the api list the same url falls back to the host slug
   assert.equal(PS.buildEntry(facts).makerid, "bellsbakeries");
+});
+
+test("buildEntry filters guessed categories through the live list", function () {
+  const facts = {
+    url: "https://www.greggs.co.uk/products/salted-caramel-mince-pies",
+    products: [{ name: "Salted Caramel Mince Pies", price: "2", imageUrls: [] }],
+    images: []
+  };
+  // salted-caramel is a pattern slug the site no longer carries
+  eqArray(PS.buildEntry(facts, { categories: ["classic", "mini"] }).categories, []);
+  eqArray(PS.buildEntry(facts, { categories: ["classic", "salted-caramel"] }).categories, ["salted-caramel"]);
 });
 
 test("deriveId prefers codes then url then name", function () {
@@ -93,7 +106,7 @@ test("guessCategories", function () {
   eqArray(PS.guessCategories("dog food"), []);
 });
 
-test("guessCategories never emits unknown slugs", function () {
+test("guessCategories only ever emits kebab-case slugs", function () {
   const samples = [
     "Signature Maple & Pecan Frangipane Mini Mince Pies",
     "Giant Spiced Mince Pie with Brandy, vegan",
@@ -102,7 +115,7 @@ test("guessCategories never emits unknown slugs", function () {
   ];
   for (const s of samples) {
     for (const slug of PS.guessCategories(s)) {
-      assert.ok(PS.CATEGORIES.includes(slug), "unknown slug " + slug);
+      assert.match(slug, /^[a-z0-9]+(-[a-z0-9]+)*$/, "junk slug " + slug);
     }
   }
 });
@@ -224,7 +237,7 @@ test("aiMessages sends raw json-ld, gaps and page-ish image urls", function () {
     rawLd: ['{"@type":"WeirdThing","item":{"price":"3.99","imgs":["https://cdn.weird/img_1.jpg"]}}'],
     bodyText: "Festive Mince Pies 6 pack £3.99 " + "x".repeat(7000)
   };
-  const msgs = PS.aiMessages(facts, baseEntry());
+  const msgs = PS.aiMessages(facts, baseEntry(), ["classic", "salted-caramel"]);
   assert.equal(msgs[0].role, "system");
   assert.ok(msgs[0].content.includes("salted-caramel"));
   const user = JSON.parse(msgs[1].content);
@@ -256,7 +269,7 @@ test("aiFill only fills gaps and validates every value", function () {
     fresh: true,
     image: "https://evil.example.com/made-up.jpg",
     id: "festive-mince-pies-6pk"
-  }, ["https://cdn.weird/img_1.jpg"]);
+  }, ["https://cdn.weird/img_1.jpg"], ["classic", "mini"]);
   assert.equal(entry.name, "Festive Mince Pies");
   assert.equal(entry.priceInPence, 399);
   assert.equal(entry.packCount, 6);
@@ -278,10 +291,14 @@ test("aiMessages and aiFill follow the live category list", function () {
   const res = PS.aiFill(entry, { categories: ["keto", "salted-caramel"] }, [], live);
   eqArray(entry.categories, ["keto"]);
   eqArray(res.filled, ["categories"]);
-  // omitting the list falls back to the built-in slugs
+  // with no live list there are no trustworthy slugs, so none are accepted
   const fallback = baseEntry();
-  PS.aiFill(fallback, { categories: ["salted-caramel"] }, []);
-  eqArray(fallback.categories, ["salted-caramel"]);
+  const res2 = PS.aiFill(fallback, { categories: ["salted-caramel"] }, []);
+  eqArray(fallback.categories, []);
+  eqArray(res2.filled, []);
+  // and the prompt says as much
+  const bare = PS.aiMessages(facts, baseEntry());
+  assert.ok(bare[0].content.includes("categories must be []"));
 });
 
 test("aiFill accepts allowed images and product codes over weak ids", function () {

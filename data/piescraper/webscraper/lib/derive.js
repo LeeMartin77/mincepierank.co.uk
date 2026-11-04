@@ -5,32 +5,6 @@
 var PS = (function () {
   "use strict";
 
-  var CATEGORIES = [
-    "alcohol", "almond", "alternative", "apple", "bakery", "brown-butter",
-    "caramel", "chocolate", "cognac", "classic", "crumble", "flapjack",
-    "frangipane", "fresh", "gingerbread", "giant", "gluten-free", "iced",
-    "lattice", "maple", "mini", "orange", "organic", "pecan", "premium",
-    "puff-pastry", "rum", "salted-caramel", "shortcrust", "spiced",
-    "standard", "toffee", "vegan"
-  ];
-
-  var MAKERID_BY_HOST = {
-    "aldi.co.uk": "aldi",
-    "asda.com": "asda",
-    "coop.co.uk": "coop",
-    "farmfoods.co.uk": "farmfoods",
-    "greggs.co.uk": "greggs",
-    "iceland.co.uk": "iceland",
-    "icelandfoods.co.uk": "iceland",
-    "lidl.co.uk": "lidl",
-    "marksandspencer.com": "marks-and-spencer",
-    "morrisons.com": "morrisons",
-    "sainsburys.co.uk": "sainsburys",
-    "tesco.com": "tesco",
-    "waitrose.com": "waitrose",
-    "waitrosecellar.com": "waitrose-cellar"
-  };
-
   var IMAGE_JUNK = /logo|icon|sprite|banner|cookie|avatar|nav|footer|payment|trustpilot|review|rating|social|flag|badge|app-?store/i;
 
   function slugify(s) {
@@ -61,8 +35,9 @@ var PS = (function () {
     return host.toLowerCase().replace(/^www\./, "");
   }
 
-  // brands is the live list from /api/brands ([{id, website}]); it wins over
-  // the built-in map, which only covers the fallback for when the fetch failed.
+  // brands is the live list from /api/brands ([{id, website}]); a host match
+  // there gives the canonical makerid. Without one the makerid is just a slug
+  // derived from the host, which the import will create as a new brand.
   function makeridFromUrl(url, brands) {
     var u = parseUrl(url);
     if (!u) {
@@ -84,9 +59,6 @@ var PS = (function () {
           return b.id;
         }
       }
-    }
-    if (MAKERID_BY_HOST[host]) {
-      return MAKERID_BY_HOST[host];
     }
     if (host.startsWith("groceries.")) {
       host = host.slice("groceries.".length);
@@ -215,6 +187,17 @@ var PS = (function () {
     return found.sort();
   }
 
+  // live is the slug list from /api/categories; without it the pattern slugs
+  // go through unfiltered (the pattern list mirrors what the site carries).
+  function filterCategories(slugs, live) {
+    if (!live || !live.length) {
+      return slugs;
+    }
+    return slugs.filter(function (s) {
+      return live.indexOf(s) !== -1;
+    });
+  }
+
   function pickProduct(products) {
     var best = null;
     var bestScore = -1;
@@ -310,7 +293,11 @@ var PS = (function () {
     return u ? u.hostname.toLowerCase() + u.pathname : null;
   }
 
-  function buildEntry(facts, brands) {
+  // ref is the site data fetched by background.js: {brands: [{id, website}],
+  // categories: [slugs]}. Guessed slugs are filtered through the live list so
+  // a slug the site has renamed can never poison the bulk import.
+  function buildEntry(facts, ref) {
+    ref = ref || {};
     var product = pickProduct(facts.products || []);
     var name = (product && product.name) || facts.ogTitle || facts.title || "";
     var derived = deriveIdDetailed({
@@ -334,7 +321,7 @@ var PS = (function () {
       ldImageUrls: product && product.imageUrls
     });
     return {
-      makerid: makeridFromUrl(facts.url, brands),
+      makerid: makeridFromUrl(facts.url, ref.brands),
       id: id,
       idSource: derived.source,
       url: facts.url,
@@ -343,7 +330,7 @@ var PS = (function () {
       priceInPence: price,
       packCount: packCountFromText(text),
       fresh: false,
-      categories: guessCategories(text),
+      categories: filterCategories(guessCategories(text), ref.categories),
       image: candidates.length ? candidates[0].url : (facts.ogImage || ""),
       imageCandidates: candidates,
       capturedAt: new Date().toISOString(),
@@ -395,7 +382,7 @@ var PS = (function () {
     "so use whatever structure the input has. Reply with ONLY a JSON object, no prose:\n" +
     '{"name": string, "price_gbp": number like 2.49 or null, "pack_count": integer or null, ' +
     '"categories": [strings], "fresh": true or false, "image": string or null, "id": string or null}\n' +
-    "Rules: categories may only use slugs from this list, [] if none fit: CATEGORIES. " +
+    "Rules: CATEGORY_RULE " +
     "image must be one of the supplied image_urls. id: the product's numeric code if one " +
     "appears in the data, otherwise a short lowercase slug. " +
     "Prefer values found in jsonld over guesses from page_text. Use null instead of guessing.";
@@ -420,9 +407,13 @@ var PS = (function () {
 
   // The chat payload: raw json-ld first (the point is to understand shapes we
   // could not parse ourselves), then the visible text as backstop. categories
-  // is the live slug list from /api/categories, falling back to the built-in copy.
+  // is the live slug list from /api/categories; without it the model is told
+  // to leave categories alone, since unknown slugs abort the bulk import.
   function aiMessages(facts, entry, categories) {
-    var system = AI_SYSTEM.replace("CATEGORIES", chosenCategories(categories).join(", "));
+    var rule = categories && categories.length
+      ? "categories may only use slugs from this list, [] if none fit: " + categories.join(", ") + "."
+      : "no category list is available, so categories must be [].";
+    var system = AI_SYSTEM.replace("CATEGORY_RULE", rule);
     var user = JSON.stringify({
       url: entry.url || facts.url,
       title: facts.title || null,
@@ -457,12 +448,9 @@ var PS = (function () {
     return JSON.parse(text.slice(start, end + 1));
   }
 
-  function chosenCategories(categories) {
-    return categories && categories.length ? categories : CATEGORIES;
-  }
-
   // Only fills what is still missing, and only with values that can be checked:
-  // categories must be real slugs, images must be urls seen on the page, and a
+  // categories must be real slugs (an empty live list means no categories can
+  // be accepted), images must be urls seen on the page, and a
   // suggested id replaces a weak one (or any id when it is a real product code).
   function aiFill(entry, parsed, allowedImageUrls, categories) {
     var filled = [];
@@ -486,9 +474,10 @@ var PS = (function () {
     }
     if (!(entry.categories && entry.categories.length) && Array.isArray(parsed.categories)) {
       var cats = [];
+      var live = categories || [];
       parsed.categories.forEach(function (c) {
         c = String(c).toLowerCase().trim();
-        if (chosenCategories(categories).indexOf(c) !== -1 && cats.indexOf(c) === -1) {
+        if (live.indexOf(c) !== -1 && cats.indexOf(c) === -1) {
           cats.push(c);
         }
       });
@@ -552,8 +541,6 @@ var PS = (function () {
   }
 
   return {
-    CATEGORIES: CATEGORIES,
-    MAKERID_BY_HOST: MAKERID_BY_HOST,
     slugify: slugify,
     parseUrl: parseUrl,
     hostOf: hostOf,
