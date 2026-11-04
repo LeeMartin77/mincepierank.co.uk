@@ -11,6 +11,7 @@ import (
 	"github.com/leemartin77/mincepierank.co.uk/internal/storage"
 	"github.com/leemartin77/mincepierank.co.uk/internal/storage/types"
 	"github.com/leemartin77/mincepierank.co.uk/internal/templater"
+	generated "github.com/leemartin77/mincepierank.co.uk/internal/website/generated"
 	"github.com/rs/zerolog/log"
 )
 
@@ -43,6 +44,15 @@ func brandListPage(wrpr *WebsiteWrapper, w http.ResponseWriter, r *http.Request,
 	brands, err := wrpr.storage.GetAllMakers(r.Context())
 	if err != nil {
 		AbortErr(w, 500, err)
+		return
+	}
+
+	if r.Header.Get("Accepts") == "application/json" {
+		out := make([]generated.Brand, 0, len(*brands))
+		for _, m := range *brands {
+			out = append(out, generated.Brand{Id: m.Id, Name: m.Name, Website: m.Website})
+		}
+		writeApiJson(w, out)
 		return
 	}
 	ay, err := wrpr.storage.GetQuerier().GetActiveYear(r.Context())

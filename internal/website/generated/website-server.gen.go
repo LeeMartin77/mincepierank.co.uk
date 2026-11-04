@@ -171,13 +171,13 @@ type ServerInterface interface {
 	YearAllBrands(w http.ResponseWriter, r *http.Request, year Year)
 
 	// (GET /years/{year}/brands/{brand})
-	YearBrandPies(w http.ResponseWriter, r *http.Request, year Year, brand Brand, params YearBrandPiesParams)
+	YearBrandPies(w http.ResponseWriter, r *http.Request, year Year, brand BrandSlug, params YearBrandPiesParams)
 
 	// (GET /years/{year}/brands/{brand}/{pie})
-	YearBrandPie(w http.ResponseWriter, r *http.Request, year Year, brand Brand, pie string)
+	YearBrandPie(w http.ResponseWriter, r *http.Request, year Year, brand BrandSlug, pie string)
 
 	// (PUT /years/{year}/brands/{brand}/{pie}/rating)
-	RateYearBrandPie(w http.ResponseWriter, r *http.Request, year Year, brand Brand, pie string)
+	RateYearBrandPie(w http.ResponseWriter, r *http.Request, year Year, brand BrandSlug, pie string)
 
 	// (GET /years/{year}/categories)
 	YearAllCategories(w http.ResponseWriter, r *http.Request, year Year)
@@ -1688,7 +1688,7 @@ func (siw *ServerInterfaceWrapper) YearBrandPies(w http.ResponseWriter, r *http.
 	}
 
 	// ------------- Path parameter "brand" -------------
-	var brand Brand
+	var brand BrandSlug
 
 	err = runtime.BindStyledParameterWithOptions("simple", "brand", r.PathValue("brand"), &brand, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: true})
 	if err != nil {
@@ -1765,7 +1765,7 @@ func (siw *ServerInterfaceWrapper) YearBrandPie(w http.ResponseWriter, r *http.R
 	}
 
 	// ------------- Path parameter "brand" -------------
-	var brand Brand
+	var brand BrandSlug
 
 	err = runtime.BindStyledParameterWithOptions("simple", "brand", r.PathValue("brand"), &brand, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: true})
 	if err != nil {
@@ -1809,7 +1809,7 @@ func (siw *ServerInterfaceWrapper) RateYearBrandPie(w http.ResponseWriter, r *ht
 	}
 
 	// ------------- Path parameter "brand" -------------
-	var brand Brand
+	var brand BrandSlug
 
 	err = runtime.BindStyledParameterWithOptions("simple", "brand", r.PathValue("brand"), &brand, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: true})
 	if err != nil {
@@ -2305,50 +2305,50 @@ func HandlerWithOptions(si ServerInterface, options StdHTTPServerOptions) http.H
 // const string: with thousands of chunks the chained `+` fold is several
 // times slower for the Go compiler than parsing a slice literal.
 var swaggerSpec = []string{
-	"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",
-	"AA==",
+	"7F3dbhu5FX6VWbZAb8YZbxz0wndJNmkDJFvBQVoUiyCgZo4krjgkQ3KsqIaAPkSfsE+yIDl/kmY0lKWx",
+	"xrZuEsn8Pb/8eA5J3aGYp4IzYFqh6zsksMQpaJD22xuJWfKZZlPzhTB0jQTWMxQihlNA12hsylGIJHzP",
+	"iIQEXWuZQYhUPIMUm0Z6KUxFpSVhU7Rahegt1jDlkoB6T6gGaWoloGJJhCbcjFHVCDQPJrZWIMxXzlDo",
+	"5vE9A7msJhKXTVB9dKIhVQ3TCIs/YCnx0k7rI0mJLsnc6J7awnrPCUxwRjW6fnkZogmXKdboGhGm//oK",
+	"lb0TpmEK0vY/wlNo616Yssbef/br/N+AZYuIlqZol4S6+1+Z5kpwpsAy81eu3/OMJeZzzJkGZhmn4YeO",
+	"Zjql5ku7BqzCDXEzroOJ7W8Voi8MfgiINSTvpORyYwgsBCUxNg2j3xVn6yP9WcIEXaM/RZVKR65URa63",
+	"htGzcsAA8joFdyoTMB+E5AKkJo4HJGlUK8f0hoIFjBXR0GwSlXB+Mx3n3VSNvpZC4ePfIdaoMqPl9tQo",
+	"HgNtnITKLXn3DGytMO+maehSMuvjxjyBTYW6etmgUCFKQancHnbPxfZZ1d+ejWlA2ITbroimpuwTYTGM",
+	"CNxgNkchugWpnKx/fnH54tKMzwUwLAi6Rlf2T6E1GktFZP6ZglU3Q51Vtg8JukZ/5ymMnKWumcPLy8sj",
+	"WcKMpxBYZ7AKKx/QrNjlFKJNk7EKnKUplst81kE+bY2nynBVZGNKYvTV1IzwmGe6lejXpvSxUN1OXxRz",
+	"Ps/1tJHOt7a8X0LdHHonVUhyi+NlK6kjV94vrfkk+iQ2SQlrJfJvoF+bCh9YAj/6I9OOERA7yCpEry5f",
+	"dVNYLp/HYovjRI0rkcVlqpM5b1y1Tu7sXnZLkLVr/bVDNQKvw1jvKA0oUfr0AgiR4KrJuUjAGiqW53gM",
+	"lH7Dk+UGs9OMaiKw1JFZSC8SrPE6Z7yACOVTvrYYjwnDFnP2gFlyuEKSlgV6A95bbgSW9E1gugk1ry6v",
+	"tvcHn7M4BqWC///3f4GEhEiItdkpWF0IICG6dDuvjmbp/8SUJFakBU4cmrlHDBZ+Jv8rLPp2iU4WsRO1",
+	"UcIB8uuOJCunXRQ0bPPsF/v3DbM9SDnrjupY/L6BSaYgsQPaTbLShNJAwgQksBgCPSPKDT8ED9mtnQ+j",
+	"mtZNDEMxw7Woy2+N23iyX5jla4hE1sDoLyLpbSV6+CXHZ7VxFJ9Xm+N5z1qsrWu1qSJ5DwIyy5jI8XFm",
+	"RfTjwZolO3YZeZ3tPy4Wi8WFNfZMUmAm+pLsNPkDQ02ufV77pNgxl+/yeRu0F4Qs1OoBUGQplYECyRrn",
+	"9gCTa3Z5oMKuO6SeMWWmcjQZ1xztoAFlG6t7U9RnDytPt+g0ri0nhYjPelHhbEKm3YuJq/Y8ArQ+mK3i",
+	"Ry/GM4dlI167xTTz2HaZ5kXlY+O1o/tkx8rB2UR0N4elN1Yo9KHbl89hm8cdzvxZ8N9jzeqZyb1YsqfF",
+	"+tvqPsvg07fVFM9Bio4gxydTaURAWSrOqxjWULCk4siRwosJUYLiZWvocCJBzWolY84pYGaKWnJkJJ16",
+	"xiutMrT0InA8/xbzjOlaMcvSMUgUoh8XU35RHYC5elk2EZLE8I2wbwJYDN5tbx3mg6SZ1AWMv1HC5o1T",
+	"XebHxDwG2vAitmXFh9BtHOoiKQTg2FqbyBqHmmmvU3VGFff2VNE4o1bwzfb5JqPznm30P0S8JxS8rGpD",
+	"w4qmPvI3lATHCgX+FNzUtmyWpS7mcfz92ntMaCbhp+CtzBIIcvMJ+MRt39SDKMkd94pUFTrihYr4/nGE",
+	"ZwI9u5BDYYJnHvcC7/vX4iN5zvWkmu+59fAgVOQNfx4NxNlYU5rxyX7IZO1mwX4w5byhqq9AErM5YdPu",
+	"pPFNUbHZZjfuTuTIdItB1fWFvh1hQVggSDwHWSVNzPkAPQMiA0MlmwZW09QQhVIeibL/r6I7QWDld5gs",
+	"P2j/CCUWSLglsAhULAGYydoEOD/WIQg8jgTOPW5gNfYjCOy39nnqUJQpkCq6M//tedyuUqy+9Mo/mTPG",
+	"8dxsD/QM1rXmrCX79+J04WB1M92Ieup9p6/6okBWGvUkXJVhwOPxVMeW+P08y7oanB3Lwwq1D39QKIWv",
+	"B7iv6Xvcw23uSWmsM4V8+LLZErCMZ/dpeeiN4p6uQfftLVU2TolShDMVfM8ggyFh7dJ7JZlL+/nr7C9V",
+	"i76Utz/RlJMPYswSu38OppJnQg1SOneGeSu3xNzxBbvH6uIVbeq8mN9qlT244JzOgQQYHUeHf13lLO5e",
+	"fHcOhB6Pd4iwEJLfQnvubcTVmsq8zhs8H8050hmYzqBrzll7BjewUfcHDL26sZNHpLklFvHX3XI9P2vv",
+	"YSe4St7/Y+KRy6hV9kk+VKjrFJbwCcs5JAFWQaVgD2wU/jYgJE/5PhYwyhuc9X/4WU57DaB5lK5TXW/3",
+	"zniOJInhAxvtle4UBFom0Z0I/eiVB62Obbmx2k5u5byqeq7zoYHCg7KjzogM3DuFg3KjP/xS7e+VJFjO",
+	"eTulG1f/7JMOWpMZb7t93qnQTgAn0WY39Im0WUg+IRSimi63xrU+LWtR2L6wxzIY1c/vXV2+3A7G18/8",
+	"KTJlF+Z89SRgXNuvkASEHe/dKpCKM0ybgupNvVZVIvuy4+prC587b53+i+hZIvGiilTc/zZbztfTbW7W",
+	"2NioXu8SonNS33OZ9qdj7+yFPlLdSD5IyQbAzvtoZdjnldKaKIdyiyDFU/A+3rwTeVLu1qd2WHpsUOrd",
+	"whtUrkNIN+kaZQ2osmJgJ8L0QpDWCI9/a7dIqz/pC7s146+vLWWqvWMdNw5glHdR5dJ7crbGDfxFmetP",
+	"5JYkGablkbvH7Tw76o2c+nXWcy9Xe1Tcennb4QojabVT0qrft0LtBHp8KdT276XRvZNZ8ykn0dqCLQfA",
+	"0Do3I0zpxc7DF6bha0r7RfyWs5hSe+z20XJ3YB6hEHHHW7K5gH2fkj1YxPl0no4JrZ+a3cnn4ljsmc9H",
+	"MKbqty2GbXmeZ/Lr+tGfeijCphROe+j0gTXjWIflO0UbuVsim7/CMmS6WvbuN1jDlj72Eq6dEEpznm3/",
+	"ygTlfK6aiwRWWi6byzQXorXPzVc36r/Csv3sRjGHqtOwnHI5ieFeJct3yJOM0mWQ2Skk+V2m4+6LP/MU",
+	"9Mycc19gFSwkN5+InuXHoq3qDMDhbJmxx1OoOT7a5yXUg9fu2rSeDk6qv7WYf17uXg6Lp+hGZ64fFNGN",
+	"15/08072DRFT2VOG7T9389kW954+cMNsJBCuTp2lOtBi294FKnl6juOf4/g7rMEzkn9Anm3IaYCekYqh",
+	"Znek7iNRuv/k/FuephkjOs/Rn/Yt9aEF7L62i63zkmtLhv+4WZgNe3gyCOc+tw93yOnwnXx/eXWzN/fJ",
+	"qz/NbXk+QH0XXu3Mi7360J/MPG/LNxa7VYgUyNvCyDJJ0TWaaS3UdRSlhMUgCJic8YuYv8jmkfG0fwwA",
 }
 
 // decodeSpec returns the embedded OpenAPI spec as raw JSON bytes,

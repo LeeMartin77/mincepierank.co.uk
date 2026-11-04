@@ -180,7 +180,7 @@ paths:
   /years/{year}/brands/{brand}:
     parameters:
       - $ref: "#/components/parameters/Year"
-      - $ref: "#/components/parameters/Brand"
+      - $ref: "#/components/parameters/BrandSlug"
       - $ref: "#/components/parameters/Page"
       - $ref: "#/components/parameters/Limit"
       - $ref: "#/components/parameters/CategoriesFilter"
@@ -202,7 +202,7 @@ paths:
   /years/{year}/brands/{brand}/{pie}:
     parameters:
       - $ref: "#/components/parameters/Year"
-      - $ref: "#/components/parameters/Brand"
+      - $ref: "#/components/parameters/BrandSlug"
       - name: pie
         in: path
         required: true
@@ -226,7 +226,7 @@ paths:
   /years/{year}/brands/{brand}/{pie}/rating:
     parameters:
       - $ref: "#/components/parameters/Year"
-      - $ref: "#/components/parameters/Brand"
+      - $ref: "#/components/parameters/BrandSlug"
       - name: pie
         in: path
         required: true
@@ -708,6 +708,11 @@ paths:
             text/html:
               schema:
                 type: string
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Brand"
         "404":
           $ref: "#/components/responses/NotFound"
         default:
@@ -750,6 +755,7 @@ paths:
         default:
           $ref: "#/components/responses/UnexpectedError"
   /admin/brands/new:
+    # TODO: Move this to the brand list page...
     get:
       operationId: getAdminBrandNew
       tags:
@@ -850,6 +856,11 @@ paths:
             text/html:
               schema:
                 type: string
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Category"
         "404":
           $ref: "#/components/responses/NotFound"
         default:
@@ -1652,7 +1663,7 @@ components:
       schema:
         type: integer
         format: int64
-    Brand:
+    BrandSlug:
       name: brand
       in: path
       required: true
@@ -1707,4 +1718,27 @@ components:
           type: integer
           format: int32
         message:
+          type: string
+    Category:
+      type: object
+      required:
+        - slug
+        - label
+      properties:
+        slug:
+          type: string
+        label:
+          type: string
+    Brand:
+      type: object
+      required:
+        - id
+        - name
+        - website
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        website:
           type: string
