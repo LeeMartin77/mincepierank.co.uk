@@ -7,14 +7,27 @@ import (
 	openapi_types "github.com/oapi-codegen/runtime/types"
 )
 
+// Brand defines model for Brand.
+type Brand struct {
+	Id      string `json:"id"`
+	Name    string `json:"name"`
+	Website string `json:"website"`
+}
+
+// Category defines model for Category.
+type Category struct {
+	Label string `json:"label"`
+	Slug  string `json:"slug"`
+}
+
 // Error defines model for Error.
 type Error struct {
 	Code    int32  `json:"code"`
 	Message string `json:"message"`
 }
 
-// Brand defines model for Brand.
-type Brand = string
+// BrandSlug defines model for BrandSlug.
+type BrandSlug = string
 
 // CategoriesFilter defines model for CategoriesFilter.
 type CategoriesFilter = []string

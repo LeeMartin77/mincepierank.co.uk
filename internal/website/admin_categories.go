@@ -9,6 +9,7 @@ import (
 	"github.com/leemartin77/mincepierank.co.uk/internal/storage"
 	"github.com/leemartin77/mincepierank.co.uk/internal/storage/types"
 	"github.com/leemartin77/mincepierank.co.uk/internal/templater"
+	generated "github.com/leemartin77/mincepierank.co.uk/internal/website/generated"
 	"github.com/rs/zerolog/log"
 )
 
@@ -37,6 +38,14 @@ func categoryListPage(wrpr *WebsiteWrapper, w http.ResponseWriter, r *http.Reque
 	cats, err := wrpr.storage.GetAllCategoriesAdmin(r.Context())
 	if err != nil {
 		AbortErr(w, 500, err)
+		return
+	}
+	if r.Header.Get("Accepts") == "application/json" {
+		out := make([]generated.Category, 0, len(*cats))
+		for _, c := range *cats {
+			out = append(out, generated.Category{Slug: c.Slug, Label: c.Label})
+		}
+		writeApiJson(w, out)
 		return
 	}
 	ay, err := wrpr.storage.GetQuerier().GetActiveYear(r.Context())
